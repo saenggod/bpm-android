@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace 'com.d83t.bpm.data'
+    namespace 'com.team.bpm.data'
     compileSdk 33
 
     defaultConfig {

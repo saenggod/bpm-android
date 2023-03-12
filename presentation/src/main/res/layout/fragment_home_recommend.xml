@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.d83t.bpm.presentation.ui.main.home.recommend.HomeRecommendViewModel" />
+            type="com.team.bpm.presentation.ui.main.home.recommend.HomeRecommendViewModel" />
 
     </data>
 
