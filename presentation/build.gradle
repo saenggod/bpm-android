@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace 'com.d83t.bpm.presentation'
+    namespace 'com.team.bpm.presentation'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.d83t.bpm"
+        applicationId "com.team.bpm"
         minSdk 28
         targetSdk 33
         versionCode 1

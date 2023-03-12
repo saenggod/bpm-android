@@ -1,0 +1,25 @@
+package com.team.bpm.data.network
+
+import com.team.bpm.data.base.BaseResponse
+import com.team.bpm.data.mapper.DataMapper
+import com.team.bpm.domain.model.NetworkError
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class ErrorResponse(
+    val timestamp: String? = null,
+    val status: String? = null,
+    val error: String? = null,
+    val code: String? = null,
+    val message: String? = null
+) : BaseResponse {
+    companion object : DataMapper<ErrorResponse, NetworkError> {
+        override fun ErrorResponse.toDataModel(): NetworkError {
+            return NetworkError(
+                error = error ?: "null",
+                code = code ?: "null",
+                message = message ?: "Unknown Error"
+            )
+        }
+    }
+}

@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.d83t.bpm.presentation.ui.main.mypage.MyPageViewModel" />
+            type="com.team.bpm.presentation.ui.main.mypage.MyPageViewModel" />
 
     </data>
 
