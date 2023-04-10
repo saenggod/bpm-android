@@ -18,7 +18,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    val BASE_URL = "http://3.36.240.13:8080/"
+    val BASE_URL = "http://3.36.240.13/"
 
     @Singleton
     @Provides
@@ -48,7 +48,7 @@ object NetworkModule {
                 if (shouldBeAuthorized) {
                     requestBuilder.addHeader(
                         name = "Authorization",
-                        value = "Token eyJhbGciOiJIUzI1NiJ9.eyJuaWNrbmFtZSI6InJvb3QiLCJpYXQiOjE2Nzc3NjgxMTUsImV4cCI6MTY4MDc2ODExNX0._INkoO0kz7Yiwb8WsgQ_q5ySmFRe17hxYxICl9wRnjM" // forTest
+                        value = "Token eyJhbGciOiJIUzI1NiJ9.eyJuaWNrbmFtZSI6InVwZGF0ZSB0ZXN0IiwiaWF0IjoxNjgxMDQzNjIyLCJleHAiOjE2ODQwNDM2MjJ9.nioYdTvXQSU9nJDkxWBG54UlcqTLtBJQXlRxwalXAGs" // forTest
                     )
 
                 } else {
