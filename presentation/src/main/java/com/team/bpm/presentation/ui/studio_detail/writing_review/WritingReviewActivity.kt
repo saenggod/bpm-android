@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.team.bpm.presentation.R
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.base.BaseComponentActivity
@@ -195,6 +197,7 @@ class WritingReviewActivity : BaseComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun WritingReviewActivityContent(
     studio: Studio,
@@ -246,13 +249,13 @@ private fun WritingReviewActivityContent(
                     .fillMaxWidth()
                     .height(74.dp)
             ) {
-                Image(
+                GlideImage(
                     modifier = Modifier
                         .clip(shape = RoundedCornerShape(12.dp))
                         .size(74.dp),
-                    painter = painterResource(id = R.drawable.dummy_studio),
+                    model = studio.filesPath?.get(0) ?: "",
                     contentDescription = "studioProfileImage",
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
 
                 BPMSpacer(width = 10.dp)

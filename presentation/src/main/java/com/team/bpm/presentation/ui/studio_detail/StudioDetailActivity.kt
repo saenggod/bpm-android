@@ -50,9 +50,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.team.bpm.presentation.R
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.Studio
+import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivity
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
@@ -62,9 +65,6 @@ import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
 import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
@@ -572,49 +572,51 @@ private inline fun StudioDetailActivityContent(
                             .padding(horizontal = 16.dp)
                             .height(keywordColumnHeightState.value)
                     ) {
-                        repeat(5) { number ->
-                            when (number + 1) {
-                                1 -> BestKeyword(
-                                    number = number + 1,
-                                    keyword = "친절해요",
-                                    count = 13,
-                                    backgroundColor = Color.Black,
-                                    textColor = Color.White
-                                )
-                                2 -> BestKeyword(
-                                    number = number + 1,
-                                    keyword = "제공하는 컨셉이 다양해요",
-                                    count = 9,
-                                    backgroundColor = GrayColor3,
-                                    textColor = Color.White
-                                )
-                                3 -> BestKeyword(
-                                    number = number + 1,
-                                    keyword = "요청 사항을 잘 들어주세요",
-                                    count = 6,
-                                    backgroundColor = GrayColor7,
-                                    textColor = GrayColor0
-                                )
-                                4 -> BestKeyword(
-                                    number = number + 1,
-                                    keyword = "주차하기 편해요",
-                                    count = 7 - number + 1,
-                                    backgroundColor = Color.White,
-                                    textColor = Color.Black
-                                )
-                                5 -> BestKeyword(
-                                    number = number + 1,
-                                    keyword = "시설이 깔끔해요",
-                                    count = 7 - number + 1,
-                                    backgroundColor = Color.White,
-                                    textColor = Color.Black
-                                )
-                            }
+                        /*
+                          repeat(studio) { number ->
+                              when (number + 1) {
+                                  1 -> BestKeyword(
+                                      number = number + 1,
+                                      keyword = "친절해요",
+                                      count = 13,
+                                      backgroundColor = Color.Black,
+                                      textColor = Color.White
+                                  )
+                                  2 -> BestKeyword(
+                                      number = number + 1,
+                                      keyword = "제공하는 컨셉이 다양해요",
+                                      count = 9,
+                                      backgroundColor = GrayColor3,
+                                      textColor = Color.White
+                                  )
+                                  3 -> BestKeyword(
+                                      number = number + 1,
+                                      keyword = "요청 사항을 잘 들어주세요",
+                                      count = 6,
+                                      backgroundColor = GrayColor7,
+                                      textColor = GrayColor0
+                                  )
+                                  4 -> BestKeyword(
+                                      number = number + 1,
+                                      keyword = "주차하기 편해요",
+                                      count = 7 - number + 1,
+                                      backgroundColor = Color.White,
+                                      textColor = Color.Black
+                                  )
+                                  5 -> BestKeyword(
+                                      number = number + 1,
+                                      keyword = "시설이 깔끔해요",
+                                      count = 7 - number + 1,
+                                      backgroundColor = Color.White,
+                                      textColor = Color.Black
+                                  )
+                              }
 
-                            if (number != 4) {
-                                BPMSpacer(height = 6.dp)
-                            }
-                        }
+                              if (number != 4) {
+                                  BPMSpacer(height = 6.dp)
+                              }
+                          }
+                          */
                     }
 
                     Box(
@@ -693,7 +695,7 @@ private inline fun StudioDetailActivityContent(
                                     text = "더보기",
                                     textColor = Color.White,
                                     buttonColor = Color.Black,
-                                    onClick = { context.startActivity(ReviewListActivity.newIntent(context).putExtra("studioId", studio.id))}
+                                    onClick = { context.startActivity(ReviewListActivity.newIntent(context).putExtra("studioId", studio.id)) }
                                 )
                             }
                         }
@@ -726,7 +728,13 @@ private inline fun StudioDetailActivityContent(
                                         .width(130.dp)
                                         .height(40.dp)
                                         .background(color = MainGreenColor)
-                                        .clickable { context.startActivity(WritingReviewActivity.newIntent(context = context).putExtra("studioId", studio.id)) }
+                                        .clickable {
+                                            context.startActivity(
+                                                WritingReviewActivity
+                                                    .newIntent(context = context)
+                                                    .putExtra("studioId", studio.id)
+                                            )
+                                        }
                                 ) {
                                     Text(
                                         modifier = Modifier.align(Center),
