@@ -760,7 +760,7 @@ private inline fun StudioDetailActivityContent(
                     text = "상품설명",
                     tabIndex = 0,
                     tabState = tabState,
-                    onClick = { scope.launch { scrollState.scrollTo(0) } }
+                    onClick = { scope.launch { scrollState.animateScrollTo(0) } }
                 )
 
                 StudioDetailTab(
@@ -768,7 +768,7 @@ private inline fun StudioDetailActivityContent(
                     text = "리뷰",
                     tabIndex = 1,
                     tabState = tabState,
-                    onClick = { scope.launch { scrollState.scrollTo(studioDetailInfoHeightState.value) } }
+                    onClick = { scope.launch { scrollState.animateScrollTo(studioDetailInfoHeightState.value) } }
                 )
             }
         }
@@ -795,7 +795,7 @@ private inline fun StudioDetailActivityContent(
                         .height(36.dp)
                         .background(color = Color.White)
                         .align(BottomEnd)
-                        .clickable { scope.launch { scrollState.scrollTo(studioDetailInfoHeightState.value) } },
+                        .clickable { scope.launch { scrollState.animateScrollTo(studioDetailInfoHeightState.value) } },
                 ) {
                     Row(
                         modifier = Modifier.align(Center),

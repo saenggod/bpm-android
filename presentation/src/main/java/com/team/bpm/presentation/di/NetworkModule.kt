@@ -14,6 +14,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJuaWNrbmFtZSI6InVwZGF0ZSB0ZXN0IiwiaWF0IjoxNjgxMDQzNjIyLCJleHAiOjE2ODQwNDM2MjJ9.nioYdTvXQSU9nJDkxWBG54UlcqTLtBJQXlRxwalXAGs" // forTest
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -48,7 +50,7 @@ object NetworkModule {
                 if (shouldBeAuthorized) {
                     requestBuilder.addHeader(
                         name = "Authorization",
-                        value = "Token eyJhbGciOiJIUzI1NiJ9.eyJuaWNrbmFtZSI6InVwZGF0ZSB0ZXN0IiwiaWF0IjoxNjgxMDQzNjIyLCJleHAiOjE2ODQwNDM2MjJ9.nioYdTvXQSU9nJDkxWBG54UlcqTLtBJQXlRxwalXAGs" // forTest
+                        value = TOKEN_TEST
                     )
 
                 } else {
