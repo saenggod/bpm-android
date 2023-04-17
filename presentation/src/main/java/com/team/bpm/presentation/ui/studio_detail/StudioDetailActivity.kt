@@ -492,7 +492,10 @@ private fun StudioDetailActivityContent(
                             .fillMaxWidth()
                             .height(55.dp)
                             .onGloballyPositioned { layoutCoordinates ->
-                                reviewTabScrollAmountState.value = layoutCoordinates.positionInParent().y.roundToInt()
+                                val position = layoutCoordinates.positionInParent().y.roundToInt()
+                                if (reviewTabScrollAmountState.value != position) {
+                                    reviewTabScrollAmountState.value = position
+                                }
                             }
                     ) {
                         Text(
