@@ -10,7 +10,7 @@ import com.team.bpm.presentation.compose.theme.BPMTheme
 
 abstract class BaseComponentActivity : ComponentActivity() {
 
-    protected abstract val viewModel: BaseViewModel
+    protected abstract val viewModel: BaseViewModel // TODO : Will be removed
     private val loadingVisibilityState = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {

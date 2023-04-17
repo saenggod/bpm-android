@@ -1,5 +1,6 @@
 package com.team.bpm.presentation.ui.studio_detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
@@ -10,8 +11,10 @@ import com.team.bpm.presentation.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,15 +22,24 @@ class StudioDetailViewModel @Inject constructor(
     private val studioDetailUseCase: StudioDetailUseCase,
     private val reviewListUseCase: GetReviewListUseCase,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
-    private val _event = MutableSharedFlow<StudioDetailViewEvent>()
-    val event: SharedFlow<StudioDetailViewEvent>
-        get() = _event
 
-    private val _state = MutableStateFlow<StudioDetailState>(StudioDetailState.Init)
-    val state: StateFlow<StudioDetailState>
-        get() = _state
+    private val eventChannel = Channel<StudioDetailEvent>()
+    private val _sideEffectChannel = Channel<StudioDetailSideEffect>()
+    private val sideEffectChannel = _sideEffectChannel.receiveAsFlow()
+
+    val state: StateFlow<StudioDetailState> = eventChannel.receiveAsFlow()
+        .runningFold(StudioDetailState(), ::reduceState)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, StudioDetailState())
+
+    private fun reduceState(state: StudioDetailState, event: StudioDetailEvent): StudioDetailState {
+        return when (event) {
+            is StudioDetailEvent.LoadStudioDetailInfo -> state.copy(isLoading = true)
+            is StudioDetailEvent.OnLoadedStudioDetailInfo -> state.copy(isLoading = false, studio = event.studio, reviews = event.reviews)
+        }
+    }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -35,33 +47,82 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
-    fun getStudioDetail(
-        studioId: Int
-    ) {
+    init {
+        getStudioDetailInfo(getStudioId() ?: 0)
+    }
+
+    private fun getStudioId(): Int? {
+        return savedStateHandle.get<Int>(StudioDetailActivity.KEY_STUDIO_ID)
+    }
+
+    private fun getStudioDetailInfo(studioId: Int) {
+        viewModelScope.launch(mainDispatcher) {
+            eventChannel.send(StudioDetailEvent.LoadStudioDetailInfo)
+        }
+
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            studioDetailUseCase(studioId = studioId).onEach { state ->
-                when (state) {
-                    is ResponseState.Success -> _state.emit(StudioDetailState.StudioDetailSuccess(state.data))
-                    is ResponseState.Error -> _state.emit(StudioDetailState.Error)
+            studioDetailUseCase(studioId).zip(reviewListUseCase(studioId)) { infoResult, reviewResult ->
+                if (infoResult is ResponseState.Success &&
+                    reviewResult is ResponseState.Success
+                ) {
+                    withContext(mainDispatcher) {
+                        eventChannel.send(
+                            StudioDetailEvent.OnLoadedStudioDetailInfo(
+                                studio = infoResult.data,
+                                reviews = reviewResult.data
+                            )
+                        )
+                    }
                 }
             }.launchIn(viewModelScope)
         }
     }
 
-    fun getReviewList(
-        studioId: Int
-    ) {
+    fun onClickCall() {
         viewModelScope.launch(mainDispatcher) {
 
         }
+    }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            reviewListUseCase(studioId = studioId).onEach { state ->
-                when (state) {
-                    is ResponseState.Success -> _state.emit(StudioDetailState.ReviewListSuccess(state.data))
-                    is ResponseState.Error -> _state.emit(StudioDetailState.Error)
-                }
-            }.launchIn(viewModelScope)
+    fun onClickInfoEditSuggestion() {
+        viewModelScope.launch(mainDispatcher) {
+
+        }
+    }
+
+    fun onClickMap() {
+        viewModelScope.launch(mainDispatcher) {
+
+        }
+    }
+
+    fun onClickCopyAddress() {
+        viewModelScope.launch(mainDispatcher) {
+
+        }
+    }
+
+    fun onClickShowCourse() {
+        viewModelScope.launch(mainDispatcher) {
+
+        }
+    }
+
+    fun onClickWriteReview() {
+        viewModelScope.launch(mainDispatcher) {
+
+        }
+    }
+
+    fun onClickLike() {
+        viewModelScope.launch(mainDispatcher) {
+
+        }
+    }
+
+    fun onClickMoreReview() {
+        viewModelScope.launch(mainDispatcher) {
+
         }
     }
 }

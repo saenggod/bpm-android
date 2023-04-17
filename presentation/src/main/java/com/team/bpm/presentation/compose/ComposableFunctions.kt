@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -43,8 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.team.bpm.presentation.R
 import com.team.bpm.domain.model.Review
+import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivity
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
@@ -578,10 +579,13 @@ fun ReviewKeywordChip(
 inline fun ReviewListHeader(
     modifier: Modifier = Modifier,
     reviewCount: Int,
-    showImageReviewOnlyState: MutableState<Boolean>,
-    showReviewOrderByLikeState: MutableState<Boolean>,
+    crossinline onClickOrderByLike: () -> Unit,
+    crossinline onClickOrderByDate: () -> Unit,
     crossinline onClickWriteReview: () -> Unit
 ) {
+    val showImageReviewOnlyState = remember { mutableStateOf(false) }
+    val showReviewOrderByLikeState = remember { mutableStateOf(true) }
+
     Column {
         Row(
             modifier = modifier
@@ -641,6 +645,7 @@ inline fun ReviewListHeader(
             Row {
                 Text(
                     modifier = Modifier.clickableWithoutRipple {
+                        onClickOrderByLike()
                         showReviewOrderByLikeState.value = true
                     },
                     text = "좋아요순",
@@ -664,6 +669,7 @@ inline fun ReviewListHeader(
 
                 Text(
                     modifier = Modifier.clickableWithoutRipple {
+                        onClickOrderByDate()
                         showReviewOrderByLikeState.value = false
                     },
                     text = "최신순",
@@ -693,3 +699,10 @@ fun LoadingScreen() {
         )
     }
 }
+
+@Composable
+fun Dp.toPx() = with(LocalDensity.current) { this@toPx.toPx() }
+
+
+@Composable
+fun Int.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
