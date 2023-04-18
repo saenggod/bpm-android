@@ -92,8 +92,8 @@ private fun ReviewListActivityContent(
         item {
             ReviewListHeader(
                 reviewCount = reviewListState.value.size,
-                showImageReviewOnlyState = showImageReviewOnlyState,
-                showReviewOrderByLikeState = showReviewOrderByLikeState,
+                onClickOrderByLike = {},
+                onClickOrderByDate = {},
                 onClickWriteReview = {
                     context.startActivity(
                         WritingReviewActivity.newIntent(context).putExtra("studioId", studioId)
