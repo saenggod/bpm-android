@@ -8,6 +8,7 @@ import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainDispatcher
+import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -21,7 +22,7 @@ import javax.inject.Inject
 class StudioDetailViewModel @Inject constructor(
     private val studioDetailUseCase: StudioDetailUseCase,
     private val reviewListUseCase: GetReviewListUseCase,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
@@ -56,7 +57,7 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun getStudioDetailInfo(studioId: Int) {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
             eventChannel.send(StudioDetailEvent.LoadStudioDetailInfo)
         }
 
@@ -65,7 +66,7 @@ class StudioDetailViewModel @Inject constructor(
                 if (infoResult is ResponseState.Success &&
                     reviewResult is ResponseState.Success
                 ) {
-                    withContext(mainDispatcher) {
+                    withContext(mainImmediateDispatcher) {
                         eventChannel.send(
                             StudioDetailEvent.OnLoadedStudioDetailInfo(
                                 studio = infoResult.data,
@@ -79,49 +80,49 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     fun onClickCall() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
 
     fun onClickInfoEditSuggestion() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
 
     fun onClickMap() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
 
     fun onClickCopyAddress() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
 
     fun onClickShowCourse() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
 
     fun onClickWriteReview() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
 
     fun onClickLike() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
 
     fun onClickMoreReview() {
-        viewModelScope.launch(mainDispatcher) {
+        viewModelScope.launch(mainImmediateDispatcher) {
 
         }
     }
