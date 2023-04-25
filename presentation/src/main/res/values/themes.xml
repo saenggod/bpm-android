@@ -24,7 +24,7 @@
         <item name="itemIconSize">28dp</item>
     </style>
 
-    <style name="DdoreumBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+    <style name="BPMBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppBottomSheetModalStyle</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:configChanges">screenSize</item>
@@ -153,6 +153,11 @@
 
     <style name="Font.Pretendard.Regular.11" parent="Theme.Bpm.Font.Pretendard.Regular">
         <item name="android:textSize">11dp</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">13dp</item>
+        <item name="fontFamily">@font/pretendard_semi_bold</item>
     </style>
 
 </resources>

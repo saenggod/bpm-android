@@ -18,17 +18,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             bind:backEnable="@{false}"
-            bind:titleText="@{@string/nav_noti}" />
+            bind:titleText="@{@string/nav_lounge}" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/img_home_tab_disable"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/action_bar"
-            app:layout_constraintVertical_bias="0.3" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.3"
+            android:src="@drawable/img_home_tab_disable"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

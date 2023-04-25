@@ -12,7 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainAddBottomSheet :
     BaseBottomSheetFragment<BottomsheetMainAddBinding>(BottomsheetMainAddBinding::inflate) {
 
-    override fun getTheme(): Int = R.style.DdoreumBottomSheetDialog
+    override fun getTheme(): Int = R.style.BPMBottomSheetDialog
 
     override val viewModel: MainAddViewModel by viewModels()
 

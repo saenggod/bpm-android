@@ -1,11 +1,11 @@
-package com.team.bpm.presentation.ui.main.home.recommend.list
+package com.team.bpm.presentation.ui.main.studio.recommend.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.team.bpm.presentation.databinding.ItemHomeRecommendImageBinding
 
-class HomeRecommendImageViewHolder(
+class StudioHomeRecommendImageViewHolder(
     private val binding: ItemHomeRecommendImageBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -14,14 +14,14 @@ class HomeRecommendImageViewHolder(
     }
 
     companion object {
-        fun create(parent: ViewGroup): HomeRecommendImageViewHolder {
+        fun create(parent: ViewGroup): StudioHomeRecommendImageViewHolder {
             val binding = ItemHomeRecommendImageBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
             )
 
-            return HomeRecommendImageViewHolder(binding)
+            return StudioHomeRecommendImageViewHolder(binding)
         }
     }
 }

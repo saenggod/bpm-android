@@ -9,8 +9,8 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.databinding.ActivityMainBinding
 import com.team.bpm.presentation.base.BaseActivity
 import com.team.bpm.presentation.ui.main.add.MainAddBottomSheet
-import com.team.bpm.presentation.ui.main.community.CommunityFragment
-import com.team.bpm.presentation.ui.main.home.HomeFragment
+import com.team.bpm.presentation.ui.main.community.LoungeFragment
+import com.team.bpm.presentation.ui.main.studio.StudioHomeFragment
 import com.team.bpm.presentation.ui.main.mypage.MyPageFragment
 import com.team.bpm.presentation.ui.main.notification.NotificationFragment
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
@@ -82,21 +82,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
     private fun changeFragment(fragmentId: Int? = null) {
         val fragment = when (fragmentId) {
-            R.id.nav_noti -> {
+            R.id.nav_eyebody -> {
                 NotificationFragment.newInstance()
             }
-            R.id.nav_home -> {
-                HomeFragment.newInstance()
+            R.id.nav_studio -> {
+                StudioHomeFragment.newInstance()
             }
-            R.id.nav_community -> {
-                CommunityFragment.newInstance()
+            R.id.nav_lounge -> {
+                LoungeFragment.newInstance()
             }
             R.id.nav_mypage -> {
                 MyPageFragment.newInstance()
             }
             else -> {
-                binding.mainTab.selectedItemId = R.id.nav_home
-                HomeFragment.newInstance()
+                binding.mainTab.selectedItemId = R.id.nav_studio
+                StudioHomeFragment.newInstance()
             }
         }
 

@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.home
+package com.team.bpm.presentation.ui.main.studio
 
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
@@ -20,18 +20,18 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class StudioHomeViewModel @Inject constructor(
     private val getUserScheduleUseCase: GetUserScheduleUseCase,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel() {
 
-    private val _state = MutableStateFlow<HomeState>(HomeState.Init)
-    val state: StateFlow<HomeState>
+    private val _state = MutableStateFlow<StudioHomeState>(StudioHomeState.Init)
+    val state: StateFlow<StudioHomeState>
         get() = _state
 
-    private val _event = MutableSharedFlow<HomeViewEvent>()
-    val event: SharedFlow<HomeViewEvent>
+    private val _event = MutableSharedFlow<StudioHomeViewEvent>()
+    val event: SharedFlow<StudioHomeViewEvent>
         get() = _event
 
     private val _userScheduleInfo = MutableStateFlow(UserSchedule())
@@ -50,10 +50,10 @@ class HomeViewModel @Inject constructor(
                 when (state) {
                     is ResponseState.Success -> {
                         _userScheduleInfo.emit(state.data)
-                        _state.emit(HomeState.UserSchedule)
+                        _state.emit(StudioHomeState.UserSchedule)
                     }
                     is ResponseState.Error -> {
-                        _state.emit(HomeState.Error)
+                        _state.emit(StudioHomeState.Error)
                     }
                 }
             }.launchIn(viewModelScope)
@@ -62,19 +62,19 @@ class HomeViewModel @Inject constructor(
 
     fun clickSearch(){
         viewModelScope.launch {
-            _event.emit(HomeViewEvent.ClickSearch)
+            _event.emit(StudioHomeViewEvent.ClickSearch)
         }
     }
 
     fun clickSchedule(){
         viewModelScope.launch {
-            _event.emit(HomeViewEvent.ClickSchedule)
+            _event.emit(StudioHomeViewEvent.ClickSchedule)
         }
     }
 
     fun refreshUserSchedule(){
         viewModelScope.launch {
-            _state.emit(HomeState.Init)
+            _state.emit(StudioHomeState.Init)
         }
     }
 

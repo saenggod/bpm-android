@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.team.bpm.presentation.ui.main.studio.StudioHomeViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <include
+                    android:id="@+id/container_header_search"
+                    layout="@layout/layout_home_search"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    app:layout_constraintBottom_toTopOf="@id/container_banner_top"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:onSearchClick="@{vm.clickSearch}" />
+
+                <!-- 배너 광고 영역 -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/container_banner_top"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/gray_06"
+                    android:gravity="center"
+                    android:text="배너 광고"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_header_search" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tab"
+                    style="@style/Widget.Design.TabLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:paddingTop="12dp"
+                    app:layout_constraintEnd_toStartOf="@id/guide_tab"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_banner_top"
+                    app:tabIndicatorColor="@color/green"
+                    app:tabIndicatorHeight="3dp"
+                    app:tabMode="fixed"
+                    app:tabTextAppearance="@style/TabTextAppearance"
+                    app:tabRippleColor="@android:color/transparent" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:background="@color/gray_10"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tab" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tab" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guide_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.6" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

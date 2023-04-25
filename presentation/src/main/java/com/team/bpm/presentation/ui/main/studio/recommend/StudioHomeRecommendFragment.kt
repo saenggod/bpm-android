@@ -1,28 +1,28 @@
-package com.team.bpm.presentation.ui.main.home.recommend
+package com.team.bpm.presentation.ui.main.studio.recommend
 
 import android.content.Intent
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
-import com.team.bpm.presentation.databinding.FragmentHomeRecommendBinding
 import com.team.bpm.presentation.base.BaseFragment
-import com.team.bpm.presentation.ui.main.home.recommend.list.HomeRecommendAdapter
+import com.team.bpm.presentation.databinding.FragmentHomeRecommendBinding
+import com.team.bpm.presentation.model.MainTabType
+import com.team.bpm.presentation.ui.main.studio.recommend.list.StudioHomeRecommendAdapter
 import com.team.bpm.presentation.ui.studio_detail.StudioDetailActivity
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
-import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class HomeRecommendFragment :
+class StudioHomeRecommendFragment :
     BaseFragment<FragmentHomeRecommendBinding>(FragmentHomeRecommendBinding::inflate) {
 
-    override val viewModel: HomeRecommendViewModel by viewModels()
+    override val viewModel: StudioHomeRecommendViewModel by viewModels()
 
     override fun initLayout() {
         bind {
             vm = viewModel
             lifecycleOwner = viewLifecycleOwner
 
-            list.adapter = HomeRecommendAdapter { viewModel.clickStudioDetail(it) }
+            list.adapter = StudioHomeRecommendAdapter { viewModel.clickStudioDetail(it) }
         }
     }
 
@@ -30,13 +30,12 @@ class HomeRecommendFragment :
         repeatCallDefaultOnStarted {
             viewModel.state.collect { state ->
                 when (state) {
-                    HomeRecommendState.Init -> {
+                    StudioHomeRecommendState.Init -> {
                         viewModel.getStudioList()
                     }
-                    HomeRecommendState.List -> Unit
-                    HomeRecommendState.Error -> {
+                    StudioHomeRecommendState.List -> Unit
+                    StudioHomeRecommendState.Error -> {
                         // TODO : Error Handling
-                        requireContext().showToast("리스트 로드 중 에러가 발생했습니다.")
                     }
                 }
             }
@@ -45,7 +44,7 @@ class HomeRecommendFragment :
         repeatCallDefaultOnStarted {
             viewModel.event.collect { event ->
                 when (event) {
-                    is HomeRecommendViewEvent.ClickDetail -> {
+                    is StudioHomeRecommendViewEvent.ClickDetail -> {
                         goToStudioDetail(event.studioId)
                     }
                 }
@@ -55,19 +54,17 @@ class HomeRecommendFragment :
 
     private fun goToStudioDetail(studioId: Int?) {
         studioId?.let {
-            // TODO : 스튜디오 상세로 이동
             startActivity(Intent(context, StudioDetailActivity::class.java).apply {
-                putExtra("studioId", it)
+                putExtra(StudioDetailActivity.KEY_STUDIO_ID, it)
             })
         }
     }
 
     companion object {
-
         const val KEY_TYPE = "KEY_TYPE"
 
-        fun newInstance(type: String): HomeRecommendFragment {
-            return HomeRecommendFragment().apply {
+        fun newInstance(type: MainTabType): StudioHomeRecommendFragment {
+            return StudioHomeRecommendFragment().apply {
                 arguments = bundleOf(
                     KEY_TYPE to type
                 )

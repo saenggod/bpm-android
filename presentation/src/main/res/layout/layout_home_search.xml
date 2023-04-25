@@ -14,8 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="@{() -> onSearchClick.invoke()}"
-        app:cardBackgroundColor="@color/gray_02"
-        app:cardCornerRadius="8dp"
+        app:cardBackgroundColor="@color/gray_12"
+        app:cardCornerRadius="12dp"
         app:cardElevation="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,13 +26,13 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/icon_search"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_search"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/white" />
+                app:tint="@color/black_1b1b1b" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Font.Pretendard.Medium.14"
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="바디프로필 업체를 검색해보세요!"
-                android:textColor="@color/gray_05"
+                android:textColor="@color/gray_07"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/icon_search"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -52,7 +52,8 @@
                 android:src="@drawable/ic_home_filter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/gray_06" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

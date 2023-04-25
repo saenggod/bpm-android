@@ -3,12 +3,12 @@
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
 
-    <string name="nav_noti">알림</string>
-    <string name="nav_home">홈</string>
-    <string name="nav_community">커뮤니티</string>
+    <string name="nav_eyebody">눈바디</string>
+    <string name="nav_studio">스튜디오</string>
+    <string name="nav_lounge">라운지</string>
     <string name="nav_mypage">마이페이지</string>
 
-    <string name="tab_hot">인기 스튜디오</string>
+    <string name="tab_hot">인기있는</string>
     <string name="tab_review">리뷰 맛집</string>
     <string name="tab_open">이번 달 오픈</string>
 
@@ -26,5 +26,7 @@
     <string name="mypage_content_version_info">버전 정보</string>
     <string name="mypage_book_info_history">기록</string>
     <string name="mypage_book_info_guide">이번에는 제대로 준비해서 찍어보자!</string>
+
+    <string name="kakao_app_key">ced602989810575b0c1d032415db11c8</string>
 
 </resources>

@@ -18,17 +18,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             bind:backEnable="@{false}"
-            bind:titleText="@{@string/nav_community}" />
+            bind:titleText="@{@string/nav_eyebody}" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/action_bar"
+            android:src="@drawable/img_home_tab_disable"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.3"
-            android:src="@drawable/img_home_tab_disable"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/action_bar"
+            app:layout_constraintVertical_bias="0.3" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

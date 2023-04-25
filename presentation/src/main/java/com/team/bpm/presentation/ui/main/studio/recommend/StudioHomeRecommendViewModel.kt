@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.home.recommend
+package com.team.bpm.presentation.ui.main.studio.recommend
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -21,19 +21,19 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeRecommendViewModel @Inject constructor(
+class StudioHomeRecommendViewModel @Inject constructor(
     private val getStudioListUseCase: GetStudioListUseCase,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
 
-    private val _state = MutableStateFlow<HomeRecommendState>(HomeRecommendState.Init)
-    val state: StateFlow<HomeRecommendState>
+    private val _state = MutableStateFlow<StudioHomeRecommendState>(StudioHomeRecommendState.Init)
+    val state: StateFlow<StudioHomeRecommendState>
         get() = _state
 
-    private val _event = MutableSharedFlow<HomeRecommendViewEvent>()
-    val event: SharedFlow<HomeRecommendViewEvent>
+    private val _event = MutableSharedFlow<StudioHomeRecommendViewEvent>()
+    val event: SharedFlow<StudioHomeRecommendViewEvent>
         get() = _event
 
     private val _list = MutableStateFlow<List<Studio>>(emptyList())
@@ -41,12 +41,12 @@ class HomeRecommendViewModel @Inject constructor(
         get() = _list
 
     val type: String by lazy {
-        savedStateHandle.get<String>(HomeRecommendFragment.KEY_TYPE) ?: ""
+        savedStateHandle.get<String>(StudioHomeRecommendFragment.KEY_TYPE) ?: ""
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
-
+            // TODO : Error Handling
         }
     }
 
@@ -56,10 +56,10 @@ class HomeRecommendViewModel @Inject constructor(
                 when (state) {
                     is ResponseState.Success -> {
                         _list.emit(state.data.studios ?: emptyList())
-                        _state.emit(HomeRecommendState.List)
+                        _state.emit(StudioHomeRecommendState.List)
                     }
                     is ResponseState.Error -> {
-                        _state.emit(HomeRecommendState.Error)
+                        _state.emit(StudioHomeRecommendState.Error)
                     }
                 }
             }.launchIn(viewModelScope)
@@ -68,7 +68,7 @@ class HomeRecommendViewModel @Inject constructor(
 
     fun clickStudioDetail(studioId: Int?) {
         viewModelScope.launch {
-            _event.emit(HomeRecommendViewEvent.ClickDetail(studioId))
+            _event.emit(StudioHomeRecommendViewEvent.ClickDetail(studioId))
         }
     }
 }
