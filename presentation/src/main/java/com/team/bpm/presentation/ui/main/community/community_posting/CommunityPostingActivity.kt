@@ -1,5 +1,8 @@
 package com.team.bpm.presentation.ui.main.community.community_posting
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -9,15 +12,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,7 +32,9 @@ import com.team.bpm.presentation.compose.Header
 import com.team.bpm.presentation.compose.ImagePlaceHolder
 import com.team.bpm.presentation.compose.RoundedCornerButton
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.util.convertUriToBitmap
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class CommunityPostingActivity : BaseComponentActivity() {
@@ -52,11 +56,46 @@ class CommunityPostingActivity : BaseComponentActivity() {
 private fun CommunityPostingActivityContent(
     viewModel: CommunityPostingViewModel = hiltViewModel()
 ) {
-    val (state, effect, event) = use(viewModel)
+    val (state, event, effect) = use(viewModel)
+    val context = LocalContext.current as BaseComponentActivity
+
+    val addImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(5),
+        onResult = { uris ->
+            runCatching {
+                uris.map { uri ->
+                    convertUriToBitmap(
+                        contentResolver = context.contentResolver,
+                        uri = uri
+                    )
+                }
+            }.onSuccess { images ->
+                event.invoke(CommunityPostingContract.Event.OnImagesAdded(images.map { it.asImageBitmap() }))
+            }.onFailure {
+
+            }
+        })
 
     LaunchedEffect(Unit) {
         // TODO : Call Api
     }
+
+    LaunchedEffect(effect) {
+        effect.collectLatest { _effect ->
+            when (_effect) {
+                is CommunityPostingContract.Effect.GoBack -> {
+                    context.finish()
+                }
+                is CommunityPostingContract.Effect.AddImages -> {
+                    addImageLauncher.launch(PickVisualMediaRequest())
+                }
+                is CommunityPostingContract.Effect.RemoveImage -> {
+
+                }
+            }
+        }
+    }
+
 
     with(state) {
         Column(
@@ -66,7 +105,7 @@ private fun CommunityPostingActivityContent(
             Column {
                 Header(
                     title = "커뮤니티 글 작성하기",
-                    onClickBackButton = {}
+                    onClickBackButton = { event.invoke(CommunityPostingContract.Event.OnClickBackButton) }
                 )
 
                 LazyRow(
@@ -77,11 +116,18 @@ private fun CommunityPostingActivityContent(
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
                     item {
-                        ImagePlaceHolder(image = null, onClick = { })
+                        ImagePlaceHolder(
+                            image = null,
+                            onClick = { event.invoke(CommunityPostingContract.Event.OnClickImagePlaceHolder) }
+                        )
                     }
 
-                    items(imageList) {
-
+                    items(imageList.toMutableStateList()) { image ->
+                        ImagePlaceHolder(
+                            image = image,
+                            onClick = {},
+                            onClickRemove = { event.invoke(CommunityPostingContract.Event.OnClickRemoveImage) }
+                        )
                     }
                 }
 

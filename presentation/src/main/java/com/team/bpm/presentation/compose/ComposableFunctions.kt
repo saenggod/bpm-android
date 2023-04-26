@@ -752,7 +752,7 @@ inline fun ImagePlaceHolder(
             .size(100.dp)
             .background(color = GrayColor10)
             .align(Alignment.BottomStart)
-            .clickable {
+            .clickableWithoutRipple {
                 onClick()
                 focusManager.clearFocus()
             }
@@ -763,31 +763,33 @@ inline fun ImagePlaceHolder(
                     contentDescription = "image",
                     contentScale = ContentScale.Crop
                 )
-
-                Box(modifier = Modifier
-                    .shadow(
-                        elevation = 2.dp,
-                        shape = CircleShape
-                    )
-                    .clip(shape = CircleShape)
-                    .size(20.dp)
-                    .background(color = Color.White)
-                    .align(Alignment.TopEnd)
-                    .clickableWithoutRipple { onClickRemove?.invoke() }
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .align(Center),
-                        painter = painterResource(id = R.drawable.ic_remove),
-                        contentDescription = "removeImageIcon"
-                    )
-                }
             } ?: run {
                 Image(
                     modifier = Modifier.align(Center),
                     painter = painterResource(id = R.drawable.ic_add_image),
                     contentDescription = "addImage"
+                )
+            }
+        }
+
+        if (imageState.value != null) {
+            Box(modifier = Modifier
+                .shadow(
+                    elevation = 2.dp,
+                    shape = CircleShape
+                )
+                .clip(shape = CircleShape)
+                .size(20.dp)
+                .background(color = Color.White)
+                .align(Alignment.TopEnd)
+                .clickableWithoutRipple { onClickRemove?.invoke() }
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .align(Center),
+                    painter = painterResource(id = R.drawable.ic_remove),
+                    contentDescription = "removeImageIcon"
                 )
             }
         }
