@@ -1,5 +1,6 @@
 package com.team.bpm.presentation.ui.main.community.community_posting
 
+import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,7 +30,7 @@ class CommunityPostingViewModel @Inject constructor(
             onClickImagePlaceHolder()
         }
         is CommunityPostingContract.Event.OnClickRemoveImage -> {
-            onClickRemoveImage()
+            onClickRemoveImage(event.index)
         }
         is CommunityPostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
@@ -48,12 +49,14 @@ class CommunityPostingViewModel @Inject constructor(
         }
     }
 
-    private fun onClickRemoveImage() {
-
+    private fun onClickRemoveImage(index: Int) {
+        _state.update {
+            it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+        }
     }
 
-    private fun onImagesAdded(images: List<ImageBitmap>) {
-        val linkedList = LinkedList<ImageBitmap>().apply {
+    private fun onImagesAdded(images: List<Pair<Uri, ImageBitmap>>) {
+        val linkedList = LinkedList<Pair<Uri, ImageBitmap>>().apply {
             addAll(_state.value.imageList)
         }
 

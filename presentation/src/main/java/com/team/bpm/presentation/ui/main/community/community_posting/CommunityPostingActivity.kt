@@ -9,10 +9,14 @@ import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -70,7 +74,9 @@ private fun CommunityPostingActivityContent(
                     )
                 }
             }.onSuccess { images ->
-                event.invoke(CommunityPostingContract.Event.OnImagesAdded(images.map { it.asImageBitmap() }))
+                event.invoke(CommunityPostingContract.Event.OnImagesAdded(images.mapIndexed { index, image ->
+                    Pair(uris[index], image.asImageBitmap())
+                }))
             }.onFailure {
 
             }
@@ -115,18 +121,22 @@ private fun CommunityPostingActivityContent(
                     horizontalArrangement = spacedBy(14.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
-                    item {
-                        ImagePlaceHolder(
-                            image = null,
-                            onClick = { event.invoke(CommunityPostingContract.Event.OnClickImagePlaceHolder) }
-                        )
+                    if (imageList.size < 5) {
+                        item {
+                            ImagePlaceHolder(
+                                image = null,
+                                onClick = { event.invoke(CommunityPostingContract.Event.OnClickImagePlaceHolder) }
+                            )
+                        }
                     }
 
-                    items(imageList.toMutableStateList()) { image ->
+                    itemsIndexed(imageList, key = { _, pair ->
+                        pair.first
+                    }) { index, pair ->
                         ImagePlaceHolder(
-                            image = image,
+                            image = pair.second,
                             onClick = {},
-                            onClickRemove = { event.invoke(CommunityPostingContract.Event.OnClickRemoveImage) }
+                            onClickRemove = { event.invoke(CommunityPostingContract.Event.OnClickRemoveImage(index)) }
                         )
                     }
                 }
