@@ -50,6 +50,7 @@ class StudioHomeRecommendViewModel @Inject constructor(
         }
     }
 
+    // TODO : Type에 따른 스튜디오 분기 필요
     fun getStudioList() {
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
             getStudioListUseCase(limit = 10, offset = 0).onEach { state ->

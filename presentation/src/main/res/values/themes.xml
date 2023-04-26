@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.Bpm" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Primary brand color. -->
@@ -19,14 +19,15 @@
 
     <style name="BottomNavStyle" parent="Widget.Design.BottomNavigationView">
         <item name="android:background">@color/white</item>
-        <item name="itemIconTint">@color/black</item>
-        <item name="itemTextColor">@color/black</item>
+        <item name="itemIconTint">@drawable/selector_main_bottom_nav</item>
+        <item name="itemTextColor">@drawable/selector_main_bottom_nav</item>
         <item name="itemIconSize">28dp</item>
     </style>
 
     <style name="BPMBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppBottomSheetModalStyle</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="itemBackground">@color/white</item>
         <item name="android:configChanges">screenSize</item>
         <item name="android:windowIsFloating">false</item>
     </style>

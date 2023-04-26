@@ -6,7 +6,7 @@ import com.team.bpm.presentation.databinding.FragmentEyebodyBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class NotificationFragment : BaseFragment<FragmentEyebodyBinding>(FragmentEyebodyBinding::inflate) {
+class EyebodyFragment : BaseFragment<FragmentEyebodyBinding>(FragmentEyebodyBinding::inflate) {
 
     override val viewModel: EyebodyViewModel by viewModels()
 
@@ -14,8 +14,8 @@ class NotificationFragment : BaseFragment<FragmentEyebodyBinding>(FragmentEyebod
 
     companion object {
 
-        fun newInstance(): NotificationFragment {
-            return NotificationFragment()
+        fun newInstance(): EyebodyFragment {
+            return EyebodyFragment()
         }
     }
 }
