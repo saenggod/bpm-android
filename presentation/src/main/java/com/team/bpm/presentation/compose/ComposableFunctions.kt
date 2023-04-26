@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -27,11 +28,14 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -51,6 +55,7 @@ import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.dateOnly
+
 
 @Composable
 fun ScreenHeader(
@@ -78,6 +83,54 @@ fun ScreenHeader(
             Text(
                 modifier = Modifier.align(Center),
                 text = header,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp,
+                letterSpacing = 0.sp
+            )
+
+            if (actionBlock != null) {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .align(CenterEnd)
+                ) {
+                    actionBlock()
+                }
+            }
+        }
+
+        Divider(
+            thickness = 1.dp,
+            color = GrayColor8
+        )
+    }
+}
+
+@Composable
+fun Header(
+    title: String,
+    onClickBackButton:() -> Unit,
+    actionBlock: @Composable (() -> Unit)? = null
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(55.dp)
+        ) {
+            Icon(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .size(26.dp)
+                    .align(CenterStart)
+                    .clickableWithoutRipple { onClickBackButton() },
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = ""
+            )
+
+            Text(
+                modifier = Modifier.align(Center),
+                text = title,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
                 letterSpacing = 0.sp
@@ -264,7 +317,7 @@ fun BPMTextField(
                             .heightIn(min = minHeight - 24.dp)
                             .align(TopStart),
                         value = textState.value,
-                        onValueChange = { textState.value = it },
+                        onValueChange = { if (limit != null && textState.value.length >= limit) textState.value else textState.value = it },
                         singleLine = singleLine,
                         keyboardOptions = keyboardOptions,
                         keyboardActions = keyboardActions,
@@ -682,6 +735,62 @@ inline fun ReviewListHeader(
         }
 
         Divider(color = GrayColor13)
+    }
+}
+
+@Composable
+inline fun ImagePlaceHolder(
+    image: ImageBitmap?,
+    crossinline onClick: () -> Unit,
+    noinline onClickRemove: (() -> Unit)? = null
+) {
+    val imageState = remember { mutableStateOf(image) }
+    val focusManager = LocalFocusManager.current
+
+    Box(modifier = Modifier.size(105.dp)) {
+        Box(modifier = Modifier
+            .size(100.dp)
+            .background(color = GrayColor10)
+            .align(Alignment.BottomStart)
+            .clickable {
+                onClick()
+                focusManager.clearFocus()
+            }
+        ) {
+            imageState.value?.let {
+                Image(
+                    bitmap = it,
+                    contentDescription = "image",
+                    contentScale = ContentScale.Crop
+                )
+
+                Box(modifier = Modifier
+                    .shadow(
+                        elevation = 2.dp,
+                        shape = CircleShape
+                    )
+                    .clip(shape = CircleShape)
+                    .size(20.dp)
+                    .background(color = Color.White)
+                    .align(Alignment.TopEnd)
+                    .clickableWithoutRipple { onClickRemove?.invoke() }
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .align(Center),
+                        painter = painterResource(id = R.drawable.ic_remove),
+                        contentDescription = "removeImageIcon"
+                    )
+                }
+            } ?: run {
+                Image(
+                    modifier = Modifier.align(Center),
+                    painter = painterResource(id = R.drawable.ic_add_image),
+                    contentDescription = "addImage"
+                )
+            }
+        }
     }
 }
 
