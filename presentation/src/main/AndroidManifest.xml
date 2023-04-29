@@ -21,6 +21,7 @@
         <activity
             android:name="com.team.bpm.presentation.ui.splash.SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +37,7 @@
             android:name="com.team.bpm.presentation.ui.main.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Bpm.NoActionBar"/>
+            android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
             android:name="com.team.bpm.presentation.ui.studio_detail.StudioDetailActivity"
             android:exported="false"
@@ -80,10 +81,16 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
-        <activity android:name=".ui.main.community.community_posting.CommunityPostingActivity"
+        <activity
+            android:name=".ui.main.community.community_posting.CommunityPostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Bpm.NoActionBar"/>
+            android:theme="@style/Theme.Bpm.NoActionBar" />
+        <activity
+            android:name=".ui.main.mypage.eye_body_posting.EyeBodyPostingActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Bpm.NoActionBar" />
 
         <activity
             android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"
