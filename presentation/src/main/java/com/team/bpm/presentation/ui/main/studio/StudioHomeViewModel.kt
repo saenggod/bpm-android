@@ -1,10 +1,9 @@
-package com.team.bpm.presentation.ui.main.home.recommend
+package com.team.bpm.presentation.ui.main.studio
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
-import com.team.bpm.domain.model.Studio
-import com.team.bpm.domain.usecase.main.GetStudioListUseCase
+import com.team.bpm.domain.model.UserSchedule
+import com.team.bpm.domain.usecase.main.GetUserScheduleUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainDispatcher
@@ -21,28 +20,23 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeRecommendViewModel @Inject constructor(
-    private val getStudioListUseCase: GetStudioListUseCase,
+class StudioHomeViewModel @Inject constructor(
+    private val getUserScheduleUseCase: GetUserScheduleUseCase,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val savedStateHandle: SavedStateHandle
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel() {
 
-    private val _state = MutableStateFlow<HomeRecommendState>(HomeRecommendState.Init)
-    val state: StateFlow<HomeRecommendState>
+    private val _state = MutableStateFlow<StudioHomeState>(StudioHomeState.Init)
+    val state: StateFlow<StudioHomeState>
         get() = _state
 
-    private val _event = MutableSharedFlow<HomeRecommendViewEvent>()
-    val event: SharedFlow<HomeRecommendViewEvent>
+    private val _event = MutableSharedFlow<StudioHomeViewEvent>()
+    val event: SharedFlow<StudioHomeViewEvent>
         get() = _event
 
-    private val _list = MutableStateFlow<List<Studio>>(emptyList())
-    val list: StateFlow<List<Studio>>
-        get() = _list
-
-    val type: String by lazy {
-        savedStateHandle.get<String>(HomeRecommendFragment.KEY_TYPE) ?: ""
-    }
+    private val _userScheduleInfo = MutableStateFlow(UserSchedule())
+    val userScheduleInfo: StateFlow<UserSchedule>
+        get() = _userScheduleInfo
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -50,25 +44,38 @@ class HomeRecommendViewModel @Inject constructor(
         }
     }
 
-    fun getStudioList() {
+    fun getUserSchedule() {
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            getStudioListUseCase(limit = 10, offset = 0).onEach { state ->
+            getUserScheduleUseCase().onEach { state ->
                 when (state) {
                     is ResponseState.Success -> {
-                        _list.emit(state.data.studios ?: emptyList())
-                        _state.emit(HomeRecommendState.List)
+                        _userScheduleInfo.emit(state.data)
+                        _state.emit(StudioHomeState.UserSchedule)
                     }
                     is ResponseState.Error -> {
-                        _state.emit(HomeRecommendState.Error)
+                        _state.emit(StudioHomeState.Error)
                     }
                 }
             }.launchIn(viewModelScope)
         }
     }
 
-    fun clickStudioDetail(studioId: Int?) {
+    fun clickSearch(){
         viewModelScope.launch {
-            _event.emit(HomeRecommendViewEvent.ClickDetail(studioId))
+            _event.emit(StudioHomeViewEvent.ClickSearch)
         }
     }
+
+    fun clickSchedule(){
+        viewModelScope.launch {
+            _event.emit(StudioHomeViewEvent.ClickSchedule)
+        }
+    }
+
+    fun refreshUserSchedule(){
+        viewModelScope.launch {
+            _state.emit(StudioHomeState.Init)
+        }
+    }
+
 }

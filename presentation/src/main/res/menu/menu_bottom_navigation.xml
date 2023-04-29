@@ -2,28 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_noti"
-        android:icon="@drawable/navigation_noti"
-        android:title="@string/nav_noti" />
-
-    <item
-        android:id="@+id/nav_home"
+        android:id="@+id/nav_studio"
         android:icon="@drawable/navigation_home"
-        android:title="@string/nav_home" />
+        android:title="@string/nav_studio" />
 
     <item
-        android:id="@+id/nav_community"
-        android:icon="@drawable/navigation_community"
-        android:title="@string/nav_community" />
+        android:id="@+id/nav_lounge"
+        android:icon="@drawable/navigation_lounge"
+        android:title="@string/nav_lounge" />
+
+    <item
+        android:id="@+id/nav_eyebody"
+        android:icon="@drawable/navigation_eyebody"
+        android:title="@string/nav_eyebody" />
 
     <item
         android:id="@+id/nav_mypage"
         android:icon="@drawable/navigation_mypage"
         android:title="@string/nav_mypage" />
-
-    <item
-        android:title=""
-        android:enabled="false"
-        android:checkable="false"/>
-
 </menu>

@@ -1,19 +1,19 @@
-package com.team.bpm.presentation.ui.main.home.recommend.list
+package com.team.bpm.presentation.ui.main.studio.recommend.list
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.team.bpm.domain.model.Studio
 
-class HomeRecommendAdapter(
+class StudioHomeRecommendAdapter(
     private val listener: (Int?) -> Unit
-) : ListAdapter<Studio, HomeRecommendViewHolder>(HomeRecommendListDiffUtil()) {
+) : ListAdapter<Studio, StudioHomeRecommendViewHolder>(HomeRecommendListDiffUtil()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeRecommendViewHolder {
-        return HomeRecommendViewHolder.create(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudioHomeRecommendViewHolder {
+        return StudioHomeRecommendViewHolder.create(parent)
     }
 
-    override fun onBindViewHolder(holder: HomeRecommendViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: StudioHomeRecommendViewHolder, position: Int) {
         holder.bind(getItem(position), listener)
     }
 }
