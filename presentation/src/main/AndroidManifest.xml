@@ -21,7 +21,6 @@
         <activity
             android:name="com.team.bpm.presentation.ui.splash.SplashActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -87,10 +86,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
-            android:name=".ui.main.mypage.eye_body_posting.EyeBodyPostingActivity"
-            android:exported="false"
+            android:name=".ui.main.mypage.question_posting.QuestionPostingActivity"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
+
 
         <activity
             android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"
