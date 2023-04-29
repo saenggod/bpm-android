@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.mypage.noonbody_posting
+package com.team.bpm.presentation.ui.main.mypage.eye_body_posting
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -37,13 +37,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class NoonBodyPostingActivity : BaseComponentActivity() {
+class EyeBodyPostingActivity : BaseComponentActivity() {
     override val viewModel: BaseViewModel
         get() = TODO("Not yet implemented")
 
     override fun initUi() {
         initComposeUi {
-            NoonBodyPostingActivityContent()
+            EyeBodyPostingActivityContent()
         }
     }
 
@@ -53,8 +53,8 @@ class NoonBodyPostingActivity : BaseComponentActivity() {
 }
 
 @Composable
-private fun NoonBodyPostingActivityContent(
-    viewModel: NoonBodyPostingViewModel = hiltViewModel()
+private fun EyeBodyPostingActivityContent(
+    viewModel: EyeBodyPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivity
@@ -70,7 +70,7 @@ private fun NoonBodyPostingActivityContent(
                     )
                 }
             }.onSuccess { images ->
-                event.invoke(NoonBodyPostingContract.Event.OnImagesAdded(images.mapIndexed { index, image ->
+                event.invoke(EyeBodyPostingContract.Event.OnImagesAdded(images.mapIndexed { index, image ->
                     Pair(uris[index], image.asImageBitmap())
                 }))
             }.onFailure {
@@ -85,13 +85,13 @@ private fun NoonBodyPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { _effect ->
             when (_effect) {
-                is NoonBodyPostingContract.Effect.GoBack -> {
+                is EyeBodyPostingContract.Effect.GoBack -> {
                     context.finish()
                 }
-                is NoonBodyPostingContract.Effect.AddImages -> {
+                is EyeBodyPostingContract.Effect.AddImages -> {
                     addImageLauncher.launch(PickVisualMediaRequest())
                 }
-                is NoonBodyPostingContract.Effect.RemoveImage -> {
+                is EyeBodyPostingContract.Effect.RemoveImage -> {
 
                 }
             }
@@ -107,7 +107,7 @@ private fun NoonBodyPostingActivityContent(
             Column {
                 Header(
                     title = "오늘의 눈바디 남기기",
-                    onClickBackButton = { event.invoke(NoonBodyPostingContract.Event.OnClickBackButton) }
+                    onClickBackButton = { event.invoke(EyeBodyPostingContract.Event.OnClickBackButton) }
                 )
 
                 LazyRow(
@@ -121,7 +121,7 @@ private fun NoonBodyPostingActivityContent(
                         item {
                             ImagePlaceHolder(
                                 image = null,
-                                onClick = { event.invoke(NoonBodyPostingContract.Event.OnClickImagePlaceHolder) }
+                                onClick = { event.invoke(EyeBodyPostingContract.Event.OnClickImagePlaceHolder) }
                             )
                         }
                     }
@@ -132,7 +132,7 @@ private fun NoonBodyPostingActivityContent(
                         ImagePlaceHolder(
                             image = pair.second,
                             onClick = {},
-                            onClickRemove = { event.invoke(NoonBodyPostingContract.Event.OnClickRemoveImage(index)) }
+                            onClickRemove = { event.invoke(EyeBodyPostingContract.Event.OnClickRemoveImage(index)) }
                         )
                     }
                 }
