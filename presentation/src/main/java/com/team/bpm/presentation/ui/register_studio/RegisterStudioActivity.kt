@@ -25,13 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.google.accompanist.flowlayout.FlowRow
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivity
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.util.addFocusCleaner
-import com.google.accompanist.flowlayout.FlowRow
 import kotlinx.coroutines.launch
 
 val dummyKeywordChipList = listOf(
@@ -307,7 +307,7 @@ private fun RegisterStudioActivityContent(
                 .fillMaxWidth()
                 .height(48.dp),
             text = "저장하기",
-            textColor = Color.Black,
+            textColor = MainBlackColor,
             buttonColor = MainGreenColor,
             onClick = {
                 onClickSave()

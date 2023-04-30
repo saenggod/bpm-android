@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import com.team.bpm.presentation.R
 import com.team.bpm.domain.model.Schedule
+import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivity
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
@@ -435,7 +435,7 @@ private inline fun ScheduleActivityContent(
                             val dayBackgroundColorState = animateColorAsState(
                                 targetValue = if (selectedDateState.value != null &&
                                     selectedDateState.value == thisDay
-                                ) Color.Black else Color.White
+                                ) MainBlackColor else Color.White
                             )
                             val dayTextColorState = animateColorAsState(
                                 targetValue = if (selectedDateState.value != null &&
@@ -514,7 +514,7 @@ private inline fun ScheduleActivityContent(
                         ) {
                             itemsIndexed(hours) { index, hour ->
                                 Box(modifier = Modifier.size(40.dp)) {
-                                    val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { hoursLazyListState.firstVisibleItemIndex } }.value + 1) Color.Black else GrayColor5)
+                                    val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { hoursLazyListState.firstVisibleItemIndex } }.value + 1) MainBlackColor else GrayColor5)
 
                                     Text(
                                         modifier = Modifier
@@ -551,7 +551,7 @@ private inline fun ScheduleActivityContent(
                             horizontalAlignment = CenterHorizontally
                         ) {
                             itemsIndexed(minutes) { index, minute ->
-                                val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { minutesLazyListState.firstVisibleItemIndex } }.value + 1) Color.Black else GrayColor5)
+                                val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { minutesLazyListState.firstVisibleItemIndex } }.value + 1) MainBlackColor else GrayColor5)
 
                                 Box(modifier = Modifier.size(40.dp)) {
                                     Text(
@@ -583,7 +583,7 @@ private inline fun ScheduleActivityContent(
                             horizontalAlignment = CenterHorizontally
                         ) {
                             itemsIndexed(timeZones) { index, times ->
-                                val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { timeZonesLazyListState.firstVisibleItemIndex } }.value + 1) Color.Black else GrayColor5)
+                                val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { timeZonesLazyListState.firstVisibleItemIndex } }.value + 1) MainBlackColor else GrayColor5)
 
                                 Box(modifier = Modifier.size(40.dp)) {
                                     Text(
@@ -710,7 +710,7 @@ private inline fun ScheduleActivityContent(
                                 fontWeight = Normal,
                                 fontSize = 13.sp,
                                 letterSpacing = 0.sp,
-                                color = Color.Black
+                                color = MainBlackColor
                             ),
                             colors = textFieldColors()
                         )
@@ -731,7 +731,7 @@ private inline fun ScheduleActivityContent(
                         .fillMaxWidth()
                         .height(48.dp),
                     text = "저장하기",
-                    textColor = if (selectedDateState.value != null) Color.Black else GrayColor7,
+                    textColor = if (selectedDateState.value != null) MainBlackColor else GrayColor7,
                     buttonColor = if (selectedDateState.value != null) MainGreenColor else GrayColor9,
                     onClick = { if (selectedDateState.value != null) onClickSave() }
                 )

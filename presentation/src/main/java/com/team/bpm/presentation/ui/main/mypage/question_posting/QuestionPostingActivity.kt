@@ -11,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -23,7 +22,8 @@ import com.team.bpm.presentation.compose.BPMTextField
 import com.team.bpm.presentation.compose.Header
 import com.team.bpm.presentation.compose.ImagePlaceHolder
 import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.theme.MainBlackColor
+import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.util.convertUriToBitmap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -166,7 +166,7 @@ private fun QuestionPostingActivityContent(
                     .fillMaxWidth()
                     .height(48.dp),
                 text = "저장하기",
-                textColor = Color.Black,
+                textColor = MainBlackColor,
                 buttonColor = MainGreenColor,
                 onClick = { }
             )

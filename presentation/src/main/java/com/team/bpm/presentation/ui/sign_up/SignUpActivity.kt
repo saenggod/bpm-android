@@ -130,12 +130,14 @@ class SignUpActivity : BaseComponentActivity() {
         const val KEY_KAKAO_USER_ID = "kakao_user_id"
         const val KEY_KAKAO_NICK_NAME = "kakao_nickname"
 
-        fun newIntent(context: Context, kakaoUserId: Long?, kakaoNickName : String): Intent {
+        fun newIntent(context: Context, kakaoUserId: Long?, kakaoNickName: String): Intent {
             return Intent(context, SignUpActivity::class.java).apply {
-                putExtra(KEY_BUNDLE, bundleOf(
-                    KEY_KAKAO_USER_ID to kakaoUserId,
-                    KEY_KAKAO_NICK_NAME to kakaoNickName
-                ))
+                putExtra(
+                    KEY_BUNDLE, bundleOf(
+                        KEY_KAKAO_USER_ID to kakaoUserId,
+                        KEY_KAKAO_NICK_NAME to kakaoNickName
+                    )
+                )
             }
         }
 
@@ -221,7 +223,7 @@ private inline fun SignUpActivityContent(
                 .height(48.dp)
                 .align(BottomCenter),
             text = "저장하기",
-            textColor = if (nicknameTextState.value.isNotEmpty()) Color.Black else GrayColor7,
+            textColor = if (nicknameTextState.value.isNotEmpty()) MainBlackColor else GrayColor7,
             buttonColor = if (nicknameTextState.value.isNotEmpty()) MainGreenColor else GrayColor11,
             onClick = {
                 if (nicknameTextState.value.isEmpty()) {
@@ -272,7 +274,7 @@ private fun ProfileTextField(
                 .border(
                     width = 1.dp,
                     shape = RoundedCornerShape(8.dp),
-                    color = if (textState.value.isNotEmpty()) Color.Black else if (omissionState?.value == true) Color.Red else GrayColor7
+                    color = if (textState.value.isNotEmpty()) MainBlackColor else if (omissionState?.value == true) Color.Red else GrayColor7
                 )
         ) {
             TextFieldColorProvider {
@@ -288,7 +290,7 @@ private fun ProfileTextField(
                         fontSize = 13.sp,
                         letterSpacing = 0.sp
                     ),
-                    cursorBrush = SolidColor(Color.Black),
+                    cursorBrush = SolidColor(MainBlackColor),
                     singleLine = true
                 )
 

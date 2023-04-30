@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.R.*
+import com.team.bpm.presentation.R.drawable
 import com.team.bpm.presentation.base.BaseComponentActivity
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.compose.BPMSpacer
@@ -116,7 +116,7 @@ private fun RegisterLocationActivityContent(
                                 fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp,
                                 letterSpacing = 0.sp,
-                                color = Color.Black
+                                color = MainBlackColor
                             ),
                             cursorBrush = SolidColor(GrayColor3),
                             singleLine = true,
@@ -236,7 +236,7 @@ private fun RegisterLocationActivityContent(
                             fontSize = 12.sp,
                             letterSpacing = 0.sp,
                             style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                            color = if (changeableState.value) Color.Black else GrayColor6
+                            color = if (changeableState.value) MainBlackColor else GrayColor6
                         )
 
                         BPMSpacer(width = 14.dp)
@@ -260,7 +260,7 @@ private fun RegisterLocationActivityContent(
                     .fillMaxWidth()
                     .fillMaxSize(),
                 text = "위치 등록하기",
-                textColor = Color.Black,
+                textColor = MainBlackColor,
                 buttonColor = MainGreenColor,
                 onClick = { onClickSetLocation(0.0, 0.0) }
             )

@@ -280,7 +280,7 @@ private fun StudioDetailActivityContent(
                             .height(48.dp),
                         text = "전화 걸기",
                         textColor = Color.White,
-                        buttonColor = Color.Black,
+                        buttonColor = MainBlackColor,
                         onClick = { viewModel.onClickCall() }
                     )
 
@@ -393,7 +393,7 @@ private fun StudioDetailActivityContent(
                                     .weight(1f)
                                     .height(48.dp),
                                 text = "주소 복사",
-                                textColor = Color.Black,
+                                textColor = MainBlackColor,
                                 buttonColor = Color.White,
                                 outLineColor = GrayColor6,
                                 onClick = { viewModel.onClickCopyAddress() }
@@ -406,7 +406,7 @@ private fun StudioDetailActivityContent(
                                     .weight(1f)
                                     .height(48.dp),
                                 text = "길찾기",
-                                textColor = Color.Black,
+                                textColor = MainBlackColor,
                                 buttonColor = SubGreenColor,
                                 onClick = { viewModel.onClickShowCourse() }
                             )
@@ -651,7 +651,7 @@ private fun StudioDetailActivityContent(
                                                 .align(BottomCenter),
                                             text = "더보기",
                                             textColor = Color.White,
-                                            buttonColor = Color.Black,
+                                            buttonColor = MainBlackColor,
                                             onClick = { viewModel.onClickMoreReview() }
                                         )
                                     }
@@ -796,13 +796,13 @@ private fun StudioDetailTab(
             fontWeight = SemiBold,
             fontSize = 15.sp,
             letterSpacing = 0.sp,
-            color = if (tabState.value == tabIndex) Color.Black else GrayColor6
+            color = if (tabState.value == tabIndex) MainBlackColor else GrayColor6
         )
 
         Divider(
             modifier = Modifier.align(BottomCenter),
             thickness = 2.dp,
-            color = if (tabState.value == tabIndex) Color.Black else Color.White
+            color = if (tabState.value == tabIndex) MainBlackColor else Color.White
         )
     }
 }

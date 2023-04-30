@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 
 val Transparent = Color(0x00000000)
 
-val MainBlackColor = Color(0xFF000000)
+val MainBlackColor = Color(0xFF1B1B1B)
 val MainGreenColor = Color(0xFFA8FF0F)
 val SubGreenColor = Color(0xFFB2FF0E)
 val PointRedColor = Color(0xFFFF2E00)
@@ -31,15 +31,15 @@ val FilteredWhiteColor = Color(0xB3FFFFFF)
 
 @Composable
 fun textSelectionColor() = TextSelectionColors(
-    handleColor = Color.Black,
+    handleColor = MainBlackColor,
     backgroundColor = GrayColor6
 )
 
 @Composable
 fun textFieldColors() = TextFieldDefaults.textFieldColors(
-    textColor = Color.Black,
+    textColor = MainBlackColor,
     backgroundColor = Color.White,
-    cursorColor = Color.Black,
+    cursorColor = MainBlackColor,
     focusedIndicatorColor = Color.Transparent,
     unfocusedIndicatorColor = Color.Transparent,
     disabledIndicatorColor = Color.Transparent,

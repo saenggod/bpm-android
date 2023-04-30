@@ -228,7 +228,7 @@ private fun SplashActivityContent(
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 letterSpacing = 0.sp,
-                color = Color.Black
+                color = MainBlackColor
             )
         }
     }

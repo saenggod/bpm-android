@@ -109,7 +109,7 @@ fun ScreenHeader(
 @Composable
 fun Header(
     title: String,
-    onClickBackButton:() -> Unit,
+    onClickBackButton: () -> Unit,
     actionBlock: @Composable (() -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -321,12 +321,12 @@ fun BPMTextField(
                         singleLine = singleLine,
                         keyboardOptions = keyboardOptions,
                         keyboardActions = keyboardActions,
-                        cursorBrush = SolidColor(Color.Black),
+                        cursorBrush = SolidColor(MainBlackColor),
                         textStyle = TextStyle(
                             fontWeight = Medium,
                             fontSize = 13.sp,
                             letterSpacing = 0.sp,
-                            color = Color.Black
+                            color = MainBlackColor
                         )
                     )
                 }
@@ -343,7 +343,7 @@ fun BPMTextField(
                     fontWeight = Medium,
                     fontSize = 13.sp,
                     letterSpacing = 0.sp,
-                    color = Color.Black
+                    color = MainBlackColor
                 )
             }
         }
@@ -517,10 +517,10 @@ inline fun LikeButton(
             .height(28.dp)
             .border(
                 width = 1.dp,
-                color = if (likeState.value) Color.Black else GrayColor9,
+                color = if (likeState.value) MainBlackColor else GrayColor9,
                 shape = RoundedCornerShape(12.dp)
             )
-            .background(color = if (likeState.value) Color.Black else Color.White)
+            .background(color = if (likeState.value) MainBlackColor else Color.White)
             .clickableWithoutRipple {
                 likeState.value = !likeState.value
                 onClick()
@@ -535,7 +535,7 @@ inline fun LikeButton(
             Icon(
                 painter = painterResource(id = R.drawable.ic_like),
                 contentDescription = "likeIcon",
-                tint = if (likeState.value) MainGreenColor else Color.Black
+                tint = if (likeState.value) MainGreenColor else MainBlackColor
             )
 
             BPMSpacer(width = 4.dp)
@@ -545,7 +545,7 @@ inline fun LikeButton(
                 fontWeight = Medium,
                 fontSize = 12.sp,
                 letterSpacing = 0.sp,
-                color = if (likeState.value) MainGreenColor else Color.Black
+                color = if (likeState.value) MainGreenColor else MainBlackColor
             )
 
             BPMSpacer(width = 4.dp)
@@ -564,7 +564,7 @@ inline fun LikeButton(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 12.sp,
                 letterSpacing = 0.sp,
-                color = if (likeState.value) MainGreenColor else Color.Black
+                color = if (likeState.value) MainGreenColor else MainBlackColor
             )
         }
     }
@@ -594,7 +594,7 @@ inline fun KeywordChip(
         fontWeight = Medium,
         fontSize = 12.sp,
         letterSpacing = 0.sp,
-        color = if (selectState.value) Color.Black else GrayColor4
+        color = if (selectState.value) MainBlackColor else GrayColor4
     )
 }
 
@@ -682,7 +682,7 @@ inline fun ReviewListHeader(
                     modifier = Modifier.align(CenterVertically),
                     painter = painterResource(id = R.drawable.ic_check_field),
                     contentDescription = "checkFieldIcon",
-                    tint = if (showImageReviewOnlyState.value) Color.Black else GrayColor7
+                    tint = if (showImageReviewOnlyState.value) MainBlackColor else GrayColor7
                 )
 
                 BPMSpacer(width = 8.dp)
@@ -705,7 +705,7 @@ inline fun ReviewListHeader(
                     fontWeight = Medium,
                     fontSize = 14.sp,
                     letterSpacing = 0.sp,
-                    color = if (showReviewOrderByLikeState.value) Color.Black else GrayColor6
+                    color = if (showReviewOrderByLikeState.value) MainBlackColor else GrayColor6
                 )
 
                 BPMSpacer(width = 20.dp)
@@ -729,7 +729,7 @@ inline fun ReviewListHeader(
                     fontWeight = Medium,
                     fontSize = 14.sp,
                     letterSpacing = 0.sp,
-                    color = if (showReviewOrderByLikeState.value) GrayColor6 else Color.Black
+                    color = if (showReviewOrderByLikeState.value) GrayColor6 else MainBlackColor
                 )
             }
         }
