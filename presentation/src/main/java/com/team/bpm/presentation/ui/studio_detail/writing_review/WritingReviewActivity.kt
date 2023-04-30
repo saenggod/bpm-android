@@ -45,15 +45,15 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.team.bpm.presentation.R
+import com.google.accompanist.flowlayout.FlowRow
 import com.team.bpm.domain.model.Studio
+import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivity
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.register_studio.dummyKeywordChipList
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.*
-import com.google.accompanist.flowlayout.FlowRow
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -513,7 +513,7 @@ private fun WritingReviewActivityContent(
                 .fillMaxWidth()
                 .height(48.dp),
             text = "저장하기",
-            textColor = Color.Black,
+            textColor = MainBlackColor,
             buttonColor = MainGreenColor,
             onClick = {
                 onClickWriteReview()

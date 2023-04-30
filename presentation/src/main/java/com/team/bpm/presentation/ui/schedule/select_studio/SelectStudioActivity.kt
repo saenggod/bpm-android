@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.team.bpm.presentation.R
 import com.team.bpm.domain.model.Studio
+import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivity
 import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.theme.*
@@ -206,7 +206,7 @@ private inline fun SelectStudioActivityContent(
                                 focusManager.clearFocus()
                                 onSearch()
                             }), // TODO OnDoneAction
-                            cursorBrush = SolidColor(Color.Black),
+                            cursorBrush = SolidColor(MainBlackColor),
                             textStyle = TextStyle(
                                 fontWeight = Medium,
                                 fontSize = 14.sp,
@@ -254,7 +254,7 @@ private inline fun SelectStudioActivityContent(
                     fontWeight = SemiBold,
                     fontSize = 16.sp,
                     letterSpacing = 0.sp,
-                    color = if (selectedStudioId != -1) Color.Black else GrayColor7
+                    color = if (selectedStudioId != -1) MainBlackColor else GrayColor7
                 )
             }
         }
@@ -296,7 +296,7 @@ private fun StudioWithCheckBox(
                         },
                         painter = painterResource(id = R.drawable.ic_check_box),
                         contentDescription = "checkBoxIcon",
-                        tint = if (selectedState) Color.Black else GrayColor7
+                        tint = if (selectedState) MainBlackColor else GrayColor7
                     )
                 }
 
