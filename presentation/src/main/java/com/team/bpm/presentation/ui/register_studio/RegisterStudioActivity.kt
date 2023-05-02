@@ -150,6 +150,7 @@ private fun RegisterStudioActivityContent(
             BPMTextField(
                 textState = studioNameTextState,
                 label = "업체 이름",
+                limit = null,
                 singleLine = true,
                 hint = "업체 이름을 입력해주세요"
             )
@@ -160,6 +161,7 @@ private fun RegisterStudioActivityContent(
                 textState = studioLocationTextState,
                 label = "위치",
                 hint = "업체 위치를 등록해주세요",
+                limit = null,
                 iconSize = 30.dp,
                 singleLine = true,
                 icon = {
@@ -267,6 +269,7 @@ private fun RegisterStudioActivityContent(
                 textState = phoneNumberTextState,
                 label = "전화번호",
                 hint = "000-0000-0000",
+                limit = null,
                 singleLine = false,
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
@@ -276,6 +279,7 @@ private fun RegisterStudioActivityContent(
             BPMTextField(
                 textState = snsAddressTextState,
                 label = "SNS 주소",
+                limit = null,
                 hint = "인스타그램 @BodyProfileManager",
                 singleLine = false
             )
@@ -285,6 +289,7 @@ private fun RegisterStudioActivityContent(
             BPMTextField(
                 textState = businessHoursTextState,
                 label = "영업시간",
+                limit = null,
                 hint = "12:00~19:00",
                 singleLine = false
             )
@@ -294,6 +299,7 @@ private fun RegisterStudioActivityContent(
             BPMTextField(
                 textState = priceInfoTextState,
                 label = "가격정보",
+                limit = null,
                 hint = "프로필 0000원",
                 singleLine = false
             )

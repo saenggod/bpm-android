@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,17 +30,35 @@ class ScheduleViewModel @Inject constructor(
         is ScheduleContract.Event.OnClickSearchStudio -> {
             onClickSearchStudio()
         }
+        is ScheduleContract.Event.OnClickDate -> {
+            onClickDate(event.date)
+        }
+        is ScheduleContract.Event.OnClickSetTime -> {
+            onClickSetTime(event.time)
+        }
     }
 
     private fun onClickEdit() {
         _state.update {
-            it.copy(isEditing = !_state.value.isEditing)
+            it.copy(isEditing = true)
         }
     }
 
     private fun onClickSearchStudio() {
         viewModelScope.launch {
             _effect.emit(ScheduleContract.Effect.GoToSelectStudio)
+        }
+    }
+
+    private fun onClickDate(date: LocalDate) {
+        _state.update {
+            it.copy(selectedDate = date)
+        }
+    }
+
+    private fun onClickSetTime(time: String) {
+        _state.update {
+            it.copy(selectedTime = time)
         }
     }
 }

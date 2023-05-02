@@ -21,6 +21,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomEnd
+import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterStart
@@ -29,6 +31,7 @@ import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
@@ -179,18 +182,19 @@ inline fun RoundedCornerButton(
     text: String,
     textColor: Color,
     buttonColor: Color,
+    enabled: Boolean? = true,
     crossinline onClick: () -> Unit
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(color = buttonColor)
+            .background(color = if (enabled == true) buttonColor else GrayColor9)
             .clickable { onClick() }
     ) {
         Text(
             modifier = Modifier.align(Center),
             text = text,
-            color = textColor,
+            color = if (enabled == true) textColor else GrayColor7,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
             letterSpacing = 0.sp
@@ -233,45 +237,51 @@ inline fun OutLinedRoundedCornerButton(
 fun BPMTextField(
     modifier: Modifier = Modifier,
     textState: MutableState<String>,
-    label: String,
-    limit: Int? = null,
-    minHeight: Dp = 42.dp,
+    label: String?,
+    limit: Int?,
+    minHeight: Dp = 40.dp,
     iconSize: Dp = 0.dp,
     singleLine: Boolean,
-    hint: String? = null,
+    hint: String?,
     onClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     icon: @Composable (BoxScope.() -> Unit)? = null
 ) {
     Column(modifier = modifier.background(color = Color.White)) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 3.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = SpaceBetween,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = label,
-                fontWeight = Medium,
-                fontSize = 12.sp,
-                letterSpacing = 0.sp,
-                color = GrayColor4
-            )
+        if (label != null || limit != null) {
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 3.dp)
+                    .fillMaxWidth()
+            ) {
+                if (label != null) {
+                    Text(
+                        modifier = Modifier.align(BottomStart),
+                        text = label,
+                        fontWeight = Medium,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor4
+                    )
+                }
 
-            if (limit != null) {
-                Text(
-                    text = "${textState.value.length}/$limit",
-                    fontWeight = Medium,
-                    fontSize = 10.sp,
-                    letterSpacing = 0.sp,
-                    color = GrayColor4
-                )
+                if (limit != null) {
+                    Text(
+                        modifier = Modifier.align(BottomEnd),
+                        text = "${textState.value.length}/$limit",
+                        fontWeight = Medium,
+                        fontSize = 10.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor4
+                    )
+                }
             }
+
+            BPMSpacer(height = 10.dp)
         }
 
-        BPMSpacer(height = 10.dp)
+        val hasFocus = remember { mutableStateOf(false) }
 
         Box(
             modifier = Modifier
@@ -280,7 +290,7 @@ fun BPMTextField(
                 .border(
                     width = 1.dp,
                     shape = RoundedCornerShape(12.dp),
-                    color = if (textState.value.isNotEmpty()) GrayColor5 else GrayColor6
+                    color = if (hasFocus.value) GrayColor1 else GrayColor6
                 )
                 .clickableWithoutRipple { onClick?.invoke() }
         ) {
@@ -315,7 +325,8 @@ fun BPMTextField(
                             )
                             .fillMaxWidth()
                             .heightIn(min = minHeight - 24.dp)
-                            .align(TopStart),
+                            .align(Center)
+                            .onFocusChanged { hasFocus.value = it.hasFocus },
                         value = textState.value,
                         onValueChange = { if (limit != null && textState.value.length >= limit) textState.value else textState.value = it },
                         singleLine = singleLine,

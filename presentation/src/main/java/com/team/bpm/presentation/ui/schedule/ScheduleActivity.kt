@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -62,17 +63,9 @@ class ScheduleActivity : BaseComponentActivity() {
     override val viewModel: BaseViewModel
         get() = TODO("Not yet implemented")
 
-//    private lateinit var selectStudioLauncher: ActivityResultLauncher<Intent>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
-//        selectStudioLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-//            if (it.resultCode == RESULT_OK) {
-//                studioLabelTextState.value = it.data?.getStringExtra("studioName") ?: ""
-//            }
-//        }
 
         initComposeUi {
             ScheduleActivityContent()
@@ -84,21 +77,6 @@ class ScheduleActivity : BaseComponentActivity() {
     override fun setupCollect() {
 
     }
-
-//    private fun initSchedule(
-//        schedule: Schedule
-//    ) {
-//        studioLabelTextState.value = schedule.studioName ?: ""
-//        dateLabelTextState.value = schedule.date ?: ""
-//        val timeInList = schedule.time?.split(":")
-//        timeLabelTextState.value =
-//            if (timeInList?.get(0)?.toInt()!! > 12) "${if (timeInList[0].toInt() - 12 < 10) "0" else ""}${timeInList[0].toInt() - 12}:${timeInList[1]} (오후)"
-//            else "${timeInList[0]}:${timeInList[1]} (오전)"
-//        val dateInList = schedule.date?.split("-")?.map { it.toInt() }
-//        selectedDateState.value = LocalDate.of(dateInList?.get(0)!!, dateInList[1], dateInList[2])
-//        memoLabelTextState.value = schedule.memo ?: ""
-//        memoTextState.value = schedule.memo ?: ""
-//    }
 
     companion object {
 
@@ -133,7 +111,6 @@ private fun ScheduleActivityContent(
 
     with(state) {
         val scrollState = rememberScrollState()
-
         Column(
             modifier = Modifier
                 .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
@@ -177,14 +154,22 @@ private fun ScheduleActivityContent(
                     }
                 )
 
+                val titleValueState = remember { mutableStateOf("") }
+
                 ScheduleItemLayout(
                     isEditing = isEditing,
                     isEssential = true,
                     label = "무엇을 위한 바디프로필인가요?",
-                    title = "",
-                    expandedHeight = 100.dp
+                    value = titleValueState.value.ifEmpty { "일정 이름" },
+                    extraContentHeight = 60.dp
                 ) {
-
+                    BPMTextField(
+                        textState = titleValueState,
+                        label = null,
+                        limit = null,
+                        singleLine = true,
+                        hint = "일정 이름을 설정해주세요 예) 여름맞이 다이어트"
+                    )
                 }
 
                 Divider(color = GrayColor8)
@@ -193,8 +178,19 @@ private fun ScheduleActivityContent(
                     isEditing = isEditing,
                     isEssential = true,
                     label = "일정을 완료할 날짜를 입력해주세요.",
-                    title = "",
-                    expandedHeight = 439.dp
+                    value = if (selectedDate != null) selectedDate.toString().replace("-", ".") + " (${
+                        when (selectedDate.dayOfWeek) {
+                            DayOfWeek.MONDAY -> "월"
+                            DayOfWeek.TUESDAY -> "화"
+                            DayOfWeek.WEDNESDAY -> "수"
+                            DayOfWeek.THURSDAY -> "목"
+                            DayOfWeek.FRIDAY -> "금"
+                            DayOfWeek.SATURDAY -> "토"
+                            DayOfWeek.SUNDAY -> "일"
+                            null -> ""
+                        }
+                    })" else "디데이 날짜",
+                    extraContentHeight = 352.dp
                 ) {
                     val currentDate = LocalDate.now()
                     val calendarState = remember { mutableStateOf(LocalDate.now()) }
@@ -207,6 +203,7 @@ private fun ScheduleActivityContent(
                         verticalAlignment = CenterVertically
                     ) {
                         Text(
+                            modifier = Modifier.padding(start = 24.dp),
                             text = "${calendarState.value.year}년 " +
                                     "${
                                         when (calendarState.value.month.name) {
@@ -229,7 +226,7 @@ private fun ScheduleActivityContent(
                             letterSpacing = 0.sp
                         )
 
-                        Row {
+                        Row(modifier = Modifier.padding(end = 36.dp)) {
                             Icon(
                                 modifier = Modifier
                                     .size(10.dp)
@@ -326,7 +323,7 @@ private fun ScheduleActivityContent(
                     }
 
                     val dateArray = Array<LocalDate?>(42) { null }
-                    val indexOfFirstDayOfMonth = when (calendarState.value.withDayOfMonth(1).dayOfWeek) {
+                    val firstDayIndexOfMonth = when (calendarState.value.withDayOfMonth(1).dayOfWeek) {
                         DayOfWeek.MONDAY -> 0
                         DayOfWeek.TUESDAY -> 1
                         DayOfWeek.WEDNESDAY -> 2
@@ -338,7 +335,7 @@ private fun ScheduleActivityContent(
                     }
 
                     for (i in 0 until calendarState.value.lengthOfMonth()) {
-                        dateArray[indexOfFirstDayOfMonth + i] = calendarState.value.withDayOfMonth(1).plusDays(i.toLong())
+                        dateArray[firstDayIndexOfMonth + i] = calendarState.value.withDayOfMonth(1).plusDays(i.toLong())
                     }
 
                     repeat(6) { week ->
@@ -349,102 +346,71 @@ private fun ScheduleActivityContent(
                             horizontalArrangement = SpaceEvenly,
                             verticalAlignment = CenterVertically
                         ) {
-//                            repeat(7) { day ->
-//                                val thisDay = dateArray[(7 * week) + day]
-//                                val dayBackgroundColorState = animateColorAsState(
-//                                    targetValue = if (selectedDateState.value != null &&
-//                                        selectedDateState.value == thisDay
-//                                    ) MainBlackColor else Color.White
-//                                )
-//                                val dayTextColorState = animateColorAsState(
-//                                    targetValue = if (selectedDateState.value != null &&
-//                                        selectedDateState.value == thisDay
-//                                    ) MainGreenColor else GrayColor2
-//                                )
-//
-//                                Box(
-//                                    modifier = Modifier
-//                                        .size(40.dp)
-//                                        .clip(shape = CircleShape)
-//                                        .border(
-//                                            width = 1.dp,
-//                                            shape = CircleShape,
-//                                            color = if (currentDate == thisDay) MainGreenColor else Color.Transparent
-//                                        )
-//                                        .background(color = dayBackgroundColorState.value)
-//                                        .clickableWithoutRipple {
-//                                            if (thisDay != null &&
-//                                                thisDay.toEpochDay() >= currentDate.toEpochDay()
-//                                            ) selectedDateState.value = thisDay
-//                                            dateLabelTextState.value = thisDay.toString()
-//                                        },
-//                                ) {
-//                                    Text(
-//                                        modifier = Modifier.align(Center),
-//                                        text = if (thisDay != null) "${thisDay.dayOfMonth}" else "",
-//                                        fontWeight = Medium,
-//                                        fontSize = 14.sp,
-//                                        letterSpacing = 0.sp,
-//                                        color = if (thisDay != null &&
-//                                            thisDay.toEpochDay() < currentDate.toEpochDay()
-//                                        ) GrayColor6
-//                                        else dayTextColorState.value
-//                                    )
-//                                }
-//                            }
+                            repeat(7) { day ->
+                                val thisDay = dateArray[(7 * week) + day]
+                                val dayBackgroundColorState = animateColorAsState(
+                                    targetValue = if (selectedDate != null &&
+                                        selectedDate == thisDay
+                                    ) MainBlackColor else Color.White
+                                )
+                                val dayTextColorState = animateColorAsState(
+                                    targetValue = if (selectedDate != null &&
+                                        selectedDate == thisDay
+                                    ) MainGreenColor else GrayColor2
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(shape = CircleShape)
+                                        .border(
+                                            width = 1.dp,
+                                            shape = CircleShape,
+                                            color = if (currentDate == thisDay) MainGreenColor else Color.Transparent
+                                        )
+                                        .background(color = dayBackgroundColorState.value)
+                                        .clickableWithoutRipple {
+                                            if (thisDay != null && thisDay.toEpochDay() >= currentDate.toEpochDay()) {
+                                                event.invoke(ScheduleContract.Event.OnClickDate(thisDay))
+                                            }
+                                        },
+                                ) {
+                                    Text(
+                                        modifier = Modifier.align(Center),
+                                        text = if (thisDay != null) "${thisDay.dayOfMonth}" else "",
+                                        fontWeight = Medium,
+                                        fontSize = 14.sp,
+                                        letterSpacing = 0.sp,
+                                        color = if (thisDay != null &&
+                                            thisDay.toEpochDay() < currentDate.toEpochDay()
+                                        ) GrayColor6
+                                        else dayTextColorState.value
+                                    )
+                                }
+                            }
                         }
                     }
                 }
 
                 Divider(color = GrayColor8)
 
+                val memoValueState = remember { mutableStateOf("") }
+
                 ScheduleItemLayout(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "메모를 남겨주세요",
-                    title = "",
-                    expandedHeight = 205.dp
+                    value = memoValueState.value.ifEmpty { "메모" },
+                    extraContentHeight = 130.dp
                 ) {
-                    Box(
-//                        modifier = Modifier
-//                            .clip(RoundedCornerShape(6.dp))
-//                            .border(
-//                                width = 1.dp,
-//                                shape = RoundedCornerShape(6.dp),
-//                                color = if (memoTextState.value.isNotEmpty()) GrayColor1 else GrayColor6
-//                            )
-//                            .fillMaxWidth()
-//                            .height(110.dp)
-                    ) {
-//                        TextFieldColorProvider {
-//                            TextField(
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .height(110.dp),
-//                                value = memoTextState.value,
-//                                placeholder = {
-//                                    Text(
-//                                        text = "일정에 대한 메모를 입력해주세요.",
-//                                        fontWeight = Normal,
-//                                        fontSize = 14.sp,
-//                                        letterSpacing = 0.sp,
-//                                        color = GrayColor6
-//                                    )
-//                                },
-//                                onValueChange = {
-//                                    memoTextState.value = it
-//                                    memoLabelTextState.value = it
-//                                },
-//                                textStyle = TextStyle(
-//                                    fontWeight = Normal,
-//                                    fontSize = 13.sp,
-//                                    letterSpacing = 0.sp,
-//                                    color = MainBlackColor
-//                                ),
-//                                colors = textFieldColors()
-//                            )
-//                        }
-                    }
+                    BPMTextField(
+                        minHeight = 110.dp,
+                        textState = memoValueState,
+                        label = null,
+                        limit = null,
+                        singleLine = false,
+                        hint = "일정에 대한 메모를 입력해주세요."
+                    )
                 }
 
                 Divider(color = GrayColor8)
@@ -454,12 +420,14 @@ private fun ScheduleActivityContent(
                     color = GrayColor11
                 )
 
+                val studioValueState = remember { mutableStateOf("") }
+
                 ScheduleItemLayout(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "예약한 촬영 스튜디오가 있으신가요?",
-                    title = "",
-                    expandedHeight = 135.dp
+                    value = studioValueState.value.ifEmpty { "스튜디오 이름" },
+                    extraContentHeight = 60.dp
                 ) {
                     Box(
                         modifier = Modifier
@@ -468,7 +436,7 @@ private fun ScheduleActivityContent(
                             .border(
                                 width = 1.dp,
                                 shape = RoundedCornerShape(10.dp),
-                                color = GrayColor2
+                                color = GrayColor7
                             )
                     ) {
                         Row(
@@ -488,13 +456,14 @@ private fun ScheduleActivityContent(
                                 fontWeight = Medium,
                                 fontSize = 14.sp,
                                 letterSpacing = 0.sp,
-                                color = GrayColor4
+                                color = GrayColor7
                             )
 
                             Icon(
                                 modifier = Modifier.size(32.dp),
                                 painter = painterResource(id = R.drawable.ic_search),
-                                contentDescription = "searchIcon"
+                                contentDescription = "searchIcon",
+                                tint = GrayColor15
                             )
                         }
                     }
@@ -506,8 +475,8 @@ private fun ScheduleActivityContent(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "예약 시간을 입력해주세요.",
-                    title = "",
-                    expandedHeight = 290.dp
+                    value = if (selectedTime != null) "$selectedTime" else "시간",
+                    extraContentHeight = 212.dp
                 ) {
                     val hoursLazyListState = rememberLazyListState()
                     val minutesLazyListState = rememberLazyListState()
@@ -662,21 +631,10 @@ private fun ScheduleActivityContent(
                             )
                             .align(CenterHorizontally)
                             .clickable {
-//                                onClickSetTime(
-//                                    "${
-//                                        String.format(
-//                                            "%02d",
-//                                            hours[hoursLazyListState.firstVisibleItemIndex + 1]
-//                                        )
-//                                    }:" +
-//                                            "${
-//                                                String.format(
-//                                                    "%02d",
-//                                                    minutes[minutesLazyListState.firstVisibleItemIndex + 1]
-//                                                )
-//                                            } " +
-//                                            "(${timeZones[timeZonesLazyListState.firstVisibleItemIndex + 1]})"
-//                                )
+                                val hour = "${if (hours[hoursLazyListState.firstVisibleItemIndex + 1] < 10) "0" else ""}${hours[hoursLazyListState.firstVisibleItemIndex + 1]}"
+                                val minute = "${if (minutes[minutesLazyListState.firstVisibleItemIndex + 1] < 10) "0" else ""}${minutes[minutesLazyListState.firstVisibleItemIndex + 1]}"
+                                val time = "$hour:$minute (${timeZones[timeZonesLazyListState.firstVisibleItemIndex + 1]})"
+                                event.invoke(ScheduleContract.Event.OnClickSetTime(time))
                             }
                     ) {
                         Text(
@@ -694,22 +652,20 @@ private fun ScheduleActivityContent(
             }
 
             Column {
-                BPMSpacer(height = 20.dp)
-
-//                if (editModeState.value) {
-//                    RoundedCornerButton(
-//                        modifier = Modifier
-//                            .padding(horizontal = 16.dp)
-//                            .fillMaxWidth()
-//                            .height(48.dp),
-//                        text = "저장하기",
-//                        textColor = if (selectedDateState.value != null) MainBlackColor else GrayColor7,
-//                        buttonColor = if (selectedDateState.value != null) MainGreenColor else GrayColor9,
-//                        onClick = { if (selectedDateState.value != null) onClickSave() }
-//                    )
-//                }
-
-                BPMSpacer(height = 20.dp)
+                RoundedCornerButton(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 14.dp
+                        )
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    text = "저장하기",
+                    enabled = isEditing,
+                    textColor = MainBlackColor,
+                    buttonColor = MainGreenColor,
+                    onClick = {}
+                )
             }
         }
     }
@@ -720,12 +676,13 @@ private fun ScheduleItemLayout(
     isEditing: Boolean,
     isEssential: Boolean,
     label: String,
-    title: String,
-    expandedHeight: Dp,
+    value: String,
+    extraContentHeight: Dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val collapsedHeight = 77.dp
     val expandState = remember { mutableStateOf(false) }
-    val columnHeightState = animateDpAsState(targetValue = if (expandState.value) expandedHeight else 77.dp)
+    val columnHeightState = animateDpAsState(targetValue = if (expandState.value) collapsedHeight + extraContentHeight else collapsedHeight)
     val focusManager = LocalFocusManager.current
 
     if (!isEditing) {
@@ -742,7 +699,7 @@ private fun ScheduleItemLayout(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(76.dp)
+                .height(collapsedHeight)
                 .clickableWithoutRipple {
                     if (isEditing) {
                         expandState.value = !expandState.value
@@ -795,7 +752,7 @@ private fun ScheduleItemLayout(
                         modifier = Modifier
                             .height(24.dp)
                             .align(CenterVertically),
-                        text = title,
+                        text = value,
                         textAlign = TextAlign.Center,
                         fontWeight = Medium,
                         fontSize = 17.sp,
