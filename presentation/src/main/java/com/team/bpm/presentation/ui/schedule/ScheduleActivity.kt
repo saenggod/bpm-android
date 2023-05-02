@@ -139,7 +139,7 @@ private fun ScheduleActivityContent(
         ) {
             Column {
                 ScreenHeader(
-                    header = if (isEditing) "일정 등록하기" else "바디프로필 일정",
+                    header = if (isEditing) "일정 등록하기" else "체형관리 일정",
                     actionBlock = {
                         if (!isEditing) {
                             Text(
