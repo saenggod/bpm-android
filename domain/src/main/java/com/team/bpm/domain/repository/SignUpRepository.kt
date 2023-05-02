@@ -1,8 +1,8 @@
 package com.team.bpm.domain.repository
 
+import android.graphics.Bitmap
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
-import java.io.File
 import kotlinx.coroutines.flow.Flow
 
 interface SignUpRepository {
@@ -11,6 +11,6 @@ interface SignUpRepository {
         kakaoId: Long,
         nickname: String,
         bio: String,
-        image: File
+        image: Bitmap
     ): Flow<ResponseState<UserInfo>>
 }

@@ -1,10 +1,10 @@
 package com.team.bpm.domain.usecase.sign_up
 
+import android.graphics.Bitmap
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
 import com.team.bpm.domain.repository.SignUpRepository
 import kotlinx.coroutines.flow.Flow
-import java.io.File
 import javax.inject.Inject
 
 class SignUpUseCase @Inject constructor(
@@ -12,7 +12,7 @@ class SignUpUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         kakaoId: Long,
-        image: File,
+        image: Bitmap,
         nickname: String,
         bio: String
     ): Flow<ResponseState<UserInfo>> {
