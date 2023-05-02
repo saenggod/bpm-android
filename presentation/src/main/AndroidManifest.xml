@@ -22,10 +22,10 @@
             android:name="com.team.bpm.presentation.ui.splash.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.Bpm.NoActionBar">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name="com.team.bpm.presentation.ui.sign_up.SignUpActivity"
@@ -55,15 +55,10 @@
             android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
             android:name="com.team.bpm.presentation.ui.schedule.ScheduleActivity"
-            android:exported="true"
+            android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
-            android:windowSoftInputMode="adjustResize" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity"
             android:exported="false"
@@ -92,7 +87,7 @@
             android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
             android:name=".ui.main.mypage.question_posting.QuestionPostingActivity"
-            android:exported="true"
+            android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
 
