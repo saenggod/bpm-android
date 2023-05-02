@@ -137,7 +137,6 @@ private fun EyeBodyPostingActivityContent(
                 }
 
                 val bodyTextState = remember { mutableStateOf("") }
-
                 BPMTextField(
                     modifier = Modifier
                         .padding(top = 22.dp)
@@ -145,8 +144,8 @@ private fun EyeBodyPostingActivityContent(
                     textState = bodyTextState,
                     minHeight = 180.dp,
                     limit = 300,
-                    hint = "내용을 입력해주세요",
                     label = "오늘의 내 몸에 대한 이야기를 작성해주세요",
+                    hint = "내용을 입력해주세요",
                     singleLine = false
                 )
             }

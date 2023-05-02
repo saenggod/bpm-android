@@ -139,10 +139,10 @@ private fun CommunityPostingActivityContent(
                         .padding(horizontal = 16.dp),
                     textState = bodyTextState,
                     minHeight = 180.dp,
-                    limit = 300,
-                    hint = "내용을 입력해주세요",
                     label = "내용을 적어주세요",
-                    singleLine = false
+                    limit = 300,
+                    singleLine = true,
+                    hint = "내용을 입력해주세요",
                 )
             }
 
