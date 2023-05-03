@@ -93,29 +93,21 @@ class SignUpViewModel @Inject constructor(
                         nickname = kakaoUserInfo.second,
                         bio = bio
                     ).onEach { result ->
-                        when (result) {
-                            is ResponseState.Success -> {
-                                withContext(mainImmediateDispatcher) {
+                        withContext(mainImmediateDispatcher) {
+                            when (result) {
+                                is ResponseState.Success -> {
                                     _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
                                 }
-                            }
-                            is ResponseState.Error -> {
-                                if (result.error.code == USER_NICKNAME_ALREADY_EXISTS) {
-                                    withContext(mainImmediateDispatcher) {
-                                        _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
+                                is ResponseState.Error -> {
+                                    _state.update {
+                                        it.copy(isLoading = false, errorCode = result.error.code) // TODO : will be modified when function develop
                                     }
-                                } else {
-                                    // TODO : Error Handling
                                 }
                             }
                         }
-                    }.launchIn(viewModelScope)
-                }
+                    }
+                }.launchIn(viewModelScope)
             }
         }
-    }
-
-    companion object {
-        private const val USER_NICKNAME_ALREADY_EXISTS = "409"
     }
 }

@@ -158,22 +158,53 @@ private fun SignUpActivityContent(
                 BPMSpacer(height = 50.dp)
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    ProfileTextField(
-                        isEssential = true,
-                        title = "닉네임",
-                        hint = "어깨_매니저",
-                        textState = nicknameTextState,
-                        submittedWithOmission = submittedWithOmission
-                    )
+                    Column {
+                        Row(modifier = Modifier.padding(start = 2.dp)) {
+                            Text(
+                                text = "닉네임",
+                                fontWeight = Medium,
+                                fontSize = 16.sp,
+                                letterSpacing = 0.sp
+                            )
+
+                            Text(
+                                text = "*",
+                                fontWeight = Medium,
+                                fontSize = 16.sp,
+                                letterSpacing = 0.sp,
+                                color = Color.Red
+                            )
+                        }
+
+                        BPMTextField(
+                            modifier = Modifier.padding(top = 10.dp),
+                            textState = nicknameTextState,
+                            label = null,
+                            limit = null,
+                            singleLine = true,
+                            hint = "어깨_매니저",
+                            allocatedErrorCode = "409",
+                            occurredErrorCode = errorCode,
+                            errorMessage = "중복된 닉네임입니다."
+                        )
+                    }
 
                     BPMSpacer(height = 24.dp)
 
-                    ProfileTextField(
-                        isEssential = false,
-                        title = "한줄 소개",
-                        hint = "회원님 반갑습니다. 제 특기는 어깨춤 추기입니다.",
+                    Text(
+                        text = "한 줄 소개",
+                        fontWeight = Medium,
+                        fontSize = 16.sp,
+                        letterSpacing = 0.sp
+                    )
+
+                    BPMTextField(
+                        modifier = Modifier.padding(top = 10.dp),
                         textState = bioTextState,
-                        submittedWithOmission = null
+                        label = null,
+                        limit = null,
+                        singleLine = true,
+                        hint = "회원님 반갑습니다. 제 특기는 어깨춤 추기입니다.",
                     )
                 }
             }
@@ -196,58 +227,6 @@ private fun SignUpActivityContent(
             if (isLoading) {
                 LoadingScreen()
             }
-        }
-    }
-}
-
-@Composable
-private fun ProfileTextField(
-    isEssential: Boolean,
-    title: String,
-    hint: String,
-    textState: MutableState<String>,
-    submittedWithOmission: Boolean?
-) {
-    Column {
-        Row(modifier = Modifier.padding(start = 2.dp)) {
-            Text(
-                text = title,
-                fontWeight = Medium,
-                fontSize = 16.sp,
-                letterSpacing = 0.sp
-            )
-
-            if (isEssential) {
-                Text(
-                    text = "*",
-                    fontWeight = Medium,
-                    fontSize = 16.sp,
-                    letterSpacing = 0.sp,
-                    color = Color.Red
-                )
-            }
-        }
-
-        BPMSpacer(height = 10.dp)
-
-        BPMTextField(
-            textState = textState,
-            hint = hint,
-            singleLine = true,
-            label = "" // TODO : Will be changed after when [BPM-116] is merged.
-        )
-
-        if (submittedWithOmission == true) {
-            BPMSpacer(height = 6.dp)
-
-            Text(
-                modifier = Modifier.padding(start = 6.dp),
-                text = "필수 입력 정보 입니다.",
-                fontWeight = Medium,
-                fontSize = 12.sp,
-                letterSpacing = 0.sp,
-                color = Color.Red
-            )
         }
     }
 }

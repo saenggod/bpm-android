@@ -7,7 +7,8 @@ interface SignUpContract : UnidirectionalViewModel<SignUpContract.State, SignUpC
     data class State(
         val isLoading: Boolean = false,
         val profileImage: ImageBitmap? = null,
-        val submittedWithOmission: Boolean? = null
+        val submittedWithOmission: Boolean? = null,
+        val errorCode: String? = null
     )
 
     sealed interface Event {
