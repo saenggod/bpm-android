@@ -77,8 +77,8 @@ private fun CommunityPostingActivityContent(
     }
 
     LaunchedEffect(effect) {
-        effect.collectLatest { _effect ->
-            when (_effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
                 is CommunityPostingContract.Effect.GoBack -> {
                     context.finish()
                 }

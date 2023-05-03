@@ -100,8 +100,8 @@ private fun ScheduleActivityContent(
     }
 
     LaunchedEffect(effect) {
-        effect.collectLatest { _effect ->
-            when (_effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
                 is ScheduleContract.Effect.GoToSelectStudio -> {
 
                 }

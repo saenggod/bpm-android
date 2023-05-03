@@ -75,8 +75,8 @@ private fun QuestionPostingActivityContent(
     }
 
     LaunchedEffect(effect) {
-        effect.collectLatest { _effect ->
-            when (_effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
                 is QuestionPostingContract.Effect.GoBack -> {
                     context.finish()
                 }

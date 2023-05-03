@@ -99,8 +99,8 @@ private fun SignUpActivityContent(
     }
 
     LaunchedEffect(effect) {
-        effect.collectLatest { _effect ->
-            when (_effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
                 is SignUpContract.Effect.AddImage -> {
                     profileImageLauncher.launch(PickVisualMediaRequest())
                 }

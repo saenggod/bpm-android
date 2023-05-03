@@ -1,9 +1,9 @@
 package com.team.bpm.presentation.ui.schedule
 
-import com.team.bpm.presentation.base.UnidirectionalViewModel
+import com.team.bpm.presentation.base.BaseContract
 import java.time.LocalDate
 
-interface ScheduleContract : UnidirectionalViewModel<ScheduleContract.State, ScheduleContract.Event, ScheduleContract.Effect> {
+interface ScheduleContract : BaseContract<ScheduleContract.State, ScheduleContract.Event, ScheduleContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
         val isEditing: Boolean = false,

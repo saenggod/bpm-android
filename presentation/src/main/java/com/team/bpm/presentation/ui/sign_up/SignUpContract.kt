@@ -1,9 +1,9 @@
 package com.team.bpm.presentation.ui.sign_up
 
 import androidx.compose.ui.graphics.ImageBitmap
-import com.team.bpm.presentation.base.UnidirectionalViewModel
+import com.team.bpm.presentation.base.BaseContract
 
-interface SignUpContract : UnidirectionalViewModel<SignUpContract.State, SignUpContract.Event, SignUpContract.Effect> {
+interface SignUpContract : BaseContract<SignUpContract.State, SignUpContract.Event, SignUpContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
         val profileImage: ImageBitmap? = null,

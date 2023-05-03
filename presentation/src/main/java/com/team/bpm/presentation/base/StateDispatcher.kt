@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
 inline fun <reified STATE, EVENT, EFFECT> use(
-    viewModel: UnidirectionalViewModel<STATE, EVENT, EFFECT>,
+    viewModel: BaseContract<STATE, EVENT, EFFECT>,
 ): StateDispatchEffect<STATE, EVENT, EFFECT> {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

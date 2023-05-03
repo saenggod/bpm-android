@@ -2,9 +2,9 @@ package com.team.bpm.presentation.ui.main.mypage.question_posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
-import com.team.bpm.presentation.base.UnidirectionalViewModel
+import com.team.bpm.presentation.base.BaseContract
 
-interface QuestionPostingContract : UnidirectionalViewModel<QuestionPostingContract.State, QuestionPostingContract.Event, QuestionPostingContract.Effect> {
+interface QuestionPostingContract : BaseContract<QuestionPostingContract.State, QuestionPostingContract.Event, QuestionPostingContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
         val imageList: List<Pair<Uri, ImageBitmap>> = emptyList()
