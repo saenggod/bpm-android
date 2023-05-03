@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.sign_up
 
 import android.os.Bundle
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,7 @@ import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -89,18 +89,23 @@ class SignUpViewModel @Inject constructor(
                 withContext(ioDispatcher + exceptionHandler) {
                     signUpUseCase(
                         kakaoId = kakaoUserInfo.first,
-                        image = _state.value.profileImage!!.asAndroidBitmap(),
+                        imageByteArray = convertImageBitmapToByteArray(_state.value.profileImage!!),
                         nickname = kakaoUserInfo.second,
                         bio = bio
-                    ).onEach { result ->
+                    ).catch {
+                        // TODO : Error Handling
+                    }.onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             when (result) {
                                 is ResponseState.Success -> {
                                     _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
                                 }
                                 is ResponseState.Error -> {
+                                    /*
+                                      TODO : will be modified when function develop
+                                     */
                                     _state.update {
-                                        it.copy(isLoading = false, errorCode = result.error.code) // TODO : will be modified when function develop
+                                        it.copy(isLoading = false, errorCode = result.error.code)
                                     }
                                 }
                             }

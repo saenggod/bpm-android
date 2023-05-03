@@ -1,12 +1,11 @@
 package com.team.bpm.data.repositoryImpl
 
-import android.graphics.Bitmap
 import com.team.bpm.data.model.response.SignUpResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponse
 import com.team.bpm.data.network.BPMResponseHandler
 import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
 import com.team.bpm.data.network.MainApi
-import com.team.bpm.data.util.convertBitmapToWebpFile
+import com.team.bpm.data.util.convertByteArrayToWebpFile
 import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
@@ -24,7 +23,7 @@ class SignUpRepositoryImpl @Inject constructor(
         kakaoId: Long,
         nickname: String,
         bio: String,
-        image: Bitmap
+        imageByteArray: ByteArray
     ): Flow<ResponseState<UserInfo>> {
         return flow {
             BPMResponseHandler().handle {
@@ -34,7 +33,7 @@ class SignUpRepositoryImpl @Inject constructor(
                     bio = bio,
                     file = createImageMultipartBody(
                         key = "file",
-                        file = convertBitmapToWebpFile(image)
+                        file = convertByteArrayToWebpFile(imageByteArray)
                     )
                 )
             }.onEach { result ->

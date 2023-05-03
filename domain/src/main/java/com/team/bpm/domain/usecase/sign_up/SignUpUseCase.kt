@@ -1,6 +1,5 @@
 package com.team.bpm.domain.usecase.sign_up
 
-import android.graphics.Bitmap
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
 import com.team.bpm.domain.repository.SignUpRepository
@@ -12,13 +11,13 @@ class SignUpUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         kakaoId: Long,
-        image: Bitmap,
+        imageByteArray: ByteArray,
         nickname: String,
         bio: String
     ): Flow<ResponseState<UserInfo>> {
         return signUpRepository.sendSignUp(
             kakaoId = kakaoId,
-            image = image,
+            imageByteArray = imageByteArray,
             nickname = nickname,
             bio = bio
         )

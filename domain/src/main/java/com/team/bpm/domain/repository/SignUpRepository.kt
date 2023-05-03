@@ -1,9 +1,9 @@
 package com.team.bpm.domain.repository
 
-import android.graphics.Bitmap
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
 import kotlinx.coroutines.flow.Flow
+import java.io.File
 
 interface SignUpRepository {
 
@@ -11,6 +11,8 @@ interface SignUpRepository {
         kakaoId: Long,
         nickname: String,
         bio: String,
-        image: Bitmap
+        imageByteArray: ByteArray
     ): Flow<ResponseState<UserInfo>>
 }
+
+// TODO : 다른 UseCase 에 있는 <File> 도 <ByteArray> 로 변경 되어야 함
