@@ -138,16 +138,16 @@ class SignUpViewModel @Inject constructor(
 
     private suspend fun saveUserToken(token: String) {
         setUserTokenUseCase(token).onEach { tokenResult ->
-            withContext(mainImmediateDispatcher) {
-                if (!tokenResult.isNullOrEmpty()) {
+            if (!tokenResult.isNullOrEmpty()) {
+                withContext(mainImmediateDispatcher) {
                     _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
-                } else {
-                    _state.update {
-                        it.copy(isLoading = false)
-                    }
-                    _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))
+                }
+            } else {
+                _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))
+                _state.update {
+                    it.copy(isLoading = false)
                 }
             }
-        }.collect()
+        }.launchIn(viewModelScope)
     }
 }
