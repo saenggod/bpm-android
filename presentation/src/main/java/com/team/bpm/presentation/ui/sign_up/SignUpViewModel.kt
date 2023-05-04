@@ -38,6 +38,9 @@ class SignUpViewModel @Inject constructor(
         is SignUpContract.Event.OnImageAdded -> {
             onImageAdded(event.image)
         }
+        is SignUpContract.Event.OnError -> {
+            onError(event.message)
+        }
         is SignUpContract.Event.OnClickSubmit -> {
             onClickSubmit(nickname = event.nickname, bio = event.bio)
         }
@@ -72,6 +75,12 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
+    private fun onError(message: String) {
+        viewModelScope.launch {
+            _effect.emit(SignUpContract.Effect.ShowToast(message))
+        }
+    }
+
     private fun onClickSubmit(
         nickname: String,
         bio: String
@@ -87,31 +96,33 @@ class SignUpViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher + exceptionHandler) {
-                    signUpUseCase(
-                        kakaoId = kakaoUserInfo.first,
-                        imageByteArray = convertImageBitmapToByteArray(_state.value.profileImage!!),
-                        nickname = kakaoUserInfo.second,
-                        bio = bio
-                    ).catch {
-                        // TODO : Error Handling
-                    }.onEach { result ->
-                        withContext(mainImmediateDispatcher) {
-                            when (result) {
-                                is ResponseState.Success -> {
-                                    _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
-                                }
-                                is ResponseState.Error -> {
-                                    /*
+                    state.value.profileImage?.let { profileImage ->
+                        signUpUseCase(
+                            kakaoId = kakaoUserInfo.first,
+                            imageByteArray = convertImageBitmapToByteArray(profileImage),
+                            nickname = nickname,
+                            bio = bio
+                        ).catch {
+                            // TODO : Error Handling
+                        }.onEach { result ->
+                            withContext(mainImmediateDispatcher) {
+                                when (result) {
+                                    is ResponseState.Success -> {
+                                        _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
+                                    }
+                                    is ResponseState.Error -> {
+                                        /*
                                       TODO : will be modified when function develop
                                      */
-                                    _state.update {
-                                        it.copy(isLoading = false, errorCode = result.error.code)
+                                        _state.update {
+                                            it.copy(isLoading = false, errorCode = result.error.code)
+                                        }
                                     }
                                 }
                             }
-                        }
+                        }.launchIn(viewModelScope)
                     }
-                }.launchIn(viewModelScope)
+                }
             }
         }
     }

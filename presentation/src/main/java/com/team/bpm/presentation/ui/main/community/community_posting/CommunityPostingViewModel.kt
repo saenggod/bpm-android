@@ -57,7 +57,7 @@ class CommunityPostingViewModel @Inject constructor(
 
     private fun onImagesAdded(images: List<Pair<Uri, ImageBitmap>>) {
         val linkedList = LinkedList<Pair<Uri, ImageBitmap>>().apply {
-            addAll(_state.value.imageList)
+            addAll(state.value.imageList)
         }
 
         for (i in images.indices) {
