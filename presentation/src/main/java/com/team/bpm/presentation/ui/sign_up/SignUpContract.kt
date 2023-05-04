@@ -14,11 +14,13 @@ interface SignUpContract : BaseContract<SignUpContract.State, SignUpContract.Eve
     sealed interface Event {
         object OnClickAddImage : Event
         data class OnImageAdded(val image: ImageBitmap) : Event
+        data class OnError(val message: String) : Event
         data class OnClickSubmit(val nickname: String, val bio: String) : Event
     }
 
     sealed interface Effect {
         object AddImage : Effect
         object OnSuccessSignUp : Effect
+        data class ShowToast(val message: String) : Effect
     }
 }

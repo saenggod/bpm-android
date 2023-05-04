@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,7 +15,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -83,19 +87,21 @@ private fun SignUpActivityContent(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             runCatching {
-                convertUriToBitmap(
-                    contentResolver = context.contentResolver,
-                    uri = uri!!
-                )
+                uri?.let { convertUriToBitmap(context.contentResolver, it) }
             }.onSuccess { image ->
-                event.invoke(SignUpContract.Event.OnImageAdded(image.asImageBitmap()))
+                image?.let { event.invoke(SignUpContract.Event.OnImageAdded(it.asImageBitmap())) }
             }.onFailure {
-
+                event.invoke(SignUpContract.Event.OnError("이미지를 불러 올 수 없습니다."))
+                println(it)
             }
         })
 
     LaunchedEffect(Unit) {
-        event.invoke(SignUpContract.Event.OnImageAdded(AppCompatResources.getDrawable(context, R.drawable.default_profile_image)!!.toBitmap(640, 640, Bitmap.Config.ARGB_8888).asImageBitmap()))
+        AppCompatResources.getDrawable(context, R.drawable.default_profile_image)?.let {
+            event.invoke(SignUpContract.Event.OnImageAdded(it.toBitmap(320, 320, Bitmap.Config.ARGB_8888).asImageBitmap()))
+        } ?: run {
+            event.invoke(SignUpContract.Event.OnImageAdded(Bitmap.createBitmap(320, 320, Bitmap.Config.ARGB_8888).asImageBitmap()))
+        }
     }
 
     LaunchedEffect(effect) {
@@ -107,6 +113,9 @@ private fun SignUpActivityContent(
                 is SignUpContract.Effect.OnSuccessSignUp -> {
                     context.startActivity(MainActivity.newIntent(context))
                     context.finish()
+                }
+                is SignUpContract.Effect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

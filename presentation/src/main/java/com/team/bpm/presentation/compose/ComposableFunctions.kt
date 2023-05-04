@@ -433,40 +433,28 @@ fun ReviewComposable(
 
             BPMSpacer(height = 12.dp)
 
-            Row {
-                if (rating != null) {
-                    for (i in 1..5) {
-                        Image(
-                            modifier = Modifier.size(15.dp),
-                            painter = painterResource(
-                                id = if (i.toDouble() <= rating!!) R.drawable.ic_star_small_filled
-                                else if (i.toDouble() > rating!! && rating!! > i - 1) R.drawable.ic_star_small_half
-                                else R.drawable.ic_star_small_empty
-                            ),
-                            contentDescription = "starIcon"
-                        )
-                    }
-                } else {
-                    repeat(5) { index ->
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_star_small_empty),
-                            contentDescription = "starIcon",
-                            tint = GrayColor6
-                        )
-
-                        BPMSpacer(width = 2.dp)
-                    }
+            rating?.let {
+                for (i in 1..5) {
+                    Image(
+                        modifier = Modifier.size(15.dp),
+                        painter = painterResource(
+                            id = if (i.toDouble() <= it) R.drawable.ic_star_small_filled
+                            else if (i.toDouble() > it && it > i - 1) R.drawable.ic_star_small_half
+                            else R.drawable.ic_star_small_empty
+                        ),
+                        contentDescription = "starIcon"
+                    )
                 }
             }
 
             BPMSpacer(height = 14.dp)
 
-            if (recommends != null) {
+            recommends?.let {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    items(recommends!!) { keyword ->
+                    items(it) { keyword ->
                         KeywordChip(
                             text = keyword,
                             onClick = {}
@@ -477,25 +465,27 @@ fun ReviewComposable(
 
             BPMSpacer(height = 14.dp)
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                repeat(filesPath?.size!!) { index ->
-                    GlideImage(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(60.dp),
-                        model = filesPath!![index],
-                        contentDescription = "reviewImage",
-                        contentScale = ContentScale.Crop
-                    )
+            filesPath?.let {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    repeat(it.size) { index ->
+                        GlideImage(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(60.dp),
+                            model = it[index],
+                            contentDescription = "reviewImage",
+                            contentScale = ContentScale.Crop
+                        )
 
-                    BPMSpacer(width = 4.dp)
-                }
-
-                repeat(5 - filesPath?.size!!) { index ->
-                    Box(modifier = Modifier.weight(1f))
-
-                    if (index == 5 - filesPath!!.size - 1) {
                         BPMSpacer(width = 4.dp)
+                    }
+
+                    repeat(5 - it.size) { index ->
+                        Box(modifier = Modifier.weight(1f))
+
+                        if (index == 5 - it.size - 1) {
+                            BPMSpacer(width = 4.dp)
+                        }
                     }
                 }
             }

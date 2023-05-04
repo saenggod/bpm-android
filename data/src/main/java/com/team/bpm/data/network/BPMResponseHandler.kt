@@ -9,7 +9,7 @@ class BPMResponseHandler {
         return flow {
             val response = call.invoke()
             if (response.isSuccessful && response.body() != null) {
-                emit(BPMResponse.Success(response.body()!!))
+                response.body()?.let { emit(BPMResponse.Success(it)) }
             } else {
                 val errorBody = response.errorBody()?.string()
                 val message = if (errorBody.isNullOrEmpty()) {
