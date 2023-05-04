@@ -3,8 +3,6 @@ package com.team.bpm.presentation.ui.sign_up
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,8 +33,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
@@ -47,15 +44,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class SignUpActivity : BaseComponentActivity() {
-    override val viewModel: BaseViewModel
-        get() = TODO("Not yet implemented")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initComposeUi {
-            SignUpActivityContent()
-        }
+class SignUpActivity : BaseComponentActivityV2() {
+    @Composable
+    override fun InitComposeUi() {
+        SignUpActivityContent()
     }
 
     companion object {
@@ -82,7 +74,7 @@ private fun SignUpActivityContent(
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivity
+    val context = LocalContext.current as BaseComponentActivityV2
 
     val profileImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),

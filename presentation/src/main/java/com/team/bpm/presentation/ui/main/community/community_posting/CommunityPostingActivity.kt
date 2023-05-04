@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.main.community.community_posting
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,8 +19,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.team.bpm.presentation.base.BaseComponentActivity
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
 import com.team.bpm.presentation.compose.Header
@@ -31,18 +32,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class CommunityPostingActivity : BaseComponentActivity() {
-    override val viewModel: BaseViewModel
-        get() = TODO("Not yet implemented")
-
-    override fun initUi() {
-        initComposeUi {
-            CommunityPostingActivityContent()
-        }
+class CommunityPostingActivity : BaseComponentActivityV2() {
+    @Composable
+    override fun InitComposeUi() {
+        CommunityPostingActivityContent()
     }
 
-    override fun setupCollect() {
-
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, CommunityPostingActivity::class.java)
+        }
     }
 }
 
@@ -51,7 +50,7 @@ private fun CommunityPostingActivityContent(
     viewModel: CommunityPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivity
+    val context = LocalContext.current as BaseComponentActivityV2
 
     val addImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5),
