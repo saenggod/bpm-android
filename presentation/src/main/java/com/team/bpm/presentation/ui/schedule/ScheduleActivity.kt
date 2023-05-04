@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity2
+import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
@@ -56,7 +56,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @AndroidEntryPoint
-class ScheduleActivity : BaseComponentActivity2() {
+class ScheduleActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
         ScheduleActivityContent()
@@ -77,7 +77,7 @@ private fun ScheduleActivityContent(
     viewModel: ScheduleViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivity2
+    val context = LocalContext.current as BaseComponentActivityV2
 
     LaunchedEffect(Unit) {
         // TODO : Call Api

@@ -25,9 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.team.bpm.presentation.base.BaseComponentActivity
-import com.team.bpm.presentation.base.BaseComponentActivity2
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
 import com.team.bpm.presentation.compose.Header
@@ -39,7 +37,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class EyeBodyPostingActivity : BaseComponentActivity2() {
+class EyeBodyPostingActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
         EyeBodyPostingActivityContent()
@@ -57,7 +55,7 @@ private fun EyeBodyPostingActivityContent(
     viewModel: EyeBodyPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivity2
+    val context = LocalContext.current as BaseComponentActivityV2
 
     val addImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5),

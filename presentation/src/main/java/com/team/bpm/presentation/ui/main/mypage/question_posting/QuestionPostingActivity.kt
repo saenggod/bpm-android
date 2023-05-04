@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.team.bpm.presentation.base.BaseComponentActivity2
+import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
 import com.team.bpm.presentation.compose.Header
@@ -30,7 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class QuestionPostingActivity : BaseComponentActivity2() {
+class QuestionPostingActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
         QuestionPostingActivityContent()
@@ -48,7 +48,7 @@ private fun QuestionPostingActivityContent(
     viewModel: QuestionPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivity2
+    val context = LocalContext.current as BaseComponentActivityV2
 
     val addImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5),

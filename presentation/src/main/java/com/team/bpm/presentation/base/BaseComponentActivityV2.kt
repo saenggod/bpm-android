@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import com.team.bpm.presentation.compose.theme.BPMTheme
 
-abstract class BaseComponentActivity2 : ComponentActivity() {
+abstract class BaseComponentActivityV2 : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
