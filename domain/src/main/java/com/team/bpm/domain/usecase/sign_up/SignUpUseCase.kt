@@ -4,7 +4,6 @@ import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
 import com.team.bpm.domain.repository.SignUpRepository
 import kotlinx.coroutines.flow.Flow
-import java.io.File
 import javax.inject.Inject
 
 class SignUpUseCase @Inject constructor(
@@ -12,13 +11,13 @@ class SignUpUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         kakaoId: Long,
-        image: File,
+        imageByteArray: ByteArray,
         nickname: String,
         bio: String
     ): Flow<ResponseState<UserInfo>> {
         return signUpRepository.sendSignUp(
             kakaoId = kakaoId,
-            image = image,
+            imageByteArray = imageByteArray,
             nickname = nickname,
             bio = bio
         )

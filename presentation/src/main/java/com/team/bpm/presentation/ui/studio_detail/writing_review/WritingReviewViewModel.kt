@@ -8,7 +8,6 @@ import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainDispatcher
-import com.team.bpm.presentation.util.convertBitmapToWebpFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -65,20 +64,20 @@ class WritingReviewViewModel @Inject constructor(
             _state.emit(WritingReviewState.Loading)
         }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            writeReviewUseCase(
-                studioId = studioId,
-                images = images.map { convertBitmapToWebpFile(it) },
-                rating = rating,
-                recommends = recommends,
-                content = content
-            ).onEach { state ->
-                when(state) {
-                    is ResponseState.Success -> _state.emit(WritingReviewState.ReviewSuccess(state.data))
-                    is ResponseState.Error -> _state.emit(WritingReviewState.Error)
-                }
-            }.launchIn(viewModelScope)
-        }
+//        viewModelScope.launch(ioDispatcher + exceptionHandler) {
+//            writeReviewUseCase(
+//                studioId = studioId,
+//                images = images.map { convertBitmapToWebpFile(it) },
+//                rating = rating,
+//                recommends = recommends,
+//                content = content
+//            ).onEach { state ->
+//                when(state) {
+//                    is ResponseState.Success -> _state.emit(WritingReviewState.ReviewSuccess(state.data))
+//                    is ResponseState.Error -> _state.emit(WritingReviewState.Error)
+//                }
+//            }.launchIn(viewModelScope)
+//        }
     }
 
     fun onClickWriteReview() {

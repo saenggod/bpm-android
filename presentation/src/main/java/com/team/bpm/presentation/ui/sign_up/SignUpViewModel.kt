@@ -3,39 +3,45 @@ package com.team.bpm.presentation.ui.sign_up
 import android.os.Bundle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
-import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainDispatcher
-import com.team.bpm.presentation.util.convertBitmapToWebpFile
+import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val signUpUseCase: SignUpUseCase,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val signUpUseCase: SignUpUseCase,
     private val savedStateHandle: SavedStateHandle
-) : BaseViewModel() {
-    private val _event = MutableSharedFlow<SignUpViewEvent>()
-    val event: SharedFlow<SignUpViewEvent>
-        get() = _event
+) : ViewModel(), SignUpContract {
+    private val _state = MutableStateFlow(SignUpContract.State())
+    override val state: StateFlow<SignUpContract.State> = _state.asStateFlow()
 
-    private val _state = MutableStateFlow<SignUpState>(SignUpState.Init)
-    val state: StateFlow<SignUpState>
-        get() = _state
+    private val _effect = MutableSharedFlow<SignUpContract.Effect>()
+    override val effect: SharedFlow<SignUpContract.Effect> = _effect.asSharedFlow()
+
+    override fun event(event: SignUpContract.Event) = when (event) {
+        is SignUpContract.Event.OnClickAddImage -> {
+            onClickSetImage()
+        }
+        is SignUpContract.Event.OnImageAdded -> {
+            onImageAdded(event.image)
+        }
+        is SignUpContract.Event.OnClickSubmit -> {
+            onClickSubmit(nickname = event.nickname, bio = event.bio)
+        }
+    }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -47,41 +53,66 @@ class SignUpViewModel @Inject constructor(
         return savedStateHandle.get<Bundle>(SignUpActivity.KEY_BUNDLE)
     }
 
-    val kakaoUserInfo: Pair<Long, String> by lazy {
+    private val kakaoUserInfo: Pair<Long, String> by lazy {
         Pair(
             getBundle()?.getLong(SignUpActivity.KEY_KAKAO_USER_ID) ?: 0L,
             getBundle()?.getString(SignUpActivity.KEY_KAKAO_NICK_NAME) ?: ""
         )
     }
 
-    fun onClickSignUp() {
-        viewModelScope.launch(mainDispatcher) {
-            _event.emit(SignUpViewEvent.SignUp)
+    private fun onImageAdded(image: ImageBitmap) {
+        _state.update {
+            it.copy(profileImage = image)
         }
     }
 
-    fun signUp(
-        kakaoId: Long,
-        image: ImageBitmap,
+    private fun onClickSetImage() {
+        viewModelScope.launch {
+            _effect.emit(SignUpContract.Effect.AddImage)
+        }
+    }
+
+    private fun onClickSubmit(
         nickname: String,
         bio: String
     ) {
-        viewModelScope.launch(mainDispatcher) {
-            _state.emit(SignUpState.Loading)
-        }
-
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            signUpUseCase(
-                kakaoId = kakaoId,
-                image = convertBitmapToWebpFile(image),
-                nickname = nickname,
-                bio = bio
-            ).onEach { state ->
-                when (state) {
-                    is ResponseState.Success -> _state.emit(SignUpState.SignUpSuccess(state.data))
-                    is ResponseState.Error -> _state.emit(SignUpState.Error)
+        viewModelScope.launch {
+            if (nickname.isEmpty()) {
+                _state.update {
+                    it.copy(submittedWithOmission = true)
                 }
-            }.launchIn(viewModelScope)
+            } else {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher + exceptionHandler) {
+                    signUpUseCase(
+                        kakaoId = kakaoUserInfo.first,
+                        imageByteArray = convertImageBitmapToByteArray(_state.value.profileImage!!),
+                        nickname = kakaoUserInfo.second,
+                        bio = bio
+                    ).catch {
+                        // TODO : Error Handling
+                    }.onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            when (result) {
+                                is ResponseState.Success -> {
+                                    _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
+                                }
+                                is ResponseState.Error -> {
+                                    /*
+                                      TODO : will be modified when function develop
+                                     */
+                                    _state.update {
+                                        it.copy(isLoading = false, errorCode = result.error.code)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }.launchIn(viewModelScope)
+            }
         }
     }
 }

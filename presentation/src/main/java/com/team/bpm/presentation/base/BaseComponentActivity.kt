@@ -20,7 +20,7 @@ abstract class BaseComponentActivity : ComponentActivity() {
         setupCollect()
     }
 
-    protected abstract fun initUi()
+    protected open fun initUi() {} // TODO : will be removed
 
     protected fun initComposeUi(block: @Composable () -> Unit) {
         setContent {
@@ -42,6 +42,5 @@ abstract class BaseComponentActivity : ComponentActivity() {
         loadingVisibilityState.value = false
     }
 
-    protected abstract fun setupCollect()
-
+    protected open fun setupCollect() {} // TODO : will be removed
 }

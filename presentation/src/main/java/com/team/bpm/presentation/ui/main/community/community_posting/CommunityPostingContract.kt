@@ -2,9 +2,9 @@ package com.team.bpm.presentation.ui.main.community.community_posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
-import com.team.bpm.presentation.base.UnidirectionalViewModel
+import com.team.bpm.presentation.base.BaseContract
 
-interface CommunityPostingContract : UnidirectionalViewModel<CommunityPostingContract.State, CommunityPostingContract.Event, CommunityPostingContract.Effect> {
+interface CommunityPostingContract : BaseContract<CommunityPostingContract.State, CommunityPostingContract.Event, CommunityPostingContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
         val imageList: List<Pair<Uri, ImageBitmap>> = emptyList()

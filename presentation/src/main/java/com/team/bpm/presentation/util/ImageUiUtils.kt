@@ -7,8 +7,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
-import java.io.File
-import java.io.FileOutputStream
+import java.io.ByteArrayOutputStream
 
 fun convertUriToBitmap(
     contentResolver: ContentResolver,
@@ -22,23 +21,22 @@ fun convertUriToBitmap(
     )
 }
 
-fun convertBitmapToWebpFile(bitmap: ImageBitmap): File {
-    val webpFile = File.createTempFile(
-        "IMG_",
-        ".webp"
-    )
-    val fileOutputStream = FileOutputStream(webpFile)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        bitmap
-            .asAndroidBitmap()
-            .compress(
-                Bitmap.CompressFormat.WEBP_LOSSY,
+fun convertImageBitmapToByteArray(imageBitmap: ImageBitmap): ByteArray {
+    val stream = ByteArrayOutputStream()
+    return try {
+        stream.use {
+            imageBitmap.asAndroidBitmap().compress(
+                if (Build.VERSION.SDK_INT >= 30) {
+                    Bitmap.CompressFormat.WEBP_LOSSY
+                } else {
+                    Bitmap.CompressFormat.WEBP
+                },
                 50,
-                fileOutputStream
+                stream
             )
-
-        fileOutputStream.close()
+        }
+        stream.toByteArray()
+    } catch (e: Exception) {
+        stream.toByteArray()
     }
-
-    return webpFile
 }

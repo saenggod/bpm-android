@@ -244,6 +244,9 @@ fun BPMTextField(
     singleLine: Boolean,
     hint: String?,
     onClick: (() -> Unit)? = null,
+    allocatedErrorCode: String? = null,
+    occurredErrorCode: String? = null,
+    errorMessage: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     icon: @Composable (BoxScope.() -> Unit)? = null
@@ -357,6 +360,20 @@ fun BPMTextField(
                     color = MainBlackColor
                 )
             }
+        }
+
+        if (occurredErrorCode != null && allocatedErrorCode == occurredErrorCode) {
+            Text(
+                modifier = Modifier.padding(
+                    top = 6.dp,
+                    start = 6.dp
+                ),
+                text = errorMessage ?: "",
+                fontWeight = Medium,
+                fontSize = 12.sp,
+                letterSpacing = 0.sp,
+                color = Color.Red
+            )
         }
     }
 }

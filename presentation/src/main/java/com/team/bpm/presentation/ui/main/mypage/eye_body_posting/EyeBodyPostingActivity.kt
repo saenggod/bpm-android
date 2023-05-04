@@ -82,8 +82,8 @@ private fun EyeBodyPostingActivityContent(
     }
 
     LaunchedEffect(effect) {
-        effect.collectLatest { _effect ->
-            when (_effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
                 is EyeBodyPostingContract.Effect.GoBack -> {
                     context.finish()
                 }
