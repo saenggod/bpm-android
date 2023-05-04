@@ -42,6 +42,7 @@ import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.main.MainActivity
 import com.team.bpm.presentation.util.convertUriToBitmap
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -115,7 +116,7 @@ private fun SignUpActivityContent(
                     context.finish()
                 }
                 is SignUpContract.Effect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    context.showToast(effect.message)
                 }
             }
         }
