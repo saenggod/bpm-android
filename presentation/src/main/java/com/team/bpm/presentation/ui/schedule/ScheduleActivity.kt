@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.schedule
 
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
@@ -40,11 +39,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.presentation.base.BaseComponentActivity2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
@@ -59,23 +56,10 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @AndroidEntryPoint
-class ScheduleActivity : BaseComponentActivity() {
-    override val viewModel: BaseViewModel
-        get() = TODO("Not yet implemented")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        initComposeUi {
-            ScheduleActivityContent()
-        }
-    }
-
-    override fun initUi() = Unit
-
-    override fun setupCollect() {
-
+class ScheduleActivity : BaseComponentActivity2() {
+    @Composable
+    override fun InitComposeUi() {
+        ScheduleActivityContent()
     }
 
     companion object {
@@ -93,7 +77,7 @@ private fun ScheduleActivityContent(
     viewModel: ScheduleViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivity
+    val context = LocalContext.current as BaseComponentActivity2
 
     LaunchedEffect(Unit) {
         // TODO : Call Api

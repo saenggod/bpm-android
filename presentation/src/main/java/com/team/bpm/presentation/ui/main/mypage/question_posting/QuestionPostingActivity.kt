@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.main.mypage.question_posting
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,8 +17,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.team.bpm.presentation.base.BaseComponentActivity
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.presentation.base.BaseComponentActivity2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
 import com.team.bpm.presentation.compose.Header
@@ -29,18 +30,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class QuestionPostingActivity : BaseComponentActivity() {
-    override val viewModel: BaseViewModel
-        get() = TODO("Not yet implemented")
-
-    override fun initUi() {
-        initComposeUi {
-            QuestionPostingActivityContent()
-        }
+class QuestionPostingActivity : BaseComponentActivity2() {
+    @Composable
+    override fun InitComposeUi() {
+        QuestionPostingActivityContent()
     }
 
-    override fun setupCollect() {
-
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, QuestionPostingActivity::class.java)
+        }
     }
 }
 
@@ -49,7 +48,7 @@ private fun QuestionPostingActivityContent(
     viewModel: QuestionPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivity
+    val context = LocalContext.current as BaseComponentActivity2
 
     val addImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5),
