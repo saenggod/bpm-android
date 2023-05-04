@@ -85,11 +85,12 @@ private fun SignUpActivityContent(
                 image?.let { event.invoke(SignUpContract.Event.OnImageAdded(it.asImageBitmap())) }
             }.onFailure {
                 event.invoke(SignUpContract.Event.OnError("이미지를 불러 올 수 없습니다."))
-                println(it)
             }
         })
 
     LaunchedEffect(Unit) {
+        event.invoke(SignUpContract.Event.GetKakaoNickname)
+
         AppCompatResources.getDrawable(context, R.drawable.default_profile_image)?.let {
             event.invoke(SignUpContract.Event.OnImageAdded(it.toBitmap(320, 320, Bitmap.Config.ARGB_8888).asImageBitmap()))
         } ?: run {
