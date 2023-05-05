@@ -182,7 +182,7 @@ private fun ScheduleActivityContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp),
+                            .height(56.dp),
                         horizontalArrangement = SpaceBetween,
                         verticalAlignment = CenterVertically
                     ) {
@@ -206,7 +206,7 @@ private fun ScheduleActivityContent(
                                         }
                                     }월",
                             fontWeight = SemiBold,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             letterSpacing = 0.sp
                         )
 
@@ -237,6 +237,7 @@ private fun ScheduleActivityContent(
 
                     Row(
                         modifier = Modifier
+                            .padding(horizontal = 12.dp)
                             .fillMaxWidth()
                             .height(40.dp),
                         horizontalArrangement = SpaceEvenly,
@@ -244,64 +245,64 @@ private fun ScheduleActivityContent(
                     ) {
                         Text(
                             modifier = Modifier.size(40.dp),
-                            text = "월",
+                            text = "M",
                             textAlign = TextAlign.Center,
                             fontWeight = Medium,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 0.sp
                         )
 
                         Text(
                             modifier = Modifier.size(40.dp),
-                            text = "화",
+                            text = "T",
                             textAlign = TextAlign.Center,
                             fontWeight = Medium,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 0.sp
                         )
 
                         Text(
                             modifier = Modifier.size(40.dp),
-                            text = "수",
+                            text = "W",
                             textAlign = TextAlign.Center,
                             fontWeight = Medium,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 0.sp
                         )
 
                         Text(
                             modifier = Modifier.size(40.dp),
-                            text = "목",
+                            text = "T",
                             textAlign = TextAlign.Center,
                             fontWeight = Medium,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 0.sp
                         )
 
                         Text(
                             modifier = Modifier.size(40.dp),
-                            text = "금",
+                            text = "F",
                             textAlign = TextAlign.Center,
                             fontWeight = Medium,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 0.sp
                         )
 
                         Text(
                             modifier = Modifier.size(40.dp),
-                            text = "토",
+                            text = "S",
                             textAlign = TextAlign.Center,
                             fontWeight = Medium,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 0.sp
                         )
 
                         Text(
                             modifier = Modifier.size(40.dp),
-                            text = "일",
+                            text = "S",
                             textAlign = TextAlign.Center,
                             fontWeight = Medium,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 0.sp
                         )
                     }
@@ -325,6 +326,7 @@ private fun ScheduleActivityContent(
                     repeat(6) { week ->
                         Row(
                             modifier = Modifier
+                                .padding(horizontal = 12.dp)
                                 .fillMaxWidth()
                                 .height(40.dp),
                             horizontalArrangement = SpaceEvenly,
@@ -363,7 +365,7 @@ private fun ScheduleActivityContent(
                                         modifier = Modifier.align(Center),
                                         text = if (thisDay != null) "${thisDay.dayOfMonth}" else "",
                                         fontWeight = Medium,
-                                        fontSize = 14.sp,
+                                        fontSize = 16.sp,
                                         letterSpacing = 0.sp,
                                         color = if (thisDay != null &&
                                             thisDay.toEpochDay() < currentDate.toEpochDay()
@@ -676,7 +678,7 @@ private fun ScheduleItemLayout(
 
     Column(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 18.dp)
             .fillMaxWidth()
             .height(columnHeightState.value)
     ) {
