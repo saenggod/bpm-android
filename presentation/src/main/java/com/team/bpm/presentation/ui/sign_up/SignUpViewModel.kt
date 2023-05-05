@@ -24,7 +24,7 @@ class SignUpViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val signUpUseCase: SignUpUseCase,
-    private val setUserTokenUseCase: SetUserTokenUseCase
+    private val setUserTokenUseCase: SetUserTokenUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel(), SignUpContract {
     private val _state = MutableStateFlow(SignUpContract.State())
