@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
+import com.team.bpm.domain.usecase.splash.SetUserTokenUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
@@ -23,7 +24,8 @@ class SignUpViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val signUpUseCase: SignUpUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val setUserTokenUseCase: SetUserTokenUseCase
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel(), SignUpContract {
     private val _state = MutableStateFlow(SignUpContract.State())
     override val state: StateFlow<SignUpContract.State> = _state.asStateFlow()
@@ -32,8 +34,11 @@ class SignUpViewModel @Inject constructor(
     override val effect: SharedFlow<SignUpContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: SignUpContract.Event) = when (event) {
+        is SignUpContract.Event.GetKakaoNickname -> {
+            setKakaoNickname()
+        }
         is SignUpContract.Event.OnClickAddImage -> {
-            onClickSetImage()
+            onClickAddImage()
         }
         is SignUpContract.Event.OnImageAdded -> {
             onImageAdded(event.image)
@@ -63,13 +68,19 @@ class SignUpViewModel @Inject constructor(
         )
     }
 
+    private fun setKakaoNickname() {
+        _state.update {
+            it.copy(kakaoNickname = kakaoUserInfo.second)
+        }
+    }
+
     private fun onImageAdded(image: ImageBitmap) {
         _state.update {
             it.copy(profileImage = image)
         }
     }
 
-    private fun onClickSetImage() {
+    private fun onClickAddImage() {
         viewModelScope.launch {
             _effect.emit(SignUpContract.Effect.AddImage)
         }
@@ -103,20 +114,18 @@ class SignUpViewModel @Inject constructor(
                             nickname = nickname,
                             bio = bio
                         ).catch {
-                            // TODO : Error Handling
+
                         }.onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                when (result) {
-                                    is ResponseState.Success -> {
-                                        _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
-                                    }
-                                    is ResponseState.Error -> {
-                                        /*
-                                      TODO : will be modified when function develop
-                                     */
-                                        _state.update {
-                                            it.copy(isLoading = false, errorCode = result.error.code)
-                                        }
+                            when (result) {
+                                is ResponseState.Success -> {
+                                    result.data.token?.let { saveUserToken(it) }
+                                }
+                                is ResponseState.Error -> {
+                                    /*
+                                  TODO : will be modified when function develop
+                                 */
+                                    _state.update {
+                                        it.copy(isLoading = false, errorCode = result.error.code)
                                     }
                                 }
                             }
@@ -125,5 +134,20 @@ class SignUpViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun saveUserToken(token: String) {
+        setUserTokenUseCase(token).onEach { tokenResult ->
+            if (!tokenResult.isNullOrEmpty()) {
+                withContext(mainImmediateDispatcher) {
+                    _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
+                }
+            } else {
+                _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))
+                _state.update {
+                    it.copy(isLoading = false)
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 }

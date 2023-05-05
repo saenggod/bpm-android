@@ -6,12 +6,14 @@ import com.team.bpm.presentation.base.BaseContract
 interface SignUpContract : BaseContract<SignUpContract.State, SignUpContract.Event, SignUpContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
+        val kakaoNickname: String? = null,
         val profileImage: ImageBitmap? = null,
         val submittedWithOmission: Boolean? = null,
         val errorCode: String? = null
     )
 
     sealed interface Event {
+        object GetKakaoNickname : Event
         object OnClickAddImage : Event
         data class OnImageAdded(val image: ImageBitmap) : Event
         data class OnError(val message: String) : Event

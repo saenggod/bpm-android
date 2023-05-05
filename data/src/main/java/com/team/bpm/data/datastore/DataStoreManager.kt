@@ -36,11 +36,11 @@ class DataStoreManager @Inject constructor(private val context: Context) {
     }
 
     suspend fun setUserToken(token: String): Flow<String?> {
-        return flow {
             context.instance.edit { preferences ->
                 preferences[stringPreferencesKey(KEY_USER_TOKEN)] = token
             }
-        }
+
+        return getUserToken()
     }
 
 
