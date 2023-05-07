@@ -182,12 +182,18 @@ inline fun RoundedCornerButton(
     text: String,
     textColor: Color,
     buttonColor: Color,
+    borderColor: Color? = null,
     enabled: Boolean? = true,
     crossinline onClick: () -> Unit
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
+            .border(
+                width = 1.dp,
+                color = borderColor ?: buttonColor,
+                shape = RoundedCornerShape(8.dp)
+            )
             .background(color = if (enabled == true) buttonColor else GrayColor9)
             .clickable { onClick() }
     ) {
@@ -649,7 +655,6 @@ fun ReviewKeywordChip(
 @Composable
 inline fun ReviewListHeader(
     modifier: Modifier = Modifier,
-    reviewCount: Int,
     crossinline onClickOrderByLike: () -> Unit,
     crossinline onClickOrderByDate: () -> Unit,
     crossinline onClickWriteReview: () -> Unit
@@ -667,7 +672,7 @@ inline fun ReviewListHeader(
             verticalAlignment = CenterVertically
         ) {
             Text(
-                text = "업체 리뷰 $reviewCount",
+                text = "업체 리뷰",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 letterSpacing = 0.sp

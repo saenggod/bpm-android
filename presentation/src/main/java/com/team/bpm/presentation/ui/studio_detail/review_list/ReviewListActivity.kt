@@ -91,7 +91,6 @@ private fun ReviewListActivityContent(
 
         item {
             ReviewListHeader(
-                reviewCount = reviewListState.value.size,
                 onClickOrderByLike = {},
                 onClickOrderByDate = {},
                 onClickWriteReview = {
