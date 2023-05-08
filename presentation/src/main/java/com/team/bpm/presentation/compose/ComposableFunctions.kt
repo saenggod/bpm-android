@@ -661,8 +661,9 @@ fun ReviewKeywordChip(
 @Composable
 inline fun ReviewListHeader(
     modifier: Modifier = Modifier,
-    crossinline onClickOrderByLike: () -> Unit,
-    crossinline onClickOrderByDate: () -> Unit,
+    crossinline onClickShowImageReviewsOnly: () -> Unit,
+    crossinline onClickSortOrderByLike: () -> Unit,
+    crossinline onClickSortOrderByDate: () -> Unit,
     crossinline onClickWriteReview: () -> Unit
 ) {
     val showImageReviewOnlyState = remember { mutableStateOf(false) }
@@ -727,7 +728,7 @@ inline fun ReviewListHeader(
             Row {
                 Text(
                     modifier = Modifier.clickableWithoutRipple {
-                        onClickOrderByLike()
+                        onClickSortOrderByLike()
                         showReviewOrderByLikeState.value = true
                     },
                     text = "좋아요순",
@@ -751,7 +752,7 @@ inline fun ReviewListHeader(
 
                 Text(
                     modifier = Modifier.clickableWithoutRipple {
-                        onClickOrderByDate()
+                        onClickSortOrderByDate()
                         showReviewOrderByLikeState.value = false
                     },
                     text = "최신순",

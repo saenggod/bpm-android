@@ -1,7 +1,12 @@
 package com.team.bpm.presentation.ui.studio_detail
 
+import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -10,7 +15,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
@@ -18,12 +26,16 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.*
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
@@ -39,16 +51,26 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus.Denied
+import com.google.accompanist.permissions.PermissionStatus.Granted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.StudioDetailTabType
+import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
+import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
+import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
+import com.team.bpm.presentation.util.dateOnly
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
@@ -71,7 +93,7 @@ class StudioDetailActivity : BaseComponentActivityV2() {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalGlideComposeApi::class, ExperimentalPermissionsApi::class)
 @Composable
 private fun StudioDetailActivityContent(
     viewModel: StudioDetailViewModel = hiltViewModel()
@@ -79,11 +101,8 @@ private fun StudioDetailActivityContent(
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivityV2
     val scrollState = rememberScrollState()
-    val screenHeight = remember { mutableStateOf(0f) }
-    val layoutHeight = remember { mutableStateOf(0) }
     val heightFromTopToInfo = remember { mutableStateOf(0) }
-    val tabByScrollState = remember { mutableStateOf(StudioDetailTabType.Info) }
-    screenHeight.value = LocalConfiguration.current.screenHeightDp.dp.toPx()
+    val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)
 
     LaunchedEffect(Unit) {
         event.invoke(StudioDetailContract.Event.GetStudioDetailData)
@@ -101,25 +120,57 @@ private fun StudioDetailActivityContent(
                 StudioDetailContract.Effect.ScrollToInfoTab -> {
                     scrollState.animateScrollTo(0)
                 }
-                StudioDetailContract.Effect.ScrollToReviewTab -> {
+                is StudioDetailContract.Effect.ScrollToReviewTab -> {
                     scrollState.animateScrollTo(heightFromTopToInfo.value)
+                }
+                is StudioDetailContract.Effect.CopyAddressToClipboard -> {
+                    (context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("address", effect.address))
+                }
+                is StudioDetailContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+                is StudioDetailContract.Effect.Call -> {
+                    when (callPermissionLauncher.status) {
+                        is Granted -> {
+                            context.startActivity(Intent(Intent.ACTION_CALL).apply {
+                                data = Uri.parse("tel:${effect.number}")
+                            })
+                        }
+                        is Denied -> {
+                            callPermissionLauncher.launchPermissionRequest()
+                        }
+                    }
+                }
+                StudioDetailContract.Effect.GoToRegisterStudio -> {
+                    context.startActivity(RegisterStudioActivity.newIntent(context))
+                }
+                StudioDetailContract.Effect.GoToWriteReview -> {
+                    context.startActivity(WritingReviewActivity.newIntent(context))
+                }
+                StudioDetailContract.Effect.GoToReviewList -> {
+                    context.startActivity(ReviewListActivity.newIntent(context))
                 }
             }
         }
     }
 
-    LaunchedEffect(tabByScrollState.value) {
-        when(tabByScrollState.value) {
-            StudioDetailTabType.Info -> {
-                event.invoke(StudioDetailContract.Event.OnScrolledAtInfoArea)
-            }
-            StudioDetailTabType.Review -> {
-                event.invoke(StudioDetailContract.Event.OnScrolledAtReviewArea)
+    with(state) {
+        val screenHeight = remember { mutableStateOf(0f) }
+        val layoutHeight = remember { mutableStateOf(0) }
+        val tabByScrollState = remember { mutableStateOf(StudioDetailTabType.Info) }
+        screenHeight.value = LocalConfiguration.current.screenHeightDp.dp.toPx()
+
+        LaunchedEffect(tabByScrollState.value) {
+            when (tabByScrollState.value) {
+                StudioDetailTabType.Info -> {
+                    event.invoke(StudioDetailContract.Event.OnScrolledAtInfoArea)
+                }
+                StudioDetailTabType.Review -> {
+                    event.invoke(StudioDetailContract.Event.OnScrolledAtReviewArea)
+                }
             }
         }
-    }
 
-    with(state) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -265,6 +316,7 @@ private fun StudioDetailActivityContent(
                             }
 
                             Text(
+                                modifier = Modifier.clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickReviewTab) },
                                 text = "리뷰 ${studio?.reviewCount ?: 0}개",
                                 fontWeight = Normal,
                                 fontSize = 12.sp,
@@ -281,7 +333,7 @@ private fun StudioDetailActivityContent(
                             buttonColor = MainBlackColor,
                             textColor = Color.White,
                             text = "전화 걸기",
-                            onClick = {}
+                            onClick = { studio?.phone?.let { event.invoke(StudioDetailContract.Event.OnClickCall(it)) } }
                         )
                     }
 
@@ -308,6 +360,7 @@ private fun StudioDetailActivityContent(
                         )
 
                         Text(
+                            modifier = Modifier.clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickEditInfoSuggestion) },
                             text = "정보 수정 제안",
                             fontWeight = Medium,
                             fontSize = 14.sp,
@@ -394,7 +447,7 @@ private fun StudioDetailActivityContent(
                                 textColor = MainBlackColor,
                                 buttonColor = Color.White,
                                 borderColor = GrayColor6,
-                                onClick = {}
+                                onClick = { studio?.address?.let { event.invoke(StudioDetailContract.Event.OnClickCopyAddress(it)) } }
                             )
 
                             BPMSpacer(width = 8.dp)
@@ -434,7 +487,7 @@ private fun StudioDetailActivityContent(
                         )
 
                         Text(
-                            text = "마지막 업데이트 : ${studio?.updatedAt ?: ""}",
+                            text = "마지막 업데이트 : ${studio?.updatedAt?.dateOnly() ?: ""}",
                             fontWeight = Medium,
                             fontSize = 14.sp,
                             letterSpacing = 0.sp,
@@ -554,9 +607,10 @@ private fun StudioDetailActivityContent(
 
                 ReviewListHeader(
                     modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y > screenHeight.value / 2f) StudioDetailTabType.Info else StudioDetailTabType.Review },
-                    onClickOrderByLike = {},
-                    onClickOrderByDate = {},
-                    onClickWriteReview = {}
+                    onClickShowImageReviewsOnly = { event.invoke(StudioDetailContract.Event.OnClickShowImageReviewsOnly) },
+                    onClickSortOrderByLike = { event.invoke(StudioDetailContract.Event.OnClickSortByLike) },
+                    onClickSortOrderByDate = { event.invoke(StudioDetailContract.Event.OnClickSortByDate) },
+                    onClickWriteReview = { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
                 )
 
                 reviewList?.let {
@@ -602,7 +656,7 @@ private fun StudioDetailActivityContent(
                                         text = "더보기",
                                         textColor = Color.White,
                                         buttonColor = Color.Black,
-                                        onClick = {}
+                                        onClick = { event.invoke(StudioDetailContract.Event.OnClickMoreReviews) }
                                     )
                                 }
                             }
@@ -636,7 +690,7 @@ private fun StudioDetailActivityContent(
                                         .width(130.dp)
                                         .height(40.dp)
                                         .background(color = MainGreenColor)
-                                        .clickable { }
+                                        .clickable { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
                                 ) {
                                     Text(
                                         modifier = Modifier.align(Center),
@@ -671,6 +725,55 @@ private fun StudioDetailActivityContent(
                         focused = focusedTab == StudioDetailTabType.Review,
                         onClick = { event.invoke(StudioDetailContract.Event.OnClickReviewTab) }
                     )
+                }
+            }
+
+            if (tabByScrollState.value == StudioDetailTabType.Info) {
+                Box(
+                    modifier = Modifier
+                        .padding(
+                            bottom = 25.dp,
+                            end = 16.dp
+                        )
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(500.dp)
+                        )
+                        .clip(shape = RoundedCornerShape(500.dp))
+                        .border(
+                            width = 1.dp,
+                            color = GrayColor3,
+                            shape = RoundedCornerShape(500.dp)
+                        )
+                        .height(36.dp)
+                        .background(color = Color.White)
+                        .align(Alignment.BottomEnd)
+                        .clickable { event.invoke(StudioDetailContract.Event.OnClickReviewTab) },
+                ) {
+                    Row(
+                        modifier = Modifier.align(Center),
+                        horizontalArrangement = spacedBy(4.dp),
+                        verticalAlignment = CenterVertically
+                    ) {
+                        BPMSpacer(width = 14.dp)
+
+                        Text(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            text = "리뷰 바로 작성하기",
+                            fontWeight = SemiBold,
+                            fontSize = 12.sp,
+                            letterSpacing = 0.sp,
+                            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                        )
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_down_small),
+                            contentDescription = "downToReviewIcon",
+                            tint = GrayColor6
+                        )
+
+                        BPMSpacer(width = 14.dp)
+                    }
                 }
             }
 

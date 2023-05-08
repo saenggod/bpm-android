@@ -58,6 +58,30 @@ class StudioDetailViewModel @Inject constructor(
         is StudioDetailContract.Event.OnScrolledAtReviewArea -> {
             onScrolledAtReviewArea()
         }
+        is StudioDetailContract.Event.OnClickCopyAddress -> {
+            onClickCopyAddress(event.address)
+        }
+        is StudioDetailContract.Event.OnClickCall -> {
+            onClickCall(event.number)
+        }
+        is StudioDetailContract.Event.OnClickEditInfoSuggestion -> {
+            onClickEditInfoSuggestion()
+        }
+        is StudioDetailContract.Event.OnClickWriteReview -> {
+            onClickWriteReview()
+        }
+        is StudioDetailContract.Event.OnClickMoreReviews -> {
+            onClickMoreReviews()
+        }
+        is StudioDetailContract.Event.OnClickShowImageReviewsOnly -> {
+            onClickShowImageReviewsOnly()
+        }
+        is StudioDetailContract.Event.OnClickSortByLike -> {
+            onClickSortByLike()
+        }
+        is StudioDetailContract.Event.OnClickSortByDate -> {
+            onClickSortByDate()
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -89,7 +113,8 @@ class StudioDetailViewModel @Inject constructor(
 
                         if (pair.second is ResponseState.Success) {
                             _state.update {
-                                it.copy(reviewList = (pair.second as ResponseState.Success<List<Review>>).data)
+                                val reviewList = (pair.second as ResponseState.Success<List<Review>>).data
+                                it.copy(originalReviewList = reviewList, reviewList = reviewList)
                             }
                         }
                     }
@@ -135,6 +160,62 @@ class StudioDetailViewModel @Inject constructor(
     private fun onScrolledAtReviewArea() {
         _state.update {
             it.copy(focusedTab = StudioDetailTabType.Review)
+        }
+    }
+
+    private fun onClickCopyAddress(address: String) {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.CopyAddressToClipboard(address))
+        }
+    }
+
+    private fun onClickCall(number: String) {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.Call(number))
+        }
+    }
+
+    private fun onClickEditInfoSuggestion() {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.GoToRegisterStudio)
+        }
+    }
+
+    private fun onClickWriteReview() {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.GoToWriteReview)
+        }
+    }
+
+    private fun onClickMoreReviews() {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.GoToReviewList)
+        }
+    }
+
+    private fun onClickShowImageReviewsOnly() {
+        state.value.originalReviewList?.let { reviewList ->
+            _state.update {
+                it.copy(reviewList = reviewList.filter { review -> review.filesPath?.isNotEmpty() == true })
+            }
+        }
+    }
+
+    private fun onClickSortByLike() {
+        state.value.originalReviewList?.let { reviewList ->
+            _state.update {
+                it.copy(reviewList = reviewList.sortedByDescending { review -> review.likeCount })
+            }
+        }
+    }
+
+    private fun onClickSortByDate() {
+        state.value.originalReviewList?.let { reviewList ->
+            _state.update {
+                it.copy(reviewList = reviewList.sortedByDescending { review ->
+                    review.createdAt
+                })
+            }
         }
     }
 }

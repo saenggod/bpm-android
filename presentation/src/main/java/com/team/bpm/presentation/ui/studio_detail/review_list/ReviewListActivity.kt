@@ -90,15 +90,15 @@ private fun ReviewListActivityContent(
         }
 
         item {
-            ReviewListHeader(
-                onClickOrderByLike = {},
-                onClickOrderByDate = {},
-                onClickWriteReview = {
-                    context.startActivity(
-                        WritingReviewActivity.newIntent(context).putExtra("studioId", studioId)
-                    )
-                }
-            )
+//            ReviewListHeader(
+//                onClickOrderByLike = {},
+//                onClickOrderByDate = {},
+//                onClickWriteReview = {
+//                    context.startActivity(
+//                        WritingReviewActivity.newIntent(context).putExtra("studioId", studioId)
+//                    )
+//                }
+//            )
         }
 
         items(reviewListState.value) { review ->

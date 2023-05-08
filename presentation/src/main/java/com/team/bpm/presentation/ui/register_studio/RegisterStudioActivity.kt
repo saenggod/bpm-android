@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.register_studio
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -91,6 +93,12 @@ class RegisterStudioActivity : BaseComponentActivity() {
     }
 
     override fun setupCollect() = Unit
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, RegisterStudioActivity::class.java)
+        }
+    }
 }
 
 @Composable
@@ -259,12 +267,6 @@ private fun RegisterStudioActivityContent(
         BPMSpacer(height = 26.dp)
 
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            LaunchedEffect(key1 = scrollState.maxValue) {
-                scope.launch {
-                    scrollState.animateScrollTo(scrollState.maxValue)
-                }
-            }
-
             BPMTextField(
                 textState = phoneNumberTextState,
                 label = "전화번호",
