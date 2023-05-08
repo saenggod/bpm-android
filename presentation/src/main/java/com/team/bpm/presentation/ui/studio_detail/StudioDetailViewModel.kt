@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
+import com.team.bpm.domain.model.Review
+import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
@@ -37,6 +39,12 @@ class StudioDetailViewModel @Inject constructor(
                 // TODO : Error Handling
             }
         }
+        is StudioDetailContract.Event.ShowErrorDialog -> {
+            showErrorDialog()
+        }
+        is StudioDetailContract.Event.OnClickQuit -> {
+            onClickQuit()
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -55,20 +63,41 @@ class StudioDetailViewModel @Inject constructor(
         }
 
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            studioDetailUseCase(studioId).onEach { result ->
-                when (result) {
-                    is ResponseState.Success -> {
+            studioDetailUseCase(studioId).zip(reviewListUseCase(studioId)) { studioResult, reviewListResult ->
+                Pair(studioResult, reviewListResult)
+            }.onEach { pair ->
+                withContext(mainImmediateDispatcher) {
+                    if (pair.first is ResponseState.Error) {
+                        _effect.emit(StudioDetailContract.Effect.LoadFailed)
+                    } else {
                         _state.update {
-                            it.copy(isLoading = false, studio = result.data)
+                            it.copy(isLoading = false, studio = (pair.first as ResponseState.Success<Studio>).data)
                         }
-                    }
-                    is ResponseState.Error -> {
-                        withContext(mainImmediateDispatcher) {
-                            _effect.emit(StudioDetailContract.Effect.ShowToast("스튜디오 정보를 불러 올 수 없습니다."))
+
+                        if (pair.second is ResponseState.Success) {
+                            _state.update {
+                                it.copy(reviewList = (pair.second as ResponseState.Success<List<Review>>).data)
+                            }
                         }
                     }
                 }
             }.launchIn(viewModelScope)
+        }
+    }
+
+    private fun showErrorDialog() {
+        _state.update {
+            it.copy(isErrorDialogShowing = true)
+        }
+    }
+
+    private fun onClickQuit() {
+        _state.update {
+            it.copy(isErrorDialogShowing = false)
+        }
+
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.Quit)
         }
     }
 }

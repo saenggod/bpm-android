@@ -53,7 +53,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.team.bpm.domain.model.Review
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity
+import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
@@ -390,7 +390,7 @@ fun ReviewComposable(
     modifier: Modifier = Modifier,
     review: Review
 ) {
-    val context = LocalContext.current as BaseComponentActivity
+    val context = LocalContext.current as BaseComponentActivityV2
 
     with(review) {
         val likeState = remember { mutableStateOf(liked ?: false) }
@@ -440,16 +440,18 @@ fun ReviewComposable(
             BPMSpacer(height = 12.dp)
 
             rating?.let {
-                for (i in 1..5) {
-                    Image(
-                        modifier = Modifier.size(15.dp),
-                        painter = painterResource(
-                            id = if (i.toDouble() <= it) R.drawable.ic_star_small_filled
-                            else if (i.toDouble() > it && it > i - 1) R.drawable.ic_star_small_half
-                            else R.drawable.ic_star_small_empty
-                        ),
-                        contentDescription = "starIcon"
-                    )
+                Row {
+                    for (i in 1..5) {
+                        Image(
+                            modifier = Modifier.size(15.dp),
+                            painter = painterResource(
+                                id = if (i.toDouble() <= it) R.drawable.ic_star_small_filled
+                                else if (i.toDouble() > it && it > i - 1) R.drawable.ic_star_small_half
+                                else R.drawable.ic_star_small_empty
+                            ),
+                            contentDescription = "starIcon"
+                        )
+                    }
                 }
             }
 

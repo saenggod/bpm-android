@@ -2,25 +2,24 @@ package com.team.bpm.presentation.ui.studio_detail
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +46,6 @@ import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
-import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import net.daum.mf.map.api.MapPoint
@@ -87,8 +85,11 @@ private fun StudioDetailActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is StudioDetailContract.Effect.ShowToast -> {
-                    context.showToast(effect.message)
+                StudioDetailContract.Effect.LoadFailed -> {
+                    event.invoke(StudioDetailContract.Event.ShowErrorDialog)
+                }
+                StudioDetailContract.Effect.Quit -> {
+                    context.finish()
                 }
             }
         }
@@ -544,11 +545,110 @@ private fun StudioDetailActivityContent(
                     onClickOrderByDate = {},
                     onClickWriteReview = {}
                 )
-            }
 
+                reviewList?.let {
+                    if (it.isNotEmpty()) {
+                        Box {
+                            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                it.forEachIndexed { index, review ->
+                                    if (index < 5) {
+                                        ReviewComposable(
+                                            review = review
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (it.size > 5) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(BottomCenter)
+                                        .fillMaxWidth()
+                                        .height(250.dp)
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                listOf(
+                                                    Color(0X53FFFFFF),
+                                                    Color(0X73FFFFFF),
+                                                    Color(0XA2FFFFFF),
+                                                    Color(0XD9FFFFFF),
+                                                    Color(0XF2FFFFFF),
+                                                )
+                                            )
+                                        )
+                                ) {
+                                    RoundedCornerButton(
+                                        modifier = Modifier
+                                            .padding(
+                                                horizontal = 16.dp,
+                                                vertical = 12.dp
+                                            )
+                                            .fillMaxWidth()
+                                            .height(48.dp)
+                                            .align(BottomCenter),
+                                        text = "더보기",
+                                        textColor = Color.White,
+                                        buttonColor = Color.Black,
+                                        onClick = {}
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Box(modifier = Modifier.size(360.dp)) {
+                            Column(
+                                modifier = Modifier.align(Center),
+                                horizontalAlignment = CenterHorizontally
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.shoulder_man),
+                                    contentDescription = "shoulderManImage"
+                                )
+
+                                BPMSpacer(height = 10.dp)
+
+                                Text(
+                                    text = "아직 등록된 리뷰가 없어요\n첫 번째 리뷰를 남겨주세요",
+                                    fontWeight = Medium,
+                                    fontSize = 12.sp,
+                                    letterSpacing = 0.sp,
+                                    color = GrayColor5
+                                )
+
+                                BPMSpacer(height = 18.dp)
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(shape = RoundedCornerShape(50.dp))
+                                        .width(130.dp)
+                                        .height(40.dp)
+                                        .background(color = MainGreenColor)
+                                        .clickable { }
+                                ) {
+                                    Text(
+                                        modifier = Modifier.align(Center),
+                                        text = "리뷰 등록하기",
+                                        fontWeight = SemiBold,
+                                        fontSize = 12.sp,
+                                        letterSpacing = 0.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             if (isLoading) {
                 LoadingScreen()
+            }
+
+            if (isErrorDialogShowing) {
+                NoticeDialog(
+                    isCancelable = false,
+                    text = "스튜디오 정보를 불러 올 수 없습니다.",
+                    onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickQuit) }
+                )
             }
         }
     }
@@ -573,7 +673,7 @@ private fun RowScope.Tab(
         )
 
         Divider(
-            modifier = Modifier.align(Alignment.BottomCenter),
+            modifier = Modifier.align(BottomCenter),
             thickness = 2.dp,
             color = if (focused) MainBlackColor else Color.White
         )
