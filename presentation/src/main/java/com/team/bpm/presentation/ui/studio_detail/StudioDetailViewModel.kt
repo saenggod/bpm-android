@@ -10,6 +10,7 @@ import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -44,6 +45,18 @@ class StudioDetailViewModel @Inject constructor(
         }
         is StudioDetailContract.Event.OnClickQuit -> {
             onClickQuit()
+        }
+        is StudioDetailContract.Event.OnClickInfoTab -> {
+            onClickInfoTab()
+        }
+        is StudioDetailContract.Event.OnClickReviewTab -> {
+            onClickReviewTab()
+        }
+        is StudioDetailContract.Event.OnScrolledAtInfoArea -> {
+            onScrolledAtInfoArea()
+        }
+        is StudioDetailContract.Event.OnScrolledAtReviewArea -> {
+            onScrolledAtReviewArea()
         }
     }
 
@@ -98,6 +111,30 @@ class StudioDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             _effect.emit(StudioDetailContract.Effect.Quit)
+        }
+    }
+
+    private fun onClickInfoTab() {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.ScrollToInfoTab)
+        }
+    }
+
+    private fun onClickReviewTab() {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.ScrollToReviewTab)
+        }
+    }
+
+    private fun onScrolledAtInfoArea() {
+        _state.update {
+            it.copy(focusedTab = StudioDetailTabType.Info)
+        }
+    }
+
+    private fun onScrolledAtReviewArea() {
+        _state.update {
+            it.copy(focusedTab = StudioDetailTabType.Review)
         }
     }
 }

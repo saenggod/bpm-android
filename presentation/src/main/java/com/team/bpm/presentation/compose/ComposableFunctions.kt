@@ -67,7 +67,11 @@ fun ScreenHeader(
 ) {
     val context = LocalContext.current as ComponentActivity
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color.White)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

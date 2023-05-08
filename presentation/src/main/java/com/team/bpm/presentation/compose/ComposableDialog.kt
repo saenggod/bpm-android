@@ -1,6 +1,7 @@
 package com.team.bpm.presentation.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -84,13 +85,11 @@ inline fun NoticeDialog(
                 .fillMaxWidth()
                 .height(40.dp)
                 .background(color = MainGreenColor)
+                .clickable { onClickConfirm() }
             ) {
                 Text(
                     modifier = Modifier
-                        .align(Center)
-                        .clickableWithoutRipple {
-                            onClickConfirm()
-                        },
+                        .align(Center),
                     text = "확인",
                     fontWeight = SemiBold,
                     fontSize = 16.sp,
