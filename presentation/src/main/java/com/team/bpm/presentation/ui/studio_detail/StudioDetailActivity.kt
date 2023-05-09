@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -70,7 +72,6 @@ import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
@@ -521,7 +522,7 @@ private fun StudioDetailActivityContent(
                         color = GrayColor11
                     )
 
-                    if (studio?.tagList != null) {
+                    if (studio?.tagList != null && studio.tagList.isNotEmpty()) {
                         Row(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
@@ -552,13 +553,34 @@ private fun StudioDetailActivityContent(
                                 .fillMaxWidth()
                                 .background(color = GrayColor10)
                         ) {
+                            val tagListSize = studio.tagList.size
+                            val tagListHeightState = animateDpAsState(
+                                targetValue =
+                                if (isTagListExpanded) {
+                                    (tagListSize * 42 + (tagListSize - 1) * 6).dp
+                                } else {
+                                    when (tagListSize) {
+                                        1 -> {
+                                            42.dp
+                                        }
+                                        2 -> {
+                                            90.dp
+                                        }
+                                        else -> {
+                                            138.dp
+                                        }
+                                    }
+                                }
+                            )
+
                             Column(
                                 modifier = Modifier
                                     .padding(
                                         top = 14.dp,
                                         start = 14.dp,
                                         end = 14.dp
-                                    ),
+                                    )
+                                    .height(tagListHeightState.value),
                                 verticalArrangement = spacedBy(6.dp)
                             ) {
                                 studio.tagList.forEachIndexed { index, tag ->
@@ -580,20 +602,24 @@ private fun StudioDetailActivityContent(
                                 }
                             }
 
-                            Icon(
-                                modifier = Modifier
-                                    .padding(
-                                        top = 6.dp,
-                                        bottom = 4.dp
-                                    )
-                                    .size(18.dp)
-                                    .clickableWithoutRipple {}
-                                    .align(CenterHorizontally),
-//                            .rotate(expandIconRotateState.value),
-                                painter = painterResource(id = R.drawable.ic_arrow_down),
-                                contentDescription = "expandColumnIcon",
-                                tint = GrayColor5
-                            )
+                            if (tagListSize > 3) {
+                                Icon(
+                                    modifier = Modifier
+                                        .padding(
+                                            top = 6.dp,
+                                            bottom = 4.dp
+                                        )
+                                        .size(18.dp)
+                                        .clickableWithoutRipple { if (isTagListExpanded) event.invoke(StudioDetailContract.Event.OnClickCollapseTagList) else event.invoke(StudioDetailContract.Event.OnClickExpandTagList) }
+                                        .align(CenterHorizontally)
+                                        .rotate(if (isTagListExpanded) 180f else 0f),
+                                    painter = painterResource(id = R.drawable.ic_arrow_down),
+                                    contentDescription = "expandColumnIcon",
+                                    tint = GrayColor5
+                                )
+                            } else {
+                                BPMSpacer(height = 14.dp)
+                            }
                         }
 
                         BPMSpacer(height = 25.dp)

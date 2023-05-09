@@ -13,7 +13,10 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         val originalReviewList: List<Review>? = null,
         val reviewList: List<Review>? = null,
         val isErrorDialogShowing: Boolean = false,
-        val focusedTab: StudioDetailTabType = StudioDetailTabType.Info
+        val focusedTab: StudioDetailTabType = StudioDetailTabType.Info,
+        val isReviewListShowingImageReviewsOnly: Boolean = false,
+        val isReviewListSortedByLike: Boolean = true,
+        val isTagListExpanded: Boolean = false
     )
 
     sealed interface Event {
@@ -30,8 +33,11 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         object OnClickWriteReview : Event
         object OnClickMoreReviews : Event
         object OnClickShowImageReviewsOnly : Event
+        object OnClickShowNotOnlyImageReviews : Event
         object OnClickSortByLike : Event
         object OnClickSortByDate : Event
+        object OnClickExpandTagList : Event
+        object OnClickCollapseTagList : Event
     }
 
     sealed interface Effect {

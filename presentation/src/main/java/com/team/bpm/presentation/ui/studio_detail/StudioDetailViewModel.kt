@@ -76,11 +76,20 @@ class StudioDetailViewModel @Inject constructor(
         is StudioDetailContract.Event.OnClickShowImageReviewsOnly -> {
             onClickShowImageReviewsOnly()
         }
+        is StudioDetailContract.Event.OnClickShowNotOnlyImageReviews -> {
+            onClickShowNotOnlyImageReviews()
+        }
         is StudioDetailContract.Event.OnClickSortByLike -> {
             onClickSortByLike()
         }
         is StudioDetailContract.Event.OnClickSortByDate -> {
             onClickSortByDate()
+        }
+        is StudioDetailContract.Event.OnClickExpandTagList -> {
+            onClickExpandTagList()
+        }
+        is StudioDetailContract.Event.OnClickCollapseTagList -> {
+            onClickCollapseTagList()
         }
     }
 
@@ -196,26 +205,53 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         state.value.originalReviewList?.let { reviewList ->
             _state.update {
-                it.copy(reviewList = reviewList.filter { review -> review.filesPath?.isNotEmpty() == true })
+                val filteredList = reviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
+                it.copy(reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
+                else filteredList.sortedByDescending { review -> review.createdAt })
+            }
+        }
+    }
+
+    private fun onClickShowNotOnlyImageReviews() {
+        state.value.originalReviewList?.let { reviewList ->
+            _state.update {
+                it.copy(reviewList = if (state.value.isReviewListSortedByLike) reviewList.sortedByDescending { review -> review.likeCount }
+                else reviewList.sortedByDescending { review -> review.createdAt })
             }
         }
     }
 
     private fun onClickSortByLike() {
-        state.value.originalReviewList?.let { reviewList ->
+        state.value.originalReviewList?.let { _ ->
             _state.update {
-                it.copy(reviewList = reviewList.sortedByDescending { review -> review.likeCount })
+                it.copy(
+                    reviewList = state.value.reviewList?.sortedByDescending { review -> review.likeCount },
+                    isReviewListSortedByLike = true
+                )
             }
         }
     }
 
     private fun onClickSortByDate() {
-        state.value.originalReviewList?.let { reviewList ->
+        state.value.originalReviewList?.let { _ ->
             _state.update {
-                it.copy(reviewList = reviewList.sortedByDescending { review ->
-                    review.createdAt
-                })
+                it.copy(
+                    reviewList = state.value.reviewList?.sortedByDescending { review -> review.createdAt },
+                    isReviewListSortedByLike = false
+                )
             }
+        }
+    }
+
+    private fun onClickExpandTagList() {
+        _state.update {
+            it.copy(isTagListExpanded = true)
+        }
+    }
+
+    private fun onClickCollapseTagList() {
+        _state.update {
+            it.copy(isTagListExpanded = false)
         }
     }
 }
