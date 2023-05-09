@@ -21,14 +21,16 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
 
     sealed interface Event {
         object GetStudioDetailData : Event
-        object ShowErrorDialog : Event
+        object OnErrorOccurred : Event
         object OnClickQuit : Event
         object OnClickInfoTab : Event
         object OnClickReviewTab : Event
         object OnScrolledAtInfoArea : Event
         object OnScrolledAtReviewArea : Event
-        data class OnClickCopyAddress(val address: String) : Event
         data class OnClickCall(val number: String) : Event
+        data class OnClickCopyAddress(val address: String) : Event
+        data class OnClickNavigate(val address: String) : Event
+        object OnMissingNavigationApp : Event
         object OnClickEditInfoSuggestion : Event
         object OnClickWriteReview : Event
         object OnClickMoreReviews : Event
@@ -45,9 +47,10 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         object Quit : Effect
         object ScrollToInfoTab : Effect
         object ScrollToReviewTab : Effect
-        data class CopyAddressToClipboard(val address: String) : Effect
-        data class ShowToast(val text: String) : Effect
         data class Call(val number: String) : Effect
+        data class CopyAddressToClipboard(val address: String) : Effect
+        data class LaunchNavigationApp(val address: String) : Effect
+        data class ShowToast(val text: String) : Effect
         object GoToRegisterStudio : Effect
         object GoToWriteReview : Effect
         object GoToReviewList : Effect

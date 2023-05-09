@@ -113,7 +113,7 @@ private fun StudioDetailActivityContent(
         effect.collectLatest { effect ->
             when (effect) {
                 StudioDetailContract.Effect.LoadFailed -> {
-                    event.invoke(StudioDetailContract.Event.ShowErrorDialog)
+                    event.invoke(StudioDetailContract.Event.OnErrorOccurred)
                 }
                 StudioDetailContract.Effect.Quit -> {
                     context.finish()
@@ -124,9 +124,7 @@ private fun StudioDetailActivityContent(
                 is StudioDetailContract.Effect.ScrollToReviewTab -> {
                     scrollState.animateScrollTo(heightFromTopToInfo.value)
                 }
-                is StudioDetailContract.Effect.CopyAddressToClipboard -> {
-                    (context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("address", effect.address))
-                }
+
                 is StudioDetailContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
@@ -140,6 +138,17 @@ private fun StudioDetailActivityContent(
                         is Denied -> {
                             callPermissionLauncher.launchPermissionRequest()
                         }
+                    }
+                }
+                is StudioDetailContract.Effect.CopyAddressToClipboard -> {
+                    (context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("address", effect.address))
+                }
+                is StudioDetailContract.Effect.LaunchNavigationApp -> {
+                    val navigationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${effect.address}"))
+                    if (navigationIntent.resolveActivity(context.packageManager) != null) {
+                        context.startActivity(navigationIntent)
+                    } else {
+                        event.invoke(StudioDetailContract.Event.OnMissingNavigationApp)
                     }
                 }
                 StudioDetailContract.Effect.GoToRegisterStudio -> {
@@ -422,7 +431,7 @@ private fun StudioDetailActivityContent(
                                     Image(
                                         modifier = Modifier
                                             .size(36.dp)
-                                            .align(Alignment.CenterHorizontally),
+                                            .align(CenterHorizontally),
                                         painter = painterResource(id = R.drawable.ic_marker),
                                         contentDescription = "mapMarkerIcon"
                                     )
@@ -460,7 +469,7 @@ private fun StudioDetailActivityContent(
                                 text = "길찾기",
                                 textColor = MainBlackColor,
                                 buttonColor = MainGreenColor,
-                                onClick = {}
+                                onClick = { studio?.address?.let { event.invoke(StudioDetailContract.Event.OnClickNavigate(it)) } }
                             )
                         }
                     }

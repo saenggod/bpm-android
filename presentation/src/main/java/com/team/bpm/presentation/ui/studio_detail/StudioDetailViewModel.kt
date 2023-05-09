@@ -40,7 +40,7 @@ class StudioDetailViewModel @Inject constructor(
                 // TODO : Error Handling
             }
         }
-        is StudioDetailContract.Event.ShowErrorDialog -> {
+        is StudioDetailContract.Event.OnErrorOccurred -> {
             showErrorDialog()
         }
         is StudioDetailContract.Event.OnClickQuit -> {
@@ -58,11 +58,17 @@ class StudioDetailViewModel @Inject constructor(
         is StudioDetailContract.Event.OnScrolledAtReviewArea -> {
             onScrolledAtReviewArea()
         }
+        is StudioDetailContract.Event.OnClickCall -> {
+            onClickCall(event.number)
+        }
         is StudioDetailContract.Event.OnClickCopyAddress -> {
             onClickCopyAddress(event.address)
         }
-        is StudioDetailContract.Event.OnClickCall -> {
-            onClickCall(event.number)
+        is StudioDetailContract.Event.OnClickNavigate -> {
+            onClickNavigate(event.address)
+        }
+        is StudioDetailContract.Event.OnMissingNavigationApp -> {
+            onMissingNavigationApp()
         }
         is StudioDetailContract.Event.OnClickEditInfoSuggestion -> {
             onClickEditInfoSuggestion()
@@ -172,15 +178,27 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
+    private fun onClickCall(number: String) {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.Call(number))
+        }
+    }
+
     private fun onClickCopyAddress(address: String) {
         viewModelScope.launch {
             _effect.emit(StudioDetailContract.Effect.CopyAddressToClipboard(address))
         }
     }
 
-    private fun onClickCall(number: String) {
+    private fun onClickNavigate(address: String) {
         viewModelScope.launch {
-            _effect.emit(StudioDetailContract.Effect.Call(number))
+            _effect.emit(StudioDetailContract.Effect.LaunchNavigationApp(address))
+        }
+    }
+
+    private fun onMissingNavigationApp() {
+        viewModelScope.launch {
+            _effect.emit(StudioDetailContract.Effect.ShowToast("지도 앱이 설치되어 있지 않습니다."))
         }
     }
 
