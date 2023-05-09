@@ -145,11 +145,7 @@ private fun StudioDetailActivityContent(
                 }
                 is StudioDetailContract.Effect.LaunchNavigationApp -> {
                     val navigationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${effect.address}"))
-                    if (navigationIntent.resolveActivity(context.packageManager) != null) {
-                        context.startActivity(navigationIntent)
-                    } else {
-                        event.invoke(StudioDetailContract.Event.OnMissingNavigationApp)
-                    }
+                    context.startActivity(navigationIntent)
                 }
                 StudioDetailContract.Effect.GoToRegisterStudio -> {
                     context.startActivity(RegisterStudioActivity.newIntent(context))
