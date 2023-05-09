@@ -171,7 +171,7 @@ class WritingReviewActivity : BaseComponentActivity() {
                     }
                     is WritingReviewState.ReviewSuccess -> {
                         hideLoadingScreen()
-                        startActivity(ReviewDetailActivity.newIntent(this@WritingReviewActivity).putExtra("reviewId", state.review.id))
+//                        startActivity(ReviewDetailActivity.newIntent(this@WritingReviewActivity).putExtra("reviewId", state.review.id))
                         finish()
                     }
                     is WritingReviewState.Error -> Unit

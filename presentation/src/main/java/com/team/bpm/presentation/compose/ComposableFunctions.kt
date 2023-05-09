@@ -397,16 +397,11 @@ fun ReviewComposable(
     val context = LocalContext.current as BaseComponentActivityV2
 
     with(review) {
-        val likeState = remember { mutableStateOf(liked ?: false) }
         Column(
             modifier = modifier
                 .fillMaxWidth()
                 .clickableWithoutRipple {
-                    context.startActivity(
-                        ReviewDetailActivity
-                            .newIntent(context)
-                            .putExtra("reviewId", id)
-                    )
+                    review.studio?.id?.let { studioId -> review.id?.let { reviewId -> context.startActivity(ReviewDetailActivity.newIntent(context = context, studioId = studioId, reviewId = reviewId)) } }
                 }
         ) {
             BPMSpacer(height = 16.dp)
@@ -520,7 +515,6 @@ fun ReviewComposable(
 
             LikeButton(
                 liked = liked ?: false,
-                likeState = likeState,
                 likeCount = likeCount ?: 0,
                 onClick = { }
             )
@@ -536,10 +530,10 @@ fun ReviewComposable(
 @Composable
 inline fun LikeButton(
     liked: Boolean,
-    likeState: MutableState<Boolean>,
     likeCount: Int,
     crossinline onClick: () -> Unit
 ) {
+    val likeState = remember { mutableStateOf(liked) }
 
     Box(
         modifier = Modifier
