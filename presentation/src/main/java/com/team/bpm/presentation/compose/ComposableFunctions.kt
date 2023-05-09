@@ -533,22 +533,17 @@ inline fun LikeButton(
     likeCount: Int,
     crossinline onClick: () -> Unit
 ) {
-    val likeState = remember { mutableStateOf(liked) }
-
     Box(
         modifier = Modifier
             .clip(shape = RoundedCornerShape(12.dp))
             .height(28.dp)
             .border(
                 width = 1.dp,
-                color = if (likeState.value) MainBlackColor else GrayColor9,
+                color = if (liked) MainBlackColor else GrayColor9,
                 shape = RoundedCornerShape(12.dp)
             )
-            .background(color = if (likeState.value) MainBlackColor else Color.White)
-            .clickableWithoutRipple {
-                likeState.value = !likeState.value
-                onClick()
-            }
+            .background(color = if (liked) MainBlackColor else Color.White)
+            .clickableWithoutRipple { onClick() }
     ) {
         Row(
             modifier = Modifier
@@ -559,7 +554,7 @@ inline fun LikeButton(
             Icon(
                 painter = painterResource(id = R.drawable.ic_like),
                 contentDescription = "likeIcon",
-                tint = if (likeState.value) MainGreenColor else MainBlackColor
+                tint = if (liked) MainGreenColor else MainBlackColor
             )
 
             BPMSpacer(width = 4.dp)
@@ -569,26 +564,17 @@ inline fun LikeButton(
                 fontWeight = Medium,
                 fontSize = 12.sp,
                 letterSpacing = 0.sp,
-                color = if (likeState.value) MainGreenColor else MainBlackColor
+                color = if (liked) MainGreenColor else MainBlackColor
             )
 
             BPMSpacer(width = 4.dp)
 
             Text(
-                text = if (liked &&
-                    likeState.value
-                ) "$likeCount"
-                else if (liked &&
-                    !likeState.value
-                ) "${likeCount - 1}"
-                else if (!liked &&
-                    !likeState.value
-                ) "$likeCount"
-                else "${likeCount + 1}",
+                text = "$likeCount",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 12.sp,
                 letterSpacing = 0.sp,
-                color = if (likeState.value) MainGreenColor else MainBlackColor
+                color = if (liked) MainGreenColor else MainBlackColor
             )
         }
     }
