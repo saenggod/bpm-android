@@ -43,6 +43,7 @@ import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.util.dateOnly
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -86,7 +87,11 @@ private fun ReviewDetailActivityContent(
 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
-
+            when (effect) {
+                is ReviewDetailContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+            }
         }
     }
 
@@ -265,8 +270,8 @@ private fun ReviewDetailActivityContent(
                         BPMSpacer(height = 20.dp)
 
                         LikeButton(
-                            liked = review?.liked ?: false,
-                            likeCount = review?.likeCount ?: 0,
+                            liked = liked ?: false,
+                            likeCount = likeCount ?: 0,
                             onClick = { event.invoke(ReviewDetailContract.Event.OnClickLike) }
                         )
 

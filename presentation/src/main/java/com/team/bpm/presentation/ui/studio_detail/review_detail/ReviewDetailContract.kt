@@ -7,7 +7,8 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
     data class State(
         val isLoading: Boolean = false,
         val review: Review? = null,
-        val liked: Boolean? = false
+        val liked: Boolean? = false,
+        val likeCount: Int? = null
     )
 
     sealed interface Event {
@@ -16,6 +17,6 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
     }
 
     sealed interface Effect {
-
+        data class ShowToast(val text: String) : Effect
     }
 }

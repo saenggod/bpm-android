@@ -109,7 +109,7 @@ private fun SignUpActivityContent(
                     context.finish()
                 }
                 is SignUpContract.Effect.ShowToast -> {
-                    context.showToast(effect.message)
+                    context.showToast(effect.text)
                 }
             }
         }

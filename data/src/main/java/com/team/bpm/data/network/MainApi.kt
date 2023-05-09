@@ -9,6 +9,7 @@ import com.team.bpm.data.model.response.StudioListResponse
 import com.team.bpm.data.model.response.StudioResponse
 import com.team.bpm.data.model.response.UserScheduleResponse
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -52,6 +53,18 @@ interface MainApi {
         @Path("studioId") studioId: Int,
         @Path("reviewId") reviewId: Int
     ): Response<ReviewResponse>
+
+    @POST("api/studio/{studioId}/review/{reviewId}/like")
+    suspend fun sendReviewLike(
+        @Path("studioId") studioId: Int,
+        @Path("reviewId") reviewId: Int
+    ): Response<ResponseBody>
+
+    @DELETE("api/studio/{studioId}/review/{reviewId}/like")
+    suspend fun deleteReviewLike(
+        @Path("studioId") studioId: Int,
+        @Path("reviewId") reviewId: Int
+    ): Response<ResponseBody>
 
     @Multipart
     @POST("api/studio/{studioId}/review")

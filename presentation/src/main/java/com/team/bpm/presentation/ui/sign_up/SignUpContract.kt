@@ -23,6 +23,6 @@ interface SignUpContract : BaseContract<SignUpContract.State, SignUpContract.Eve
     sealed interface Effect {
         object AddImage : Effect
         object OnSuccessSignUp : Effect
-        data class ShowToast(val message: String) : Effect
+        data class ShowToast(val text: String) : Effect
     }
 }
