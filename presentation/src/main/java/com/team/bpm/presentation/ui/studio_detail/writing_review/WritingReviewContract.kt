@@ -9,7 +9,8 @@ interface WritingReviewContract : BaseContract<WritingReviewContract.State, Writ
     data class State(
         val isLoading: Boolean = false,
         val studio: Studio? = null,
-        val imageList: List<Pair<Uri, ImageBitmap>> = emptyList()
+        val imageList: List<Pair<Uri, ImageBitmap>> = emptyList(),
+        val keywordList: HashMap<String, Boolean> = HashMap()
     )
 
     sealed interface Event {
@@ -17,7 +18,8 @@ interface WritingReviewContract : BaseContract<WritingReviewContract.State, Writ
         object OnClickImagePlaceHolder : Event
         data class OnImagesAdded(val images: List<Pair<Uri, ImageBitmap>>) : Event
         data class OnClickRemoveImage(val index: Int) : Event
-        object OnClickSubmit : Event
+        data class OnClickKeywordChip(val keyword: String) : Event
+        data class OnClickSubmit(val rating: Double, val content: String) : Event
     }
 
     sealed interface Effect {

@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.studio_detail.writing_review
 
+import android.net.Uri
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,12 +10,14 @@ import com.team.bpm.domain.usecase.splash.WriteReviewUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,16 +39,19 @@ class WritingReviewViewModel @Inject constructor(
             getStudio()
         }
         WritingReviewContract.Event.OnClickImagePlaceHolder -> {
-
+            onClickImagePlaceHolder()
         }
         is WritingReviewContract.Event.OnImagesAdded -> {
-
+            onImagesAdded(event.images)
         }
         is WritingReviewContract.Event.OnClickRemoveImage -> {
-
+            onClickRemoveImage(event.index)
+        }
+        is WritingReviewContract.Event.OnClickKeywordChip -> {
+            onClickKeywordChip(event.keyword)
         }
         is WritingReviewContract.Event.OnClickSubmit -> {
-
+            onClickSubmit(event.rating, event.content)
         }
     }
 
@@ -89,36 +96,78 @@ class WritingReviewViewModel @Inject constructor(
         }
     }
 
-//    fun writeReview(
-//        studioId: Int,
-//        images: List<ImageBitmap>,
-//        rating: Double,
-//        recommends: List<String>,
-//        content: String
-//    ) {
-//        viewModelScope.launch(mainDispatcher) {
-//            _state.emit(WritingReviewState.Loading)
-//        }
-//
-////        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-////            writeReviewUseCase(
-////                studioId = studioId,
-////                images = images.map { convertBitmapToWebpFile(it) },
-////                rating = rating,
-////                recommends = recommends,
-////                content = content
-////            ).onEach { state ->
-////                when(state) {
-////                    is ResponseState.Success -> _state.emit(WritingReviewState.ReviewSuccess(state.data))
-////                    is ResponseState.Error -> _state.emit(WritingReviewState.Error)
-////                }
-////            }.launchIn(viewModelScope)
-////        }
-//    }
-//
-//    fun onClickWriteReview() {
-//        viewModelScope.launch(mainDispatcher) {
-//            _event.emit(WritingReviewViewEvent.Write)
-//        }
-//    }
+    private fun onClickImagePlaceHolder() {
+        viewModelScope.launch {
+            _effect.emit(WritingReviewContract.Effect.AddImages)
+        }
+    }
+
+    private fun onImagesAdded(images: List<Pair<Uri, ImageBitmap>>) {
+        val linkedList = LinkedList<Pair<Uri, ImageBitmap>>().apply {
+            addAll(state.value.imageList)
+        }
+
+        for (i in images.indices) {
+            if (linkedList.size == 5) {
+                break
+            }
+
+            linkedList.addFirst(images[i])
+        }
+
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = linkedList.toMutableList())
+            }
+        }
+    }
+
+    private fun onClickRemoveImage(index: Int) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+            }
+        }
+    }
+
+    private fun onClickKeywordChip(keyword: String) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(keywordList = it.keywordList.apply { this[keyword] = true })
+            }
+        }
+    }
+
+    private fun onClickSubmit(rating: Double, content: String) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+
+            withContext(ioDispatcher + exceptionHandler) {
+                state.value.studio?.id?.let { studioId ->
+                    writeReviewUseCase(
+                        studioId = studioId,
+                        imageByteArrays = state.value.imageList.map { convertImageBitmapToByteArray(it.second) },
+                        rating = rating,
+                        recommends = state.value.keywordList.keys.toList(),
+                        content = content
+                    ).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            when (result) {
+                                is ResponseState.Success -> {
+                                    _state.update { it.copy(isLoading = false) }
+                                    // TODO : Show success dialog
+                                }
+                                is ResponseState.Error -> {
+                                    _state.update { it.copy(isLoading = false) }
+                                    _effect.emit(WritingReviewContract.Effect.ShowToast("리뷰를 작성할 수 없습니다."))
+                                }
+                            }
+                        }
+                    }.launchIn(viewModelScope)
+                }
+            }
+        }
+    }
 }

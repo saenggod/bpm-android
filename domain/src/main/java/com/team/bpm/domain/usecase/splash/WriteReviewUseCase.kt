@@ -4,7 +4,6 @@ import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.repository.WriteReviewRepository
 import kotlinx.coroutines.flow.Flow
-import java.io.File
 import javax.inject.Inject
 
 class WriteReviewUseCase @Inject constructor(
@@ -12,14 +11,14 @@ class WriteReviewUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         studioId: Int,
-        images: List<File>,
+        imageByteArrays: List<ByteArray>,
         rating: Double,
         recommends: List<String>,
         content: String
     ): Flow<ResponseState<Review>> {
         return writeReviewRepository.sendReview(
             studioId = studioId,
-            images = images,
+            imageByteArrays = imageByteArrays,
             rating = rating,
             recommends = recommends,
             content = content

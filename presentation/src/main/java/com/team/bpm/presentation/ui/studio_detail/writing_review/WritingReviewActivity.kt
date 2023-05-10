@@ -321,7 +321,7 @@ private fun WritingReviewActivityContent(
                     dummyKeywordChipList.forEach { dummyKeyword ->
                         KeywordChip(
                             text = dummyKeyword,
-                            onClick = { } // TODO : Add keyword
+                            onClick = { event(WritingReviewContract.Event.OnClickKeywordChip(dummyKeyword))} // TODO : will be modified
                         )
                     }
                 }
@@ -406,7 +406,7 @@ private fun WritingReviewActivityContent(
                     text = "저장하기",
                     textColor = MainBlackColor,
                     buttonColor = MainGreenColor,
-                    onClick = { event.invoke(WritingReviewContract.Event.OnClickSubmit) }
+                    onClick = { event.invoke(WritingReviewContract.Event.OnClickSubmit(ratingState.value, contentTextState.value)) }
                 )
 
                 BPMSpacer(height = 12.dp)
