@@ -1,6 +1,10 @@
 package com.team.bpm.presentation.compose
 
+import android.content.Context
+import android.graphics.Bitmap
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -57,6 +61,7 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.convertUriToBitmap
 import com.team.bpm.presentation.util.dateOnly
 
 
@@ -820,6 +825,27 @@ fun LoadingScreen() {
         )
     }
 }
+
+@Composable
+fun initImageLauncher(context: Context, onSuccess: (List<Bitmap>) -> Unit, onFailure: (Throwable) -> Unit) =
+    rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(5),
+        onResult = { uris ->
+            runCatching {
+                uris.map { uri ->
+                    convertUriToBitmap(
+                        contentResolver = context.contentResolver,
+                        uri = uri
+                    )
+                }
+            }.onSuccess { images ->
+                onSuccess(images)
+            }.onFailure {
+                onFailure(it)
+            }
+        }
+    )
+
 
 @Composable
 fun Dp.toPx() = with(LocalDensity.current) { this@toPx.toPx() }
