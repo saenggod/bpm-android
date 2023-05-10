@@ -1,10 +1,9 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
+import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
-import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
-import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.SaveScheduleUseCase
 import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
@@ -93,5 +92,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDislikeReviewUseCase(reviewRepository: ReviewRepository): DislikeReviewUseCase {
         return DislikeReviewUseCase(reviewRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideRegisterStudioUseCase(registerStudioRepository: RegisterStudioRepository): RegisterStudioUseCase {
+        return RegisterStudioUseCase(registerStudioRepository)
     }
 }

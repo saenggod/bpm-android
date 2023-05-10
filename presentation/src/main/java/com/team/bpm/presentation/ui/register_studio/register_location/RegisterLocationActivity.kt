@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.register_studio.register_location
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -74,6 +76,12 @@ class RegisterLocationActivity : BaseComponentActivity() {
     }
 
     override fun setupCollect() = Unit
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, RegisterLocationActivity::class.java)
+        }
+    }
 }
 
 @Composable

@@ -1,13 +1,9 @@
 package com.team.bpm.data.network
 
 import com.team.bpm.data.model.request.ScheduleRequest
+import com.team.bpm.data.model.request.StudioRequest
 import com.team.bpm.data.model.request.UserVerificationRequest
-import com.team.bpm.data.model.response.ReviewResponse
-import com.team.bpm.data.model.response.ScheduleResponse
-import com.team.bpm.data.model.response.SignUpResponse
-import com.team.bpm.data.model.response.StudioListResponse
-import com.team.bpm.data.model.response.StudioResponse
-import com.team.bpm.data.model.response.UserScheduleResponse
+import com.team.bpm.data.model.response.*
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -89,4 +85,9 @@ interface MainApi {
     suspend fun searchStudio(
         @Query("q") query: String
     ): Response<StudioListResponse>
+
+    @POST("api/studio")
+    suspend fun sendStudio(
+        @Body studio: StudioRequest
+    ): Response<ResponseBody>
 }

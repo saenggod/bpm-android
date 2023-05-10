@@ -1,9 +1,5 @@
 package com.team.bpm.presentation.ui.register_studio
 
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +14,7 @@ import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
@@ -27,13 +24,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.flowlayout.FlowRow
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.presentation.base.BaseComponentActivityV2
+import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.ui.register_studio.register_location.RegisterLocationActivity
 import com.team.bpm.presentation.util.addFocusCleaner
+import com.team.bpm.presentation.util.showToast
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 val dummyKeywordChipList = listOf(
@@ -54,274 +56,270 @@ val dummyKeywordChipList = listOf(
     "여유롭게 준비할 수 있어요"
 )
 
-class RegisterStudioActivity : BaseComponentActivity() {
-    override val viewModel: BaseViewModel
-        get() = TODO("Not yet implemented")
-
-    private val studioNameTextState = mutableStateOf("")
-    private val studioLocationTextState = mutableStateOf("")
-    private val phoneNumberTextState = mutableStateOf("")
-    private val snsAddressTextState = mutableStateOf("")
-    private val businessHoursTextState = mutableStateOf("")
-    private val priceInfoTextState = mutableStateOf("")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
+@AndroidEntryPoint
+class RegisterStudioActivity : BaseComponentActivityV2() {
+    @Composable
+    override fun InitComposeUi() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-    }
-
-    override fun initUi() {
-        setContent {
-            BPMTheme {
-                RegisterStudioActivityContent(
-                    studioNameTextState = studioNameTextState,
-                    studioLocationTextState = studioLocationTextState,
-                    phoneNumberTextState = phoneNumberTextState,
-                    snsAddressTextState = snsAddressTextState,
-                    businessHoursTextState = businessHoursTextState,
-                    priceInfoTextState = priceInfoTextState,
-                    onClickLocation = {
-
-                    },
-                    onClickSave = {
-
-                    }
-                )
-            }
-        }
-    }
-
-    override fun setupCollect() = Unit
-
-    companion object {
-        fun newIntent(context: Context): Intent {
-            return Intent(context, RegisterStudioActivity::class.java)
-        }
+        RegisterStudioActivityContent()
     }
 }
 
 @Composable
 private fun RegisterStudioActivityContent(
-    studioNameTextState: MutableState<String>,
-    studioLocationTextState: MutableState<String>,
-    phoneNumberTextState: MutableState<String>,
-    snsAddressTextState: MutableState<String>,
-    businessHoursTextState: MutableState<String>,
-    priceInfoTextState: MutableState<String>,
-    onClickSave: () -> Unit,
-    onClickLocation: () -> Unit
+    viewModel: RegisterStudioViewModel = hiltViewModel()
 ) {
+    val (state, event, effect) = use(viewModel)
+    val context = LocalContext.current as BaseComponentActivityV2
+    val nameTextState = remember { mutableStateOf("") }
+    val addressTextState = remember { mutableStateOf("") }
+    val phoneNumberTextState = remember { mutableStateOf("") }
+    val snsAddressTextState = remember { mutableStateOf("") }
+    val businessHoursTextState = remember { mutableStateOf("") }
+    val priceInfoTextState = remember { mutableStateOf("") }
+
+
+    LaunchedEffect(effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
+                is RegisterStudioContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+                RegisterStudioContract.Effect.GoToSetLocation -> {
+                    context.startActivity(RegisterLocationActivity.newIntent(context))
+                }
+            }
+        }
+    }
+
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
-            .imePadding()
-            .fillMaxWidth()
-            .verticalScroll(state = scrollState)
-            .background(color = Color.White)
-            .addFocusCleaner(focusManager = focusManager)
-    ) {
-        ScreenHeader(header = "새 업체 등록하기")
+    with(state) {
+        Box {
+            Column(
+                modifier = Modifier
+                    .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
+                    .imePadding()
+                    .fillMaxWidth()
+                    .verticalScroll(state = scrollState)
+                    .background(color = Color.White)
+                    .addFocusCleaner(focusManager = focusManager)
+            ) {
+                ScreenHeader(header = "새 업체 등록하기")
 
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .height(55.dp),
-            verticalAlignment = CenterVertically
-        ) {
-            Text(
-                text = "업체 정보",
-                textAlign = TextAlign.Center,
-                fontWeight = SemiBold,
-                fontSize = 16.sp,
-                letterSpacing = 0.sp
-            )
-
-            Text(
-                text = "*",
-                fontWeight = SemiBold,
-                fontSize = 16.sp,
-                letterSpacing = 0.sp,
-                color = Color.Red
-            )
-        }
-
-        Divider(color = GrayColor13)
-
-        BPMSpacer(height = 25.dp)
-
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            BPMTextField(
-                textState = studioNameTextState,
-                label = "업체 이름",
-                limit = null,
-                singleLine = true,
-                hint = "업체 이름을 입력해주세요"
-            )
-
-            BPMSpacer(height = 25.dp)
-
-            BPMTextField(
-                textState = studioLocationTextState,
-                label = "위치",
-                hint = "업체 위치를 등록해주세요",
-                limit = null,
-                iconSize = 30.dp,
-                singleLine = true,
-                icon = {
-                    Icon(
-                        modifier = Modifier
-                            .padding(end = 10.dp)
-                            .size(30.dp)
-                            .align(CenterEnd),
-                        painter = painterResource(id = R.drawable.ic_location),
-                        contentDescription = "locationIcon",
-                        tint = GrayColor6
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .height(55.dp),
+                    verticalAlignment = CenterVertically
+                ) {
+                    Text(
+                        text = "업체 정보",
+                        textAlign = TextAlign.Center,
+                        fontWeight = SemiBold,
+                        fontSize = 16.sp,
+                        letterSpacing = 0.sp
                     )
-                },
-                onClick = { onClickLocation() }
-            )
-        }
 
-        BPMSpacer(height = 30.dp)
+                    Text(
+                        text = "*",
+                        fontWeight = SemiBold,
+                        fontSize = 16.sp,
+                        letterSpacing = 0.sp,
+                        color = Color.Red
+                    )
+                }
 
-        Divider(
-            thickness = 8.dp,
-            color = GrayColor11
-        )
+                Divider(color = GrayColor13)
 
-        BPMSpacer(height = 20.dp)
+                BPMSpacer(height = 25.dp)
 
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = "이런 점을 추천해요",
-                fontWeight = SemiBold,
-                fontSize = 16.sp,
-                letterSpacing = 0.sp
-            )
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    BPMTextField(
+                        textState = nameTextState,
+                        label = "업체 이름",
+                        limit = null,
+                        singleLine = true,
+                        hint = "업체 이름을 입력해주세요"
+                    )
 
-            BPMSpacer(height = 8.dp)
+                    BPMSpacer(height = 25.dp)
 
-            Text(
-                text = "최대 5개까지 선택가능해요",
-                fontWeight = Medium,
-                fontSize = 12.sp,
-                letterSpacing = 0.sp,
-                color = GrayColor4
-            )
-        }
+                    BPMTextField(
+                        textState = addressTextState,
+                        label = "위치",
+                        hint = "업체 위치를 등록해주세요",
+                        limit = null,
+                        iconSize = 30.dp,
+                        singleLine = true,
+                        icon = {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(end = 10.dp)
+                                    .size(30.dp)
+                                    .align(CenterEnd),
+                                painter = painterResource(id = R.drawable.ic_location),
+                                contentDescription = "locationIcon",
+                                tint = GrayColor6
+                            )
+                        },
+                        onClick = { event.invoke(RegisterStudioContract.Event.OnClickSetLocation) }
+                    )
+                }
 
-        BPMSpacer(height = 14.dp)
+                BPMSpacer(height = 30.dp)
 
-        Divider(color = GrayColor13)
+                Divider(
+                    thickness = 8.dp,
+                    color = GrayColor11
+                )
 
-        BPMSpacer(height = 20.dp)
+                BPMSpacer(height = 20.dp)
 
-        FlowRow(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-            mainAxisSpacing = 7.dp,
-            crossAxisSpacing = 12.dp
-        ) {
-//            dummyKeywordChipList.forEach { dummyKeyword ->
-//                KeywordChip(
-//                    text = dummyKeyword,
-//                    onClick = {}
-//                )
-//            }
-        }
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "이런 점을 추천해요",
+                        fontWeight = SemiBold,
+                        fontSize = 16.sp,
+                        letterSpacing = 0.sp
+                    )
 
-        BPMSpacer(height = 30.dp)
+                    BPMSpacer(height = 8.dp)
 
-        Divider(
-            thickness = 8.dp,
-            color = GrayColor11
-        )
+                    Text(
+                        text = "최대 5개까지 선택가능해요",
+                        fontWeight = Medium,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor4
+                    )
+                }
 
-        Box(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-                .height(55.dp)
-        ) {
-            Text(
-                modifier = Modifier.align(CenterStart),
-                text = "업체 추가 정보",
-                fontWeight = SemiBold,
-                fontSize = 16.sp,
-                letterSpacing = 0.sp
-            )
-        }
+                BPMSpacer(height = 14.dp)
 
-        Divider(color = GrayColor8)
+                Divider(color = GrayColor13)
 
-        BPMSpacer(height = 26.dp)
+                BPMSpacer(height = 20.dp)
 
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            BPMTextField(
-                textState = phoneNumberTextState,
-                label = "전화번호",
-                hint = "000-0000-0000",
-                limit = null,
-                singleLine = false,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-            )
+                FlowRow(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    mainAxisSpacing = 7.dp,
+                    crossAxisSpacing = 12.dp
+                ) {
+                    dummyKeywordChipList.forEach { dummyKeyword ->
+                        KeywordChip(
+                            text = dummyKeyword,
+                            onClick = {}
+                        )
+                    }
+                }
 
-            BPMSpacer(height = 22.dp)
+                BPMSpacer(height = 30.dp)
 
-            BPMTextField(
-                textState = snsAddressTextState,
-                label = "SNS 주소",
-                limit = null,
-                hint = "인스타그램 @BodyProfileManager",
-                singleLine = false
-            )
+                Divider(
+                    thickness = 8.dp,
+                    color = GrayColor11
+                )
 
-            BPMSpacer(height = 22.dp)
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                        .height(55.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.align(CenterStart),
+                        text = "업체 추가 정보",
+                        fontWeight = SemiBold,
+                        fontSize = 16.sp,
+                        letterSpacing = 0.sp
+                    )
+                }
 
-            BPMTextField(
-                textState = businessHoursTextState,
-                label = "영업시간",
-                limit = null,
-                hint = "12:00~19:00",
-                singleLine = false
-            )
+                Divider(color = GrayColor8)
 
-            BPMSpacer(height = 22.dp)
+                BPMSpacer(height = 26.dp)
 
-            BPMTextField(
-                textState = priceInfoTextState,
-                label = "가격정보",
-                limit = null,
-                hint = "프로필 0000원",
-                singleLine = false
-            )
-        }
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    LaunchedEffect(key1 = scrollState.maxValue) {
+                        scope.launch {
+                            scrollState.animateScrollTo(scrollState.maxValue)
+                        }
+                    }
 
-        BPMSpacer(height = 35.dp)
+                    BPMTextField(
+                        textState = phoneNumberTextState,
+                        label = "전화번호",
+                        hint = "000-0000-0000",
+                        limit = null,
+                        singleLine = false,
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
 
-        RoundedCornerButton(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-                .height(48.dp),
-            text = "저장하기",
-            textColor = MainBlackColor,
-            buttonColor = MainGreenColor,
-            onClick = {
-                onClickSave()
+                    BPMSpacer(height = 22.dp)
+
+                    BPMTextField(
+                        textState = snsAddressTextState,
+                        label = "SNS 주소",
+                        limit = null,
+                        hint = "인스타그램 @BodyProfileManager",
+                        singleLine = false
+                    )
+
+                    BPMSpacer(height = 22.dp)
+
+                    BPMTextField(
+                        textState = businessHoursTextState,
+                        label = "영업시간",
+                        limit = null,
+                        hint = "12:00~19:00",
+                        singleLine = false
+                    )
+
+                    BPMSpacer(height = 22.dp)
+
+                    BPMTextField(
+                        textState = priceInfoTextState,
+                        label = "가격정보",
+                        limit = null,
+                        hint = "프로필 0000원",
+                        singleLine = false
+                    )
+                }
+
+                BPMSpacer(height = 35.dp)
+
+                RoundedCornerButton(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    text = "저장하기",
+                    textColor = MainBlackColor,
+                    buttonColor = MainGreenColor,
+                    enabled = remember { mutableStateOf(nameTextState.value.isNotEmpty()) }.value,
+                    onClick = { event.invoke(RegisterStudioContract.Event.OnClickSubmit(
+                        name = nameTextState.value,
+                        address = addressTextState.value,
+                        latitude = state.latitude,
+                        longitude = state.longitude,
+                        phoneNumber = phoneNumberTextState.value,
+                        snsAddress = snsAddressTextState.value,
+                        businessHours = businessHoursTextState.value,
+                        priceInfo = priceInfoTextState.value
+                    )) }
+                )
+
+                BPMSpacer(height = 12.dp)
             }
-        )
-
-        BPMSpacer(height = 12.dp)
+        }
     }
 }
