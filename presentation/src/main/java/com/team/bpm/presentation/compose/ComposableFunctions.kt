@@ -53,7 +53,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.team.bpm.domain.model.Review
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity
+import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
@@ -67,7 +67,11 @@ fun ScreenHeader(
 ) {
     val context = LocalContext.current as ComponentActivity
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color.White)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -182,12 +186,18 @@ inline fun RoundedCornerButton(
     text: String,
     textColor: Color,
     buttonColor: Color,
+    borderColor: Color? = null,
     enabled: Boolean? = true,
     crossinline onClick: () -> Unit
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
+            .border(
+                width = 1.dp,
+                color = borderColor ?: buttonColor,
+                shape = RoundedCornerShape(8.dp)
+            )
             .background(color = if (enabled == true) buttonColor else GrayColor9)
             .clickable { onClick() }
     ) {
@@ -384,7 +394,7 @@ fun ReviewComposable(
     modifier: Modifier = Modifier,
     review: Review
 ) {
-    val context = LocalContext.current as BaseComponentActivity
+    val context = LocalContext.current as BaseComponentActivityV2
 
     with(review) {
         val likeState = remember { mutableStateOf(liked ?: false) }
@@ -434,16 +444,18 @@ fun ReviewComposable(
             BPMSpacer(height = 12.dp)
 
             rating?.let {
-                for (i in 1..5) {
-                    Image(
-                        modifier = Modifier.size(15.dp),
-                        painter = painterResource(
-                            id = if (i.toDouble() <= it) R.drawable.ic_star_small_filled
-                            else if (i.toDouble() > it && it > i - 1) R.drawable.ic_star_small_half
-                            else R.drawable.ic_star_small_empty
-                        ),
-                        contentDescription = "starIcon"
-                    )
+                Row {
+                    for (i in 1..5) {
+                        Image(
+                            modifier = Modifier.size(15.dp),
+                            painter = painterResource(
+                                id = if (i.toDouble() <= it) R.drawable.ic_star_small_filled
+                                else if (i.toDouble() > it && it > i - 1) R.drawable.ic_star_small_half
+                                else R.drawable.ic_star_small_empty
+                            ),
+                            contentDescription = "starIcon"
+                        )
+                    }
                 }
             }
 
@@ -649,9 +661,9 @@ fun ReviewKeywordChip(
 @Composable
 inline fun ReviewListHeader(
     modifier: Modifier = Modifier,
-    reviewCount: Int,
-    crossinline onClickOrderByLike: () -> Unit,
-    crossinline onClickOrderByDate: () -> Unit,
+    crossinline onClickShowImageReviewsOnly: () -> Unit,
+    crossinline onClickSortOrderByLike: () -> Unit,
+    crossinline onClickSortOrderByDate: () -> Unit,
     crossinline onClickWriteReview: () -> Unit
 ) {
     val showImageReviewOnlyState = remember { mutableStateOf(false) }
@@ -667,7 +679,7 @@ inline fun ReviewListHeader(
             verticalAlignment = CenterVertically
         ) {
             Text(
-                text = "업체 리뷰 $reviewCount",
+                text = "업체 리뷰",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 letterSpacing = 0.sp
@@ -716,7 +728,7 @@ inline fun ReviewListHeader(
             Row {
                 Text(
                     modifier = Modifier.clickableWithoutRipple {
-                        onClickOrderByLike()
+                        onClickSortOrderByLike()
                         showReviewOrderByLikeState.value = true
                     },
                     text = "좋아요순",
@@ -740,7 +752,7 @@ inline fun ReviewListHeader(
 
                 Text(
                     modifier = Modifier.clickableWithoutRipple {
-                        onClickOrderByDate()
+                        onClickSortOrderByDate()
                         showReviewOrderByLikeState.value = false
                     },
                     text = "최신순",

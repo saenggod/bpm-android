@@ -1,10 +1,13 @@
 package com.team.bpm.presentation.ui.studio_detail
 
+import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
-import android.os.Bundle
+import android.net.Uri
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -13,27 +16,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.BottomEnd
-import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.TopCenter
-import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -41,49 +43,43 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus.Denied
+import com.google.accompanist.permissions.PermissionStatus.Granted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.presentation.base.BaseComponentActivityV2
+import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.model.StudioDetailTabType
+import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
+import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
+import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
 import com.team.bpm.presentation.util.dateOnly
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
-import kotlin.math.roundToInt
 
 @AndroidEntryPoint
-class StudioDetailActivity : BaseComponentActivity() {
-    override val viewModel: BaseViewModel
-        get() = TODO("Not yet implemented")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        initComposeUi {
-            StudioDetailActivityContent()
-        }
-    }
-
-    override fun initUi() = Unit
-
-    override fun setupCollect() {
-
+class StudioDetailActivity : BaseComponentActivityV2() {
+    @Composable
+    override fun InitComposeUi() {
+        StudioDetailActivityContent()
     }
 
     companion object {
@@ -98,85 +94,155 @@ class StudioDetailActivity : BaseComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalGlideComposeApi::class, ExperimentalPermissionsApi::class)
 @Composable
 private fun StudioDetailActivityContent(
     viewModel: StudioDetailViewModel = hiltViewModel()
 ) {
+    val (state, event, effect) = use(viewModel)
+    val context = LocalContext.current as BaseComponentActivityV2
     val scrollState = rememberScrollState()
-    val tabState = remember { mutableStateOf(0) }
-    val scope = rememberCoroutineScope()
-    val showExpandedKeywordColumn = remember { mutableStateOf(false) }
-    val keywordColumnHeightState = animateDpAsState(targetValue = if (showExpandedKeywordColumn.value) 234.dp else 138.dp)
-    val expandIconRotateState = animateFloatAsState(targetValue = if (showExpandedKeywordColumn.value) 180f else 0f)
-    val reviewTabScrollAmountState = remember { mutableStateOf(0) }
-    val reviewHeaderPositionState = remember { mutableStateOf(0f) }
-    val screenHeightPx = LocalConfiguration.current.screenHeightDp.dp.toPx()
+    val heightFromTopToInfo = remember { mutableStateOf(0) }
+    val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)
 
-    tabState.value = if (remember { derivedStateOf { scrollState.value >= reviewTabScrollAmountState.value } }.value) 1 else 0
+    LaunchedEffect(Unit) {
+        event.invoke(StudioDetailContract.Event.GetStudioDetailData)
+    }
 
-    with(viewModel.state.collectAsStateWithLifecycle().value) {
-        Box(modifier = Modifier.background(color = Color.White)) {
+    LaunchedEffect(effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
+                StudioDetailContract.Effect.LoadFailed -> {
+                    event.invoke(StudioDetailContract.Event.OnErrorOccurred)
+                }
+                StudioDetailContract.Effect.Quit -> {
+                    context.finish()
+                }
+                StudioDetailContract.Effect.ScrollToInfoTab -> {
+                    scrollState.animateScrollTo(0)
+                }
+                is StudioDetailContract.Effect.ScrollToReviewTab -> {
+                    scrollState.animateScrollTo(heightFromTopToInfo.value)
+                }
+
+                is StudioDetailContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+                is StudioDetailContract.Effect.Call -> {
+                    when (callPermissionLauncher.status) {
+                        is Granted -> {
+                            context.startActivity(Intent(Intent.ACTION_CALL).apply {
+                                data = Uri.parse("tel:${effect.number}")
+                            })
+                        }
+                        is Denied -> {
+                            callPermissionLauncher.launchPermissionRequest()
+                        }
+                    }
+                }
+                is StudioDetailContract.Effect.CopyAddressToClipboard -> {
+                    (context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("address", effect.address))
+                }
+                is StudioDetailContract.Effect.LaunchNavigationApp -> {
+                    val navigationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${effect.address}"))
+                    context.startActivity(navigationIntent)
+                }
+                StudioDetailContract.Effect.GoToRegisterStudio -> {
+                    context.startActivity(RegisterStudioActivity.newIntent(context))
+                }
+                StudioDetailContract.Effect.GoToWriteReview -> {
+                    context.startActivity(WritingReviewActivity.newIntent(context))
+                }
+                StudioDetailContract.Effect.GoToReviewList -> {
+                    context.startActivity(ReviewListActivity.newIntent(context))
+                }
+            }
+        }
+    }
+
+    with(state) {
+        val screenHeight = remember { mutableStateOf(0f) }
+        val layoutHeight = remember { mutableStateOf(0) }
+        val tabByScrollState = remember { mutableStateOf(StudioDetailTabType.Info) }
+        screenHeight.value = LocalConfiguration.current.screenHeightDp.dp.toPx()
+
+        LaunchedEffect(tabByScrollState.value) {
+            when (tabByScrollState.value) {
+                StudioDetailTabType.Info -> {
+                    event.invoke(StudioDetailContract.Event.OnScrolledAtInfoArea)
+                }
+                StudioDetailTabType.Review -> {
+                    event.invoke(StudioDetailContract.Event.OnScrolledAtReviewArea)
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White)
+        ) {
             Column(
                 modifier = Modifier
-                    .padding(top = 95.dp)
-                    .verticalScroll(state = scrollState)
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+                    .onGloballyPositioned { layoutHeight.value = it.size.height }
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(0.85f)
-                    ) {
-                        val horizontalPagerState = rememberPagerState()
+                BPMSpacer(height = 94.dp)
 
-                        HorizontalPager(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(0.85f),
-                            count = studio?.filesPath?.size ?: 0,
-                            state = horizontalPagerState
-                        ) { index ->
-                            GlideImage(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(0.85f),
-                                model = studio?.filesPath?.get(index) ?: "",
-                                contentDescription = "studioImage",
-                                contentScale = Crop
-                            )
-                        }
+                Column(modifier = Modifier.onGloballyPositioned { heightFromTopToInfo.value = it.size.height }) {
+                    studio?.filesPath?.let { images ->
+                        Box {
+                            val imagePagerState = rememberPagerState()
 
-                        Box(
-                            modifier = Modifier
-                                .padding(
-                                    start = 16.dp,
-                                    bottom = 16.dp
+                            HorizontalPager(
+                                count = images.size,
+                                state = imagePagerState,
+                            ) { index ->
+                                GlideImage(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(0.84f),
+                                    model = images[index],
+                                    contentDescription = "studioImage",
+                                    contentScale = ContentScale.Crop
                                 )
-                                .clip(RoundedCornerShape(40.dp))
-                                .width(42.dp)
-                                .height(25.dp)
-                                .background(color = FilteredWhiteColor)
-                                .align(BottomStart)
-                        ) {
-                            Text(
-                                modifier = Modifier.align(Center),
-                                text = "${studio?.filesPath?.size}/${horizontalPagerState.currentPage + 1}",
-                                fontWeight = Normal,
-                                fontSize = 12.sp,
-                                letterSpacing = 2.sp
-                            )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(
+                                        start = 16.dp,
+                                        bottom = 16.dp
+                                    )
+                                    .clip(RoundedCornerShape(40.dp))
+                                    .width(42.dp)
+                                    .height(25.dp)
+                                    .background(color = FilteredWhiteColor)
+                                    .align(Alignment.BottomStart)
+                            ) {
+                                Text(
+                                    modifier = Modifier.align(Center),
+                                    text = "${images.size}/${imagePagerState.currentPage + 1}",
+                                    fontWeight = Normal,
+                                    fontSize = 12.sp,
+                                    letterSpacing = 2.sp
+                                )
+                            }
                         }
                     }
 
                     BPMSpacer(height = 20.dp)
 
-                    Box(
+                    Column(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
                             .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     ) {
-                        Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = SpaceBetween
+                        ) {
                             Row(verticalAlignment = CenterVertically) {
                                 Text(
                                     text = studio?.firstTag ?: "",
@@ -186,6 +252,7 @@ private fun StudioDetailActivityContent(
                                 )
 
                                 Icon(
+                                    modifier = Modifier.padding(all = 2.dp),
                                     painter = painterResource(id = R.drawable.ic_arrow_right),
                                     contentDescription = "tagDepthIcon"
                                 )
@@ -198,93 +265,85 @@ private fun StudioDetailActivityContent(
                                 )
                             }
 
-                            BPMSpacer(height = 8.dp)
-
-                            Text(
-                                text = studio?.name ?: "",
-                                fontWeight = SemiBold,
-                                fontSize = 19.sp,
-                                letterSpacing = 0.sp
+                            Image(
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .clickableWithoutRipple { }, // TODO : OnClickHeartIcon
+                                painter = painterResource(id = R.drawable.ic_heart_inactive), // TODO : Will be modified when api changed.
+                                contentDescription = "likeButtonImage"
                             )
+                        }
 
-                            BPMSpacer(height = 6.dp)
+                        Text(
+                            modifier = Modifier.padding(top = 12.dp),
+                            text = studio?.name ?: "",
+                            fontWeight = SemiBold,
+                            fontSize = 19.sp,
+                            letterSpacing = 0.sp
+                        )
 
-                            Text(
-                                text = studio?.content ?: "",
-                                fontSize = 13.sp,
-                                fontWeight = Normal,
-                                letterSpacing = 0.sp,
-                                color = GrayColor3
-                            )
+                        Text(
+                            text = studio?.content ?: "",
+                            fontSize = 13.sp,
+                            fontWeight = Normal,
+                            letterSpacing = 0.sp,
+                            color = GrayColor3
+                        )
 
-                            BPMSpacer(height = 8.dp)
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = CenterVertically,
-                                horizontalArrangement = SpaceBetween
-                            ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = SpaceBetween
+                        ) {
+                            studio?.rating?.let { rating ->
                                 Row {
-                                    if (studio?.rating != null) {
-                                        for (i in 1..5) {
-                                            Image(
-                                                painter = painterResource(
-                                                    id = if (i.toDouble() <= studio.rating!!) R.drawable.ic_star_small_filled
-                                                    else if (i.toDouble() > studio.rating!! && studio.rating!! > i - 1) R.drawable.ic_star_small_half
-                                                    else R.drawable.ic_star_small_empty
-                                                ),
-                                                contentDescription = "starIcon"
-                                            )
+                                    for (i in 1..5) {
+                                        Image(
+                                            painter = painterResource(
+                                                id = if (i.toDouble() <= rating) R.drawable.ic_star_small_filled
+                                                else if (i.toDouble() > rating && rating > i - 1) R.drawable.ic_star_small_half
+                                                else R.drawable.ic_star_small_empty
+                                            ),
+                                            contentDescription = "ratingStarImage"
+                                        )
 
-                                            BPMSpacer(width = 2.dp)
-                                        }
+                                        BPMSpacer(width = 2.dp)
                                     }
 
-                                    BPMSpacer(width = 8.dp)
-
                                     Text(
-                                        text = "${studio?.rating?.clip() ?: 0}",
+                                        text = rating.clip(),
                                         fontSize = 14.sp,
                                         fontWeight = Normal,
                                         letterSpacing = 0.sp,
                                         color = GrayColor3
                                     )
                                 }
-
-                                Text(
-                                    text = "후기 ${studio?.reviewCount ?: 0}개",
-                                    fontWeight = Normal,
-                                    fontSize = 12.sp,
-                                    letterSpacing = 0.sp,
-                                    style = TextStyle(textDecoration = TextDecoration.Underline)
-                                )
                             }
+
+                            Text(
+                                modifier = Modifier.clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickReviewTab) },
+                                text = "리뷰 ${studio?.reviewCount ?: 0}개",
+                                fontWeight = Normal,
+                                fontSize = 12.sp,
+                                letterSpacing = 0.sp,
+                                style = TextStyle(textDecoration = TextDecoration.Underline)
+                            )
                         }
 
-                        Image(
+                        RoundedCornerButton(
                             modifier = Modifier
-                                .size(22.dp)
-                                .align(TopEnd)
-                                .clickableWithoutRipple { viewModel.onClickLike() },
-                            painter = painterResource(id = if (isLiked) R.drawable.ic_heart_active else R.drawable.ic_heart_inactive),
-                            contentDescription = "heartImage"
+                                .padding(top = 30.dp)
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            buttonColor = MainBlackColor,
+                            textColor = Color.White,
+                            text = "전화 걸기",
+                            onClick = { studio?.phone?.let { event.invoke(StudioDetailContract.Event.OnClickCall(it)) } }
                         )
                     }
 
-                    BPMSpacer(height = 36.dp)
-
-                    RoundedCornerButton(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        text = "전화 걸기",
-                        textColor = Color.White,
-                        buttonColor = MainBlackColor,
-                        onClick = { viewModel.onClickCall() }
-                    )
-
-                    BPMSpacer(height = 36.dp)
+                    BPMSpacer(height = 25.dp)
 
                     Divider(
                         thickness = 8.dp,
@@ -307,8 +366,8 @@ private fun StudioDetailActivityContent(
                         )
 
                         Text(
-                            modifier = Modifier.clickableWithoutRipple { viewModel.onClickInfoEditSuggestion() },
-                            text = "정보수정 제안",
+                            modifier = Modifier.clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickEditInfoSuggestion) },
+                            text = "정보 수정 제안",
                             fontWeight = Medium,
                             fontSize = 14.sp,
                             letterSpacing = 0.sp,
@@ -316,34 +375,32 @@ private fun StudioDetailActivityContent(
                         )
                     }
 
-                    Divider(color = GrayColor8)
+                    Divider(
+                        thickness = 1.dp,
+                        color = GrayColor13
+                    )
 
-                    BPMSpacer(height = 24.dp)
+                    BPMSpacer(height = 20.dp)
 
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
                             text = studio?.address ?: "",
-                            fontWeight = Medium,
                             fontSize = 16.sp,
+                            fontWeight = Medium,
                             letterSpacing = 0.sp
                         )
 
-                        BPMSpacer(height = 8.dp)
-
                         Text(
-                            text = "입구가 작아요. 아이스크림 가게 옆 쪽문으로 들어오세요!",
-                            fontWeight = Normal,
+                            modifier = Modifier.padding(top = 4.dp),
+                            text = "주소에 관한 설명", // TODO : Request about this
                             fontSize = 12.sp,
+                            fontWeight = Normal,
                             letterSpacing = 0.sp,
                             color = GrayColor4
                         )
 
-                        BPMSpacer(height = 12.dp)
-
-                        if (studio?.latitude != null &&
-                            studio.longitude != null
-                        ) {
-                            Box {
+                        if (studio?.latitude != null && studio.longitude != null) {
+                            Box(modifier = Modifier.padding(top = 12.dp)) {
                                 AndroidView(
                                     modifier = Modifier
                                         .clip(shape = RoundedCornerShape(12.dp))
@@ -364,7 +421,7 @@ private fun StudioDetailActivityContent(
                                 Column(
                                     modifier = Modifier
                                         .height(90.dp)
-                                        .align(TopCenter),
+                                        .align(Alignment.TopCenter),
                                     verticalArrangement = Arrangement.Bottom
                                 ) {
                                     Image(
@@ -380,7 +437,7 @@ private fun StudioDetailActivityContent(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(180.dp)
-                                        .clickableWithoutRipple { viewModel.onClickMap() }
+                                        .clickableWithoutRipple { }
                                 )
                             }
                         }
@@ -388,15 +445,15 @@ private fun StudioDetailActivityContent(
                         BPMSpacer(height = 12.dp)
 
                         Row(modifier = Modifier.fillMaxWidth()) {
-                            OutLinedRoundedCornerButton(
+                            RoundedCornerButton(
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(48.dp),
                                 text = "주소 복사",
                                 textColor = MainBlackColor,
                                 buttonColor = Color.White,
-                                outLineColor = GrayColor6,
-                                onClick = { viewModel.onClickCopyAddress() }
+                                borderColor = GrayColor6,
+                                onClick = { studio?.address?.let { event.invoke(StudioDetailContract.Event.OnClickCopyAddress(it)) } }
                             )
 
                             BPMSpacer(width = 8.dp)
@@ -407,8 +464,8 @@ private fun StudioDetailActivityContent(
                                     .height(48.dp),
                                 text = "길찾기",
                                 textColor = MainBlackColor,
-                                buttonColor = SubGreenColor,
-                                onClick = { viewModel.onClickShowCourse() }
+                                buttonColor = MainGreenColor,
+                                onClick = { studio?.address?.let { event.invoke(StudioDetailContract.Event.OnClickNavigate(it)) } }
                             )
                         }
                     }
@@ -440,44 +497,27 @@ private fun StudioDetailActivityContent(
                             fontWeight = Medium,
                             fontSize = 14.sp,
                             letterSpacing = 0.sp,
-                            color = GrayColor5
+                            color = GrayColor4
                         )
                     }
 
-                    Divider(color = GrayColor13)
+                    Divider(
+                        thickness = 1.dp,
+                        color = GrayColor13
+                    )
 
-                    BPMSpacer(height = 24.dp)
+                    BPMSpacer(height = 20.dp)
 
                     Column(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        verticalArrangement = spacedBy(12.dp)
                     ) {
-                        ConvenienceInfo(
-                            type = "전화번호",
-                            detail = studio?.phone ?: ""
-                        )
-
-                        BPMSpacer(height = 12.dp)
-
-                        ConvenienceInfo(
-                            type = "SNS",
-                            detail = studio?.sns ?: ""
-                        )
-
-                        BPMSpacer(height = 12.dp)
-
-                        ConvenienceInfo(
-                            type = "영업시간",
-                            detail = studio?.openHours ?: ""
-                        )
-
-                        BPMSpacer(height = 12.dp)
-
-                        ConvenienceInfo(
-                            type = "가격정보",
-                            detail = studio?.price ?: ""
-                        )
+                        ConvenienceInformation(title = "전화번호", body = studio?.phone ?: "")
+                        ConvenienceInformation(title = "SNS", body = studio?.sns ?: "")
+                        ConvenienceInformation(title = "영업시간", body = studio?.openHours ?: "")
+                        ConvenienceInformation(title = "가격정보", body = studio?.price ?: "")
                     }
 
                     BPMSpacer(height = 25.dp)
@@ -487,215 +527,215 @@ private fun StudioDetailActivityContent(
                         color = GrayColor11
                     )
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(55.dp)
-                            .onGloballyPositioned { layoutCoordinates ->
-                                val position = layoutCoordinates.positionInParent().y.roundToInt()
-                                if (reviewTabScrollAmountState.value != position) {
-                                    reviewTabScrollAmountState.value = position
-                                }
-                            }
-                    ) {
-                        Text(
+                    if (studio?.tagList != null && studio.tagList.isNotEmpty()) {
+                        Row(
                             modifier = Modifier
-                                .padding(start = 16.dp)
-                                .align(CenterStart),
-                            text = "이런 점을 추천해요",
-                            fontWeight = SemiBold,
-                            fontSize = 16.sp,
-                            letterSpacing = 0.sp,
-                            textAlign = TextAlign.Center
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth()
+                                .height(55.dp),
+                            horizontalArrangement = SpaceBetween,
+                            verticalAlignment = CenterVertically
+                        ) {
+                            Text(
+                                text = "이런 점을 추천해요",
+                                fontWeight = SemiBold,
+                                fontSize = 16.sp,
+                                letterSpacing = 0.sp
+                            )
+                        }
+
+                        Divider(
+                            thickness = 1.dp,
+                            color = GrayColor13
                         )
-                    }
 
-                    Divider(color = GrayColor13)
-
-                    BPMSpacer(height = 24.dp)
-
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(shape = RoundedCornerShape(12.dp))
-                            .fillMaxWidth()
-                            .background(color = GrayColor10)
-                    ) {
-                        BPMSpacer(height = 15.dp)
+                        BPMSpacer(height = 20.dp)
 
                         Column(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
-                                .height(keywordColumnHeightState.value)
-                        ) {
-                            /*
-                              repeat(studio) { number ->
-                                  when (number + 1) {
-                                      1 -> BestKeyword(
-                                          number = number + 1,
-                                          keyword = "친절해요",
-                                          count = 13,
-                                          backgroundColor = Color.Black,
-                                          textColor = Color.White
-                                      )
-                                      2 -> BestKeyword(
-                                          number = number + 1,
-                                          keyword = "제공하는 컨셉이 다양해요",
-                                          count = 9,
-                                          backgroundColor = GrayColor3,
-                                          textColor = Color.White
-                                      )
-                                      3 -> BestKeyword(
-                                          number = number + 1,
-                                          keyword = "요청 사항을 잘 들어주세요",
-                                          count = 6,
-                                          backgroundColor = GrayColor7,
-                                          textColor = GrayColor0
-                                      )
-                                      4 -> BestKeyword(
-                                          number = number + 1,
-                                          keyword = "주차하기 편해요",
-                                          count = 7 - number + 1,
-                                          backgroundColor = Color.White,
-                                          textColor = Color.Black
-                                      )
-                                      5 -> BestKeyword(
-                                          number = number + 1,
-                                          keyword = "시설이 깔끔해요",
-                                          count = 7 - number + 1,
-                                          backgroundColor = Color.White,
-                                          textColor = Color.Black
-                                      )
-                                  }
-
-                                  if (number != 4) {
-                                      BPMSpacer(height = 6.dp)
-                                  }
-                              }
-                              */
-                        }
-
-                        Box(
-                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
                                 .fillMaxWidth()
-                                .height(30.dp)
+                                .background(color = GrayColor10)
                         ) {
-                            Icon(
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .clickableWithoutRipple { showExpandedKeywordColumn.value = !showExpandedKeywordColumn.value }
-                                    .align(Center)
-                                    .rotate(expandIconRotateState.value),
-                                painter = painterResource(id = R.drawable.ic_arrow_down),
-                                contentDescription = "expandColumnIcon",
-                                tint = GrayColor5
-                            )
-                        }
-                    }
-
-                    BPMSpacer(height = 25.dp)
-
-                    Divider(
-                        thickness = 8.dp,
-                        color = GrayColor11
-                    )
-                }
-
-                Column {
-                    ReviewListHeader(
-                        modifier = Modifier.onGloballyPositioned { coordinates -> reviewHeaderPositionState.value = coordinates.positionInWindow().y },
-                        reviewCount = studio?.reviewCount ?: 0,
-                        onClickOrderByDate = {},
-                        onClickOrderByLike = {},
-                        onClickWriteReview = { viewModel.onClickWriteReview() }
-                    )
-
-                    if (reviews != null) {
-                        Box {
-                            if (reviews.isNotEmpty()) {
-                                Column {
-                                    repeat(5) { index ->
-                                        ReviewComposable(
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                            review = reviews[index]
-                                        )
-                                    }
-                                }
-
-                                if (reviews.size > 5) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(250.dp)
-                                            .background(
-                                                brush = Brush.verticalGradient(
-                                                    listOf(
-                                                        Color(0X53FFFFFF),
-                                                        Color(0X73FFFFFF),
-                                                        Color(0XA2FFFFFF),
-                                                        Color(0XD9FFFFFF),
-                                                        Color(0XF2FFFFFF),
-                                                    )
-                                                )
-                                            )
-                                            .align(BottomCenter)
-                                    ) {
-                                        RoundedCornerButton(
-                                            modifier = Modifier
-                                                .padding(
-                                                    vertical = 12.dp,
-                                                    horizontal = 16.dp
-                                                )
-                                                .fillMaxWidth()
-                                                .height(48.dp)
-                                                .align(BottomCenter),
-                                            text = "더보기",
-                                            textColor = Color.White,
-                                            buttonColor = MainBlackColor,
-                                            onClick = { viewModel.onClickMoreReview() }
-                                        )
-                                    }
-                                }
-                            } else {
-                                Box(modifier = Modifier.size(360.dp)) {
-                                    Column(
-                                        modifier = Modifier.align(Center),
-                                        horizontalAlignment = CenterHorizontally
-                                    ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.shoulder_man),
-                                            contentDescription = "shoulderManImage"
-                                        )
-
-                                        BPMSpacer(height = 10.dp)
-
-                                        Text(
-                                            text = "아직 등록된 리뷰가 없어요\n첫 번째 리뷰를 남겨주세요",
-                                            fontWeight = Medium,
-                                            fontSize = 12.sp,
-                                            letterSpacing = 0.sp,
-                                            color = GrayColor5
-                                        )
-
-                                        BPMSpacer(height = 18.dp)
-
-                                        Box(
-                                            modifier = Modifier
-                                                .clip(shape = RoundedCornerShape(50.dp))
-                                                .width(130.dp)
-                                                .height(40.dp)
-                                                .background(color = MainGreenColor)
-                                                .clickable { viewModel.onClickWriteReview() }
-                                        ) {
-                                            Text(
-                                                modifier = Modifier.align(Center),
-                                                text = "리뷰 등록하기",
-                                                fontWeight = SemiBold,
-                                                fontSize = 12.sp,
-                                                letterSpacing = 0.sp
-                                            )
+                            val tagListSize = studio.tagList.size
+                            val tagListHeightState = animateDpAsState(
+                                targetValue =
+                                if (isTagListExpanded) {
+                                    (tagListSize * 42 + (tagListSize - 1) * 6).dp
+                                } else {
+                                    when (tagListSize) {
+                                        1 -> {
+                                            42.dp
+                                        }
+                                        2 -> {
+                                            90.dp
+                                        }
+                                        else -> {
+                                            138.dp
                                         }
                                     }
+                                }
+                            )
+
+                            Column(
+                                modifier = Modifier
+                                    .padding(
+                                        top = 14.dp,
+                                        start = 14.dp,
+                                        end = 14.dp
+                                    )
+                                    .height(tagListHeightState.value),
+                                verticalArrangement = spacedBy(6.dp)
+                            ) {
+                                studio.tagList.forEachIndexed { index, tag ->
+                                    RecommendTag(
+                                        backgroundColor = when (index) {
+                                            0 -> MainBlackColor
+                                            1 -> GrayColor3
+                                            2 -> GrayColor7
+                                            else -> Color.White
+                                        },
+                                        textColor = when (index) {
+                                            in 0..1 -> Color.White
+                                            else -> MainBlackColor
+                                        },
+                                        rank = index + 1,
+                                        tag = tag,
+                                        count = 1 // TODO : request
+                                    )
+                                }
+                            }
+
+                            if (tagListSize > 3) {
+                                Icon(
+                                    modifier = Modifier
+                                        .padding(
+                                            top = 6.dp,
+                                            bottom = 4.dp
+                                        )
+                                        .size(18.dp)
+                                        .clickableWithoutRipple {
+                                            if (isTagListExpanded) {
+                                                event.invoke(StudioDetailContract.Event.OnClickCollapseTagList)
+                                            } else {
+                                                event.invoke(StudioDetailContract.Event.OnClickExpandTagList)
+                                            }
+                                        }
+                                        .align(CenterHorizontally)
+                                        .rotate(if (isTagListExpanded) 180f else 0f),
+                                    painter = painterResource(id = R.drawable.ic_arrow_down),
+                                    contentDescription = "expandColumnIcon",
+                                    tint = GrayColor5
+                                )
+                            } else {
+                                BPMSpacer(height = 14.dp)
+                            }
+                        }
+
+                        BPMSpacer(height = 25.dp)
+
+                        Divider(
+                            thickness = 8.dp,
+                            color = GrayColor11
+                        )
+                    }
+                }
+
+                ReviewListHeader(
+                    modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y > screenHeight.value / 2f) StudioDetailTabType.Info else StudioDetailTabType.Review },
+                    onClickShowImageReviewsOnly = { event.invoke(StudioDetailContract.Event.OnClickShowImageReviewsOnly) },
+                    onClickSortOrderByLike = { event.invoke(StudioDetailContract.Event.OnClickSortByLike) },
+                    onClickSortOrderByDate = { event.invoke(StudioDetailContract.Event.OnClickSortByDate) },
+                    onClickWriteReview = { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
+                )
+
+                reviewList?.let {
+                    if (it.isNotEmpty()) {
+                        Box {
+                            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                it.forEachIndexed { index, review ->
+                                    if (index < 5) {
+                                        ReviewComposable(
+                                            review = review
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (it.size > 5) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(BottomCenter)
+                                        .fillMaxWidth()
+                                        .height(250.dp)
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                listOf(
+                                                    Color(0X53FFFFFF),
+                                                    Color(0X73FFFFFF),
+                                                    Color(0XA2FFFFFF),
+                                                    Color(0XD9FFFFFF),
+                                                    Color(0XF2FFFFFF),
+                                                )
+                                            )
+                                        )
+                                ) {
+                                    RoundedCornerButton(
+                                        modifier = Modifier
+                                            .padding(
+                                                horizontal = 16.dp,
+                                                vertical = 12.dp
+                                            )
+                                            .fillMaxWidth()
+                                            .height(48.dp)
+                                            .align(BottomCenter),
+                                        text = "더보기",
+                                        textColor = Color.White,
+                                        buttonColor = Color.Black,
+                                        onClick = { event.invoke(StudioDetailContract.Event.OnClickMoreReviews) }
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Box(modifier = Modifier.size(360.dp)) {
+                            Column(
+                                modifier = Modifier.align(Center),
+                                horizontalAlignment = CenterHorizontally
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.shoulder_man),
+                                    contentDescription = "shoulderManImage"
+                                )
+
+                                BPMSpacer(height = 10.dp)
+
+                                Text(
+                                    text = "아직 등록된 리뷰가 없어요\n첫 번째 리뷰를 남겨주세요",
+                                    fontWeight = Medium,
+                                    fontSize = 12.sp,
+                                    letterSpacing = 0.sp,
+                                    color = GrayColor5
+                                )
+
+                                BPMSpacer(height = 18.dp)
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(shape = RoundedCornerShape(50.dp))
+                                        .width(130.dp)
+                                        .height(40.dp)
+                                        .background(color = MainGreenColor)
+                                        .clickable { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
+                                ) {
+                                    Text(
+                                        modifier = Modifier.align(Center),
+                                        text = "리뷰 등록하기",
+                                        fontWeight = SemiBold,
+                                        fontSize = 12.sp,
+                                        letterSpacing = 0.sp
+                                    )
                                 }
                             }
                         }
@@ -704,28 +744,28 @@ private fun StudioDetailActivityContent(
             }
 
             Column {
-                ScreenHeader(studio?.name ?: "")
+                ScreenHeader(header = studio?.name ?: "")
 
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    StudioDetailTab(
-                        modifier = Modifier.weight(1f),
-                        text = "상품설명",
-                        tabIndex = 0,
-                        tabState = tabState,
-                        onClick = { scope.launch { scrollState.animateScrollTo(0) } }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color.White)
+                ) {
+                    Tab(
+                        text = "상품 설명",
+                        focused = focusedTab == StudioDetailTabType.Info,
+                        onClick = { event.invoke(StudioDetailContract.Event.OnClickInfoTab) }
                     )
 
-                    StudioDetailTab(
-                        modifier = Modifier.weight(1f),
+                    Tab(
                         text = "리뷰",
-                        tabIndex = 1,
-                        tabState = tabState,
-                        onClick = { scope.launch { scrollState.animateScrollTo(reviewTabScrollAmountState.value) } }
+                        focused = focusedTab == StudioDetailTabType.Review,
+                        onClick = { event.invoke(StudioDetailContract.Event.OnClickReviewTab) }
                     )
                 }
             }
 
-            if (remember { derivedStateOf { reviewHeaderPositionState.value >= screenHeightPx } }.value) {
+            if (tabByScrollState.value == StudioDetailTabType.Info) {
                 Box(
                     modifier = Modifier
                         .padding(
@@ -734,18 +774,18 @@ private fun StudioDetailActivityContent(
                         )
                         .shadow(
                             elevation = 8.dp,
-                            shape = RoundedCornerShape(50.dp)
+                            shape = RoundedCornerShape(500.dp)
                         )
-                        .clip(shape = RoundedCornerShape(50.dp))
+                        .clip(shape = RoundedCornerShape(500.dp))
                         .border(
                             width = 1.dp,
                             color = GrayColor3,
-                            shape = RoundedCornerShape(50.dp)
+                            shape = RoundedCornerShape(500.dp)
                         )
                         .height(36.dp)
                         .background(color = Color.White)
-                        .align(BottomEnd)
-                        .clickable { scope.launch { viewModel.onClickWriteReview() } },
+                        .align(Alignment.BottomEnd)
+                        .clickable { event.invoke(StudioDetailContract.Event.OnClickReviewTab) },
                 ) {
                     Row(
                         modifier = Modifier.align(Center),
@@ -773,59 +813,68 @@ private fun StudioDetailActivityContent(
                     }
                 }
             }
+
+            if (isLoading) {
+                LoadingScreen()
+            }
+
+            if (isErrorDialogShowing) {
+                NoticeDialog(
+                    isCancelable = false,
+                    text = "스튜디오 정보를 불러 올 수 없습니다.",
+                    onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickQuit) }
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun StudioDetailTab(
-    modifier: Modifier,
+private fun RowScope.Tab(
     text: String,
-    tabIndex: Int,
-    tabState: MutableState<Int>,
+    focused: Boolean,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = modifier
-            .height(40.dp)
+        modifier = Modifier
+            .weight(1f)
+            .height(42.dp)
             .clickable { onClick() }
     ) {
         Text(
             modifier = Modifier.align(Center),
             text = text,
-            fontWeight = SemiBold,
             fontSize = 15.sp,
-            letterSpacing = 0.sp,
-            color = if (tabState.value == tabIndex) MainBlackColor else GrayColor6
+            fontWeight = SemiBold,
+            letterSpacing = 0.sp
         )
 
         Divider(
             modifier = Modifier.align(BottomCenter),
             thickness = 2.dp,
-            color = if (tabState.value == tabIndex) MainBlackColor else Color.White
+            color = if (focused) MainBlackColor else Color.White
         )
     }
 }
 
 @Composable
-private fun ConvenienceInfo(
-    type: String,
-    detail: String
+private fun ConvenienceInformation(
+    title: String,
+    body: String
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = SpaceBetween,
-        verticalAlignment = CenterVertically
+        horizontalArrangement = SpaceBetween
     ) {
         Text(
-            text = type,
+            text = title,
             fontWeight = Medium,
             fontSize = 13.sp,
             letterSpacing = 0.sp
         )
 
         Text(
-            text = detail,
+            text = body,
             fontWeight = Normal,
             fontSize = 12.sp,
             letterSpacing = 0.sp,
@@ -835,51 +884,56 @@ private fun ConvenienceInfo(
 }
 
 @Composable
-private fun BestKeyword(
-    number: Int,
-    keyword: String,
-    count: Int,
+private fun RecommendTag(
     backgroundColor: Color,
-    textColor: Color
+    textColor: Color,
+    rank: Int,
+    tag: String,
+    count: Int
 ) {
-    Row(
+    Box(
         modifier = Modifier
-            .clip(shape = RoundedCornerShape(7.dp))
+            .clip(RoundedCornerShape(7.dp))
             .fillMaxWidth()
             .height(42.dp)
-            .background(color = backgroundColor),
-        horizontalArrangement = SpaceBetween,
-        verticalAlignment = CenterVertically
+            .background(color = backgroundColor)
     ) {
-        Row(modifier = Modifier.padding(start = 16.dp)) {
-            Text(
-                text = "${number}위",
-                fontFamily = pyeongchang,
-                fontWeight = Bold,
-                fontSize = 12.sp,
-                letterSpacing = 0.sp,
-                color = textColor
-            )
+        Row(
+            modifier = Modifier
+                .align(Center)
+                .padding(horizontal = 17.dp)
+                .fillMaxWidth(),
+            verticalAlignment = CenterVertically,
+            horizontalArrangement = SpaceBetween
+        ) {
+            Row {
+                Text(
+                    text = "${rank}위",
+                    fontWeight = Bold,
+                    fontSize = 12.sp,
+                    letterSpacing = 0.sp,
+                    color = textColor
+                )
 
-            BPMSpacer(width = 6.dp)
+                BPMSpacer(width = 6.dp)
+
+                Text(
+                    text = tag,
+                    fontFamily = pyeongchang,
+                    fontWeight = Normal,
+                    fontSize = 12.sp,
+                    letterSpacing = 0.sp,
+                    color = textColor
+                )
+            }
 
             Text(
-                text = keyword,
-                fontFamily = pyeongchang,
-                fontWeight = Normal,
+                text = "+${count}",
+                fontWeight = Medium,
                 fontSize = 12.sp,
                 letterSpacing = 0.sp,
                 color = textColor
             )
         }
-
-        Text(
-            modifier = Modifier.padding(end = 16.dp),
-            text = "+${count}",
-            fontWeight = Medium,
-            fontSize = 12.sp,
-            letterSpacing = 0.sp,
-            color = textColor
-        )
     }
 }
