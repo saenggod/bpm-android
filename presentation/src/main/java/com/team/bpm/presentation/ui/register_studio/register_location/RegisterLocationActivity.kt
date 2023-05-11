@@ -66,6 +66,28 @@ private fun RegisterLocationActivityContent(
     val changeableState = remember { mutableStateOf(false) }
     val locationState = remember { mutableStateOf<MapPoint?>(null) }
 
+    val mapViewEventListener = object : MapViewEventListener {
+        override fun onMapViewInitialized(p0: MapView?) {}
+        override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {}
+        override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {}
+        override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {}
+        override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {}
+        override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {}
+        override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {}
+        override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {}
+        override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
+            p1?.mapPointGeoCoord?.let {
+                with(it) {
+                    if (String.format("%.6f", latitude) != (35.858902).toString() ||
+                        String.format("%.6f", longitude) != (128.498795).toString()
+                    ) {
+                        println("변경완 $latitude, $longitude")
+                    }
+                }
+            }
+        }
+    }
+
     with(state) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -143,30 +165,7 @@ private fun RegisterLocationActivityContent(
                                     false
                                 )
 
-                                setMapViewEventListener(object : MapViewEventListener {
-                                    override fun onMapViewInitialized(p0: MapView?) {
-                                        locationState.value = p0?.mapCenterPoint
-                                    }
-
-                                    override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {}
-                                    override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {}
-                                    override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {}
-                                    override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {}
-                                    override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {}
-                                    override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {}
-                                    override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {}
-                                    override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
-                                        if (p1 != null) {
-                                            with(p1.mapPointGeoCoord) {
-                                                if (String.format("%.6f", latitude) != (35.858902).toString() ||
-                                                    String.format("%.6f", longitude) != (128.498795).toString()
-                                                ) {
-                                                    changeableState.value = true
-                                                }
-                                            }
-                                        }
-                                    }
-                                })
+                                setMapViewEventListener(mapViewEventListener)
                             }
                         }
                     )
