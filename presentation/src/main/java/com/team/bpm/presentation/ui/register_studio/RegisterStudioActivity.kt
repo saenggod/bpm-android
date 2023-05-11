@@ -36,7 +36,6 @@ import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 val dummyKeywordChipList = listOf(
     "친절해요",
@@ -214,10 +213,11 @@ private fun RegisterStudioActivityContent(
                     mainAxisSpacing = 7.dp,
                     crossAxisSpacing = 12.dp
                 ) {
-                    dummyKeywordChipList.forEach { dummyKeyword ->
+                    dummyKeywordChipList.forEach { dummyKeyword -> // TODO : will be modified
                         KeywordChip(
                             text = dummyKeyword,
-                            onClick = {}
+                            isChosen = recommendKeywordMap[dummyKeyword] ?: false,
+                            onClick = { event.invoke(RegisterStudioContract.Event.OnClickKeywordChip(dummyKeyword)) }
                         )
                     }
                 }
@@ -249,12 +249,6 @@ private fun RegisterStudioActivityContent(
                 BPMSpacer(height = 26.dp)
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    LaunchedEffect(key1 = scrollState.maxValue) {
-                        scope.launch {
-                            scrollState.animateScrollTo(scrollState.maxValue)
-                        }
-                    }
-
                     BPMTextField(
                         textState = phoneNumberTextState,
                         label = "전화번호",

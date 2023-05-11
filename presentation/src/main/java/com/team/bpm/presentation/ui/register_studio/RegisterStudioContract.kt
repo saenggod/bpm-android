@@ -8,7 +8,8 @@ interface RegisterStudioContract : BaseContract<RegisterStudioContract.State, Re
         val addressText: String = "",
         val latitude: Double = 0.0,
         val longitude: Double = 0.0,
-        val recommendList: List<String> = emptyList()
+        val recommendKeywordMap: HashMap<String, Boolean> = HashMap(),
+        val recommendKeywordCount: Int = 0
     )
 
     sealed interface Event {
@@ -24,6 +25,7 @@ interface RegisterStudioContract : BaseContract<RegisterStudioContract.State, Re
         ) : Event
 
         object OnClickSetLocation : Event
+        data class OnClickKeywordChip(val keyword: String) : Event
     }
 
     sealed interface Effect {

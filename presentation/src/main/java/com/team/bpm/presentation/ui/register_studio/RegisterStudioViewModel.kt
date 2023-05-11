@@ -45,6 +45,9 @@ class RegisterStudioViewModel @Inject constructor(
         RegisterStudioContract.Event.OnClickSetLocation -> {
             onClickSetLocation()
         }
+        is RegisterStudioContract.Event.OnClickKeywordChip -> {
+            onClickKeywordChip(event.keyword)
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -71,7 +74,7 @@ class RegisterStudioViewModel @Inject constructor(
                 address = address,
                 latitude = latitude,
                 longitude = longitude,
-                recommends = state.value.recommendList,
+                recommends = state.value.recommendKeywordMap.toList().filter { it.second }.map { it.first },
                 phone = phoneNumber,
                 sns = snsAddress,
                 openHours = businessHours,
@@ -96,6 +99,36 @@ class RegisterStudioViewModel @Inject constructor(
     private fun onClickSetLocation() {
         viewModelScope.launch {
             _effect.emit(RegisterStudioContract.Effect.GoToSetLocation)
+        }
+    }
+
+    private fun onClickKeywordChip(keyword: String) {
+        viewModelScope.launch {
+            with(state.value) {
+                if (recommendKeywordMap[keyword] == true) {
+                    _state.update {
+                        it.copy(
+                            recommendKeywordMap = state.value.recommendKeywordMap.toMutableMap().apply {
+                                this[keyword] = false
+                            } as HashMap<String, Boolean>,
+                            recommendKeywordCount = recommendKeywordCount - 1
+                        )
+                    }
+                } else {
+                    if (recommendKeywordCount == 5) {
+                        _effect.emit(RegisterStudioContract.Effect.ShowToast("5개 이상 선택할 수 없습니다."))
+                    } else {
+                        _state.update {
+                            it.copy(
+                                recommendKeywordMap = state.value.recommendKeywordMap.toMutableMap().apply {
+                                    this[keyword] = true
+                                } as HashMap<String, Boolean>,
+                                recommendKeywordCount = recommendKeywordCount + 1
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
