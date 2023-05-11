@@ -52,7 +52,7 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         data class LaunchNavigationApp(val address: String) : Effect
         data class ShowToast(val text: String) : Effect
         object GoToRegisterStudio : Effect
-        object GoToWriteReview : Effect
+        data class GoToWriteReview(val studioId: Int) : Effect
         object GoToReviewList : Effect
     }
 }
