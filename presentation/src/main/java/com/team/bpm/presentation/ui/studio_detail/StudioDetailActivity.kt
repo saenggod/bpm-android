@@ -615,7 +615,13 @@ private fun StudioDetailActivityContent(
                                             bottom = 4.dp
                                         )
                                         .size(18.dp)
-                                        .clickableWithoutRipple { if (isTagListExpanded) event.invoke(StudioDetailContract.Event.OnClickCollapseTagList) else event.invoke(StudioDetailContract.Event.OnClickExpandTagList) }
+                                        .clickableWithoutRipple {
+                                            if (isTagListExpanded) {
+                                                event.invoke(StudioDetailContract.Event.OnClickCollapseTagList)
+                                            } else {
+                                                event.invoke(StudioDetailContract.Event.OnClickExpandTagList)
+                                            }
+                                        }
                                         .align(CenterHorizontally)
                                         .rotate(if (isTagListExpanded) 180f else 0f),
                                     painter = painterResource(id = R.drawable.ic_arrow_down),
