@@ -49,6 +49,7 @@ import net.daum.mf.map.api.MapView.MapViewEventListener
 
 @AndroidEntryPoint
 class RegisterLocationActivity : BaseComponentActivityV2() {
+
     @Composable
     override fun InitComposeUi() {
         RegisterLocationActivityContent()
@@ -61,31 +62,33 @@ private fun RegisterLocationActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivityV2
-
     val focusManager = LocalFocusManager.current
-    val changeableState = remember { mutableStateOf(false) }
-    val locationState = remember { mutableStateOf<MapPoint?>(null) }
 
-    val mapViewEventListener = object : MapViewEventListener {
-        override fun onMapViewInitialized(p0: MapView?) {}
-        override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {}
-        override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {}
-        override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {}
-        override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {}
-        override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {}
-        override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {}
-        override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {}
-        override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
-            p1?.mapPointGeoCoord?.let {
-                with(it) {
-                    if (String.format("%.6f", latitude) != (35.858902).toString() ||
-                        String.format("%.6f", longitude) != (128.498795).toString()
-                    ) {
-                        println("변경완 $latitude, $longitude")
+    val tempLatitude = remember { mutableStateOf(0.0) }
+    val tempLongitude = remember { mutableStateOf(0.0) }
+    val mapViewEventListener = remember {
+        mutableStateOf(object : MapViewEventListener {
+            override fun onMapViewInitialized(p0: MapView?) {}
+            override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {}
+            override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {}
+            override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {}
+            override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {}
+            override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {}
+            override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {}
+            override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {}
+            override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
+                p1?.mapPointGeoCoord?.let {
+                    with(it) {
+                        if (String.format("%.6f", latitude) != (35.858902).toString() ||
+                            String.format("%.6f", longitude) != (128.498795).toString()
+                        ) {
+                            tempLatitude.value = latitude
+                            tempLongitude.value = longitude
+                        }
                     }
                 }
             }
-        }
+        })
     }
 
     with(state) {
@@ -165,7 +168,7 @@ private fun RegisterLocationActivityContent(
                                     false
                                 )
 
-                                setMapViewEventListener(mapViewEventListener)
+                                setMapViewEventListener(mapViewEventListener.value)
                             }
                         }
                     )
@@ -188,17 +191,15 @@ private fun RegisterLocationActivityContent(
                             .clip(shape = RoundedCornerShape(50.dp))
                             .border(
                                 width = 1.dp,
-                                color = if (changeableState.value) GrayColor3 else GrayColor8,
+                                color = if (latitude != 0.0 && longitude != 0.0) GrayColor3 else GrayColor8,
                                 shape = RoundedCornerShape(50.dp)
                             )
                             .height(36.dp)
                             .background(color = Color.White)
                             .align(BottomCenter)
                             .clickable {
-                                val latitude = locationState.value?.mapPointGeoCoord?.latitude
-                                val longitude = locationState.value?.mapPointGeoCoord?.longitude
-                                if (latitude != null && longitude != null) {
-                                    event.invoke(RegisterLocationContract.Event.OnClickChangeLocation(latitude, longitude))
+                                if (tempLatitude.value != 0.0 && tempLongitude.value != 0.0) {
+                                    event.invoke(RegisterLocationContract.Event.OnClickChangeLocation(tempLatitude.value, tempLongitude.value))
                                 }
                             },
                     ) {
@@ -216,7 +217,7 @@ private fun RegisterLocationActivityContent(
                                 fontSize = 12.sp,
                                 letterSpacing = 0.sp,
                                 style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                color = if (changeableState.value) MainBlackColor else GrayColor6
+                                color = if (tempLatitude.value == 0.0 && tempLongitude.value == 0.0) GrayColor6 else MainBlackColor
                             )
 
                             BPMSpacer(width = 14.dp)

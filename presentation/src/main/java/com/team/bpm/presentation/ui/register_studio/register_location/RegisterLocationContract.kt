@@ -4,7 +4,9 @@ import com.team.bpm.presentation.base.BaseContract
 
 interface RegisterLocationContract : BaseContract<RegisterLocationContract.State, RegisterLocationContract.Event, RegisterLocationContract.Effect> {
     data class State(
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
+        val latitude: Double = 0.0,
+        val longitude: Double = 0.0
     )
 
     sealed interface Event {
