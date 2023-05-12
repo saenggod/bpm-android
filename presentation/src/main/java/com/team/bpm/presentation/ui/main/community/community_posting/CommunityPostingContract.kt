@@ -20,6 +20,5 @@ interface CommunityPostingContract : BaseContract<CommunityPostingContract.State
     sealed interface Effect {
         object GoBack : Effect
         object AddImages : Effect
-        object RemoveImage : Effect
     }
 }

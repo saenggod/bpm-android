@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.studio_detail.writing_review
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -73,11 +74,10 @@ private fun WritingReviewActivityContent(
     val context = LocalContext.current as BaseComponentActivityV2
     val ratingState = remember { mutableStateOf(0.0) }
     val contentTextState = remember { mutableStateOf("") }
-
-    initImageLauncher(
+    val imageLauncher = initImageLauncher(
         context = context,
-        onSuccess = {
-
+        onSuccess = { uris, images ->
+            event.invoke(WritingReviewContract.Event.OnImagesAdded(uris.zip(images)))
         },
         onFailure = {
 
@@ -95,10 +95,7 @@ private fun WritingReviewActivityContent(
                     context.showToast(effect.text)
                 }
                 WritingReviewContract.Effect.AddImages -> {
-
-                }
-                WritingReviewContract.Effect.RemoveImage -> {
-
+                    imageLauncher.launch(PickVisualMediaRequest())
                 }
             }
         }

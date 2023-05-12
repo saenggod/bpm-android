@@ -2,6 +2,7 @@ package com.team.bpm.presentation.compose
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +40,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -823,7 +825,7 @@ fun LoadingScreen() {
 }
 
 @Composable
-fun initImageLauncher(context: Context, onSuccess: (List<Bitmap>) -> Unit, onFailure: (Throwable) -> Unit) =
+fun initImageLauncher(context: Context, onSuccess: (List<Uri>, List<ImageBitmap>) -> Unit, onFailure: (Throwable) -> Unit) =
     rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5),
         onResult = { uris ->
@@ -835,7 +837,7 @@ fun initImageLauncher(context: Context, onSuccess: (List<Bitmap>) -> Unit, onFai
                     )
                 }
             }.onSuccess { images ->
-                onSuccess(images)
+                onSuccess(uris, images.map { it.asImageBitmap() })
             }.onFailure {
                 onFailure(it)
             }

@@ -26,6 +26,5 @@ interface WritingReviewContract : BaseContract<WritingReviewContract.State, Writ
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
         object AddImages : Effect
-        object RemoveImage : Effect
     }
 }

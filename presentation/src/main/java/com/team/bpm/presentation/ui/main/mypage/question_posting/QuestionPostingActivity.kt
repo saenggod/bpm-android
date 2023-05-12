@@ -82,9 +82,6 @@ private fun QuestionPostingActivityContent(
                 is QuestionPostingContract.Effect.AddImages -> {
                     addImageLauncher.launch(PickVisualMediaRequest())
                 }
-                is QuestionPostingContract.Effect.RemoveImage -> {
-
-                }
             }
         }
     }
