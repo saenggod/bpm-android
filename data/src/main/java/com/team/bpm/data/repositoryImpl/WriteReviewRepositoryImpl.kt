@@ -5,6 +5,7 @@ import com.team.bpm.data.network.BPMResponse
 import com.team.bpm.data.network.BPMResponseHandler
 import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.data.util.convertByteArrayToWebpFile
 import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
-import java.io.File
 import javax.inject.Inject
 
 class WriteReviewRepositoryImpl @Inject constructor(
@@ -21,7 +21,7 @@ class WriteReviewRepositoryImpl @Inject constructor(
 ) : WriteReviewRepository {
     override suspend fun sendReview(
         studioId: Int,
-        images: List<File>,
+        imageByteArrays: List<ByteArray>,
         rating: Double,
         recommends: List<String>,
         content: String
@@ -31,10 +31,10 @@ class WriteReviewRepositoryImpl @Inject constructor(
             BPMResponseHandler().handle {
                 mainApi.sendReview(
                     studioId = 1,
-                    files = images.map {
+                    files = imageByteArrays.map { imageByteArray ->
                         createImageMultipartBody(
-                            key = "files",
-                            file = it
+                            key = "file",
+                            file = convertByteArrayToWebpFile(imageByteArray)
                         )
                     },
                     rating = rating,

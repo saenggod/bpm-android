@@ -150,8 +150,8 @@ private fun StudioDetailActivityContent(
                 StudioDetailContract.Effect.GoToRegisterStudio -> {
                     context.startActivity(RegisterStudioActivity.newIntent(context))
                 }
-                StudioDetailContract.Effect.GoToWriteReview -> {
-                    context.startActivity(WritingReviewActivity.newIntent(context))
+                is StudioDetailContract.Effect.GoToWriteReview -> {
+                    context.startActivity(WritingReviewActivity.newIntent(context, effect.studioId))
                 }
                 StudioDetailContract.Effect.GoToReviewList -> {
                     context.startActivity(ReviewListActivity.newIntent(context))

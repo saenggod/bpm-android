@@ -91,11 +91,12 @@ private fun ReviewListActivityContent(
 
         item {
 //            ReviewListHeader(
+//                reviewCount = reviewListState.value.size,
 //                onClickOrderByLike = {},
 //                onClickOrderByDate = {},
 //                onClickWriteReview = {
 //                    context.startActivity(
-//                        WritingReviewActivity.newIntent(context).putExtra("studioId", studioId)
+//                        WritingReviewActivity.newIntent(context, studioId)
 //                    )
 //                }
 //            )

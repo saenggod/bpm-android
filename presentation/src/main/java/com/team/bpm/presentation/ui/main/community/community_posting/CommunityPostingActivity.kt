@@ -84,9 +84,6 @@ private fun CommunityPostingActivityContent(
                 is CommunityPostingContract.Effect.AddImages -> {
                     addImageLauncher.launch(PickVisualMediaRequest())
                 }
-                is CommunityPostingContract.Effect.RemoveImage -> {
-
-                }
             }
         }
     }

@@ -1,6 +1,11 @@
 package com.team.bpm.presentation.compose
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +40,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -57,6 +63,7 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.convertUriToBitmap
 import com.team.bpm.presentation.util.dateOnly
 
 
@@ -464,6 +471,7 @@ fun ReviewComposable(
                     items(it) { keyword ->
                         KeywordChip(
                             text = keyword,
+                            isChosen = false,
                             onClick = {}
                         )
                     }
@@ -583,28 +591,23 @@ inline fun LikeButton(
 @Composable
 inline fun KeywordChip(
     text: String,
-    isChosen: Boolean = false,
+    isChosen: Boolean,
     crossinline onClick: () -> Unit
 ) {
-    val selectState = remember { mutableStateOf(isChosen) }
-
     Text(
         modifier = Modifier
             .clip(RoundedCornerShape(60.dp))
-            .background(color = if (selectState.value) MainGreenColor else GrayColor9)
+            .background(color = if (isChosen) MainGreenColor else GrayColor9)
             .padding(
                 horizontal = 12.dp,
                 vertical = 8.dp
             )
-            .clickableWithoutRipple {
-                selectState.value = !selectState.value
-                onClick()
-            },
+            .clickableWithoutRipple { onClick() },
         text = text,
         fontWeight = Medium,
         fontSize = 12.sp,
         letterSpacing = 0.sp,
-        color = if (selectState.value) MainBlackColor else GrayColor4
+        color = if (isChosen) MainBlackColor else GrayColor4
     )
 }
 
@@ -820,6 +823,27 @@ fun LoadingScreen() {
         )
     }
 }
+
+@Composable
+fun initImageLauncher(context: Context, onSuccess: (List<Uri>, List<ImageBitmap>) -> Unit, onFailure: (Throwable) -> Unit) =
+    rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(5),
+        onResult = { uris ->
+            runCatching {
+                uris.map { uri ->
+                    convertUriToBitmap(
+                        contentResolver = context.contentResolver,
+                        uri = uri
+                    )
+                }
+            }.onSuccess { images ->
+                onSuccess(uris, images.map { it.asImageBitmap() })
+            }.onFailure {
+                onFailure(it)
+            }
+        }
+    )
+
 
 @Composable
 fun Dp.toPx() = with(LocalDensity.current) { this@toPx.toPx() }

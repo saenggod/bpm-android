@@ -89,9 +89,6 @@ private fun EyeBodyPostingActivityContent(
                 is EyeBodyPostingContract.Effect.AddImages -> {
                     addImageLauncher.launch(PickVisualMediaRequest())
                 }
-                is EyeBodyPostingContract.Effect.RemoveImage -> {
-
-                }
             }
         }
     }

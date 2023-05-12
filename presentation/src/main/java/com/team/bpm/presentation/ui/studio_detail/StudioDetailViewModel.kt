@@ -209,8 +209,10 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun onClickWriteReview() {
-        viewModelScope.launch {
-            _effect.emit(StudioDetailContract.Effect.GoToWriteReview)
+        state.value.studio?.id?.let { studioId ->
+            viewModelScope.launch {
+                _effect.emit(StudioDetailContract.Effect.GoToWriteReview(studioId))
+            }
         }
     }
 

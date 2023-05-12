@@ -20,6 +20,5 @@ interface EyeBodyPostingContract : BaseContract<EyeBodyPostingContract.State, Ey
     sealed interface Effect {
         object GoBack : Effect
         object AddImages : Effect
-        object RemoveImage : Effect
     }
 }

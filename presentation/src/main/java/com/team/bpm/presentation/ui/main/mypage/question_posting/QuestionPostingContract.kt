@@ -20,6 +20,5 @@ interface QuestionPostingContract : BaseContract<QuestionPostingContract.State, 
     sealed class Effect {
         object GoBack : Effect()
         object AddImages : Effect()
-        object RemoveImage : Effect()
     }
 }
