@@ -1,4 +1,4 @@
-package com.team.bpm.domain.usecase.splash
+package com.team.bpm.domain.usecase.review
 
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review

@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.register_studio
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -61,6 +63,12 @@ class RegisterStudioActivity : BaseComponentActivityV2() {
     override fun InitComposeUi() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         RegisterStudioActivityContent()
+    }
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, RegisterStudioActivity::class.java)
+        }
     }
 }
 
@@ -291,6 +299,8 @@ private fun RegisterStudioActivityContent(
 
                 BPMSpacer(height = 35.dp)
 
+                val submitButtonEnabledState = remember { mutableStateOf(nameTextState.value.isNotEmpty() && latitude != 0.0 && longitude != 0.0) }
+
                 RoundedCornerButton(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
@@ -299,17 +309,22 @@ private fun RegisterStudioActivityContent(
                     text = "저장하기",
                     textColor = MainBlackColor,
                     buttonColor = MainGreenColor,
-                    enabled = remember { mutableStateOf(nameTextState.value.isNotEmpty()) }.value,
-                    onClick = { event.invoke(RegisterStudioContract.Event.OnClickSubmit(
-                        name = nameTextState.value,
-                        address = addressTextState.value,
-                        latitude = state.latitude,
-                        longitude = state.longitude,
-                        phoneNumber = phoneNumberTextState.value,
-                        snsAddress = snsAddressTextState.value,
-                        businessHours = businessHoursTextState.value,
-                        priceInfo = priceInfoTextState.value
-                    )) }
+                    borderColor = if (submitButtonEnabledState.value) MainGreenColor else GrayColor9,
+                    enabled = submitButtonEnabledState.value,
+                    onClick = {
+                        event.invoke(
+                            RegisterStudioContract.Event.OnClickSubmit(
+                                name = nameTextState.value,
+                                address = addressTextState.value,
+                                latitude = state.latitude,
+                                longitude = state.longitude,
+                                phoneNumber = phoneNumberTextState.value,
+                                snsAddress = snsAddressTextState.value,
+                                businessHours = businessHoursTextState.value,
+                                priceInfo = priceInfoTextState.value
+                            )
+                        )
+                    }
                 )
 
                 BPMSpacer(height = 12.dp)
