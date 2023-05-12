@@ -469,6 +469,7 @@ fun ReviewComposable(
                     items(it) { keyword ->
                         KeywordChip(
                             text = keyword,
+                            isChosen = false,
                             onClick = {}
                         )
                     }
@@ -588,28 +589,23 @@ inline fun LikeButton(
 @Composable
 inline fun KeywordChip(
     text: String,
-    isChosen: Boolean = false,
+    isChosen: Boolean,
     crossinline onClick: () -> Unit
 ) {
-    val selectState = remember { mutableStateOf(isChosen) }
-
     Text(
         modifier = Modifier
             .clip(RoundedCornerShape(60.dp))
-            .background(color = if (selectState.value) MainGreenColor else GrayColor9)
+            .background(color = if (isChosen) MainGreenColor else GrayColor9)
             .padding(
                 horizontal = 12.dp,
                 vertical = 8.dp
             )
-            .clickableWithoutRipple {
-                selectState.value = !selectState.value
-                onClick()
-            },
+            .clickableWithoutRipple { onClick() },
         text = text,
         fontWeight = Medium,
         fontSize = 12.sp,
         letterSpacing = 0.sp,
-        color = if (selectState.value) MainBlackColor else GrayColor4
+        color = if (isChosen) MainBlackColor else GrayColor4
     )
 }
 

@@ -132,8 +132,30 @@ class WritingReviewViewModel @Inject constructor(
 
     private fun onClickKeywordChip(keyword: String) {
         viewModelScope.launch {
-            _state.update {
-                it.copy(keywordList = it.keywordList.apply { this[keyword] = true })
+            with(state.value) {
+                if (recommendKeywordMap[keyword] == true) {
+                    _state.update {
+                        it.copy(
+                            recommendKeywordMap = state.value.recommendKeywordMap.toMutableMap().apply {
+                                this[keyword] = false
+                            } as HashMap<String, Boolean>,
+                            recommendKeywordCount = recommendKeywordCount - 1
+                        )
+                    }
+                } else {
+                    if (recommendKeywordCount == 5) {
+                        _effect.emit(WritingReviewContract.Effect.ShowToast("5개 이상 선택할 수 없습니다."))
+                    } else {
+                        _state.update {
+                            it.copy(
+                                recommendKeywordMap = state.value.recommendKeywordMap.toMutableMap().apply {
+                                    this[keyword] = true
+                                } as HashMap<String, Boolean>,
+                                recommendKeywordCount = recommendKeywordCount + 1
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -150,7 +172,7 @@ class WritingReviewViewModel @Inject constructor(
                         studioId = studioId,
                         imageByteArrays = state.value.imageList.map { convertImageBitmapToByteArray(it.second) },
                         rating = rating,
-                        recommends = state.value.keywordList.keys.toList(),
+                        recommends = state.value.recommendKeywordMap.keys.toList(),
                         content = content
                     ).onEach { result ->
                         withContext(mainImmediateDispatcher) {

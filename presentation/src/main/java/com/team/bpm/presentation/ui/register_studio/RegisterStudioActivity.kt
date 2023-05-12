@@ -232,12 +232,12 @@ private fun RegisterStudioActivityContent(
             mainAxisSpacing = 7.dp,
             crossAxisSpacing = 12.dp
         ) {
-            dummyKeywordChipList.forEach { dummyKeyword ->
-                KeywordChip(
-                    text = dummyKeyword,
-                    onClick = {}
-                )
-            }
+//            dummyKeywordChipList.forEach { dummyKeyword ->
+//                KeywordChip(
+//                    text = dummyKeyword,
+//                    onClick = {}
+//                )
+//            }
         }
 
         BPMSpacer(height = 30.dp)

@@ -10,7 +10,8 @@ interface WritingReviewContract : BaseContract<WritingReviewContract.State, Writ
         val isLoading: Boolean = false,
         val studio: Studio? = null,
         val imageList: List<Pair<Uri, ImageBitmap>> = emptyList(),
-        val keywordList: HashMap<String, Boolean> = HashMap()
+        val recommendKeywordMap: HashMap<String, Boolean> = HashMap(),
+        val recommendKeywordCount: Int = 0
     )
 
     sealed interface Event {

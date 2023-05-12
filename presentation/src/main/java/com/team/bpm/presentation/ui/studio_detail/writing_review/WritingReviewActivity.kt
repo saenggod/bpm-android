@@ -321,6 +321,7 @@ private fun WritingReviewActivityContent(
                     dummyKeywordChipList.forEach { dummyKeyword ->
                         KeywordChip(
                             text = dummyKeyword,
+                            isChosen = recommendKeywordMap[dummyKeyword] ?: false,
                             onClick = { event(WritingReviewContract.Event.OnClickKeywordChip(dummyKeyword))} // TODO : will be modified
                         )
                     }
