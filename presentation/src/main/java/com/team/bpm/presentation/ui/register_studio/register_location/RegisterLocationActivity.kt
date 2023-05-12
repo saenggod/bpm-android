@@ -79,8 +79,8 @@ private fun RegisterLocationActivityContent(
             override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
                 p1?.mapPointGeoCoord?.let {
                     with(it) {
-                        if (String.format("%.6f", latitude) != (35.858902).toString() ||
-                            String.format("%.6f", longitude) != (128.498795).toString()
+                        if (String.format("%.6f", latitude) != (37.5667).toString() ||
+                            String.format("%.6f", longitude) != (126.9783).toString()
                         ) {
                             tempLatitude.value = latitude
                             tempLongitude.value = longitude
@@ -162,8 +162,8 @@ private fun RegisterLocationActivityContent(
                             MapView(context).apply {
                                 setMapCenterPoint(
                                     MapPoint.mapPointWithGeoCoord(
-                                        35.8589,
-                                        128.4988
+                                        37.5667,
+                                        126.9783
                                     ),
                                     false
                                 )
