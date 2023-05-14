@@ -1,5 +1,8 @@
 package com.team.bpm.presentation.ui.register_studio.register_location
 
+import android.content.Context
+import android.content.Intent
+import android.location.Geocoder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,6 +57,12 @@ class RegisterLocationActivity : BaseComponentActivityV2() {
     override fun InitComposeUi() {
         RegisterLocationActivityContent()
     }
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, RegisterLocationActivity::class.java)
+        }
+    }
 }
 
 @Composable
@@ -63,6 +72,7 @@ private fun RegisterLocationActivityContent(
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivityV2
     val focusManager = LocalFocusManager.current
+    val geocoder = Geocoder(context)
 
     val tempLatitude = remember { mutableStateOf(0.0) }
     val tempLongitude = remember { mutableStateOf(0.0) }
@@ -199,7 +209,13 @@ private fun RegisterLocationActivityContent(
                             .align(BottomCenter)
                             .clickable {
                                 if (tempLatitude.value != 0.0 && tempLongitude.value != 0.0) {
-                                    event.invoke(RegisterLocationContract.Event.OnClickChangeLocation(tempLatitude.value, tempLongitude.value))
+                                    event.invoke(
+                                        RegisterLocationContract.Event.OnClickChangeLocation(
+                                            tempLatitude.value,
+                                            tempLongitude.value,
+                                            geocoder
+                                        )
+                                    )
                                 }
                             },
                     ) {
