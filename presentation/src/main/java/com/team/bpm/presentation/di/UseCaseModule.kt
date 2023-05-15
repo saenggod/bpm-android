@@ -1,6 +1,7 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
+import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
@@ -11,7 +12,7 @@ import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.domain.usecase.splash.GetKakaoUserIdUseCase
 import com.team.bpm.domain.usecase.splash.SetKakaoUserIdUseCase
-import com.team.bpm.domain.usecase.splash.WriteReviewUseCase
+import com.team.bpm.domain.usecase.review.WriteReviewUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import dagger.Module
 import dagger.Provides
@@ -93,5 +94,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDislikeReviewUseCase(reviewRepository: ReviewRepository): DislikeReviewUseCase {
         return DislikeReviewUseCase(reviewRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideRegisterStudioUseCase(registerStudioRepository: RegisterStudioRepository): RegisterStudioUseCase {
+        return RegisterStudioUseCase(registerStudioRepository)
     }
 }

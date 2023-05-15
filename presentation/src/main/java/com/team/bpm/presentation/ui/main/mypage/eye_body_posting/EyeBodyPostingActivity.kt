@@ -74,7 +74,8 @@ private fun EyeBodyPostingActivityContent(
             }.onFailure {
 
             }
-        })
+        }
+    )
 
     LaunchedEffect(Unit) {
         // TODO : Call Api

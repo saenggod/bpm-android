@@ -79,4 +79,12 @@ object RepositoryModule {
     ): SearchStudioRepository {
         return SearchStudioRepositoryImpl(mainApi)
     }
+
+    @Singleton
+    @Provides
+    fun provideRegisterStudioRepository(
+        mainApi: MainApi
+    ): RegisterStudioRepository {
+        return RegisterStudioRepositoryImpl(mainApi)
+    }
 }
