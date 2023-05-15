@@ -2,6 +2,7 @@ package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
+import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
@@ -100,5 +101,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideRegisterStudioUseCase(registerStudioRepository: RegisterStudioRepository): RegisterStudioUseCase {
         return RegisterStudioUseCase(registerStudioRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetAddressNameUseCase(registerStudioRepository: RegisterStudioRepository): GetAddressNameUseCase {
+        return GetAddressNameUseCase(registerStudioRepository)
     }
 }
