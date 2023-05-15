@@ -21,7 +21,9 @@ import com.team.bpm.presentation.compose.LoadingScreen
 import com.team.bpm.presentation.compose.ReviewComposable
 import com.team.bpm.presentation.compose.ReviewListHeader
 import com.team.bpm.presentation.compose.ScreenHeader
+import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class ReviewListActivity : BaseComponentActivityV2() {
@@ -51,6 +53,16 @@ private fun ReviewListActivityContent(
         event.invoke(ReviewListContract.Event.GetReviewList)
     }
 
+    LaunchedEffect(effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
+                is ReviewListContract.Effect.GoToWriteReview -> {
+                    context.startActivity(WritingReviewActivity.newIntent(context, effect.studioId))
+                }
+            }
+        }
+    }
+
     with(state) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
@@ -64,7 +76,14 @@ private fun ReviewListActivityContent(
 
                 item {
                     ReviewListHeader(
-                        onClickShowImageReviewsOnly = { event.invoke(ReviewListContract.Event.OnClickShowImageReviewsOnly) },
+                        isShowingImageReviewsOnly = isReviewListShowingImageReviewsOnly,
+                        isSortedByLike = isReviewListSortedByLike,
+                        onClickShowImageReviewsOnlyOrNot = {
+                            event.invoke(
+                                if (isReviewListShowingImageReviewsOnly) ReviewListContract.Event.OnClickShowNotOnlyImageReviews
+                                else ReviewListContract.Event.OnClickShowImageReviewsOnly
+                            )
+                        },
                         onClickSortOrderByLike = { event.invoke(ReviewListContract.Event.OnClickSortByLike) },
                         onClickSortOrderByDate = { event.invoke(ReviewListContract.Event.OnClickSortByDate) },
                         onClickWriteReview = { event.invoke(ReviewListContract.Event.OnClickWriteReview) }

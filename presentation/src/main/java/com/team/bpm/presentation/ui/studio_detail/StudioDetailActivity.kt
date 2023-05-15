@@ -8,27 +8,11 @@ import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -76,26 +60,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMSpacer
-import com.team.bpm.presentation.compose.LoadingScreen
-import com.team.bpm.presentation.compose.NoticeDialog
-import com.team.bpm.presentation.compose.ReviewComposable
-import com.team.bpm.presentation.compose.ReviewListHeader
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.theme.FilteredWhiteColor
-import com.team.bpm.presentation.compose.theme.GrayColor10
-import com.team.bpm.presentation.compose.theme.GrayColor11
-import com.team.bpm.presentation.compose.theme.GrayColor13
-import com.team.bpm.presentation.compose.theme.GrayColor3
-import com.team.bpm.presentation.compose.theme.GrayColor4
-import com.team.bpm.presentation.compose.theme.GrayColor5
-import com.team.bpm.presentation.compose.theme.GrayColor6
-import com.team.bpm.presentation.compose.theme.GrayColor7
-import com.team.bpm.presentation.compose.theme.MainBlackColor
-import com.team.bpm.presentation.compose.theme.MainGreenColor
-import com.team.bpm.presentation.compose.theme.pyeongchang
-import com.team.bpm.presentation.compose.toPx
+import com.team.bpm.presentation.compose.*
+import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.StudioDetailTabType
 import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
@@ -691,13 +657,20 @@ private fun StudioDetailActivityContent(
 
                 ReviewListHeader(
                     modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y > screenHeight.value / 2f) StudioDetailTabType.Info else StudioDetailTabType.Review },
-                    onClickShowImageReviewsOnly = { event.invoke(StudioDetailContract.Event.OnClickShowImageReviewsOnly) },
+                    isShowingImageReviewsOnly = isReviewListShowingImageReviewsOnly,
+                    isSortedByLike = isReviewListSortedByLike,
+                    onClickShowImageReviewsOnlyOrNot = {
+                        event.invoke(
+                            if (isReviewListShowingImageReviewsOnly) StudioDetailContract.Event.OnClickShowNotOnlyImageReviews
+                            else StudioDetailContract.Event.OnClickShowImageReviewsOnly
+                        )
+                    },
                     onClickSortOrderByLike = { event.invoke(StudioDetailContract.Event.OnClickSortByLike) },
                     onClickSortOrderByDate = { event.invoke(StudioDetailContract.Event.OnClickSortByDate) },
                     onClickWriteReview = { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
                 )
 
-                reviewList?.let {
+                reviewList.let {
                     if (it.isNotEmpty()) {
                         Box {
                             Column(modifier = Modifier.padding(horizontal = 16.dp)) {

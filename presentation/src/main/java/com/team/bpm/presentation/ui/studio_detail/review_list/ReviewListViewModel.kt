@@ -10,15 +10,7 @@ import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -86,7 +78,7 @@ class ReviewListViewModel @Inject constructor(
                             when (result) {
                                 is ResponseState.Success -> {
                                     _state.update {
-                                        it.copy(isLoading = false, originalReviewList = result.data, reviewList = result.data)
+                                        it.copy(isLoading = false, originalReviewList = result.data, reviewList = result.data.sortedByDescending { review -> review.likeCount })
                                     }
                                 }
 
@@ -104,15 +96,19 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         _state.update {
             val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-            it.copy(reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-            else filteredList.sortedByDescending { review -> review.createdAt })
+            it.copy(
+                isReviewListShowingImageReviewsOnly = true,
+                reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
+                else filteredList.sortedByDescending { review -> review.createdAt })
         }
     }
 
     private fun onClickShowNotOnlyImageReviews() {
         _state.update {
-            it.copy(reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
-            else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
+            it.copy(
+                isReviewListShowingImageReviewsOnly = false,
+                reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
+                else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
         }
     }
 
