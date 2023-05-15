@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJuaWNrbmFtZSI6InVwZGF0ZSB0ZXN0IiwiaWF0IjoxNjgxMDQzNjIyLCJleHAiOjE2ODQwNDM2MjJ9.nioYdTvXQSU9nJDkxWBG54UlcqTLtBJQXlRxwalXAGs" // forTest
+const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJuaWNrbmFtZSI6Ilwi7KCA66as7KCA66as7KCA66asXCIiLCJpYXQiOjE2ODQwNzI0NjYsImV4cCI6MTY4NzA3MjQ2Nn0.Ak6H5fAhz5Ntu6uazSZ2oXh1AqueDK56N-eUwD6PaI4" // forTest
 
 @Module
 @InstallIn(SingletonComponent::class)

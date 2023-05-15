@@ -1,31 +1,51 @@
 package com.team.bpm.presentation.ui.schedule.select_studio
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
+import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
-import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainDispatcher
+import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class SelectStudioViewModel @Inject constructor(
     private val searchStudioUseCase: SearchStudioUseCase,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-) : BaseViewModel() {
-    private val _event = MutableSharedFlow<SelectStudioViewEvent>()
-    val event: SharedFlow<SelectStudioViewEvent>
-        get() = _event
+) : ViewModel(), SelectStudioContract {
 
-    private val _state = MutableStateFlow<SelectStudioState>(SelectStudioState.Init)
-    val state: StateFlow<SelectStudioState>
-        get() = _state
+    private val _state = MutableStateFlow(SelectStudioContract.State())
+    override val state: StateFlow<SelectStudioContract.State> = _state.asStateFlow()
+
+    private val _effect = MutableSharedFlow<SelectStudioContract.Effect>()
+    override val effect: SharedFlow<SelectStudioContract.Effect> = _effect
+
+    override fun event(event: SelectStudioContract.Event) = when (event) {
+        is SelectStudioContract.Event.OnClickSearch -> {
+            getStudioList(event.query)
+        }
+        is SelectStudioContract.Event.OnClickStudio -> {
+            onClickStudio(event.studio)
+        }
+        SelectStudioContract.Event.OnClickComplete -> {
+            onClickComplete()
+        }
+    }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -33,28 +53,43 @@ class SelectStudioViewModel @Inject constructor(
         }
     }
 
-    fun onClickSearch() {
-        viewModelScope.launch(mainDispatcher) {
-            _event.emit(SelectStudioViewEvent.Search)
+    private fun getStudioList(query: String) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+
+            withContext(ioDispatcher + exceptionHandler) {
+                searchStudioUseCase(query = query).onEach { result ->
+                    withContext(mainImmediateDispatcher) {
+                        when (result) {
+                            is ResponseState.Success -> {
+                                _state.update {
+                                    it.copy(isLoading = false, studioList = result.data.studios ?: emptyList(), studioCount = 0)
+                                }
+                            }
+
+                            is ResponseState.Error -> {
+                                // TODO : Show Error Dialog
+                            }
+                        }
+                    }
+                }.launchIn(viewModelScope)
+            }
         }
     }
 
-    fun searchStudio(
-        query: String
-    ) {
-        viewModelScope.launch(mainDispatcher) {
-            _state.emit(SelectStudioState.Loading)
+    private fun onClickStudio(studio: Studio) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(selectedStudio = if (state.value.selectedStudio != studio) studio else null)
+            }
         }
+    }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            searchStudioUseCase(
-                query = query
-            ).onEach { state ->
-                when(state) {
-                    is ResponseState.Success -> _state.emit(SelectStudioState.Success(state.data.studios ?: emptyList()))
-                    is ResponseState.Error -> _state.emit(SelectStudioState.Error)
-                }
-            }.launchIn(viewModelScope)
+    private fun onClickComplete() {
+        viewModelScope.launch {
+            _effect.emit(SelectStudioContract.Effect.Finish)
         }
     }
 }

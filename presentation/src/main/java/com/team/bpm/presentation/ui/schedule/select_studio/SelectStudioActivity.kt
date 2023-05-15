@@ -2,8 +2,6 @@ package com.team.bpm.presentation.ui.schedule.select_studio
 
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,222 +37,172 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.base.BaseComponentActivity
+import com.team.bpm.presentation.base.BaseComponentActivityV2
+import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMSpacer
+import com.team.bpm.presentation.compose.LoadingScreen
+import com.team.bpm.presentation.compose.RoundedCornerButton
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
-import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class SelectStudioActivity : BaseComponentActivity() {
-    override val viewModel: SelectStudioViewModel by viewModels()
-
-    private val searchTextState = mutableStateOf("")
-    private val studioStateList = mutableStateOf<List<Studio>>(listOf())
-    private val selectedStudioIdState = mutableStateOf(-1)
-    private val selectedStudioNameState = mutableStateOf("")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        initComposeUi {
-            SelectStudioActivityContent(
-                searchTextState = searchTextState,
-                studioList = studioStateList.value,
-                selectedStudioId = selectedStudioIdState.value,
-                onSearch = { viewModel.onClickSearch() },
-                onClickCheckBox = { id, name ->
-                    selectedStudioIdState.value = id
-                    selectedStudioNameState.value = name
-                },
-                onClickSelect = {
-                    intent.putExtra("studioName", selectedStudioNameState.value)
-                    setResult(RESULT_OK, intent)
-                    finish()
-                }
-            )
-        }
-    }
-
-    override fun initUi() = Unit
-
-    override fun setupCollect() {
-        repeatCallDefaultOnStarted {
-            viewModel.event.collect { event ->
-                when (event) {
-                    is SelectStudioViewEvent.Search -> {
-                        viewModel.searchStudio(searchTextState.value)
-                    }
-                }
-            }
-        }
-
-        repeatCallDefaultOnStarted {
-            viewModel.state.collect { state ->
-                when (state) {
-                    is SelectStudioState.Init -> Unit
-                    is SelectStudioState.Loading -> showLoadingScreen()
-                    is SelectStudioState.Success -> {
-                        hideLoadingScreen()
-                        studioStateList.value = state.studioList
-                    }
-                    is SelectStudioState.Error -> hideLoadingScreen()
-                }
-            }
-        }
+class SelectStudioActivity : BaseComponentActivityV2() {
+    @Composable
+    override fun InitComposeUi() {
+        SelectStudioActivityContent()
     }
 
     companion object {
         fun newIntent(context: Context): Intent {
             return Intent(context, SelectStudioActivity::class.java)
         }
-
     }
 }
 
 @Composable
-private inline fun SelectStudioActivityContent(
-    searchTextState: MutableState<String>,
-    selectedStudioId: Int,
-    studioList: List<Studio>,
-    crossinline onSearch: () -> Unit,
-    crossinline onClickCheckBox: (Int, String) -> Unit,
-    crossinline onClickSelect: () -> Unit
+private fun SelectStudioActivityContent(
+    viewModel: SelectStudioViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current as BaseComponentActivity
+    val (state, event, effect) = use(viewModel)
+    val context = LocalContext.current as BaseComponentActivityV2
     val focusManager = LocalFocusManager.current
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White)
-    ) {
+    LaunchedEffect(effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
+                SelectStudioContract.Effect.Finish -> {
 
-        if (studioList.isNotEmpty()) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = 56.dp,
-                        bottom = 76.dp
-                    )
-            ) {
-                items(studioList) { studio ->
-                    StudioWithCheckBox(
-                        studio = studio,
-                        selectedStudioId = selectedStudioId,
-                        onClick = { selectedStudioId, selectedStudioName ->
-                            onClickCheckBox(
-                                selectedStudioId,
-                                selectedStudioName
-                            )
-                        }
-                    )
                 }
             }
         }
+    }
 
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                verticalAlignment = CenterVertically
-            ) {
-                Icon(
+    with(state) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White)
+        ) {
+            if (studioList.isNotEmpty()) {
+                LazyColumn(
                     modifier = Modifier
-                        .padding(start = 12.dp)
-                        .size(26.dp)
-                        .align(CenterVertically)
-                        .clickableWithoutRipple { context.finish() },
-                    painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = ""
-                )
-
-                BPMSpacer(width = 16.dp)
-
-                Box(
-                    modifier = Modifier
-                        .padding(end = 14.dp)
-                        .border(
-                            width = 1.dp,
-                            shape = RoundedCornerShape(12.dp),
-                            color = GrayColor8
+                        .fillMaxSize()
+                        .padding(
+                            top = 56.dp,
+                            bottom = 76.dp
                         )
-                        .fillMaxWidth()
-                        .height(40.dp),
                 ) {
-                    CompositionLocalProvider(LocalTextSelectionColors.provides(textSelectionColor())) {
-                        BasicTextField(
-                            modifier = Modifier
-                                .padding(
-                                    start = 14.dp,
-                                    end = 50.dp
-                                )
-                                .fillMaxWidth()
-                                .align(CenterStart),
-                            value = searchTextState.value,
-                            onValueChange = { searchTextState.value = it },
-                            singleLine = true,
-                            keyboardActions = KeyboardActions(onDone = {
-                                focusManager.clearFocus()
-                                onSearch()
-                            }), // TODO OnDoneAction
-                            cursorBrush = SolidColor(MainBlackColor),
-                            textStyle = TextStyle(
-                                fontWeight = Medium,
-                                fontSize = 14.sp,
-                                letterSpacing = 0.sp
-                            )
+                    items(studioList) { studio ->
+                        StudioWithCheckBox(
+                            studio = studio,
+                            selectedStudioId = selectedStudio?.id ?: -1,
+                            onClick = { studio -> event.invoke(SelectStudioContract.Event.OnClickStudio(studio)) }
                         )
                     }
-
-                    Icon(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .size(32.dp)
-                            .align(CenterEnd)
-                            .clickableWithoutRipple {
-                                focusManager.clearFocus()
-                                onSearch()
-                            },
-                        painter = painterResource(
-                            id = R.drawable.ic_search
-                        ),
-                        contentDescription = "searchIcon",
-                        tint = GrayColor7
-                    )
                 }
             }
-        }
 
-        if (studioList.isNotEmpty()) {
-            Box(
-                modifier = Modifier
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 14.dp
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    verticalAlignment = CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 12.dp)
+                            .size(26.dp)
+                            .align(CenterVertically)
+                            .clickableWithoutRipple { context.finish() },
+                        painter = painterResource(id = R.drawable.ic_arrow_back),
+                        contentDescription = ""
                     )
-                    .clip(shape = RoundedCornerShape(8.dp))
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .background(color = if (selectedStudioId != -1) MainGreenColor else GrayColor9)
-                    .align(BottomCenter)
-                    .clickable { onClickSelect() }
-            ) {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
+
+                    BPMSpacer(width = 16.dp)
+
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 14.dp)
+                            .border(
+                                width = 1.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                color = GrayColor8
+                            )
+                            .fillMaxWidth()
+                            .height(40.dp),
+                    ) {
+                        val searchTextState = remember { mutableStateOf("") }
+
+                        CompositionLocalProvider(LocalTextSelectionColors.provides(textSelectionColor())) {
+                            BasicTextField(
+                                modifier = Modifier
+                                    .padding(
+                                        start = 14.dp,
+                                        end = 50.dp
+                                    )
+                                    .fillMaxWidth()
+                                    .align(CenterStart),
+                                value = searchTextState.value,
+                                onValueChange = { searchTextState.value = it },
+                                singleLine = true,
+                                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }), // TODO OnDoneAction
+                                cursorBrush = SolidColor(MainBlackColor),
+                                textStyle = TextStyle(
+                                    fontWeight = Medium,
+                                    fontSize = 14.sp,
+                                    letterSpacing = 0.sp
+                                )
+                            )
+                        }
+
+                        Icon(
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .size(32.dp)
+                                .align(CenterEnd)
+                                .clickableWithoutRipple {
+                                    focusManager.clearFocus()
+                                    event.invoke(SelectStudioContract.Event.OnClickSearch(searchTextState.value))
+                                },
+                            painter = painterResource(
+                                id = R.drawable.ic_search
+                            ),
+                            contentDescription = "searchIcon",
+                            tint = GrayColor7
+                        )
+                    }
+                }
+            }
+
+            if (isLoading) {
+                LoadingScreen()
+            }
+
+            if (studioList.isNotEmpty()) {
+                RoundedCornerButton(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 14.dp
+                        )
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .align(BottomCenter),
                     text = "선택 완료",
-                    fontWeight = SemiBold,
-                    fontSize = 16.sp,
-                    letterSpacing = 0.sp,
-                    color = if (selectedStudioId != -1) MainBlackColor else GrayColor7
+                    textColor = MainBlackColor,
+                    buttonColor = MainGreenColor,
+                    borderColor = if (selectedStudio != null) MainGreenColor else GrayColor9,
+                    enabled = selectedStudio != null,
+                    onClick = { event.invoke(SelectStudioContract.Event.OnClickComplete) }
                 )
             }
         }
@@ -266,9 +214,9 @@ private inline fun SelectStudioActivityContent(
 private fun StudioWithCheckBox(
     studio: Studio,
     selectedStudioId: Int,
-    onClick: (Int, String) -> Unit
+    onClick: (Studio) -> Unit
 ) {
-    val selectedState = studio.id == selectedStudioId
+    val isSelected = studio.id == selectedStudioId
 
     with(studio) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -288,15 +236,10 @@ private fun StudioWithCheckBox(
                     )
 
                     Icon(
-                        modifier = Modifier.clickable {
-                            onClick(
-                                studio.id ?: 0,
-                                studio.name ?: ""
-                            )
-                        },
+                        modifier = Modifier.clickable { onClick(studio) },
                         painter = painterResource(id = R.drawable.ic_check_box),
                         contentDescription = "checkBoxIcon",
-                        tint = if (selectedState) MainBlackColor else GrayColor7
+                        tint = if (isSelected) MainBlackColor else GrayColor7
                     )
                 }
 
