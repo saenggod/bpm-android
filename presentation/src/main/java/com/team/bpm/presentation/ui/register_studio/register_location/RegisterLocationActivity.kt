@@ -7,7 +7,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -15,6 +23,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,9 +52,16 @@ import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.RoundedCornerButton
 import com.team.bpm.presentation.compose.ScreenHeader
 import com.team.bpm.presentation.compose.TextFieldColorProvider
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.theme.GrayColor3
+import com.team.bpm.presentation.compose.theme.GrayColor6
+import com.team.bpm.presentation.compose.theme.GrayColor7
+import com.team.bpm.presentation.compose.theme.GrayColor8
+import com.team.bpm.presentation.compose.theme.MainBlackColor
+import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 import net.daum.mf.map.api.MapView.MapViewEventListener
@@ -99,6 +115,16 @@ private fun RegisterLocationActivityContent(
                 }
             }
         })
+    }
+
+    LaunchedEffect(effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
+                is RegisterLocationContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+            }
+        }
     }
 
     with(state) {
@@ -209,13 +235,7 @@ private fun RegisterLocationActivityContent(
                             .align(BottomCenter)
                             .clickable {
                                 if (tempLatitude.value != 0.0 && tempLongitude.value != 0.0) {
-                                    event.invoke(
-                                        RegisterLocationContract.Event.OnClickChangeLocation(
-                                            tempLatitude.value,
-                                            tempLongitude.value,
-                                            geocoder
-                                        )
-                                    )
+                                    event.invoke(RegisterLocationContract.Event.OnClickChangeLocation(tempLatitude.value, tempLongitude.value))
                                 }
                             },
                     ) {

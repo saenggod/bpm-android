@@ -7,4 +7,5 @@ import okhttp3.ResponseBody
 
 interface RegisterStudioRepository {
     suspend fun sendStudio(registerStudioWrapper: RegisterStudioWrapper): Flow<ResponseState<ResponseBody>>
+    suspend fun fetchAddressName(latitude: Double, longitude: Double): Flow<String?>
 }

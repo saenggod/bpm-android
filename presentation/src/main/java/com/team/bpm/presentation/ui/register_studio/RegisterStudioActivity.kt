@@ -80,7 +80,7 @@ private fun RegisterStudioActivityContent(
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivityV2
     val nameTextState = remember { mutableStateOf("") }
-    val addressTextState = remember { mutableStateOf("") }
+    val addressNameState = remember { mutableStateOf("") }
     val phoneTextState = remember { mutableStateOf("") }
     val snsTextState = remember { mutableStateOf("") }
     val openHoursTextState = remember { mutableStateOf("") }
@@ -156,7 +156,7 @@ private fun RegisterStudioActivityContent(
                     BPMSpacer(height = 25.dp)
 
                     BPMTextField(
-                        textState = addressTextState,
+                        textState = addressNameState,
                         label = "위치",
                         hint = "업체 위치를 등록해주세요",
                         limit = null,
@@ -317,7 +317,7 @@ private fun RegisterStudioActivityContent(
                             RegisterStudioContract.Event.OnClickSubmit(
                                 RegisterStudioWrapper(
                                     name = nameTextState.value,
-                                    address = addressTextState.value,
+                                    address = addressNameState.value,
                                     latitude = state.latitude,
                                     longitude = state.longitude,
                                     recommends = state.recommendKeywordMap.filter { it.value }.map { it.key },

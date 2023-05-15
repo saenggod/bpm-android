@@ -1,14 +1,22 @@
 package com.team.bpm.presentation.ui.register_studio.register_location
 
-import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -16,8 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterLocationViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val getAddressNameUseCase: GetAddressNameUseCase
 ) : ViewModel(), RegisterLocationContract {
 
     private val _state = MutableStateFlow(RegisterLocationContract.State())
@@ -36,20 +44,25 @@ class RegisterLocationViewModel @Inject constructor(
         is RegisterLocationContract.Event.OnClickSearch -> {
 
         }
+
         is RegisterLocationContract.Event.OnClickChangeLocation -> {
-            onClickChangeLocation(event.latitude, event.longitude, event.geocoder)
+            onClickChangeLocation(event.latitude, event.longitude)
         }
     }
 
-    private fun onClickChangeLocation(latitude: Double, longitude: Double, geocoder: Geocoder) {
+    private fun onClickChangeLocation(latitude: Double, longitude: Double) {
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            geocoder.getFromLocation(latitude, longitude, 1)?.first()?.let { address ->
+            getAddressNameUseCase(latitude, longitude).onEach { result ->
                 withContext(mainImmediateDispatcher) {
-                    _state.update {
-                        it.copy(latitude = latitude, longitude = longitude, addressText = address.getAddressLine(0).drop(5))
+                    if (!result.isNullOrEmpty()) {
+                        _state.update {
+                            it.copy(addressName = result)
+                        }
+                    } else {
+                        _effect.emit(RegisterLocationContract.Effect.ShowToast("주소명을 찾을 수 없습니다."))
                     }
                 }
-            }
+            }.launchIn(viewModelScope)
         }
     }
 }

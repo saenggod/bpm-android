@@ -1,5 +1,6 @@
 package com.team.bpm.data.repositoryImpl
 
+import android.location.Geocoder
 import com.team.bpm.data.model.request.StudioRequest
 import com.team.bpm.data.network.BPMResponse
 import com.team.bpm.data.network.BPMResponseHandler
@@ -16,7 +17,8 @@ import okhttp3.ResponseBody
 import javax.inject.Inject
 
 class RegisterStudioRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
+    private val mainApi: MainApi,
+    private val geocoder: Geocoder
 ) : RegisterStudioRepository {
     override suspend fun sendStudio(registerStudioWrapper: RegisterStudioWrapper): Flow<ResponseState<ResponseBody>> {
         return flow {
@@ -42,6 +44,16 @@ class RegisterStudioRepositoryImpl @Inject constructor(
                     is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
                 }
             }.collect()
+        }
+    }
+
+    override suspend fun fetchAddressName(latitude: Double, longitude: Double): Flow<String?> {
+        return flow {
+            geocoder.getFromLocation(latitude, longitude, 1)?.first()?.getAddressLine(0)?.drop(5)?.let { addressName ->
+                emit(addressName)
+            } ?: run {
+                emit(null)
+            }
         }
     }
 }

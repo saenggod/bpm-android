@@ -1,5 +1,6 @@
 package com.team.bpm.presentation.di
 
+import android.location.Geocoder
 import com.team.bpm.data.datastore.DataStoreManager
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.data.repositoryImpl.*
@@ -83,8 +84,9 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideRegisterStudioRepository(
-        mainApi: MainApi
+        mainApi: MainApi,
+        geocoder: Geocoder
     ): RegisterStudioRepository {
-        return RegisterStudioRepositoryImpl(mainApi)
+        return RegisterStudioRepositoryImpl(mainApi, geocoder)
     }
 }
