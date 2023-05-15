@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.register_studio
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.model.RegisterStudioWrapper
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.presentation.di.IoDispatcher
@@ -29,18 +30,7 @@ class RegisterStudioViewModel @Inject constructor(
 
     override fun event(event: RegisterStudioContract.Event) = when (event) {
         is RegisterStudioContract.Event.OnClickSubmit -> {
-            with(event) {
-                onClickSubmit(
-                    name = name,
-                    address = address,
-                    latitude = latitude,
-                    longitude = longitude,
-                    phoneNumber = phoneNumber,
-                    snsAddress = snsAddress,
-                    businessHours = businessHours,
-                    priceInfo = priceInfo
-                )
-            }
+            onClickSubmit(event.registerStudioWrapper)
         }
         RegisterStudioContract.Event.OnClickSetLocation -> {
             onClickSetLocation()
@@ -56,30 +46,11 @@ class RegisterStudioViewModel @Inject constructor(
         }
     }
 
-    private fun onClickSubmit(
-        name: String,
-        address: String,
-        latitude: Double,
-        longitude: Double,
-        phoneNumber: String,
-        snsAddress: String,
-        businessHours: String,
-        priceInfo: String
-    ) {
+    private fun onClickSubmit(registerStudioWrapper: RegisterStudioWrapper) {
         viewModelScope.launch { _state.update { it.copy(isLoading = true) } }
 
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            registerStudioUseCase(
-                name = name,
-                address = address,
-                latitude = latitude,
-                longitude = longitude,
-                recommends = state.value.recommendKeywordMap.toList().filter { it.second }.map { it.first },
-                phone = phoneNumber,
-                sns = snsAddress,
-                openHours = businessHours,
-                price = priceInfo
-            ).onEach { result ->
+            registerStudioUseCase(registerStudioWrapper).onEach { result ->
                 withContext(mainImmediateDispatcher) {
                     _state.update { it.copy(isLoading = false) }
 

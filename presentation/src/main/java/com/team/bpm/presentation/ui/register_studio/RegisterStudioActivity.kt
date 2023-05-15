@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.flowlayout.FlowRow
+import com.team.bpm.domain.model.RegisterStudioWrapper
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
@@ -80,10 +81,10 @@ private fun RegisterStudioActivityContent(
     val context = LocalContext.current as BaseComponentActivityV2
     val nameTextState = remember { mutableStateOf("") }
     val addressTextState = remember { mutableStateOf("") }
-    val phoneNumberTextState = remember { mutableStateOf("") }
-    val snsAddressTextState = remember { mutableStateOf("") }
-    val businessHoursTextState = remember { mutableStateOf("") }
-    val priceInfoTextState = remember { mutableStateOf("") }
+    val phoneTextState = remember { mutableStateOf("") }
+    val snsTextState = remember { mutableStateOf("") }
+    val openHoursTextState = remember { mutableStateOf("") }
+    val priceTextState = remember { mutableStateOf("") }
 
 
     LaunchedEffect(effect) {
@@ -258,7 +259,7 @@ private fun RegisterStudioActivityContent(
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     BPMTextField(
-                        textState = phoneNumberTextState,
+                        textState = phoneTextState,
                         label = "전화번호",
                         hint = "000-0000-0000",
                         limit = null,
@@ -269,7 +270,7 @@ private fun RegisterStudioActivityContent(
                     BPMSpacer(height = 22.dp)
 
                     BPMTextField(
-                        textState = snsAddressTextState,
+                        textState = snsTextState,
                         label = "SNS 주소",
                         limit = null,
                         hint = "인스타그램 @BodyProfileManager",
@@ -279,7 +280,7 @@ private fun RegisterStudioActivityContent(
                     BPMSpacer(height = 22.dp)
 
                     BPMTextField(
-                        textState = businessHoursTextState,
+                        textState = openHoursTextState,
                         label = "영업시간",
                         limit = null,
                         hint = "12:00~19:00",
@@ -289,7 +290,7 @@ private fun RegisterStudioActivityContent(
                     BPMSpacer(height = 22.dp)
 
                     BPMTextField(
-                        textState = priceInfoTextState,
+                        textState = priceTextState,
                         label = "가격정보",
                         limit = null,
                         hint = "프로필 0000원",
@@ -314,14 +315,17 @@ private fun RegisterStudioActivityContent(
                     onClick = {
                         event.invoke(
                             RegisterStudioContract.Event.OnClickSubmit(
-                                name = nameTextState.value,
-                                address = addressTextState.value,
-                                latitude = state.latitude,
-                                longitude = state.longitude,
-                                phoneNumber = phoneNumberTextState.value,
-                                snsAddress = snsAddressTextState.value,
-                                businessHours = businessHoursTextState.value,
-                                priceInfo = priceInfoTextState.value
+                                RegisterStudioWrapper(
+                                    name = nameTextState.value,
+                                    address = addressTextState.value,
+                                    latitude = state.latitude,
+                                    longitude = state.longitude,
+                                    recommends = state.recommendKeywordMap.filter { it.value }.map { it.key },
+                                    phone = phoneTextState.value,
+                                    sns = snsTextState.value,
+                                    openHours = openHoursTextState.value,
+                                    price = priceTextState.value
+                                )
                             )
                         )
                     }

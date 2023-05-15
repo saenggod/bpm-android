@@ -1,5 +1,6 @@
 package com.team.bpm.presentation.ui.register_studio
 
+import com.team.bpm.domain.model.RegisterStudioWrapper
 import com.team.bpm.presentation.base.BaseContract
 
 interface RegisterStudioContract : BaseContract<RegisterStudioContract.State, RegisterStudioContract.Event, RegisterStudioContract.Effect> {
@@ -13,17 +14,7 @@ interface RegisterStudioContract : BaseContract<RegisterStudioContract.State, Re
     )
 
     sealed interface Event {
-        data class OnClickSubmit(
-            val name: String,
-            val address: String,
-            val latitude: Double,
-            val longitude: Double,
-            val phoneNumber: String,
-            val snsAddress: String,
-            val businessHours: String,
-            val priceInfo: String
-        ) : Event
-
+        data class OnClickSubmit(val registerStudioWrapper: RegisterStudioWrapper) : Event
         object OnClickSetLocation : Event
         data class OnClickKeywordChip(val keyword: String) : Event
     }
