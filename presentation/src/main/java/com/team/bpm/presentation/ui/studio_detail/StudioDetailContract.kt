@@ -10,8 +10,8 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
     data class State(
         val isLoading: Boolean = false,
         val studio: Studio? = null,
-        val originalReviewList: List<Review>? = null,
-        val reviewList: List<Review>? = null,
+        val originalReviewList: List<Review> = emptyList(),
+        val reviewList: List<Review> = emptyList(),
         val isErrorDialogShowing: Boolean = false,
         val focusedTab: StudioDetailTabType = StudioDetailTabType.Info,
         val isReviewListShowingImageReviewsOnly: Boolean = false,
@@ -53,6 +53,6 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         data class ShowToast(val text: String) : Effect
         object GoToRegisterStudio : Effect
         data class GoToWriteReview(val studioId: Int) : Effect
-        object GoToReviewList : Effect
+        data class GoToReviewList(val studioId: Int) : Effect
     }
 }

@@ -115,12 +115,15 @@ private fun StudioDetailActivityContent(
                 StudioDetailContract.Effect.LoadFailed -> {
                     event.invoke(StudioDetailContract.Event.OnErrorOccurred)
                 }
+
                 StudioDetailContract.Effect.Quit -> {
                     context.finish()
                 }
+
                 StudioDetailContract.Effect.ScrollToInfoTab -> {
                     scrollState.animateScrollTo(0)
                 }
+
                 is StudioDetailContract.Effect.ScrollToReviewTab -> {
                     scrollState.animateScrollTo(heightFromTopToInfo.value)
                 }
@@ -128,6 +131,7 @@ private fun StudioDetailActivityContent(
                 is StudioDetailContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
+
                 is StudioDetailContract.Effect.Call -> {
                     when (callPermissionLauncher.status) {
                         is Granted -> {
@@ -135,26 +139,32 @@ private fun StudioDetailActivityContent(
                                 data = Uri.parse("tel:${effect.number}")
                             })
                         }
+
                         is Denied -> {
                             callPermissionLauncher.launchPermissionRequest()
                         }
                     }
                 }
+
                 is StudioDetailContract.Effect.CopyAddressToClipboard -> {
                     (context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("address", effect.address))
                 }
+
                 is StudioDetailContract.Effect.LaunchNavigationApp -> {
                     val navigationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${effect.address}"))
                     context.startActivity(navigationIntent)
                 }
+
                 StudioDetailContract.Effect.GoToRegisterStudio -> {
                     context.startActivity(RegisterStudioActivity.newIntent(context))
                 }
+
                 is StudioDetailContract.Effect.GoToWriteReview -> {
                     context.startActivity(WritingReviewActivity.newIntent(context, effect.studioId))
                 }
-                StudioDetailContract.Effect.GoToReviewList -> {
-                    context.startActivity(ReviewListActivity.newIntent(context))
+
+                is StudioDetailContract.Effect.GoToReviewList -> {
+                    context.startActivity(ReviewListActivity.newIntent(context, effect.studioId))
                 }
             }
         }
@@ -171,6 +181,7 @@ private fun StudioDetailActivityContent(
                 StudioDetailTabType.Info -> {
                     event.invoke(StudioDetailContract.Event.OnScrolledAtInfoArea)
                 }
+
                 StudioDetailTabType.Review -> {
                     event.invoke(StudioDetailContract.Event.OnScrolledAtReviewArea)
                 }
@@ -568,9 +579,11 @@ private fun StudioDetailActivityContent(
                                         1 -> {
                                             42.dp
                                         }
+
                                         2 -> {
                                             90.dp
                                         }
+
                                         else -> {
                                             138.dp
                                         }
@@ -644,13 +657,20 @@ private fun StudioDetailActivityContent(
 
                 ReviewListHeader(
                     modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y > screenHeight.value / 2f) StudioDetailTabType.Info else StudioDetailTabType.Review },
-                    onClickShowImageReviewsOnly = { event.invoke(StudioDetailContract.Event.OnClickShowImageReviewsOnly) },
+                    isShowingImageReviewsOnly = isReviewListShowingImageReviewsOnly,
+                    isSortedByLike = isReviewListSortedByLike,
+                    onClickShowImageReviewsOnlyOrNot = {
+                        event.invoke(
+                            if (isReviewListShowingImageReviewsOnly) StudioDetailContract.Event.OnClickShowNotOnlyImageReviews
+                            else StudioDetailContract.Event.OnClickShowImageReviewsOnly
+                        )
+                    },
                     onClickSortOrderByLike = { event.invoke(StudioDetailContract.Event.OnClickSortByLike) },
                     onClickSortOrderByDate = { event.invoke(StudioDetailContract.Event.OnClickSortByDate) },
                     onClickWriteReview = { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
                 )
 
-                reviewList?.let {
+                reviewList.let {
                     if (it.isNotEmpty()) {
                         Box {
                             Column(modifier = Modifier.padding(horizontal = 16.dp)) {

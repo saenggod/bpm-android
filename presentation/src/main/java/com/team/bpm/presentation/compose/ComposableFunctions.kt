@@ -1,7 +1,6 @@
 package com.team.bpm.presentation.compose
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -644,14 +643,13 @@ fun ReviewKeywordChip(
 @Composable
 inline fun ReviewListHeader(
     modifier: Modifier = Modifier,
-    crossinline onClickShowImageReviewsOnly: () -> Unit,
+    isShowingImageReviewsOnly: Boolean,
+    isSortedByLike: Boolean,
+    crossinline onClickShowImageReviewsOnlyOrNot: () -> Unit,
     crossinline onClickSortOrderByLike: () -> Unit,
     crossinline onClickSortOrderByDate: () -> Unit,
     crossinline onClickWriteReview: () -> Unit
 ) {
-    val showImageReviewOnlyState = remember { mutableStateOf(false) }
-    val showReviewOrderByLikeState = remember { mutableStateOf(true) }
-
     Column {
         Row(
             modifier = modifier
@@ -688,14 +686,13 @@ inline fun ReviewListHeader(
             horizontalArrangement = SpaceBetween,
             verticalAlignment = CenterVertically
         ) {
-            Row(modifier = Modifier.clickableWithoutRipple {
-                showImageReviewOnlyState.value = !showImageReviewOnlyState.value
-            }) {
+            Row(modifier = Modifier.clickableWithoutRipple { onClickShowImageReviewsOnlyOrNot() }) {
                 Icon(
-                    modifier = Modifier.align(CenterVertically),
+                    modifier = Modifier
+                        .align(CenterVertically),
                     painter = painterResource(id = R.drawable.ic_check_field),
                     contentDescription = "checkFieldIcon",
-                    tint = if (showImageReviewOnlyState.value) MainBlackColor else GrayColor7
+                    tint = if (isShowingImageReviewsOnly) MainBlackColor else GrayColor7
                 )
 
                 BPMSpacer(width = 8.dp)
@@ -710,15 +707,12 @@ inline fun ReviewListHeader(
 
             Row {
                 Text(
-                    modifier = Modifier.clickableWithoutRipple {
-                        onClickSortOrderByLike()
-                        showReviewOrderByLikeState.value = true
-                    },
+                    modifier = Modifier.clickableWithoutRipple { onClickSortOrderByLike() },
                     text = "좋아요순",
                     fontWeight = Medium,
                     fontSize = 14.sp,
                     letterSpacing = 0.sp,
-                    color = if (showReviewOrderByLikeState.value) MainBlackColor else GrayColor6
+                    color = if (isSortedByLike) MainBlackColor else GrayColor6
                 )
 
                 BPMSpacer(width = 20.dp)
@@ -734,15 +728,12 @@ inline fun ReviewListHeader(
                 BPMSpacer(width = 20.dp)
 
                 Text(
-                    modifier = Modifier.clickableWithoutRipple {
-                        onClickSortOrderByDate()
-                        showReviewOrderByLikeState.value = false
-                    },
+                    modifier = Modifier.clickableWithoutRipple { onClickSortOrderByDate() },
                     text = "최신순",
                     fontWeight = Medium,
                     fontSize = 14.sp,
                     letterSpacing = 0.sp,
-                    color = if (showReviewOrderByLikeState.value) GrayColor6 else MainBlackColor
+                    color = if (!isSortedByLike) MainBlackColor else GrayColor6
                 )
             }
         }
