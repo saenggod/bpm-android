@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -24,24 +25,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SelectStudioViewModel @Inject constructor(
-    private val searchStudioUseCase: SearchStudioUseCase,
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val searchStudioUseCase: SearchStudioUseCase,
 ) : ViewModel(), SelectStudioContract {
 
     private val _state = MutableStateFlow(SelectStudioContract.State())
     override val state: StateFlow<SelectStudioContract.State> = _state.asStateFlow()
 
     private val _effect = MutableSharedFlow<SelectStudioContract.Effect>()
-    override val effect: SharedFlow<SelectStudioContract.Effect> = _effect
+    override val effect: SharedFlow<SelectStudioContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: SelectStudioContract.Event) = when (event) {
         is SelectStudioContract.Event.OnClickSearch -> {
             getStudioList(event.query)
         }
+
         is SelectStudioContract.Event.OnClickStudio -> {
             onClickStudio(event.studio)
         }
+
         SelectStudioContract.Event.OnClickComplete -> {
             onClickComplete()
         }
@@ -65,7 +68,7 @@ class SelectStudioViewModel @Inject constructor(
                         when (result) {
                             is ResponseState.Success -> {
                                 _state.update {
-                                    it.copy(isLoading = false, studioList = result.data.studios ?: emptyList(), studioCount = 0)
+                                    it.copy(isLoading = false, studioList = result.data.studios ?: emptyList(), studioCount = result.data.studioCount ?: 0)
                                 }
                             }
 
@@ -88,8 +91,10 @@ class SelectStudioViewModel @Inject constructor(
     }
 
     private fun onClickComplete() {
-        viewModelScope.launch {
-            _effect.emit(SelectStudioContract.Effect.Finish)
+        state.value.selectedStudio?.let { studio ->
+            viewModelScope.launch {
+                _effect.emit(SelectStudioContract.Effect.Finish(studio))
+            }
         }
     }
 }

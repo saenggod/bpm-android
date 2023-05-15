@@ -2,6 +2,9 @@ package com.team.bpm.presentation.ui.schedule
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
@@ -40,13 +43,17 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.ui.schedule.ScheduleActivity.Companion.KEY_STUDIO
+import com.team.bpm.presentation.ui.schedule.select_studio.SelectStudioActivity
 import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.repeatCallDefaultOnResume
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
@@ -63,11 +70,11 @@ class ScheduleActivity : BaseComponentActivityV2() {
     }
 
     companion object {
+        const val KEY_STUDIO = "studio"
 
         fun newIntent(context: Context): Intent {
             return Intent(context, ScheduleActivity::class.java)
         }
-
     }
 }
 
@@ -78,16 +85,29 @@ private fun ScheduleActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivityV2
-
-    LaunchedEffect(Unit) {
-        // TODO : Call Api
+    val selectStudioLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == SelectStudioActivity.RESULT_OK) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                result.data?.getParcelableExtra(KEY_STUDIO, Studio::class.java)?.let { studio ->
+                    context.repeatCallDefaultOnResume {
+                        event.invoke(ScheduleContract.Event.SetStudio(studio))
+                    }
+                }
+            } else {
+                result.data?.getParcelableExtra<Studio>(KEY_STUDIO)?.let { studio ->
+                    context.repeatCallDefaultOnResume {
+                        event.invoke(ScheduleContract.Event.SetStudio(studio))
+                    }
+                }
+            }
+        }
     }
 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
                 is ScheduleContract.Effect.GoToSelectStudio -> {
-
+                    selectStudioLauncher.launch(SelectStudioActivity.newIntent(context))
                 }
             }
         }
@@ -406,13 +426,11 @@ private fun ScheduleActivityContent(
                     color = GrayColor11
                 )
 
-                val studioValueState = remember { mutableStateOf("") }
-
                 ScheduleItemLayout(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "예약한 촬영 스튜디오가 있으신가요?",
-                    value = studioValueState.value.ifEmpty { "스튜디오 이름" },
+                    value = selectedStudio?.name ?: "스튜디오 이름",
                     extraContentHeight = 60.dp
                 ) {
                     Box(
@@ -647,6 +665,7 @@ private fun ScheduleActivityContent(
                         .fillMaxWidth()
                         .height(48.dp),
                     text = "저장하기",
+                    borderColor = if (isEditing) MainGreenColor else GrayColor9,
                     enabled = isEditing,
                     textColor = MainBlackColor,
                     buttonColor = MainGreenColor,

@@ -48,6 +48,8 @@ import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.LoadingScreen
 import com.team.bpm.presentation.compose.RoundedCornerButton
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.ui.schedule.ScheduleActivity
+import com.team.bpm.presentation.ui.schedule.select_studio.SelectStudioActivity.Companion.RESULT_OK
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,6 +63,8 @@ class SelectStudioActivity : BaseComponentActivityV2() {
     }
 
     companion object {
+        const val RESULT_OK = 200
+
         fun newIntent(context: Context): Intent {
             return Intent(context, SelectStudioActivity::class.java)
         }
@@ -78,8 +82,9 @@ private fun SelectStudioActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                SelectStudioContract.Effect.Finish -> {
-
+                is SelectStudioContract.Effect.Finish -> {
+                    context.setResult(RESULT_OK, Intent().putExtra(ScheduleActivity.KEY_STUDIO, effect.studio))
+                    context.finish()
                 }
             }
         }
@@ -100,9 +105,9 @@ private fun SelectStudioActivityContent(
                             bottom = 76.dp
                         )
                 ) {
-                    items(studioList) { studio ->
+                    items(studioList) { studioList ->
                         StudioWithCheckBox(
-                            studio = studio,
+                            studio = studioList,
                             selectedStudioId = selectedStudio?.id ?: -1,
                             onClick = { studio -> event.invoke(SelectStudioContract.Event.OnClickStudio(studio)) }
                         )

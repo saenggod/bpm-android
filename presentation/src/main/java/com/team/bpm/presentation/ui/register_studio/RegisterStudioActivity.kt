@@ -3,14 +3,30 @@ package com.team.bpm.presentation.ui.register_studio
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -32,8 +48,19 @@ import com.team.bpm.domain.model.RegisterStudioWrapper
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.*
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.BPMSpacer
+import com.team.bpm.presentation.compose.BPMTextField
+import com.team.bpm.presentation.compose.KeywordChip
+import com.team.bpm.presentation.compose.RoundedCornerButton
+import com.team.bpm.presentation.compose.ScreenHeader
+import com.team.bpm.presentation.compose.theme.GrayColor11
+import com.team.bpm.presentation.compose.theme.GrayColor13
+import com.team.bpm.presentation.compose.theme.GrayColor4
+import com.team.bpm.presentation.compose.theme.GrayColor6
+import com.team.bpm.presentation.compose.theme.GrayColor8
+import com.team.bpm.presentation.compose.theme.GrayColor9
+import com.team.bpm.presentation.compose.theme.MainBlackColor
+import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.ui.register_studio.register_location.RegisterLocationActivity
 import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.showToast
@@ -93,6 +120,7 @@ private fun RegisterStudioActivityContent(
                 is RegisterStudioContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
+
                 RegisterStudioContract.Effect.GoToSetLocation -> {
                     context.startActivity(RegisterLocationActivity.newIntent(context))
                 }
@@ -318,7 +346,7 @@ private fun RegisterStudioActivityContent(
                                 RegisterStudioWrapper(
                                     name = nameTextState.value,
                                     address = addressNameState.value,
-                                    latitude = state.latitude,
+                                    latitude = state.latitude, // TODO : Will be fixed
                                     longitude = state.longitude,
                                     recommends = state.recommendKeywordMap.filter { it.value }.map { it.key },
                                     phone = phoneTextState.value,
