@@ -14,7 +14,16 @@ import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -40,60 +49,79 @@ class StudioDetailViewModel @Inject constructor(
                 // TODO : Error Handling
             }
         }
+
         is StudioDetailContract.Event.OnErrorOccurred -> {
             showErrorDialog()
         }
+
         is StudioDetailContract.Event.OnClickQuit -> {
             onClickQuit()
         }
+
         is StudioDetailContract.Event.OnClickInfoTab -> {
             onClickInfoTab()
         }
+
         is StudioDetailContract.Event.OnClickReviewTab -> {
             onClickReviewTab()
         }
+
         is StudioDetailContract.Event.OnScrolledAtInfoArea -> {
             onScrolledAtInfoArea()
         }
+
         is StudioDetailContract.Event.OnScrolledAtReviewArea -> {
             onScrolledAtReviewArea()
         }
+
         is StudioDetailContract.Event.OnClickCall -> {
             onClickCall(event.number)
         }
+
         is StudioDetailContract.Event.OnClickCopyAddress -> {
             onClickCopyAddress(event.address)
         }
+
         is StudioDetailContract.Event.OnClickNavigate -> {
             onClickNavigate(event.address)
         }
+
         is StudioDetailContract.Event.OnMissingNavigationApp -> {
             onMissingNavigationApp()
         }
+
         is StudioDetailContract.Event.OnClickEditInfoSuggestion -> {
             onClickEditInfoSuggestion()
         }
+
         is StudioDetailContract.Event.OnClickWriteReview -> {
             onClickWriteReview()
         }
+
         is StudioDetailContract.Event.OnClickMoreReviews -> {
             onClickMoreReviews()
         }
+
         is StudioDetailContract.Event.OnClickShowImageReviewsOnly -> {
             onClickShowImageReviewsOnly()
         }
+
         is StudioDetailContract.Event.OnClickShowNotOnlyImageReviews -> {
             onClickShowNotOnlyImageReviews()
         }
+
         is StudioDetailContract.Event.OnClickSortByLike -> {
             onClickSortByLike()
         }
+
         is StudioDetailContract.Event.OnClickSortByDate -> {
             onClickSortByDate()
         }
+
         is StudioDetailContract.Event.OnClickExpandTagList -> {
             onClickExpandTagList()
         }
+
         is StudioDetailContract.Event.OnClickCollapseTagList -> {
             onClickCollapseTagList()
         }
@@ -208,58 +236,44 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickWriteReview() {
+    private fun onClickMoreReviews() {
         state.value.studio?.id?.let { studioId ->
             viewModelScope.launch {
-                _effect.emit(StudioDetailContract.Effect.GoToWriteReview(studioId))
+                _effect.emit(StudioDetailContract.Effect.GoToReviewList(studioId))
             }
-        }
-    }
-
-    private fun onClickMoreReviews() {
-        viewModelScope.launch {
-            _effect.emit(StudioDetailContract.Effect.GoToReviewList)
         }
     }
 
     private fun onClickShowImageReviewsOnly() {
-        state.value.originalReviewList?.let { reviewList ->
-            _state.update {
-                val filteredList = reviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-                it.copy(reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-                else filteredList.sortedByDescending { review -> review.createdAt })
-            }
+        _state.update {
+            val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
+            it.copy(reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
+            else filteredList.sortedByDescending { review -> review.createdAt })
         }
     }
 
     private fun onClickShowNotOnlyImageReviews() {
-        state.value.originalReviewList?.let { reviewList ->
-            _state.update {
-                it.copy(reviewList = if (state.value.isReviewListSortedByLike) reviewList.sortedByDescending { review -> review.likeCount }
-                else reviewList.sortedByDescending { review -> review.createdAt })
-            }
+        _state.update {
+            it.copy(reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
+            else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
         }
     }
 
     private fun onClickSortByLike() {
-        state.value.originalReviewList?.let { _ ->
-            _state.update {
-                it.copy(
-                    reviewList = state.value.reviewList?.sortedByDescending { review -> review.likeCount },
-                    isReviewListSortedByLike = true
-                )
-            }
+        _state.update {
+            it.copy(
+                reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
+                isReviewListSortedByLike = true
+            )
         }
     }
 
     private fun onClickSortByDate() {
-        state.value.originalReviewList?.let { _ ->
-            _state.update {
-                it.copy(
-                    reviewList = state.value.reviewList?.sortedByDescending { review -> review.createdAt },
-                    isReviewListSortedByLike = false
-                )
-            }
+        _state.update {
+            it.copy(
+                reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
+                isReviewListSortedByLike = false
+            )
         }
     }
 
@@ -272,6 +286,14 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickCollapseTagList() {
         _state.update {
             it.copy(isTagListExpanded = false)
+        }
+    }
+
+    private fun onClickWriteReview() {
+        state.value.studio?.id?.let { studioId ->
+            viewModelScope.launch {
+                _effect.emit(StudioDetailContract.Effect.GoToWriteReview(studioId))
+            }
         }
     }
 }
