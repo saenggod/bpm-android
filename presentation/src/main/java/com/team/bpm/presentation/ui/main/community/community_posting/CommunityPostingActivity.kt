@@ -44,7 +44,6 @@ private fun CommunityPostingActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivityV2
-
     val imageLauncher = initImageLauncher(
         context = context,
         onSuccess = { uris, images ->
@@ -68,7 +67,6 @@ private fun CommunityPostingActivityContent(
             }
         }
     }
-
 
     with(state) {
         Column(
