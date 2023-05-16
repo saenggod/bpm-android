@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
@@ -43,9 +42,8 @@ private fun CommunityPostingActivityContent(
     viewModel: CommunityPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
     val imageLauncher = initImageLauncher(
-        context = context,
+        context = getLocalContext(),
         onSuccess = { uris, images ->
             event.invoke(CommunityPostingContract.Event.OnImagesAdded(uris.zip(images)))
         },

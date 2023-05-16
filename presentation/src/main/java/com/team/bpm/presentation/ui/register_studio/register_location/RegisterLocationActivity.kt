@@ -35,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -48,10 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.R.drawable
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMSpacer
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.TextFieldColorProvider
+import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.GrayColor3
 import com.team.bpm.presentation.compose.theme.GrayColor6
 import com.team.bpm.presentation.compose.theme.GrayColor7
@@ -86,7 +82,7 @@ private fun RegisterLocationActivityContent(
     viewModel: RegisterLocationViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
     val focusManager = LocalFocusManager.current
     val geocoder = Geocoder(context)
 

@@ -81,15 +81,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMSpacer
-import com.team.bpm.presentation.compose.LoadingBlock
-import com.team.bpm.presentation.compose.LoadingScreen
-import com.team.bpm.presentation.compose.NoticeDialog
-import com.team.bpm.presentation.compose.ReviewComposable
-import com.team.bpm.presentation.compose.ReviewListHeader
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.rememberLifecycleEvent
+import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.FilteredWhiteColor
 import com.team.bpm.presentation.compose.theme.GrayColor10
 import com.team.bpm.presentation.compose.theme.GrayColor11
@@ -102,7 +94,6 @@ import com.team.bpm.presentation.compose.theme.GrayColor7
 import com.team.bpm.presentation.compose.theme.MainBlackColor
 import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.compose.theme.pyeongchang
-import com.team.bpm.presentation.compose.toPx
 import com.team.bpm.presentation.model.StudioDetailTabType
 import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
@@ -142,7 +133,7 @@ private fun StudioDetailActivityContent(
     viewModel: StudioDetailViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
     val scrollState = rememberScrollState()
     val heightFromTopToInfo = remember { mutableStateOf(0) }
     val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)

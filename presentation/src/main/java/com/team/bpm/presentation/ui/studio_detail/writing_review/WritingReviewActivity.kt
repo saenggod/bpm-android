@@ -71,7 +71,7 @@ private fun WritingReviewActivityContent(
     viewModel: WritingReviewViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
     val ratingState = remember { mutableStateOf(0.0) }
     val contentTextState = remember { mutableStateOf("") }
     val imageLauncher = initImageLauncher(

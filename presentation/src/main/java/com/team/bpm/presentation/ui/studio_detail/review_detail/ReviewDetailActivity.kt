@@ -79,7 +79,7 @@ private fun ReviewDetailActivityContent(
     viewModel: ReviewDetailViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
 
     LaunchedEffect(Unit) {
         event.invoke(ReviewDetailContract.Event.GetReviewDetail)

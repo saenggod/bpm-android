@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
@@ -48,11 +47,7 @@ import com.team.bpm.domain.model.RegisterStudioWrapper
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMSpacer
-import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.KeywordChip
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
+import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.GrayColor11
 import com.team.bpm.presentation.compose.theme.GrayColor13
 import com.team.bpm.presentation.compose.theme.GrayColor4
@@ -105,7 +100,7 @@ private fun RegisterStudioActivityContent(
     viewModel: RegisterStudioViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
     val nameTextState = remember { mutableStateOf("") }
     val addressNameState = remember { mutableStateOf("") }
     val phoneTextState = remember { mutableStateOf("") }

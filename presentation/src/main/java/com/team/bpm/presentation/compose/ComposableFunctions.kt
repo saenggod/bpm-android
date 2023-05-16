@@ -356,7 +356,7 @@ fun ReviewComposable(
     modifier: Modifier = Modifier,
     review: Review
 ) {
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
 
     with(review) {
         Column(
@@ -818,6 +818,11 @@ fun rememberLifecycleEvent(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.
     }
 
     return lifecycleEvent
+}
+
+@Composable
+fun getLocalContext(): BaseComponentActivityV2 {
+    return LocalContext.current as BaseComponentActivityV2
 }
 
 @Composable
