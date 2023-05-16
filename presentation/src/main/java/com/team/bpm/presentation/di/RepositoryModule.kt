@@ -97,4 +97,12 @@ object RepositoryModule {
     ): PostRepository {
         return PostRepositoryImpl(mainApi)
     }
+
+    @Singleton
+    @Provides
+    fun provideQuestionRepository(
+        mainApi: MainApi
+    ): QuestionRepository {
+        return QuestionRepositoryImpl(mainApi)
+    }
 }

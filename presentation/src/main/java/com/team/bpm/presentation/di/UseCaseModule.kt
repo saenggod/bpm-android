@@ -1,7 +1,8 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
-import com.team.bpm.domain.usecase.post.GetPostUseCase
+import com.team.bpm.domain.usecase.post.GetPostDetailUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
@@ -112,7 +113,13 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetPostUseCase(postRepository: PostRepository): GetPostUseCase {
-        return GetPostUseCase(postRepository)
+    fun provideGetPostUseCase(postRepository: PostRepository): GetPostDetailUseCase {
+        return GetPostDetailUseCase(postRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetQuestionDetailUseCase(questionRepository: QuestionRepository): GetQuestionDetailUseCase {
+        return GetQuestionDetailUseCase(questionRepository)
     }
 }
