@@ -1,10 +1,10 @@
-package com.team.bpm.presentation.ui.main.community.community_detail
+package com.team.bpm.presentation.ui.main.community.question_detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
-import com.team.bpm.domain.usecase.post.GetPostDetailUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,22 +24,21 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class CommunityDetailViewModel @Inject constructor(
+class QuestionDetailViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val getPostDetailUseCase: GetPostDetailUseCase,
+    private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel(), CommunityDetailContract {
-    private val _state = MutableStateFlow(CommunityDetailContract.State())
-    override val state: StateFlow<CommunityDetailContract.State> = _state.asStateFlow()
+) : ViewModel(), QuestionDetailContract {
 
-    private val _effect = MutableSharedFlow<CommunityDetailContract.Effect>()
-    override val effect: SharedFlow<CommunityDetailContract.Effect> = _effect.asSharedFlow()
+    private val _state = MutableStateFlow(QuestionDetailContract.State())
+    override val state: StateFlow<QuestionDetailContract.State> = _state.asStateFlow()
 
-    override fun event(event: CommunityDetailContract.Event) = when (event) {
-        CommunityDetailContract.Event.GetCommunityDetail -> {
-            getCommunityDetail()
-        }
+    private val _effect = MutableSharedFlow<QuestionDetailContract.Effect>()
+    override val effect: SharedFlow<QuestionDetailContract.Effect> = _effect.asSharedFlow()
+
+    override fun event(event: QuestionDetailContract.Event) {
+
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -48,24 +47,24 @@ class CommunityDetailViewModel @Inject constructor(
         }
     }
 
-    private fun getPostId(): Int? {
-        return savedStateHandle.get<Int>(CommunityDetailActivity.KEY_POST_ID)
+    private fun getQuestionId(): Int? {
+        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
     }
 
-    private fun getCommunityDetail() {
-        getPostId()?.let { postId ->
+    private fun getQuestionDetail() {
+        getQuestionId()?.let { questionId ->
             viewModelScope.launch {
                 _state.update {
                     it.copy(isLoading = true)
                 }
 
                 withContext(ioDispatcher + exceptionHandler) {
-                    getPostDetailUseCase(postId).onEach { result ->
+                    getQuestionDetailUseCase(questionId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             when (result) {
                                 is ResponseState.Success -> {
                                     _state.update {
-                                        it.copy(isLoading = false, post = result.data)
+                                        it.copy(isLoading = false, question = result.data)
                                     }
                                 }
 
