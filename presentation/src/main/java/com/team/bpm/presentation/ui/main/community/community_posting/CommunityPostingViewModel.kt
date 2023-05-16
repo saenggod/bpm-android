@@ -23,9 +23,6 @@ class CommunityPostingViewModel @Inject constructor(
     override val effect: SharedFlow<CommunityPostingContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: CommunityPostingContract.Event) = when (event) {
-        is CommunityPostingContract.Event.OnClickBackButton -> {
-            onClickBackButton()
-        }
         is CommunityPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
@@ -34,12 +31,6 @@ class CommunityPostingViewModel @Inject constructor(
         }
         is CommunityPostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
-        }
-    }
-
-    private fun onClickBackButton() {
-        viewModelScope.launch {
-            _effect.emit(CommunityPostingContract.Effect.GoBack)
         }
     }
 

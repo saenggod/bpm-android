@@ -6,7 +6,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,10 +37,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.Header
 import com.team.bpm.presentation.compose.ImagePlaceHolder
 import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.ScreenHeader
+import com.team.bpm.presentation.compose.theme.GrayColor10
+import com.team.bpm.presentation.compose.theme.GrayColor4
+import com.team.bpm.presentation.compose.theme.GrayColor5
+import com.team.bpm.presentation.compose.theme.GrayColor8
+import com.team.bpm.presentation.compose.theme.MainBlackColor
+import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.util.convertUriToBitmap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -44,7 +58,7 @@ class EyeBodyPostingActivity : BaseComponentActivityV2() {
     }
 
     companion object {
-        fun newIntent(context: Context) : Intent {
+        fun newIntent(context: Context): Intent {
             return Intent(context, EyeBodyPostingActivity::class.java)
         }
     }
@@ -84,9 +98,6 @@ private fun EyeBodyPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is EyeBodyPostingContract.Effect.GoBack -> {
-                    context.finish()
-                }
                 is EyeBodyPostingContract.Effect.AddImages -> {
                     addImageLauncher.launch(PickVisualMediaRequest())
                 }
@@ -94,17 +105,13 @@ private fun EyeBodyPostingActivityContent(
         }
     }
 
-
     with(state) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Header(
-                    title = "오늘의 눈바디 남기기",
-                    onClickBackButton = { event.invoke(EyeBodyPostingContract.Event.OnClickBackButton) }
-                )
+                ScreenHeader("오늘의 눈바디 남기기")
 
                 LazyRow(
                     modifier = Modifier

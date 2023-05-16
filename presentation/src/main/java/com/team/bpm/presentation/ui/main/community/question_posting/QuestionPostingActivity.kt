@@ -20,9 +20,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.Header
 import com.team.bpm.presentation.compose.ImagePlaceHolder
 import com.team.bpm.presentation.compose.RoundedCornerButton
+import com.team.bpm.presentation.compose.ScreenHeader
 import com.team.bpm.presentation.compose.theme.MainBlackColor
 import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.util.convertUriToBitmap
@@ -76,9 +76,6 @@ private fun QuestionPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is QuestionPostingContract.Effect.GoBack -> {
-                    context.finish()
-                }
                 is QuestionPostingContract.Effect.AddImages -> {
                     addImageLauncher.launch(PickVisualMediaRequest())
                 }
@@ -93,10 +90,7 @@ private fun QuestionPostingActivityContent(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Header(
-                    title = "운동인에게 질문하기",
-                    onClickBackButton = { event.invoke(QuestionPostingContract.Event.OnClickBackButton) }
-                )
+                ScreenHeader("운동인에게 질문하기")
 
                 LazyRow(
                     modifier = Modifier

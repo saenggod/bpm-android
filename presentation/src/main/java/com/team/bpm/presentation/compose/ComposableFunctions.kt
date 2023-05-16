@@ -124,54 +124,6 @@ fun ScreenHeader(
 }
 
 @Composable
-fun Header(
-    title: String,
-    onClickBackButton: () -> Unit,
-    actionBlock: @Composable (() -> Unit)? = null
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp)
-        ) {
-            Icon(
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .size(26.dp)
-                    .align(CenterStart)
-                    .clickableWithoutRipple { onClickBackButton() },
-                painter = painterResource(id = R.drawable.ic_arrow_back),
-                contentDescription = ""
-            )
-
-            Text(
-                modifier = Modifier.align(Center),
-                text = title,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp,
-                letterSpacing = 0.sp
-            )
-
-            if (actionBlock != null) {
-                Box(
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .align(CenterEnd)
-                ) {
-                    actionBlock()
-                }
-            }
-        }
-
-        Divider(
-            thickness = 1.dp,
-            color = GrayColor8
-        )
-    }
-}
-
-@Composable
 fun TextFieldColorProvider(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalTextSelectionColors.provides(textSelectionColor())) {
         content()

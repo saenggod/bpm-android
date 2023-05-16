@@ -22,9 +22,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.Header
 import com.team.bpm.presentation.compose.ImagePlaceHolder
 import com.team.bpm.presentation.compose.RoundedCornerButton
+import com.team.bpm.presentation.compose.ScreenHeader
 import com.team.bpm.presentation.compose.theme.MainBlackColor
 import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.util.convertUriToBitmap
@@ -78,9 +78,6 @@ private fun CommunityPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is CommunityPostingContract.Effect.GoBack -> {
-                    context.finish()
-                }
                 is CommunityPostingContract.Effect.AddImages -> {
                     addImageLauncher.launch(PickVisualMediaRequest())
                 }
@@ -95,10 +92,7 @@ private fun CommunityPostingActivityContent(
             verticalArrangement = SpaceBetween
         ) {
             Column {
-                Header(
-                    title = "커뮤니티 글 작성하기",
-                    onClickBackButton = { event.invoke(CommunityPostingContract.Event.OnClickBackButton) }
-                )
+                ScreenHeader(header = "커뮤니티 글 작성하기")
 
                 LazyRow(
                     modifier = Modifier
