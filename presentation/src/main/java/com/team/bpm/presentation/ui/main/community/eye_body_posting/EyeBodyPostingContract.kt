@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.mypage.eye_body_posting
+package com.team.bpm.presentation.ui.main.community.eye_body_posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap

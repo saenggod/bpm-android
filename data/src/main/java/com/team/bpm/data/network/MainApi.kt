@@ -90,4 +90,14 @@ interface MainApi {
     suspend fun sendStudio(
         @Body studio: StudioRequest
     ): Response<ResponseBody>
+
+    @GET("api/community/story/{storyId}")
+    suspend fun fetchPostDetail(
+        @Path("storyId") postId: Int
+    ): Response<PostResponse>
+
+    @GET("api/community/question-board/{questionId}")
+    suspend fun fetchQuestionDetail(
+        @Path("questionId") questionId: Int
+    ): Response<QuestionResponse>
 }

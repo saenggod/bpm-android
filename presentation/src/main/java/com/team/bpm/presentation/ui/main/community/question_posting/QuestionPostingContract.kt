@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.mypage.question_posting
+package com.team.bpm.presentation.ui.main.community.question_posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap

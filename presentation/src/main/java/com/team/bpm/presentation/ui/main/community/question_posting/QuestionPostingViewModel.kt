@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.mypage.eye_body_posting
+package com.team.bpm.presentation.ui.main.community.question_posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
@@ -13,39 +13,39 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class EyeBodyPostingViewModel @Inject constructor(
+class QuestionPostingViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-) : ViewModel(), EyeBodyPostingContract {
-    private val _state = MutableStateFlow(EyeBodyPostingContract.State())
-    override val state: StateFlow<EyeBodyPostingContract.State> = _state.asStateFlow()
+) : ViewModel(), QuestionPostingContract {
+    private val _state = MutableStateFlow(QuestionPostingContract.State())
+    override val state: StateFlow<QuestionPostingContract.State> = _state.asStateFlow()
 
-    private val _effect = MutableSharedFlow<EyeBodyPostingContract.Effect>()
-    override val effect: SharedFlow<EyeBodyPostingContract.Effect> = _effect.asSharedFlow()
+    private val _effect = MutableSharedFlow<QuestionPostingContract.Effect>()
+    override val effect: SharedFlow<QuestionPostingContract.Effect> = _effect.asSharedFlow()
 
-    override fun event(event: EyeBodyPostingContract.Event) = when (event) {
-        is EyeBodyPostingContract.Event.OnClickBackButton -> {
+    override fun event(event: QuestionPostingContract.Event) = when (event) {
+        is QuestionPostingContract.Event.OnClickBackButton -> {
             onClickBackButton()
         }
-        is EyeBodyPostingContract.Event.OnClickImagePlaceHolder -> {
+        is QuestionPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
-        is EyeBodyPostingContract.Event.OnClickRemoveImage -> {
+        is QuestionPostingContract.Event.OnClickRemoveImage -> {
             onClickRemoveImage(event.index)
         }
-        is EyeBodyPostingContract.Event.OnImagesAdded -> {
+        is QuestionPostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
         }
     }
 
     private fun onClickBackButton() {
         viewModelScope.launch {
-            _effect.emit(EyeBodyPostingContract.Effect.GoBack)
+            _effect.emit(QuestionPostingContract.Effect.GoBack)
         }
     }
 
     private fun onClickImagePlaceHolder() {
         viewModelScope.launch {
-            _effect.emit(EyeBodyPostingContract.Effect.AddImages)
+            _effect.emit(QuestionPostingContract.Effect.AddImages)
         }
     }
 
