@@ -93,7 +93,8 @@ private fun ReviewListActivityContent(
                 items(reviewList) { review ->
                     ReviewComposable(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        review = review
+                        review = review,
+                        onClickLike = {}
                     )
                 }
             }

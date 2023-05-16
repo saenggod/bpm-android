@@ -42,6 +42,7 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         object OnClickSortByDate : Event
         object OnClickExpandTagList : Event
         object OnClickCollapseTagList : Event
+        data class OnClickReviewLikeButton(val reviewId: Int) : Event
     }
 
     sealed interface Effect {

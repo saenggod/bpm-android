@@ -42,7 +42,7 @@ interface MainApi {
     @GET("api/studio/{studioId}/review")
     suspend fun fetchReviewList(
         @Path("studioId") studioId: Int
-    ): Response<List<ReviewResponse>>
+    ): Response<ReviewListResponse>
 
     @GET("api/studio/{studioId}/review/{reviewId}")
     suspend fun fetchReviewDetail(

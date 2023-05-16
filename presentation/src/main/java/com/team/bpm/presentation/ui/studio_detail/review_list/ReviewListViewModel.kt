@@ -86,12 +86,14 @@ class ReviewListViewModel @Inject constructor(
                         withContext(mainImmediateDispatcher) {
                             when (result) {
                                 is ResponseState.Success -> {
-                                    _state.update {
-                                        it.copy(
-                                            isLoading = false,
-                                            originalReviewList = result.data,
-                                            reviewList = sortRefreshedReviewList(result.data)
-                                        )
+                                    result.data.reviews?.let { reviews ->
+                                        _state.update {
+                                            it.copy(
+                                                isLoading = false,
+                                                originalReviewList = reviews,
+                                                reviewList = sortRefreshedReviewList(reviews)
+                                            )
+                                        }
                                     }
                                 }
 
