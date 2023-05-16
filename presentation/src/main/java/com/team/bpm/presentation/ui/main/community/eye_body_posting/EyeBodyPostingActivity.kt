@@ -2,20 +2,9 @@ package com.team.bpm.presentation.ui.main.community.eye_body_posting
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,17 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.ImagePlaceHolder
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.theme.GrayColor10
-import com.team.bpm.presentation.compose.theme.GrayColor4
-import com.team.bpm.presentation.compose.theme.GrayColor5
-import com.team.bpm.presentation.compose.theme.GrayColor8
-import com.team.bpm.presentation.compose.theme.MainBlackColor
-import com.team.bpm.presentation.compose.theme.MainGreenColor
-import com.team.bpm.presentation.util.convertUriToBitmap
+import com.team.bpm.presentation.compose.*
+import com.team.bpm.presentation.compose.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -70,24 +49,13 @@ private fun EyeBodyPostingActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = LocalContext.current as BaseComponentActivityV2
+    val imageLauncher = initImageLauncher(
+        context = context,
+        onSuccess = { uris, images ->
+            event.invoke(EyeBodyPostingContract.Event.OnImagesAdded(uris.zip(images)))
+        },
+        onFailure = {
 
-    val addImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(5),
-        onResult = { uris ->
-            runCatching {
-                uris.map { uri ->
-                    convertUriToBitmap(
-                        contentResolver = context.contentResolver,
-                        uri = uri
-                    )
-                }
-            }.onSuccess { images ->
-                event.invoke(EyeBodyPostingContract.Event.OnImagesAdded(images.mapIndexed { index, image ->
-                    Pair(uris[index], image.asImageBitmap())
-                }))
-            }.onFailure {
-
-            }
         }
     )
 
@@ -99,7 +67,7 @@ private fun EyeBodyPostingActivityContent(
         effect.collectLatest { effect ->
             when (effect) {
                 is EyeBodyPostingContract.Effect.AddImages -> {
-                    addImageLauncher.launch(PickVisualMediaRequest())
+                    imageLauncher.launch(PickVisualMediaRequest())
                 }
             }
         }
