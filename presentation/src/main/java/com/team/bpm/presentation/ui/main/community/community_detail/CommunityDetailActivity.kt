@@ -1,10 +1,20 @@
 package com.team.bpm.presentation.ui.main.community.community_detail
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -17,8 +27,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +34,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,7 +46,12 @@ import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.LikeButton
 import com.team.bpm.presentation.compose.LoadingScreen
 import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.theme.FilteredWhiteColor
+import com.team.bpm.presentation.compose.theme.GrayColor10
+import com.team.bpm.presentation.compose.theme.GrayColor13
+import com.team.bpm.presentation.compose.theme.GrayColor4
+import com.team.bpm.presentation.compose.theme.GrayColor5
+import com.team.bpm.presentation.util.dateOnly
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -48,6 +60,16 @@ class CommunityDetailActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
         CommunityDetailActivityContent()
+    }
+
+    companion object {
+        const val KEY_POST_ID = "post_id"
+
+        fun newIntent(context: Context, postId: Int): Intent {
+            return Intent(context, CommunityDetailActivity::class.java).apply {
+                putExtra(KEY_POST_ID, postId)
+            }
+        }
     }
 }
 
@@ -60,7 +82,7 @@ private fun CommunityDetailActivityContent(
     val context = LocalContext.current as BaseComponentActivityV2
 
     LaunchedEffect(Unit) {
-//        event.invoke(CommunityDetailContract.Event.GetCommunityDetail)
+        event.invoke(CommunityDetailContract.Event.GetCommunityDetail)
     }
 
     LaunchedEffect(effect) {
@@ -99,6 +121,7 @@ private fun CommunityDetailActivityContent(
                                     .clip(CircleShape)
                                     .size(24.dp),
                                 model = post?.author?.profilePath,
+                                contentScale = ContentScale.FillBounds,
                                 contentDescription = "authorImage"
                             )
 
@@ -114,7 +137,7 @@ private fun CommunityDetailActivityContent(
 
                         Row(verticalAlignment = CenterVertically) {
                             Text(
-                                text = post?.createdAt ?: "",
+                                text = post?.createdAt?.dateOnly() ?: "",
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp,
                                 letterSpacing = 0.sp,
@@ -135,119 +158,88 @@ private fun CommunityDetailActivityContent(
                         thickness = 1.dp,
                         color = GrayColor13
                     )
+                }
 
-                    post?.filesPath?.let { images ->
-                        if (images.isNotEmpty()) {
-                            Box(
+                post?.filesPath?.let { images ->
+                    if (images.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                        ) {
+                            val horizontalPagerState = rememberPagerState()
+
+                            HorizontalPager(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .aspectRatio(1f)
-                            ) {
-                                val horizontalPagerState = rememberPagerState()
-
-                                HorizontalPager(
+                                    .aspectRatio(1f),
+                                state = horizontalPagerState,
+                                pageCount = images.size
+                            ) { index ->
+                                GlideImage(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .aspectRatio(0.85f),
-                                    state = horizontalPagerState,
-                                    pageCount = images.size
-                                ) { index ->
-                                    GlideImage(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .aspectRatio(1f),
-                                        model = images[index],
-                                        contentDescription = "postImage",
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
+                                        .aspectRatio(1f),
+                                    model = images[index],
+                                    contentDescription = "postImage",
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
 
-                                Box(
-                                    modifier = Modifier
-                                        .padding(
-                                            start = 16.dp,
-                                            bottom = 16.dp
-                                        )
-                                        .clip(RoundedCornerShape(40.dp))
-                                        .width(42.dp)
-                                        .height(25.dp)
-                                        .background(color = FilteredWhiteColor)
-                                        .align(Alignment.BottomStart)
-                                ) {
-                                    Text(
-                                        modifier = Modifier.align(Alignment.Center),
-                                        text = "${images.size}/${horizontalPagerState.currentPage + 1}",
-                                        fontWeight = FontWeight.Normal,
-                                        fontSize = 12.sp,
-                                        letterSpacing = 2.sp
+                            Box(
+                                modifier = Modifier
+                                    .padding(
+                                        start = 16.dp,
+                                        bottom = 16.dp
                                     )
-                                }
+                                    .clip(RoundedCornerShape(40.dp))
+                                    .width(42.dp)
+                                    .height(25.dp)
+                                    .background(color = FilteredWhiteColor)
+                                    .align(Alignment.BottomStart)
+                            ) {
+                                Text(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    text = "${images.size}/${horizontalPagerState.currentPage + 1}",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 12.sp,
+                                    letterSpacing = 2.sp
+                                )
                             }
                         }
                     }
-
-                    Text(
-                        modifier = Modifier
-                            .padding(
-                                top = 20.dp,
-                                start = 20.dp,
-                                end = 20.dp,
-                                bottom = 16.dp
-                            )
-                            .fillMaxWidth(),
-                        text = post?.content ?: "",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 13.sp,
-                        letterSpacing = 0.sp
-                    )
-
-                    BPMSpacer(height = 8.dp)
-
-//                    LikeButton(
-//                        modifier = Modifier.padding(start = 20.dp)
-//                        liked = ,
-//                        likeCount = ,
-//                        onClick = {}
-//                    )
-
-                    BPMSpacer(height = 28.dp)
-
-                    Divider(
-                        thickness = 1.dp,
-                        color = GrayColor10
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier.align(CenterStart),
-                            text = "댓글 ",
-                            fontWeight = SemiBold,
-                            fontSize = 16.sp,
-                            letterSpacing = 0.sp
-                        )
-
-                        Divider(
-                            modifier = Modifier.align(BottomCenter),
-                            thickness = 1.dp,
-                            color = GrayColor13
-                        )
-                    }
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = 20.dp
-                            )
-                            .fillMaxWidth()
-                    ) {
-
-                    }
                 }
+
+                Text(
+                    modifier = Modifier
+                        .padding(
+                            top = 20.dp,
+                            start = 20.dp,
+                            end = 20.dp,
+                            bottom = 16.dp
+                        )
+                        .fillMaxWidth(),
+                    text = post?.content ?: "",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 13.sp,
+                    letterSpacing = 0.sp
+                )
+
+                BPMSpacer(height = 8.dp)
+
+                LikeButton(
+                    modifier = Modifier.padding(start = 20.dp),
+                    liked = false,
+                    likeCount = 0,
+                    onClick = {}
+                )
+
+                BPMSpacer(height = 28.dp)
+
+                Divider(
+                    thickness = 1.dp,
+                    color = GrayColor10
+                )
             }
 
             if (isLoading) {
