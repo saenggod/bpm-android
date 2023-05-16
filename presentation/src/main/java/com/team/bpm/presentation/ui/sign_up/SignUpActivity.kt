@@ -74,7 +74,7 @@ private fun SignUpActivityContent(
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
 
     val profileImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),

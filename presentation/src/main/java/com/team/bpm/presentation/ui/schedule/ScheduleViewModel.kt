@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
+import com.team.bpm.presentation.base.BaseContract
 import com.team.bpm.presentation.di.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -68,8 +69,10 @@ class ScheduleViewModel @Inject constructor(
     }
 
     private fun onClickEdit() {
-        _state.update {
-            it.copy(isEditing = true)
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isEditing = true)
+            }
         }
     }
 
@@ -80,14 +83,18 @@ class ScheduleViewModel @Inject constructor(
     }
 
     private fun onClickDate(date: LocalDate) {
-        _state.update {
-            it.copy(selectedDate = date)
+        viewModelScope.launch {
+            _state.update {
+                it.copy(selectedDate = date)
+            }
         }
     }
 
     private fun onClickSetTime(time: String) {
-        _state.update {
-            it.copy(selectedTime = time)
+        viewModelScope.launch {
+            _state.update {
+                it.copy(selectedTime = time)
+            }
         }
     }
 }

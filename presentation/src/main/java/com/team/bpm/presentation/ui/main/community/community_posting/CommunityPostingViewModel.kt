@@ -23,9 +23,6 @@ class CommunityPostingViewModel @Inject constructor(
     override val effect: SharedFlow<CommunityPostingContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: CommunityPostingContract.Event) = when (event) {
-        is CommunityPostingContract.Event.OnClickBackButton -> {
-            onClickBackButton()
-        }
         is CommunityPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
@@ -37,12 +34,6 @@ class CommunityPostingViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
-        viewModelScope.launch {
-            _effect.emit(CommunityPostingContract.Effect.GoBack)
-        }
-    }
-
     private fun onClickImagePlaceHolder() {
         viewModelScope.launch {
             _effect.emit(CommunityPostingContract.Effect.AddImages)
@@ -50,8 +41,10 @@ class CommunityPostingViewModel @Inject constructor(
     }
 
     private fun onClickRemoveImage(index: Int) {
-        _state.update {
-            it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+            }
         }
     }
 
@@ -68,8 +61,10 @@ class CommunityPostingViewModel @Inject constructor(
             linkedList.addFirst(images[i])
         }
 
-        _state.update {
-            it.copy(imageList = linkedList.toMutableList())
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = linkedList.toMutableList())
+            }
         }
     }
 }

@@ -2,9 +2,7 @@ package com.team.bpm.presentation.ui.main.community.eye_body_posting
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,20 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.Header
-import com.team.bpm.presentation.compose.ImagePlaceHolder
-import com.team.bpm.presentation.compose.RoundedCornerButton
+import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
-import com.team.bpm.presentation.util.convertUriToBitmap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -44,7 +36,7 @@ class EyeBodyPostingActivity : BaseComponentActivityV2() {
     }
 
     companion object {
-        fun newIntent(context: Context) : Intent {
+        fun newIntent(context: Context): Intent {
             return Intent(context, EyeBodyPostingActivity::class.java)
         }
     }
@@ -55,25 +47,14 @@ private fun EyeBodyPostingActivityContent(
     viewModel: EyeBodyPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
+    val imageLauncher = initImageLauncher(
+        context = context,
+        onSuccess = { uris, images ->
+            event.invoke(EyeBodyPostingContract.Event.OnImagesAdded(uris.zip(images)))
+        },
+        onFailure = {
 
-    val addImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(5),
-        onResult = { uris ->
-            runCatching {
-                uris.map { uri ->
-                    convertUriToBitmap(
-                        contentResolver = context.contentResolver,
-                        uri = uri
-                    )
-                }
-            }.onSuccess { images ->
-                event.invoke(EyeBodyPostingContract.Event.OnImagesAdded(images.mapIndexed { index, image ->
-                    Pair(uris[index], image.asImageBitmap())
-                }))
-            }.onFailure {
-
-            }
         }
     )
 
@@ -84,16 +65,12 @@ private fun EyeBodyPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is EyeBodyPostingContract.Effect.GoBack -> {
-                    context.finish()
-                }
                 is EyeBodyPostingContract.Effect.AddImages -> {
-                    addImageLauncher.launch(PickVisualMediaRequest())
+                    imageLauncher.launch(PickVisualMediaRequest())
                 }
             }
         }
     }
-
 
     with(state) {
         Column(
@@ -101,10 +78,7 @@ private fun EyeBodyPostingActivityContent(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Header(
-                    title = "오늘의 눈바디 남기기",
-                    onClickBackButton = { event.invoke(EyeBodyPostingContract.Event.OnClickBackButton) }
-                )
+                ScreenHeader("오늘의 눈바디 남기기")
 
                 LazyRow(
                     modifier = Modifier

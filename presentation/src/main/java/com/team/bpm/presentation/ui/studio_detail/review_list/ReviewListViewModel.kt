@@ -4,13 +4,22 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
+import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -78,7 +87,11 @@ class ReviewListViewModel @Inject constructor(
                             when (result) {
                                 is ResponseState.Success -> {
                                     _state.update {
-                                        it.copy(isLoading = false, originalReviewList = result.data, reviewList = result.data.sortedByDescending { review -> review.likeCount })
+                                        it.copy(
+                                            isLoading = false,
+                                            originalReviewList = result.data,
+                                            reviewList = sortRefreshedReviewList(result.data)
+                                        )
                                     }
                                 }
 
@@ -94,39 +107,47 @@ class ReviewListViewModel @Inject constructor(
     }
 
     private fun onClickShowImageReviewsOnly() {
-        _state.update {
-            val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-            it.copy(
-                isReviewListShowingImageReviewsOnly = true,
-                reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-                else filteredList.sortedByDescending { review -> review.createdAt })
+        viewModelScope.launch {
+            _state.update {
+                val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
+                it.copy(
+                    isReviewListShowingImageReviewsOnly = true,
+                    reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
+                    else filteredList.sortedByDescending { review -> review.createdAt })
+            }
         }
     }
 
     private fun onClickShowNotOnlyImageReviews() {
-        _state.update {
-            it.copy(
-                isReviewListShowingImageReviewsOnly = false,
-                reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
-                else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isReviewListShowingImageReviewsOnly = false,
+                    reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
+                    else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
+            }
         }
     }
 
     private fun onClickSortByLike() {
-        _state.update {
-            it.copy(
-                reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
-                isReviewListSortedByLike = true
-            )
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
+                    isReviewListSortedByLike = true
+                )
+            }
         }
     }
 
     private fun onClickSortByDate() {
-        _state.update {
-            it.copy(
-                reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
-                isReviewListSortedByLike = false
-            )
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
+                    isReviewListSortedByLike = false
+                )
+            }
         }
     }
 
@@ -135,6 +156,20 @@ class ReviewListViewModel @Inject constructor(
             viewModelScope.launch {
                 _effect.emit(ReviewListContract.Effect.GoToWriteReview(studioId))
             }
+        }
+    }
+
+    private fun sortRefreshedReviewList(list: List<Review>): List<Review> {
+        val filteredList = if (state.value.isReviewListShowingImageReviewsOnly) {
+            list.filter { it.filesPath?.isNotEmpty() == true }
+        } else {
+            list
+        }
+
+        return if (state.value.isReviewListSortedByLike) {
+            filteredList.sortedByDescending { it.likeCount }
+        } else {
+            filteredList.sortedByDescending { it.createdAt }
         }
     }
 }

@@ -47,6 +47,7 @@ import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.LoadingScreen
 import com.team.bpm.presentation.compose.RoundedCornerButton
+import com.team.bpm.presentation.compose.getLocalContext
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.schedule.ScheduleActivity
 import com.team.bpm.presentation.ui.schedule.select_studio.SelectStudioActivity.Companion.RESULT_OK
@@ -76,7 +77,7 @@ private fun SelectStudioActivityContent(
     viewModel: SelectStudioViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(effect) {

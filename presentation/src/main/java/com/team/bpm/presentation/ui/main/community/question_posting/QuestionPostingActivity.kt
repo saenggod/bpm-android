@@ -2,9 +2,7 @@ package com.team.bpm.presentation.ui.main.community.question_posting
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -13,19 +11,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.Header
-import com.team.bpm.presentation.compose.ImagePlaceHolder
-import com.team.bpm.presentation.compose.RoundedCornerButton
+import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.MainBlackColor
 import com.team.bpm.presentation.compose.theme.MainGreenColor
-import com.team.bpm.presentation.util.convertUriToBitmap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -48,26 +40,16 @@ private fun QuestionPostingActivityContent(
     viewModel: QuestionPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
+    val imageLauncher = initImageLauncher(
+        context = context,
+        onSuccess = { uris, images ->
+            event.invoke(QuestionPostingContract.Event.OnImagesAdded(uris.zip(images)))
+        },
+        onFailure = {
 
-    val addImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(5),
-        onResult = { uris ->
-            runCatching {
-                uris.map { uri ->
-                    convertUriToBitmap(
-                        contentResolver = context.contentResolver,
-                        uri = uri
-                    )
-                }
-            }.onSuccess { images ->
-                event.invoke(QuestionPostingContract.Event.OnImagesAdded(images.mapIndexed { index, image ->
-                    Pair(uris[index], image.asImageBitmap())
-                }))
-            }.onFailure {
-
-            }
-        })
+        }
+    )
 
     LaunchedEffect(Unit) {
         // TODO : Call Api
@@ -76,11 +58,8 @@ private fun QuestionPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is QuestionPostingContract.Effect.GoBack -> {
-                    context.finish()
-                }
                 is QuestionPostingContract.Effect.AddImages -> {
-                    addImageLauncher.launch(PickVisualMediaRequest())
+                    imageLauncher.launch(PickVisualMediaRequest())
                 }
             }
         }
@@ -93,10 +72,7 @@ private fun QuestionPostingActivityContent(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Header(
-                    title = "운동인에게 질문하기",
-                    onClickBackButton = { event.invoke(QuestionPostingContract.Event.OnClickBackButton) }
-                )
+                ScreenHeader("운동인에게 질문하기")
 
                 LazyRow(
                     modifier = Modifier

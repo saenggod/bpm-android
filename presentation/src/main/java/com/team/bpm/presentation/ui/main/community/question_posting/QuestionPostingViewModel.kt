@@ -23,9 +23,6 @@ class QuestionPostingViewModel @Inject constructor(
     override val effect: SharedFlow<QuestionPostingContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: QuestionPostingContract.Event) = when (event) {
-        is QuestionPostingContract.Event.OnClickBackButton -> {
-            onClickBackButton()
-        }
         is QuestionPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
@@ -37,12 +34,6 @@ class QuestionPostingViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
-        viewModelScope.launch {
-            _effect.emit(QuestionPostingContract.Effect.GoBack)
-        }
-    }
-
     private fun onClickImagePlaceHolder() {
         viewModelScope.launch {
             _effect.emit(QuestionPostingContract.Effect.AddImages)
@@ -50,8 +41,10 @@ class QuestionPostingViewModel @Inject constructor(
     }
 
     private fun onClickRemoveImage(index: Int) {
-        _state.update {
-            it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+            }
         }
     }
 
@@ -68,8 +61,10 @@ class QuestionPostingViewModel @Inject constructor(
             linkedList.addFirst(images[i])
         }
 
-        _state.update {
-            it.copy(imageList = linkedList.toMutableList())
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = linkedList.toMutableList())
+            }
         }
     }
 }

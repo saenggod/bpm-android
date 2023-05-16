@@ -84,7 +84,7 @@ private fun ScheduleActivityContent(
     viewModel: ScheduleViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
     val selectStudioLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == SelectStudioActivity.RESULT_OK) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

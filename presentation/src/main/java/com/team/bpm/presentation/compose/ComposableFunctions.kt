@@ -44,6 +44,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -54,6 +55,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.team.bpm.domain.model.Review
@@ -96,54 +100,6 @@ fun ScreenHeader(
             Text(
                 modifier = Modifier.align(Center),
                 text = header,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp,
-                letterSpacing = 0.sp
-            )
-
-            if (actionBlock != null) {
-                Box(
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .align(CenterEnd)
-                ) {
-                    actionBlock()
-                }
-            }
-        }
-
-        Divider(
-            thickness = 1.dp,
-            color = GrayColor8
-        )
-    }
-}
-
-@Composable
-fun Header(
-    title: String,
-    onClickBackButton: () -> Unit,
-    actionBlock: @Composable (() -> Unit)? = null
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp)
-        ) {
-            Icon(
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .size(26.dp)
-                    .align(CenterStart)
-                    .clickableWithoutRipple { onClickBackButton() },
-                painter = painterResource(id = R.drawable.ic_arrow_back),
-                contentDescription = ""
-            )
-
-            Text(
-                modifier = Modifier.align(Center),
-                text = title,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
                 letterSpacing = 0.sp
@@ -400,7 +356,7 @@ fun ReviewComposable(
     modifier: Modifier = Modifier,
     review: Review
 ) {
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
 
     with(review) {
         Column(
@@ -817,6 +773,16 @@ fun LoadingScreen() {
 }
 
 @Composable
+fun LoadingBlock(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxWidth()) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Center),
+            color = MainGreenColor
+        )
+    }
+}
+
+@Composable
 fun initImageLauncher(context: Context, onSuccess: (List<Uri>, List<ImageBitmap>) -> Unit, onFailure: (Throwable) -> Unit) =
     rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5),
@@ -836,6 +802,28 @@ fun initImageLauncher(context: Context, onSuccess: (List<Uri>, List<ImageBitmap>
         }
     )
 
+@Composable
+fun rememberLifecycleEvent(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current): Lifecycle.Event {
+    var lifecycleEvent by remember { mutableStateOf(Lifecycle.Event.ON_ANY) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            lifecycleEvent = event
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    return lifecycleEvent
+}
+
+@Composable
+fun getLocalContext(): BaseComponentActivityV2 {
+    return LocalContext.current as BaseComponentActivityV2
+}
 
 @Composable
 fun Dp.toPx() = with(LocalDensity.current) { this@toPx.toPx() }

@@ -23,9 +23,6 @@ class EyeBodyPostingViewModel @Inject constructor(
     override val effect: SharedFlow<EyeBodyPostingContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: EyeBodyPostingContract.Event) = when (event) {
-        is EyeBodyPostingContract.Event.OnClickBackButton -> {
-            onClickBackButton()
-        }
         is EyeBodyPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
@@ -37,12 +34,6 @@ class EyeBodyPostingViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
-        viewModelScope.launch {
-            _effect.emit(EyeBodyPostingContract.Effect.GoBack)
-        }
-    }
-
     private fun onClickImagePlaceHolder() {
         viewModelScope.launch {
             _effect.emit(EyeBodyPostingContract.Effect.AddImages)
@@ -50,8 +41,10 @@ class EyeBodyPostingViewModel @Inject constructor(
     }
 
     private fun onClickRemoveImage(index: Int) {
-        _state.update {
-            it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+            }
         }
     }
 

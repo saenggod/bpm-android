@@ -8,18 +8,36 @@ import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
@@ -36,6 +54,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -48,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -61,7 +82,18 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.theme.FilteredWhiteColor
+import com.team.bpm.presentation.compose.theme.GrayColor10
+import com.team.bpm.presentation.compose.theme.GrayColor11
+import com.team.bpm.presentation.compose.theme.GrayColor13
+import com.team.bpm.presentation.compose.theme.GrayColor3
+import com.team.bpm.presentation.compose.theme.GrayColor4
+import com.team.bpm.presentation.compose.theme.GrayColor5
+import com.team.bpm.presentation.compose.theme.GrayColor6
+import com.team.bpm.presentation.compose.theme.GrayColor7
+import com.team.bpm.presentation.compose.theme.MainBlackColor
+import com.team.bpm.presentation.compose.theme.MainGreenColor
+import com.team.bpm.presentation.compose.theme.pyeongchang
 import com.team.bpm.presentation.model.StudioDetailTabType
 import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
@@ -72,6 +104,7 @@ import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
@@ -100,13 +133,24 @@ private fun StudioDetailActivityContent(
     viewModel: StudioDetailViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
     val scrollState = rememberScrollState()
     val heightFromTopToInfo = remember { mutableStateOf(0) }
     val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)
+    val scrollPosition = remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
-        event.invoke(StudioDetailContract.Event.GetStudioDetailData)
+        event.invoke(StudioDetailContract.Event.GetStudioDetail)
+    }
+
+    val lifecycleEvent = rememberLifecycleEvent()
+
+    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        LaunchedEffect(lifecycleEvent) {
+            event.invoke(StudioDetailContract.Event.GetReviewList)
+        }
+    } else if (lifecycleEvent == Lifecycle.Event.ON_PAUSE) {
+        scrollPosition.value = scrollState.value
     }
 
     LaunchedEffect(effect) {
@@ -670,92 +714,100 @@ private fun StudioDetailActivityContent(
                     onClickWriteReview = { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
                 )
 
-                reviewList.let {
-                    if (it.isNotEmpty()) {
-                        Box {
-                            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                it.forEachIndexed { index, review ->
-                                    if (index < 5) {
-                                        ReviewComposable(
-                                            review = review
+                if (isReviewLoading) {
+                    LoadingBlock(modifier = Modifier.height(300.dp))
+                } else {
+                    LaunchedEffect(Unit) {
+                        scrollState.animateScrollTo(scrollPosition.value)
+                    }
+
+                    reviewList.let { reviewList ->
+                        if (reviewList.isNotEmpty()) {
+                            Box {
+                                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                    reviewList.forEachIndexed { index, review ->
+                                        if (index < 5) {
+                                            ReviewComposable(
+                                                review = review
+                                            )
+                                        }
+                                    }
+                                }
+
+                                if (reviewList.size > 5) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(BottomCenter)
+                                            .fillMaxWidth()
+                                            .height(250.dp)
+                                            .background(
+                                                brush = Brush.verticalGradient(
+                                                    listOf(
+                                                        Color(0X53FFFFFF),
+                                                        Color(0X73FFFFFF),
+                                                        Color(0XA2FFFFFF),
+                                                        Color(0XD9FFFFFF),
+                                                        Color(0XF2FFFFFF),
+                                                    )
+                                                )
+                                            )
+                                    ) {
+                                        RoundedCornerButton(
+                                            modifier = Modifier
+                                                .padding(
+                                                    horizontal = 16.dp,
+                                                    vertical = 12.dp
+                                                )
+                                                .fillMaxWidth()
+                                                .height(48.dp)
+                                                .align(BottomCenter),
+                                            text = "더보기",
+                                            textColor = Color.White,
+                                            buttonColor = Color.Black,
+                                            onClick = { event.invoke(StudioDetailContract.Event.OnClickMoreReviews) }
                                         )
                                     }
                                 }
                             }
-
-                            if (it.size > 5) {
-                                Box(
-                                    modifier = Modifier
-                                        .align(BottomCenter)
-                                        .fillMaxWidth()
-                                        .height(250.dp)
-                                        .background(
-                                            brush = Brush.verticalGradient(
-                                                listOf(
-                                                    Color(0X53FFFFFF),
-                                                    Color(0X73FFFFFF),
-                                                    Color(0XA2FFFFFF),
-                                                    Color(0XD9FFFFFF),
-                                                    Color(0XF2FFFFFF),
-                                                )
-                                            )
-                                        )
+                        } else {
+                            Box(modifier = Modifier.size(360.dp)) {
+                                Column(
+                                    modifier = Modifier.align(Center),
+                                    horizontalAlignment = CenterHorizontally
                                 ) {
-                                    RoundedCornerButton(
-                                        modifier = Modifier
-                                            .padding(
-                                                horizontal = 16.dp,
-                                                vertical = 12.dp
-                                            )
-                                            .fillMaxWidth()
-                                            .height(48.dp)
-                                            .align(BottomCenter),
-                                        text = "더보기",
-                                        textColor = Color.White,
-                                        buttonColor = Color.Black,
-                                        onClick = { event.invoke(StudioDetailContract.Event.OnClickMoreReviews) }
+                                    Image(
+                                        painter = painterResource(id = R.drawable.shoulder_man),
+                                        contentDescription = "shoulderManImage"
                                     )
-                                }
-                            }
-                        }
-                    } else {
-                        Box(modifier = Modifier.size(360.dp)) {
-                            Column(
-                                modifier = Modifier.align(Center),
-                                horizontalAlignment = CenterHorizontally
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.shoulder_man),
-                                    contentDescription = "shoulderManImage"
-                                )
 
-                                BPMSpacer(height = 10.dp)
+                                    BPMSpacer(height = 10.dp)
 
-                                Text(
-                                    text = "아직 등록된 리뷰가 없어요\n첫 번째 리뷰를 남겨주세요",
-                                    fontWeight = Medium,
-                                    fontSize = 12.sp,
-                                    letterSpacing = 0.sp,
-                                    color = GrayColor5
-                                )
-
-                                BPMSpacer(height = 18.dp)
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(shape = RoundedCornerShape(50.dp))
-                                        .width(130.dp)
-                                        .height(40.dp)
-                                        .background(color = MainGreenColor)
-                                        .clickable { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
-                                ) {
                                     Text(
-                                        modifier = Modifier.align(Center),
-                                        text = "리뷰 등록하기",
-                                        fontWeight = SemiBold,
+                                        text = "아직 등록된 리뷰가 없어요\n첫 번째 리뷰를 남겨주세요",
+                                        fontWeight = Medium,
                                         fontSize = 12.sp,
-                                        letterSpacing = 0.sp
+                                        letterSpacing = 0.sp,
+                                        color = GrayColor5
                                     )
+
+                                    BPMSpacer(height = 18.dp)
+
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(shape = RoundedCornerShape(50.dp))
+                                            .width(130.dp)
+                                            .height(40.dp)
+                                            .background(color = MainGreenColor)
+                                            .clickable { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
+                                    ) {
+                                        Text(
+                                            modifier = Modifier.align(Center),
+                                            text = "리뷰 등록하기",
+                                            fontWeight = SemiBold,
+                                            fontSize = 12.sp,
+                                            letterSpacing = 0.sp
+                                        )
+                                    }
                                 }
                             }
                         }

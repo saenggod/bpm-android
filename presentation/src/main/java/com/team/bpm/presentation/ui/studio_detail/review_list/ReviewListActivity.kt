@@ -15,12 +15,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.LoadingScreen
-import com.team.bpm.presentation.compose.ReviewComposable
-import com.team.bpm.presentation.compose.ReviewListHeader
-import com.team.bpm.presentation.compose.ScreenHeader
+import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -47,12 +45,14 @@ private fun ReviewListActivityContent(
     viewModel: ReviewListViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
-    val context = LocalContext.current as BaseComponentActivityV2
+    val context = getLocalContext()
+    val lifecycleEvent = rememberLifecycleEvent()
 
-    LaunchedEffect(Unit) {
-        event.invoke(ReviewListContract.Event.GetReviewList)
+    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        LaunchedEffect(lifecycleEvent) {
+            event.invoke(ReviewListContract.Event.GetReviewList)
+        }
     }
-
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
