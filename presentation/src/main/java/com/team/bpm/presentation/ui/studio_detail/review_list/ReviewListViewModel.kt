@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
+import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
@@ -86,7 +87,11 @@ class ReviewListViewModel @Inject constructor(
                             when (result) {
                                 is ResponseState.Success -> {
                                     _state.update {
-                                        it.copy(isLoading = false, originalReviewList = result.data, reviewList = result.data.sortedByDescending { review -> review.likeCount })
+                                        it.copy(
+                                            isLoading = false,
+                                            originalReviewList = result.data,
+                                            reviewList = sortRefreshedReviewList(result.data)
+                                        )
                                     }
                                 }
 
@@ -151,6 +156,20 @@ class ReviewListViewModel @Inject constructor(
             viewModelScope.launch {
                 _effect.emit(ReviewListContract.Effect.GoToWriteReview(studioId))
             }
+        }
+    }
+
+    private fun sortRefreshedReviewList(list: List<Review>): List<Review> {
+        val filteredList = if (state.value.isReviewListShowingImageReviewsOnly) {
+            list.filter { it.filesPath?.isNotEmpty() == true }
+        } else {
+            list
+        }
+
+        return if (state.value.isReviewListSortedByLike) {
+            filteredList.sortedByDescending { it.likeCount }
+        } else {
+            filteredList.sortedByDescending { it.createdAt }
         }
     }
 }

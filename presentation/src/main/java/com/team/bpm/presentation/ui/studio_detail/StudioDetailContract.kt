@@ -9,6 +9,7 @@ import com.team.bpm.presentation.model.StudioDetailTabType
 interface StudioDetailContract : BaseContract<StudioDetailContract.State, StudioDetailContract.Event, StudioDetailContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
+        val isReviewLoading: Boolean = false,
         val studio: Studio? = null,
         val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
@@ -20,7 +21,8 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
     )
 
     sealed interface Event {
-        object GetStudioDetailData : Event
+        object GetStudioDetail : Event
+        object GetReviewList : Event
         object OnErrorOccurred : Event
         object OnClickQuit : Event
         object OnClickInfoTab : Event

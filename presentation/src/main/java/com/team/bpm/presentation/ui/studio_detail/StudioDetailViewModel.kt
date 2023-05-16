@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
-import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
@@ -23,7 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -44,10 +42,12 @@ class StudioDetailViewModel @Inject constructor(
     override val effect: SharedFlow<StudioDetailContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: StudioDetailContract.Event) = when (event) {
-        is StudioDetailContract.Event.GetStudioDetailData -> {
-            getStudioId()?.let { getStudioDetailData(it) } ?: run {
-                // TODO : Error Handling
-            }
+        is StudioDetailContract.Event.GetStudioDetail -> {
+            getStudioDetail()
+        }
+
+        is StudioDetailContract.Event.GetReviewList -> {
+            getReviewList()
         }
 
         is StudioDetailContract.Event.OnErrorOccurred -> {
@@ -137,29 +137,60 @@ class StudioDetailViewModel @Inject constructor(
         return savedStateHandle.get<Int>(StudioDetailActivity.KEY_STUDIO_ID)
     }
 
-    private fun getStudioDetailData(studioId: Int) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isLoading = true)
-            }
+    private fun getStudioDetail() {
+        getStudioId()?.let { studioId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
 
-            withContext(ioDispatcher + exceptionHandler) {
-                studioDetailUseCase(studioId).zip(reviewListUseCase(studioId)) { studioResult, reviewListResult ->
-                    Pair(studioResult, reviewListResult)
-                }.onEach { pair ->
-                    withContext(mainImmediateDispatcher) {
-                        if (pair.first is ResponseState.Error) {
-                            _effect.emit(StudioDetailContract.Effect.LoadFailed)
-                        } else {
-                            _state.update {
-                                it.copy(isLoading = false, studio = (pair.first as ResponseState.Success<Studio>).data)
+                withContext(ioDispatcher + exceptionHandler) {
+                    studioDetailUseCase(studioId).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            when (result) {
+                                is ResponseState.Success -> {
+                                    _state.update {
+                                        it.copy(isLoading = false, studio = result.data)
+                                    }
+                                }
+
+                                is ResponseState.Error -> {
+                                    _state.update {
+                                        it.copy(isLoading = false)
+                                    }
+
+                                    // TODO : Show error dialog
+                                }
+                            }
+                        }
+                    }.launchIn(viewModelScope)
+                }
+            }
+        }
+    }
+
+    private fun getReviewList() {
+        getStudioId()?.let { studioId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isReviewLoading = true)
+                }
+
+                reviewListUseCase(studioId).onEach { result ->
+                    withContext(ioDispatcher + exceptionHandler) {
+                        when (result) {
+                            is ResponseState.Success -> {
+                                _state.update {
+                                    it.copy(isReviewLoading = false, originalReviewList = result.data, reviewList = sortRefreshedReviewList(result.data))
+                                }
                             }
 
-                            if (pair.second is ResponseState.Success) {
+                            is ResponseState.Error -> {
                                 _state.update {
-                                    val reviewList = (pair.second as ResponseState.Success<List<Review>>).data
-                                    it.copy(originalReviewList = reviewList, reviewList = reviewList.sortedByDescending { review -> review.likeCount })
+                                    it.copy(isReviewLoading = false)
                                 }
+
+                                // TODO : Show error dialog
                             }
                         }
                     }
@@ -167,6 +198,7 @@ class StudioDetailViewModel @Inject constructor(
             }
         }
     }
+
 
     private fun showErrorDialog() {
         viewModelScope.launch {
@@ -316,6 +348,20 @@ class StudioDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _effect.emit(StudioDetailContract.Effect.GoToWriteReview(studioId))
             }
+        }
+    }
+
+    private fun sortRefreshedReviewList(list: List<Review>): List<Review> {
+        val filteredList = if (state.value.isReviewListShowingImageReviewsOnly) {
+            list.filter { it.filesPath?.isNotEmpty() == true }
+        } else {
+            list
+        }
+
+        return if (state.value.isReviewListSortedByLike) {
+            filteredList.sortedByDescending { it.likeCount }
+        } else {
+            filteredList.sortedByDescending { it.createdAt }
         }
     }
 }
