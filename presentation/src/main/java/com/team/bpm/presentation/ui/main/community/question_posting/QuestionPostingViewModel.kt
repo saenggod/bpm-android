@@ -50,8 +50,10 @@ class QuestionPostingViewModel @Inject constructor(
     }
 
     private fun onClickRemoveImage(index: Int) {
-        _state.update {
-            it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+            }
         }
     }
 
@@ -68,8 +70,10 @@ class QuestionPostingViewModel @Inject constructor(
             linkedList.addFirst(images[i])
         }
 
-        _state.update {
-            it.copy(imageList = linkedList.toMutableList())
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = linkedList.toMutableList())
+            }
         }
     }
 }

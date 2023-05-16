@@ -13,7 +13,15 @@ import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -38,6 +46,7 @@ class ReviewDetailViewModel @Inject constructor(
         is ReviewDetailContract.Event.GetReviewDetail -> {
             getReviewDetail()
         }
+
         is ReviewDetailContract.Event.OnClickLike -> {
             onClickLike()
         }
@@ -61,69 +70,79 @@ class ReviewDetailViewModel @Inject constructor(
     }
 
     private fun getReviewDetail() {
-        _state.update {
-            it.copy(isLoading = true)
-        }
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            getReviewDetailUseCase(studioId = reviewInfo.first, reviewId = reviewInfo.second).onEach { result ->
-                when (result) {
-                    is ResponseState.Success -> {
-                        _state.update {
-                            it.copy(isLoading = false, review = result.data, liked = result.data.liked, likeCount = result.data.likeCount)
+            withContext(ioDispatcher + exceptionHandler) {
+                getReviewDetailUseCase(studioId = reviewInfo.first, reviewId = reviewInfo.second).onEach { result ->
+                    withContext(mainImmediateDispatcher) {
+                        when (result) {
+                            is ResponseState.Success -> {
+                                _state.update {
+                                    it.copy(isLoading = false, review = result.data, liked = result.data.liked, likeCount = result.data.likeCount)
+                                }
+                            }
+
+                            is ResponseState.Error -> {
+                                // TODO : Show Error Dialog
+                            }
                         }
                     }
-                    is ResponseState.Error -> {
-                        // TODO : Show Error Dialog
-                    }
-                }
-            }.launchIn(viewModelScope)
+                }.launchIn(viewModelScope)
+            }
         }
     }
 
     private fun onClickLike() {
-        _state.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            state.value.liked?.let {
-                when (it) {
-                    true -> {
-                        dislikeReviewUseCase(reviewInfo.first, reviewInfo.second).onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                var toastText = ""
-                                when (result) {
-                                    is ResponseState.Success -> {
-                                        toastText = "리뷰 추천을 취소하였습니다."
-                                        _state.update { state -> state.copy(isLoading = false, liked = false, likeCount = state.likeCount?.minus(1)) }
+            withContext(ioDispatcher + exceptionHandler) {
+                state.value.liked?.let {
+                    when (it) {
+                        true -> {
+                            dislikeReviewUseCase(reviewInfo.first, reviewInfo.second).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    var toastText = ""
+                                    when (result) {
+                                        is ResponseState.Success -> {
+                                            toastText = "리뷰 추천을 취소하였습니다."
+                                            _state.update { state -> state.copy(isLoading = false, liked = false, likeCount = state.likeCount?.minus(1)) }
+                                        }
+
+                                        is ResponseState.Error -> {
+                                            toastText = "리뷰 추천을 취소할 수 없습니다."
+                                            _state.update { state -> state.copy(isLoading = false) }
+                                        }
                                     }
-                                    is ResponseState.Error -> {
-                                        toastText = "리뷰 추천을 취소할 수 없습니다."
-                                        _state.update { state -> state.copy(isLoading = false) }
-                                    }
+
+                                    _effect.emit(ReviewDetailContract.Effect.ShowToast(toastText))
                                 }
+                            }.launchIn(viewModelScope)
+                        }
 
-                                _effect.emit(ReviewDetailContract.Effect.ShowToast(toastText))
-                            }
-                        }.launchIn(viewModelScope)
-                    }
-                    false -> {
-                        likeReviewUseCase(reviewInfo.first, reviewInfo.second).onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                var toastText = ""
-                                when (result) {
-                                    is ResponseState.Success -> {
-                                        toastText = "리뷰를 추천하였습니다."
-                                        _state.update { state -> state.copy(isLoading = false, liked = true, likeCount = state.likeCount?.plus(1)) }
+                        false -> {
+                            likeReviewUseCase(reviewInfo.first, reviewInfo.second).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    var toastText = ""
+                                    when (result) {
+                                        is ResponseState.Success -> {
+                                            toastText = "리뷰를 추천하였습니다."
+                                            _state.update { state -> state.copy(isLoading = false, liked = true, likeCount = state.likeCount?.plus(1)) }
+                                        }
+
+                                        is ResponseState.Error -> {
+                                            toastText = "리뷰를 추천할 수 없습니다."
+                                            _state.update { state -> state.copy(isLoading = false) }
+                                        }
                                     }
-                                    is ResponseState.Error -> {
-                                        toastText = "리뷰를 추천할 수 없습니다."
-                                        _state.update { state -> state.copy(isLoading = false) }
-                                    }
+
+                                    _effect.emit(ReviewDetailContract.Effect.ShowToast(toastText))
                                 }
-
-                                _effect.emit(ReviewDetailContract.Effect.ShowToast(toastText))
-                            }
-                        }.launchIn(viewModelScope)
+                            }.launchIn(viewModelScope)
+                        }
                     }
                 }
             }

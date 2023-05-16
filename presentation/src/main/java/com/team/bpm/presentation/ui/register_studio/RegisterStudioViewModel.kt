@@ -10,7 +10,15 @@ import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -32,9 +40,11 @@ class RegisterStudioViewModel @Inject constructor(
         is RegisterStudioContract.Event.OnClickSubmit -> {
             onClickSubmit(event.registerStudioWrapper)
         }
+
         RegisterStudioContract.Event.OnClickSetLocation -> {
             onClickSetLocation()
         }
+
         is RegisterStudioContract.Event.OnClickKeywordChip -> {
             onClickKeywordChip(event.keyword)
         }
@@ -47,7 +57,11 @@ class RegisterStudioViewModel @Inject constructor(
     }
 
     private fun onClickSubmit(registerStudioWrapper: RegisterStudioWrapper) {
-        viewModelScope.launch { _state.update { it.copy(isLoading = true) } }
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+        }
 
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
             registerStudioUseCase(registerStudioWrapper).onEach { result ->

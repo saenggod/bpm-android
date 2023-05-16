@@ -14,7 +14,16 @@ import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -129,46 +138,50 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun getStudioDetailData(studioId: Int) {
-        _state.update {
-            it.copy(isLoading = true)
-        }
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            studioDetailUseCase(studioId).zip(reviewListUseCase(studioId)) { studioResult, reviewListResult ->
-                Pair(studioResult, reviewListResult)
-            }.onEach { pair ->
-                withContext(mainImmediateDispatcher) {
-                    if (pair.first is ResponseState.Error) {
-                        _effect.emit(StudioDetailContract.Effect.LoadFailed)
-                    } else {
-                        _state.update {
-                            it.copy(isLoading = false, studio = (pair.first as ResponseState.Success<Studio>).data)
-                        }
-
-                        if (pair.second is ResponseState.Success) {
+            withContext(ioDispatcher + exceptionHandler) {
+                studioDetailUseCase(studioId).zip(reviewListUseCase(studioId)) { studioResult, reviewListResult ->
+                    Pair(studioResult, reviewListResult)
+                }.onEach { pair ->
+                    withContext(mainImmediateDispatcher) {
+                        if (pair.first is ResponseState.Error) {
+                            _effect.emit(StudioDetailContract.Effect.LoadFailed)
+                        } else {
                             _state.update {
-                                val reviewList = (pair.second as ResponseState.Success<List<Review>>).data
-                                it.copy(originalReviewList = reviewList, reviewList = reviewList.sortedByDescending { review -> review.likeCount })
+                                it.copy(isLoading = false, studio = (pair.first as ResponseState.Success<Studio>).data)
+                            }
+
+                            if (pair.second is ResponseState.Success) {
+                                _state.update {
+                                    val reviewList = (pair.second as ResponseState.Success<List<Review>>).data
+                                    it.copy(originalReviewList = reviewList, reviewList = reviewList.sortedByDescending { review -> review.likeCount })
+                                }
                             }
                         }
                     }
-                }
-            }.launchIn(viewModelScope)
+                }.launchIn(viewModelScope)
+            }
         }
     }
 
     private fun showErrorDialog() {
-        _state.update {
-            it.copy(isErrorDialogShowing = true)
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isErrorDialogShowing = true)
+            }
         }
     }
 
     private fun onClickQuit() {
-        _state.update {
-            it.copy(isErrorDialogShowing = false)
-        }
-
         viewModelScope.launch {
+            _state.update {
+                it.copy(isErrorDialogShowing = false)
+            }
+
             _effect.emit(StudioDetailContract.Effect.Quit)
         }
     }
@@ -186,14 +199,18 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun onScrolledAtInfoArea() {
-        _state.update {
-            it.copy(focusedTab = StudioDetailTabType.Info)
+        viewModelScope.launch {
+            _state.update {
+                it.copy(focusedTab = StudioDetailTabType.Info)
+            }
         }
     }
 
     private fun onScrolledAtReviewArea() {
-        _state.update {
-            it.copy(focusedTab = StudioDetailTabType.Review)
+        viewModelScope.launch {
+            _state.update {
+                it.copy(focusedTab = StudioDetailTabType.Review)
+            }
         }
     }
 
@@ -236,45 +253,55 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun onClickShowImageReviewsOnly() {
-        _state.update {
-            val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-            it.copy(
-                isReviewListShowingImageReviewsOnly = true,
-                reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-                else filteredList.sortedByDescending { review -> review.createdAt })
+        viewModelScope.launch {
+            _state.update {
+                val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
+                it.copy(
+                    isReviewListShowingImageReviewsOnly = true,
+                    reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
+                    else filteredList.sortedByDescending { review -> review.createdAt })
+            }
         }
     }
 
     private fun onClickShowNotOnlyImageReviews() {
-        _state.update {
-            it.copy(
-                isReviewListShowingImageReviewsOnly = false,
-                reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
-                else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isReviewListShowingImageReviewsOnly = false,
+                    reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
+                    else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
+            }
         }
     }
 
     private fun onClickSortByLike() {
-        _state.update {
-            it.copy(
-                reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
-                isReviewListSortedByLike = true
-            )
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
+                    isReviewListSortedByLike = true
+                )
+            }
         }
     }
 
     private fun onClickSortByDate() {
-        _state.update {
-            it.copy(
-                reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
-                isReviewListSortedByLike = false
-            )
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
+                    isReviewListSortedByLike = false
+                )
+            }
         }
     }
 
     private fun onClickExpandTagList() {
-        _state.update {
-            it.copy(isTagListExpanded = true)
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isTagListExpanded = true)
+            }
         }
     }
 

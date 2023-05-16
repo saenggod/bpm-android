@@ -50,8 +50,10 @@ class EyeBodyPostingViewModel @Inject constructor(
     }
 
     private fun onClickRemoveImage(index: Int) {
-        _state.update {
-            it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+        viewModelScope.launch {
+            _state.update {
+                it.copy(imageList = it.imageList.toMutableList().apply { removeAt(index) })
+            }
         }
     }
 
