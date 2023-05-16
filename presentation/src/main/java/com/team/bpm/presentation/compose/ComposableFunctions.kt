@@ -536,12 +536,13 @@ fun ReviewComposable(
 
 @Composable
 inline fun LikeButton(
+    modifier: Modifier = Modifier,
     liked: Boolean,
     likeCount: Int,
     crossinline onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(shape = RoundedCornerShape(12.dp))
             .height(28.dp)
             .border(

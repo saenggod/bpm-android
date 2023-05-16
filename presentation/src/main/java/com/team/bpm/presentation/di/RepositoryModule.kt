@@ -89,4 +89,12 @@ object RepositoryModule {
     ): RegisterStudioRepository {
         return RegisterStudioRepositoryImpl(mainApi, geocoder)
     }
+
+    @Singleton
+    @Provides
+    fun providePostRepository(
+        mainApi: MainApi
+    ): PostRepository {
+        return PostRepositoryImpl(mainApi)
+    }
 }
