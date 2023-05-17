@@ -12,6 +12,7 @@ import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.SaveScheduleUseCase
+import com.team.bpm.domain.usecase.scrap.ScrapUseCase
 import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.domain.usecase.splash.GetKakaoUserIdUseCase
@@ -121,5 +122,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetQuestionDetailUseCase(questionRepository: QuestionRepository): GetQuestionDetailUseCase {
         return GetQuestionDetailUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideScrapUseCase(scrapRepository: ScrapRepository): ScrapUseCase {
+        return ScrapUseCase(scrapRepository)
     }
 }

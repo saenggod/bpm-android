@@ -100,4 +100,9 @@ interface MainApi {
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int
     ): Response<QuestionResponse>
+
+    @POST("api/studio/{studioId}/scrap")
+    suspend fun sendScrap(
+        @Path("studioId") studioId: Int
+    ): Response<ResponseBody>
 }

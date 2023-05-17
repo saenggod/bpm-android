@@ -123,6 +123,10 @@ private fun StudioDetailActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
+                is StudioDetailContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+
                 StudioDetailContract.Effect.LoadFailed -> {
                     event.invoke(StudioDetailContract.Event.OnErrorOccurred)
                 }
@@ -137,10 +141,6 @@ private fun StudioDetailActivityContent(
 
                 is StudioDetailContract.Effect.ScrollToReviewTab -> {
                     scrollState.animateScrollTo(heightFromTopToInfo.value)
-                }
-
-                is StudioDetailContract.Effect.ShowToast -> {
-                    context.showToast(effect.text)
                 }
 
                 is StudioDetailContract.Effect.Call -> {
@@ -290,8 +290,8 @@ private fun StudioDetailActivityContent(
                             Image(
                                 modifier = Modifier
                                     .size(22.dp)
-                                    .clickableWithoutRipple { }, // TODO : OnClickHeartIcon
-                                painter = painterResource(id = R.drawable.ic_heart_inactive), // TODO : Will be modified when api changed.
+                                    .clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickScrap) },
+                                painter = painterResource(id = if (studio?.scrapped == true) R.drawable.ic_heart_active else R.drawable.ic_heart_inactive), // TODO : Will be modified when api changed.
                                 contentDescription = "likeButtonImage"
                             )
                         }

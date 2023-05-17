@@ -8,14 +8,24 @@ import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
+import com.team.bpm.domain.usecase.scrap.ScrapUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.model.StudioDetailTabType
+import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,6 +38,7 @@ class StudioDetailViewModel @Inject constructor(
     private val reviewListUseCase: GetReviewListUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
     private val dislikeReviewUseCase: DislikeReviewUseCase,
+    private val scrapUseCase: ScrapUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), StudioDetailContract {
 
@@ -124,6 +135,10 @@ class StudioDetailViewModel @Inject constructor(
 
         is StudioDetailContract.Event.OnClickReviewLikeButton -> {
             onClickReviewLikeButton(event.reviewId)
+        }
+
+        is StudioDetailContract.Event.OnClickScrap -> {
+            onClickScrap()
         }
     }
 
@@ -384,6 +399,7 @@ class StudioDetailViewModel @Inject constructor(
                                                 }))
                                             }
                                         }
+
                                         is ResponseState.Error -> {
                                             _effect.emit(StudioDetailContract.Effect.ShowToast("리뷰 추천을 취소할 수 없습니다."))
                                         }
@@ -392,6 +408,7 @@ class StudioDetailViewModel @Inject constructor(
                             }.launchIn(viewModelScope)
                         }
                     }
+
                     false -> {
                         state.value.studio?.id?.let { studioId ->
                             likeReviewUseCase(studioId, reviewId).onEach { result ->
@@ -405,6 +422,7 @@ class StudioDetailViewModel @Inject constructor(
                                                 }))
                                             }
                                         }
+
                                         is ResponseState.Error -> {
                                             _effect.emit(StudioDetailContract.Effect.ShowToast("리뷰를 추천할 수 없습니다."))
                                         }
@@ -413,9 +431,53 @@ class StudioDetailViewModel @Inject constructor(
                             }.launchIn(viewModelScope)
                         }
                     }
+
                     null -> {
                         withContext(mainImmediateDispatcher) {
                             _effect.emit(StudioDetailContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickScrap() {
+        state.value.studio?.id?.let { studioId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher + exceptionHandler) {
+                    when(state.value.studio?.scrapped) {
+                        true -> {
+
+                        }
+                        false -> {
+                            scrapUseCase(studioId).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    when (result) {
+                                        is ResponseState.Success -> {
+                                            _state.update {
+                                                it.copy(
+                                                    isLoading = false,
+                                                    studio = it.studio?.copy(
+                                                        scrapCount = it.studio.scrapCount?.plus(1),
+                                                        scrapped = true
+                                                    ))
+                                            }
+                                        }
+
+                                        is ResponseState.Error -> {
+                                            _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 할 수 없습니다."))
+                                        }
+                                    }
+                                }
+                            }.launchIn(viewModelScope)
+                        }
+                        null -> {
+
                         }
                     }
                 }
