@@ -12,14 +12,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.*
+import com.team.bpm.presentation.compose.LoadingScreen
+import com.team.bpm.presentation.compose.ReviewComposable
+import com.team.bpm.presentation.compose.ReviewListHeader
+import com.team.bpm.presentation.compose.ScreenHeader
+import com.team.bpm.presentation.compose.getLocalContext
+import com.team.bpm.presentation.compose.rememberLifecycleEvent
 import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -56,6 +61,10 @@ private fun ReviewListActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
+                is ReviewListContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+
                 is ReviewListContract.Effect.GoToWriteReview -> {
                     context.startActivity(WritingReviewActivity.newIntent(context, effect.studioId))
                 }
@@ -93,7 +102,8 @@ private fun ReviewListActivityContent(
                 items(reviewList) { review ->
                     ReviewComposable(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        review = review
+                        review = review,
+                        onClickLike = { reviewId -> event.invoke(ReviewListContract.Event.OnClickReviewLikeButton(reviewId)) }
                     )
                 }
             }

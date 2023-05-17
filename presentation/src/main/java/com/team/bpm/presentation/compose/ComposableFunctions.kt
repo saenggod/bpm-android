@@ -354,7 +354,8 @@ fun BPMTextField(
 @Composable
 fun ReviewComposable(
     modifier: Modifier = Modifier,
-    review: Review
+    review: Review,
+    onClickLike: (Int) -> Unit
 ) {
     val context = getLocalContext()
 
@@ -427,7 +428,7 @@ fun ReviewComposable(
                         KeywordChip(
                             text = keyword,
                             isChosen = false,
-                            onClick = {}
+                            onClick = { }
                         )
                     }
                 }
@@ -479,7 +480,7 @@ fun ReviewComposable(
             LikeButton(
                 liked = liked ?: false,
                 likeCount = likeCount ?: 0,
-                onClick = { }
+                onClick = { review.id?.let { reviewId -> onClickLike(reviewId) } }
             )
         }
 

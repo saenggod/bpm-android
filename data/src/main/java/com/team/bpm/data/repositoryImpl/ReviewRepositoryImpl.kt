@@ -1,5 +1,6 @@
 package com.team.bpm.data.repositoryImpl
 
+import com.team.bpm.data.model.response.ReviewListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.ReviewResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponse
 import com.team.bpm.data.network.BPMResponseHandler
@@ -7,6 +8,7 @@ import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
+import com.team.bpm.domain.model.ReviewList
 import com.team.bpm.domain.repository.ReviewRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -20,13 +22,13 @@ class ReviewRepositoryImpl @Inject constructor(
 ) : ReviewRepository {
     override suspend fun fetchReviewList(
         studioId: Int
-    ): Flow<ResponseState<List<Review>>> {
+    ): Flow<ResponseState<ReviewList>> {
         return flow {
             BPMResponseHandler().handle {
                 mainApi.fetchReviewList(studioId = studioId)
             }.onEach { result ->
                 when (result) {
-                    is BPMResponse.Success -> emit(ResponseState.Success(result.data.map { it.toDataModel() }))
+                    is BPMResponse.Success -> emit(ResponseState.Success(result.data.toDataModel()))
                     is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
                 }
             }.collect()
