@@ -55,7 +55,7 @@ data class StudioResponse(
     private fun parseTopRecommends(jsonObject: JsonObject): List<Pair<String, Int>>? {
         return jsonObject.entrySet().map {
             Pair(it.key, it.value.asInt)
-        }
+        }.sortedByDescending { it.second }
     }
 
     companion object : DataMapper<StudioResponse, Studio> {
