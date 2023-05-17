@@ -105,4 +105,12 @@ object RepositoryModule {
     ): QuestionRepository {
         return QuestionRepositoryImpl(mainApi)
     }
+
+    @Singleton
+    @Provides
+    fun provideScrapRepository(
+        mainApi: MainApi
+    ): ScrapRepository {
+        return ScrapRepositoryImpl(mainApi)
+    }
 }

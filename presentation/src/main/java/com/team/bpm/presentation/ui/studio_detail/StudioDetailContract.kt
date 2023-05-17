@@ -43,9 +43,11 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         object OnClickExpandTagList : Event
         object OnClickCollapseTagList : Event
         data class OnClickReviewLikeButton(val reviewId: Int) : Event
+        object OnClickScrap : Event
     }
 
     sealed interface Effect {
+        data class ShowToast(val text: String) : Effect
         object LoadFailed : Effect
         object Quit : Effect
         object ScrollToInfoTab : Effect
@@ -53,7 +55,6 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         data class Call(val number: String) : Effect
         data class CopyAddressToClipboard(val address: String) : Effect
         data class LaunchNavigationApp(val address: String) : Effect
-        data class ShowToast(val text: String) : Effect
         object GoToRegisterStudio : Effect
         data class GoToWriteReview(val studioId: Int) : Effect
         data class GoToReviewList(val studioId: Int) : Effect

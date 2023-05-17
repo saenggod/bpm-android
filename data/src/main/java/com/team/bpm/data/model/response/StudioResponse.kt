@@ -1,9 +1,9 @@
 package com.team.bpm.data.model.response
 
+import com.google.gson.annotations.SerializedName
 import com.team.bpm.data.base.BaseResponse
 import com.team.bpm.data.mapper.DataMapper
 import com.team.bpm.domain.model.Studio
-import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -43,7 +43,9 @@ data class StudioResponse(
     @SerializedName(value = "createdAt")
     val createdAt: String?,
     @SerializedName(value = "updatedAt")
-    val updatedAt: String?
+    val updatedAt: String?,
+    @SerializedName(value = "scrapped")
+    val scrapped: Boolean?
 ) : BaseResponse {
 
     companion object : DataMapper<StudioResponse, Studio> {
@@ -66,7 +68,8 @@ data class StudioResponse(
                 reviewCount = reviewCount,
                 scrapCount = scrapCount,
                 createdAt = createdAt,
-                updatedAt = updatedAt
+                updatedAt = updatedAt,
+                scrapped = scrapped
             )
         }
     }

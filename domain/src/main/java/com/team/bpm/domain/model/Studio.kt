@@ -24,7 +24,8 @@ data class Studio(
     val reviewCount: Int?,
     val scrapCount: Int?,
     val createdAt: String?,
-    val updatedAt: String?
+    val updatedAt: String?,
+    val scrapped: Boolean?
 ) : BaseModel {
 
     // TODO : 죄송합니다..
