@@ -194,12 +194,9 @@ class ReviewListViewModel @Inject constructor(
                                     when (result) {
                                         is ResponseState.Success -> {
                                             _state.update {
-                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.map { review ->
-                                                    if (review.id == reviewId) {
-                                                        review.copy(liked = false, likeCount = review.likeCount?.minus(1))
-                                                    } else {
-                                                        review
-                                                    }
+                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                                    val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                                    this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
                                                 }))
                                             }
                                         }
@@ -220,12 +217,9 @@ class ReviewListViewModel @Inject constructor(
                                     when (result) {
                                         is ResponseState.Success -> {
                                             _state.update {
-                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.map { review ->
-                                                    if (review.id == reviewId) {
-                                                        review.copy(liked = true, likeCount = review.likeCount?.plus(1))
-                                                    } else {
-                                                        review
-                                                    }
+                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                                    val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                                    this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
                                                 }))
                                             }
                                         }
