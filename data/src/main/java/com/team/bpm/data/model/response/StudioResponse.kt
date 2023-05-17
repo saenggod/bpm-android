@@ -1,10 +1,12 @@
 package com.team.bpm.data.model.response
 
+import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.team.bpm.data.base.BaseResponse
 import com.team.bpm.data.mapper.DataMapper
 import com.team.bpm.domain.model.Studio
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class StudioResponse(
@@ -22,6 +24,8 @@ data class StudioResponse(
     val firstTag: String?,
     @SerializedName(value = "secondTag")
     val secondTag: String?,
+    @SerializedName(value = "topRecommends")
+    val topRecommends: @RawValue JsonObject?,
     @SerializedName(value = "phone")
     val phone: String?,
     @SerializedName(value = "sns")
@@ -48,6 +52,12 @@ data class StudioResponse(
     val scrapped: Boolean?
 ) : BaseResponse {
 
+    private fun parseTopRecommends(jsonObject: JsonObject): List<Pair<String, Int>>? {
+        return jsonObject.entrySet().map {
+            Pair(it.key, it.value.asInt)
+        }
+    }
+
     companion object : DataMapper<StudioResponse, Studio> {
         override fun StudioResponse.toDataModel(): Studio {
             return Studio(
@@ -58,6 +68,7 @@ data class StudioResponse(
                 longitude = longitude,
                 firstTag = firstTag,
                 secondTag = secondTag,
+                topRecommends = topRecommends?.let { parseTopRecommends(it) },
                 phone = phone,
                 sns = sns,
                 openHours = openHours,

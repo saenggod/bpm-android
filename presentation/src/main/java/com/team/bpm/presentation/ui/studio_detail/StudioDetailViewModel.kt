@@ -14,19 +14,10 @@ import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.model.StudioDetailTabType
-import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -127,12 +118,12 @@ class StudioDetailViewModel @Inject constructor(
             onClickSortByDate()
         }
 
-        is StudioDetailContract.Event.OnClickExpandTagList -> {
-            onClickExpandTagList()
+        is StudioDetailContract.Event.OnClickExpandTopRecommendList -> {
+            onClickExpandTopRecommendList()
         }
 
-        is StudioDetailContract.Event.OnClickCollapseTagList -> {
-            onClickCollapseTagList()
+        is StudioDetailContract.Event.OnClickCollapseTopRecommendList -> {
+            onClickCollapseTopRecommendList()
         }
 
         is StudioDetailContract.Event.OnClickReviewLikeButton -> {
@@ -348,17 +339,17 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickExpandTagList() {
+    private fun onClickExpandTopRecommendList() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isTagListExpanded = true)
+                it.copy(isTopRecommendListExpanded = true)
             }
         }
     }
 
-    private fun onClickCollapseTagList() {
+    private fun onClickCollapseTopRecommendList() {
         _state.update {
-            it.copy(isTagListExpanded = false)
+            it.copy(isTopRecommendListExpanded = false)
         }
     }
 
@@ -452,11 +443,11 @@ class StudioDetailViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher + exceptionHandler) {
-                    when(state.value.studio?.scrapped) {
+                    when (state.value.studio?.scrapped) {
                         true -> {
                             scrapCancelUseCase(studioId).onEach { result ->
                                 withContext(mainImmediateDispatcher) {
-                                    when(result) {
+                                    when (result) {
                                         is ResponseState.Success -> {
                                             _state.update {
                                                 it.copy(
