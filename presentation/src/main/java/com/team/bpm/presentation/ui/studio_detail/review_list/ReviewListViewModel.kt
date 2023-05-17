@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
+import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
+import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +31,8 @@ class ReviewListViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val reviewListUseCase: GetReviewListUseCase,
+    private val likeReviewUseCase: LikeReviewUseCase,
+    private val dislikeReviewUseCase: DislikeReviewUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), ReviewListContract {
 
@@ -61,6 +65,10 @@ class ReviewListViewModel @Inject constructor(
 
         ReviewListContract.Event.OnClickWriteReview -> {
             onClickWriteReview()
+        }
+
+        is ReviewListContract.Event.OnClickReviewLikeButton -> {
+            onClickReviewLikeButton(event.reviewId)
         }
     }
 
@@ -172,6 +180,72 @@ class ReviewListViewModel @Inject constructor(
             filteredList.sortedByDescending { it.likeCount }
         } else {
             filteredList.sortedByDescending { it.createdAt }
+        }
+    }
+
+    private fun onClickReviewLikeButton(reviewId: Int) {
+        state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
+            viewModelScope.launch(ioDispatcher + exceptionHandler) {
+                when (selectedReview.liked) {
+                    true -> {
+                        getStudioId()?.let { studioId ->
+                            dislikeReviewUseCase(studioId, reviewId).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    when (result) {
+                                        is ResponseState.Success -> {
+                                            _state.update {
+                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.map { review ->
+                                                    if (review.id == reviewId) {
+                                                        review.copy(liked = false, likeCount = review.likeCount?.minus(1))
+                                                    } else {
+                                                        review
+                                                    }
+                                                }))
+                                            }
+                                        }
+
+                                        is ResponseState.Error -> {
+                                            _effect.emit(ReviewListContract.Effect.ShowToast("리뷰 추천을 취소할 수 없습니다."))
+                                        }
+                                    }
+                                }
+                            }.launchIn(viewModelScope)
+                        }
+                    }
+
+                    false -> {
+                        getStudioId()?.let { studioId ->
+                            likeReviewUseCase(studioId, reviewId).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    when (result) {
+                                        is ResponseState.Success -> {
+                                            _state.update {
+                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.map { review ->
+                                                    if (review.id == reviewId) {
+                                                        review.copy(liked = true, likeCount = review.likeCount?.plus(1))
+                                                    } else {
+                                                        review
+                                                    }
+                                                }))
+                                            }
+                                        }
+
+                                        is ResponseState.Error -> {
+                                            _effect.emit(ReviewListContract.Effect.ShowToast("리뷰를 추천할 수 없습니다."))
+                                        }
+                                    }
+                                }
+                            }.launchIn(viewModelScope)
+                        }
+                    }
+
+                    null -> {
+                        withContext(mainImmediateDispatcher) {
+                            _effect.emit(ReviewListContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
+                        }
+                    }
+                }
+            }
         }
     }
 }

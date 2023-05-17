@@ -19,9 +19,11 @@ interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewList
         object OnClickSortByLike : Event
         object OnClickSortByDate : Event
         object OnClickWriteReview : Event
+        data class OnClickReviewLikeButton(val reviewId: Int) : Event
     }
 
     sealed interface Effect {
+        data class ShowToast(val text: String) : Effect
         data class GoToWriteReview(val studioId: Int) : Effect
     }
 }
