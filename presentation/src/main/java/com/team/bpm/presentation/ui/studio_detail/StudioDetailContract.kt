@@ -17,7 +17,7 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         val focusedTab: StudioDetailTabType = StudioDetailTabType.Info,
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,
-        val isTagListExpanded: Boolean = false
+        val isTopRecommendListExpanded: Boolean = false
     )
 
     sealed interface Event {
@@ -40,8 +40,8 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         object OnClickShowNotOnlyImageReviews : Event
         object OnClickSortByLike : Event
         object OnClickSortByDate : Event
-        object OnClickExpandTagList : Event
-        object OnClickCollapseTagList : Event
+        object OnClickExpandTopRecommendList : Event
+        object OnClickCollapseTopRecommendList : Event
         data class OnClickReviewLikeButton(val reviewId: Int) : Event
         object OnClickScrap : Event
     }

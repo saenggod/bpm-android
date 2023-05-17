@@ -549,7 +549,7 @@ private fun StudioDetailActivityContent(
                         color = GrayColor11
                     )
 
-                    if (studio?.tagList != null && studio.tagList.isNotEmpty()) {
+                    if (studio?.topRecommends != null && studio.topRecommends?.isNotEmpty() == true) {
                         Row(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
@@ -580,13 +580,13 @@ private fun StudioDetailActivityContent(
                                 .fillMaxWidth()
                                 .background(color = GrayColor10)
                         ) {
-                            val tagListSize = studio.tagList.size
-                            val tagListHeightState = animateDpAsState(
+                            val topRecommendListSize = studio.topRecommends!!.size
+                            val topRecommendListHeightState = animateDpAsState(
                                 targetValue =
-                                if (isTagListExpanded) {
-                                    (tagListSize * 42 + (tagListSize - 1) * 6).dp
+                                if (isTopRecommendListExpanded) {
+                                    (topRecommendListSize * 42 + (topRecommendListSize - 1) * 6).dp
                                 } else {
-                                    when (tagListSize) {
+                                    when (topRecommendListSize) {
                                         1 -> {
                                             42.dp
                                         }
@@ -609,10 +609,10 @@ private fun StudioDetailActivityContent(
                                         start = 14.dp,
                                         end = 14.dp
                                     )
-                                    .height(tagListHeightState.value),
+                                    .height(topRecommendListHeightState.value),
                                 verticalArrangement = spacedBy(6.dp)
                             ) {
-                                studio.tagList.forEachIndexed { index, tag ->
+                                studio.topRecommends!!.forEachIndexed { index, recommend ->
                                     RecommendTag(
                                         backgroundColor = when (index) {
                                             0 -> MainBlackColor
@@ -625,13 +625,13 @@ private fun StudioDetailActivityContent(
                                             else -> MainBlackColor
                                         },
                                         rank = index + 1,
-                                        tag = tag,
-                                        count = 1 // TODO : request
+                                        tag = recommend.first,
+                                        count = recommend.second
                                     )
                                 }
                             }
 
-                            if (tagListSize > 3) {
+                            if (topRecommendListSize > 3) {
                                 Icon(
                                     modifier = Modifier
                                         .padding(
@@ -640,14 +640,14 @@ private fun StudioDetailActivityContent(
                                         )
                                         .size(18.dp)
                                         .clickableWithoutRipple {
-                                            if (isTagListExpanded) {
-                                                event.invoke(StudioDetailContract.Event.OnClickCollapseTagList)
+                                            if (isTopRecommendListExpanded) {
+                                                event.invoke(StudioDetailContract.Event.OnClickCollapseTopRecommendList)
                                             } else {
-                                                event.invoke(StudioDetailContract.Event.OnClickExpandTagList)
+                                                event.invoke(StudioDetailContract.Event.OnClickExpandTopRecommendList)
                                             }
                                         }
                                         .align(CenterHorizontally)
-                                        .rotate(if (isTagListExpanded) 180f else 0f),
+                                        .rotate(if (isTopRecommendListExpanded) 180f else 0f),
                                     painter = painterResource(id = R.drawable.ic_arrow_down),
                                     contentDescription = "expandColumnIcon",
                                     tint = GrayColor5
@@ -731,7 +731,7 @@ private fun StudioDetailActivityContent(
                                                 .align(BottomCenter),
                                             text = "더보기",
                                             textColor = Color.White,
-                                            buttonColor = Color.Black,
+                                            buttonColor = MainBlackColor,
                                             onClick = { event.invoke(StudioDetailContract.Event.OnClickMoreReviews) }
                                         )
                                     }

@@ -1,9 +1,9 @@
 package com.team.bpm.domain.model
 
 import com.team.bpm.domain.base.BaseModel
-import kotlin.math.round
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import kotlin.math.round
 
 @Parcelize
 data class Studio(
@@ -14,6 +14,7 @@ data class Studio(
     val longitude: Double?,
     val firstTag: String?,
     val secondTag: String?,
+    val topRecommends: List<Pair<String, Int>>?,
     val phone: String?,
     val sns: String?,
     val openHours: String?,
