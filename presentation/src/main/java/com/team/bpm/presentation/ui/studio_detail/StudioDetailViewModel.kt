@@ -8,6 +8,7 @@ import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
+import com.team.bpm.domain.usecase.scrap.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.scrap.ScrapUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
@@ -39,6 +40,7 @@ class StudioDetailViewModel @Inject constructor(
     private val likeReviewUseCase: LikeReviewUseCase,
     private val dislikeReviewUseCase: DislikeReviewUseCase,
     private val scrapUseCase: ScrapUseCase,
+    private val scrapCancelUseCase: ScrapCancelUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), StudioDetailContract {
 
@@ -452,7 +454,31 @@ class StudioDetailViewModel @Inject constructor(
                 withContext(ioDispatcher + exceptionHandler) {
                     when(state.value.studio?.scrapped) {
                         true -> {
+                            scrapCancelUseCase(studioId).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    when(result) {
+                                        is ResponseState.Success -> {
+                                            _state.update {
+                                                it.copy(
+                                                    isLoading = false,
+                                                    studio = it.studio?.copy(
+                                                        scrapCount = it.studio.scrapCount?.minus(1),
+                                                        scrapped = false
+                                                    )
+                                                )
+                                            }
+                                        }
 
+                                        is ResponseState.Error -> {
+                                            _state.update {
+                                                it.copy(isLoading = false)
+                                            }
+
+                                            _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩을 취소할 수 없습니다."))
+                                        }
+                                    }
+                                }
+                            }.launchIn(viewModelScope)
                         }
                         false -> {
                             scrapUseCase(studioId).onEach { result ->
@@ -465,11 +491,16 @@ class StudioDetailViewModel @Inject constructor(
                                                     studio = it.studio?.copy(
                                                         scrapCount = it.studio.scrapCount?.plus(1),
                                                         scrapped = true
-                                                    ))
+                                                    )
+                                                )
                                             }
                                         }
 
                                         is ResponseState.Error -> {
+                                            _state.update {
+                                                it.copy(isLoading = false)
+                                            }
+
                                             _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 할 수 없습니다."))
                                         }
                                     }
@@ -477,7 +508,11 @@ class StudioDetailViewModel @Inject constructor(
                             }.launchIn(viewModelScope)
                         }
                         null -> {
+                            _state.update {
+                                it.copy(isLoading = false)
+                            }
 
+                            _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 기능을 사용할 수 없습니다."))
                         }
                     }
                 }

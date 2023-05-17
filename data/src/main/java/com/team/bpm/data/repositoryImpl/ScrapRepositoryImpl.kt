@@ -28,4 +28,17 @@ class ScrapRepositoryImpl @Inject constructor(
             }.collect()
         }
     }
+
+    override suspend fun deleteScrap(studioId: Int): Flow<ResponseState<ResponseBody>> {
+        return flow {
+            BPMResponseHandler().handle {
+                mainApi.deleteScrap(studioId)
+            }.onEach { result ->
+                when (result) {
+                    is BPMResponse.Success -> emit(ResponseState.Success(result.data))
+                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
+                }
+            }.collect()
+        }
+    }
 }

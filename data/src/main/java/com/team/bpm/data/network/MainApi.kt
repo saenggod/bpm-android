@@ -105,4 +105,9 @@ interface MainApi {
     suspend fun sendScrap(
         @Path("studioId") studioId: Int
     ): Response<ResponseBody>
+
+    @DELETE("api/studio/{studioId}/scrap")
+    suspend fun deleteScrap(
+        @Path("studioId") studioId: Int
+    ): Response<ResponseBody>
 }
