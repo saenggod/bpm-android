@@ -16,25 +16,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterStart
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kakao.sdk.user.UserApiClient
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivity
+import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.main.MainActivity
 import com.team.bpm.presentation.ui.sign_up.SignUpActivity
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import com.team.bpm.presentation.util.showToast
-import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -143,60 +143,74 @@ private fun SplashActivityContent(
     startButtonVisibilityState: MutableState<Boolean>,
     onClickStartButton: () -> Unit
 ) {
-    val subtitleVisibilityState = remember { mutableStateOf(false) }
-    val subtitleAlphaState = animateFloatAsState(
-        targetValue = if (subtitleVisibilityState.value) 1f else 0f,
-        animationSpec = tween(1000)
-    )
-
-    val logoVisibilityState = remember { mutableStateOf(false) }
-    val logoAlphaState = animateFloatAsState(
-        targetValue = if (logoVisibilityState.value) 1f else 0f,
-        animationSpec = tween(1000)
-    )
+    val screenHeightDp = LocalConfiguration.current.screenHeightDp
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
 
     val startButtonAlphaState = animateFloatAsState(
         targetValue = if (startButtonVisibilityState.value) 1f else 0f,
-        animationSpec = tween(1000)
+        animationSpec = tween(500)
     )
 
-    LaunchedEffect(key1 = Unit) {
-        delay(200L)
-        subtitleVisibilityState.value = true
-        delay(400L)
-        logoVisibilityState.value = true
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Black)
+    ) {
         Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.drawable.bg_splash),
-            contentDescription = "splashBackground",
-            contentScale = ContentScale.Crop
+            modifier = Modifier
+                .padding(top = ((screenHeightDp * 0.165).dp))
+                .width((screenWidthDp * 0.75).dp),
+            painter = painterResource(id = R.drawable.splash_b),
+            contentDescription = "splashBImage"
         )
+
+        Image(
+            modifier = Modifier
+                .padding(
+                    top = (screenHeightDp * 0.25).dp,
+                    start = (screenWidthDp * 0.37).dp
+                )
+                .size((screenWidthDp * 0.13).dp),
+            painter = painterResource(id = R.drawable.splash_light),
+            contentDescription = "splashLightImage"
+        )
+
+        Box(
+            modifier = Modifier
+                .align(TopEnd)
+                .padding(top = (screenHeightDp * 0.25).dp)
+                .height((screenWidthDp * 0.13).dp)
+        ) {
+            Image(
+                modifier = Modifier
+                    .align(Center)
+                    .width((screenWidthDp * 0.433).dp),
+                painter = painterResource(id = R.drawable.splash_line),
+                contentDescription = "splashLineImage"
+            )
+        }
 
         Column(
             modifier = Modifier
-                .padding(start = 30.dp)
-                .height((LocalConfiguration.current.screenHeightDp / 2).dp),
-            verticalArrangement = Arrangement.Bottom
+                .padding(
+                    top = (screenHeightDp * 0.43).dp,
+                    start = (screenWidthDp * 0.09).dp
+                )
         ) {
-            Text(
+            Image(
                 modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .alpha(subtitleAlphaState.value),
-                text = "당신을 위한\n바디프로필 매니저",
-                fontFamily = pyeongchangPeace,
-                fontWeight = FontWeight.Normal,
-                fontSize = 20.sp,
-                letterSpacing = 0.8.sp,
-                color = Color.White
+                    .width((screenWidthDp * 0.375).dp),
+                painter = painterResource(id = R.drawable.splash_text),
+                contentDescription = "splashLineImage"
             )
 
+            BPMSpacer(height = (screenHeightDp * 0.015).dp)
+
             Image(
-                modifier = Modifier.alpha(logoAlphaState.value),
-                painter = painterResource(id = R.drawable.logo_splash),
-                contentDescription = "splashLogo"
+                modifier = Modifier
+                    .width((screenWidthDp * 0.344).dp),
+                painter = painterResource(id = R.drawable.splash_logo),
+                contentDescription = "splashLineImage"
             )
         }
 
@@ -232,14 +246,4 @@ private fun SplashActivityContent(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun Preview() {
-    val startButtonVisibilityState = remember { mutableStateOf(false) }
-    SplashActivityContent(
-        startButtonVisibilityState = startButtonVisibilityState,
-        onClickStartButton = {}
-    )
 }
