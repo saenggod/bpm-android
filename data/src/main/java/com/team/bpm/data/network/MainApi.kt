@@ -1,5 +1,6 @@
 package com.team.bpm.data.network
 
+import com.google.gson.JsonObject
 import com.team.bpm.data.model.request.ScheduleRequest
 import com.team.bpm.data.model.request.StudioRequest
 import com.team.bpm.data.model.request.UserVerificationRequest
@@ -99,12 +100,12 @@ interface MainApi {
     @GET("api/community/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int
-    ): Response<QuestionResponse>
+    ): Response<JsonObject>
 
     @POST("api/studio/{studioId}/scrap")
     suspend fun sendScrap(
         @Path("studioId") studioId: Int
-    ): Response<ResponseBody>
+    ): Response<JsonObject>
 
     @DELETE("api/studio/{studioId}/scrap")
     suspend fun deleteScrap(

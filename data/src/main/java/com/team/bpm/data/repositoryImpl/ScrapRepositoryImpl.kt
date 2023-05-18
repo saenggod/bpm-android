@@ -4,6 +4,7 @@ import com.team.bpm.data.network.BPMResponse
 import com.team.bpm.data.network.BPMResponseHandler
 import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.data.network.BpmResponseHandlerV2
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.repository.ScrapRepository
 import kotlinx.coroutines.flow.Flow
@@ -18,14 +19,19 @@ class ScrapRepositoryImpl @Inject constructor(
 ) : ScrapRepository {
     override suspend fun sendScrap(studioId: Int): Flow<ResponseState<ResponseBody>> {
         return flow {
-            BPMResponseHandler().handle {
+//            BPMResponseHandler().handle {
+//                mainApi.sendScrap(studioId)
+//            }.onEach { result ->
+//                when (result) {
+//                    is BPMResponse.Success -> emit(ResponseState.Success(result.data))
+//                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
+//                }
+//            }.collect()
+            BpmResponseHandlerV2().handle<ResponseBody>(key = null) {
                 mainApi.sendScrap(studioId)
-            }.onEach { result ->
-                when (result) {
-                    is BPMResponse.Success -> emit(ResponseState.Success(result.data))
-                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
-                }
-            }.collect()
+            }.collect {
+
+            }
         }
     }
 

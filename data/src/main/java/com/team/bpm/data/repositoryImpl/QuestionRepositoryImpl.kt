@@ -1,12 +1,11 @@
 package com.team.bpm.data.repositoryImpl
 
+import com.team.bpm.data.model.response.QuestionResponse
 import com.team.bpm.data.model.response.QuestionResponse.Companion.toDataModel
-import com.team.bpm.data.network.BPMResponse
-import com.team.bpm.data.network.BPMResponseHandler
-import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
+import com.team.bpm.data.network.BpmResponseHandlerV2
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.domain.model.Question
-import com.team.bpm.domain.model.ResponseState
+import com.team.bpm.domain.model.ResponseStateV2
 import com.team.bpm.domain.repository.QuestionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -17,15 +16,18 @@ import javax.inject.Inject
 class QuestionRepositoryImpl @Inject constructor(
     private val mainApi: MainApi
 ) : QuestionRepository {
-    override suspend fun fetchQuestionDetail(questionId: Int): Flow<ResponseState<Question>> {
+    override suspend fun fetchQuestionDetail(questionId: Int): Flow<ResponseStateV2<Question>> {
         return flow {
-            BPMResponseHandler().handle {
+            BpmResponseHandlerV2().handle<QuestionResponse>(key = "questionBoardResponse") {
                 mainApi.fetchQuestionDetail(questionId)
             }.onEach { result ->
-                when (result) {
-                    is BPMResponse.Success -> emit(ResponseState.Success(result.data.toDataModel()))
-                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
+                result.data?.let {
+                    emit(ResponseStateV2.Success(result.data.toDataModel()))
                 }
+
+                result.errors?.let {
+                    emit(ResponseStateV2.Error(result.errors.code))
+                } // TODO : Throw exception by error code
             }.collect()
         }
     }
