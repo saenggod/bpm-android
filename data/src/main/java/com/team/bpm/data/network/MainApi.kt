@@ -100,7 +100,7 @@ interface MainApi {
     @GET("api/community/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int
-    ): Response<JsonObject>
+    ): Response<BPMResponseV2<QuestionResponse>>
 
     @POST("api/studio/{studioId}/scrap")
     suspend fun sendScrap(

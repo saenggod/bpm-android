@@ -3,7 +3,6 @@ package com.team.bpm.presentation.ui.main.community.question_detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseStateV2
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
@@ -47,10 +46,7 @@ class QuestionDetailViewModel @Inject constructor(
             getQuestionDetailUseCase(1).onEach { result ->
                 withContext(mainImmediateDispatcher) {
                     _state.update {
-                        when (result) {
-                            is ResponseStateV2.Success -> it.copy(isLoading = false, question = result.data)
-                            is ResponseStateV2.Error -> it.copy(isLoading = false)
-                        }
+                        it.copy(isLoading = false, question = result)
                     }
                 }
             }.launchIn(viewModelScope + exceptionHandler)
