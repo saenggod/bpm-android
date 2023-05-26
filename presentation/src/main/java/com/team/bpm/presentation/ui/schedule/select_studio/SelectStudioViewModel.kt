@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -62,7 +63,7 @@ class SelectStudioViewModel @Inject constructor(
                 it.copy(isLoading = true)
             }
 
-            withContext(ioDispatcher + exceptionHandler) {
+            withContext(ioDispatcher) {
                 searchStudioUseCase(query = query).onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         when (result) {
@@ -77,7 +78,7 @@ class SelectStudioViewModel @Inject constructor(
                             }
                         }
                     }
-                }.launchIn(viewModelScope)
+                }.launchIn(viewModelScope + exceptionHandler)
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.team.bpm.domain.usecase.review
 
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.repository.ReviewRepository
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +11,7 @@ class GetReviewDetailUseCase @Inject constructor(
     suspend operator fun invoke(
         studioId: Int,
         reviewId: Int
-    ): Flow<ResponseState<Review>> {
+    ): Flow<Review> {
         return reviewRepository.fetchReviewDetail(
             studioId = studioId,
             reviewId = reviewId

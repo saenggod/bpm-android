@@ -1,9 +1,8 @@
 package com.team.bpm.domain.usecase.review
 
-import com.team.bpm.domain.model.ResponseState
-import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.repository.WriteReviewRepository
 import kotlinx.coroutines.flow.Flow
+import okhttp3.ResponseBody
 import javax.inject.Inject
 
 class WriteReviewUseCase @Inject constructor(
@@ -15,7 +14,7 @@ class WriteReviewUseCase @Inject constructor(
         rating: Double,
         recommends: List<String>,
         content: String
-    ): Flow<ResponseState<Review>> {
+    ): Flow<ResponseBody> {
         return writeReviewRepository.sendReview(
             studioId = studioId,
             imageByteArrays = imageByteArrays,

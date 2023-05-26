@@ -7,15 +7,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
 
-class BpmResponseHandlerV2 {
+class BPMResponseHandlerV2 {
     suspend fun <T> handle(call: suspend () -> Response<T>): Flow<T> {
         return flow {
             val response = call.invoke()
             response.body()?.let { result ->
                 emit(result)
-            } ?: run {
-                val error = Gson().fromJson(response.errorBody()?.string(), JsonObject::class.java)["errors"].asJsonObject
-                val errorRes = Gson().fromJson(error, ErrorResponse::class.java).toDataModel()
+            } ?: Gson().run {
+                val error = fromJson(response.errorBody()?.string(), JsonObject::class.java)["errors"].asJsonObject
+                val errorRes = fromJson(error, ErrorResponse::class.java).toDataModel()
                 throw java.lang.Exception(errorRes)
             }
         }

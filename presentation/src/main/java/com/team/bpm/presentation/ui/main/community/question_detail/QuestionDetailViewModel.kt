@@ -33,7 +33,7 @@ class QuestionDetailViewModel @Inject constructor(
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
-            println(throwable)
+
         }
     }
 

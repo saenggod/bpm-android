@@ -2,14 +2,12 @@ package com.team.bpm.presentation.ui.main.studio.recommend
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.main.GetStudioListUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,6 +17,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import javax.inject.Inject
 
 @HiltViewModel
 class StudioHomeRecommendViewModel @Inject constructor(
@@ -52,18 +52,22 @@ class StudioHomeRecommendViewModel @Inject constructor(
 
     // TODO : Type에 따른 스튜디오 분기 필요
     fun getStudioList() {
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
+        viewModelScope.launch(ioDispatcher) {
             getStudioListUseCase(limit = 10, offset = 0).onEach { state ->
-                when (state) {
-                    is ResponseState.Success -> {
-                        _list.emit(state.data.studios ?: emptyList())
-                        _state.emit(StudioHomeRecommendState.List)
-                    }
-                    is ResponseState.Error -> {
-                        _state.emit(StudioHomeRecommendState.Error)
-                    }
-                }
-            }.launchIn(viewModelScope)
+                state.studios?.let { _list.emit(it) }
+                _list.emit(state.studios ?: emptyList())
+                _state.emit(StudioHomeRecommendState.List)
+//                when (state) {
+//                    is ResponseState.Success -> {
+//                        _list.emit(state.data.studos)
+//                        _list.emit(state.data.studios ?: emptyList())
+//                        _state.emit(StudioHomeRecommendState.List)
+//                    }
+//                    is ResponseState.Error -> {
+//                        _state.emit(StudioHomeRecommendState.Error)
+//                    }
+//                }
+            }.launchIn(viewModelScope + exceptionHandler)
         }
     }
 

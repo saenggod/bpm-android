@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
-import com.team.bpm.presentation.base.BaseContract
 import com.team.bpm.presentation.di.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher

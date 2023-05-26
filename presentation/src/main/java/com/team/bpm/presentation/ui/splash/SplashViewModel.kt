@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.splash
 
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.NetworkError
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.splash.GetKakaoUserIdUseCase
 import com.team.bpm.domain.usecase.splash.GetUserTokenUseCase
 import com.team.bpm.domain.usecase.splash.SendKakaoUserIdVerificationUseCase
@@ -89,20 +88,21 @@ class SplashViewModel @Inject constructor(
     // state - ValidationCheck
     fun sendKakaoIdVerification(kakaoUserId: Long, kakaoNickName : String) {
         viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            sendKakaoUserIdVerificationUseCase(kakaoUserId).onEach { state ->
+            sendKakaoUserIdVerificationUseCase(kakaoUserId).onEach { result ->
                 withContext(mainDispatcher) {
-                    when (state) {
-                        is ResponseState.Success -> _state.emit(SplashState.SaveToken(state.data.token))
-                        is ResponseState.Error -> {
-                            if (state.error.code == CODE_NOT_FOUND_USER_ID) {
-                                // TODO : 카카오 SDK에서 내려받은 객체 던지기
-                                // 좋은 방법 찾아보자..
-                                _state.emit(SplashState.SignUp(kakaoUserId, kakaoNickName))
-                            } else {
-                                _state.emit(SplashState.Error(state.error))
-                            }
-                        }
-                    }
+                    _state.emit(SplashState.SaveToken(result.token))
+//                    when (state) {
+//                        is ResponseState.Success -> _state.emit(SplashState.SaveToken(state.data.token))
+//                        is ResponseState.Error -> {
+//                            if (state.error.code == CODE_NOT_FOUND_USER_ID) {
+//                                // TODO : 카카오 SDK에서 내려받은 객체 던지기
+//                                // 좋은 방법 찾아보자..
+//                                _state.emit(SplashState.SignUp(kakaoUserId, kakaoNickName))
+//                            } else {
+//                                _state.emit(SplashState.Error(state.error))
+//                            }
+//                        }
+//                    }
                 }
             }.launchIn(viewModelScope)
         }

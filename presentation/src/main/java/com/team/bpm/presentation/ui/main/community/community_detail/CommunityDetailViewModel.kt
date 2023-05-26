@@ -3,7 +3,6 @@ package com.team.bpm.presentation.ui.main.community.community_detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.post.GetPostDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
@@ -20,6 +19,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -59,22 +59,14 @@ class CommunityDetailViewModel @Inject constructor(
                     it.copy(isLoading = true)
                 }
 
-                withContext(ioDispatcher + exceptionHandler) {
+                withContext(ioDispatcher) {
                     getPostDetailUseCase(postId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
-                            when (result) {
-                                is ResponseState.Success -> {
-                                    _state.update {
-                                        it.copy(isLoading = false, post = result.data)
-                                    }
-                                }
-
-                                is ResponseState.Error -> {
-                                    // TODO : Show error dialog
-                                }
+                            _state.update {
+                                it.copy(isLoading = false, post = result)
                             }
                         }
-                    }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope + exceptionHandler)
                 }
             }
         }

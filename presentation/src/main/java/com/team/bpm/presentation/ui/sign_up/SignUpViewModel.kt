@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -123,7 +124,7 @@ class SignUpViewModel @Inject constructor(
                     it.copy(isLoading = true)
                 }
 
-                withContext(ioDispatcher + exceptionHandler) {
+                withContext(ioDispatcher) {
                     state.value.profileImage?.let { profileImage ->
                         signUpUseCase(
                             kakaoId = kakaoUserInfo.first,
@@ -148,7 +149,7 @@ class SignUpViewModel @Inject constructor(
                                     }
                                 }
                             }
-                        }.launchIn(viewModelScope)
+                        }.launchIn(viewModelScope + exceptionHandler)
                     }
                 }
             }

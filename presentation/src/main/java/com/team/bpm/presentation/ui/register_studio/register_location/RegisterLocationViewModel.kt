@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -51,7 +52,7 @@ class RegisterLocationViewModel @Inject constructor(
     }
 
     private fun onClickChangeLocation(latitude: Double, longitude: Double) {
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
+        viewModelScope.launch(ioDispatcher) {
             getAddressNameUseCase(latitude, longitude).onEach { result ->
                 withContext(mainImmediateDispatcher) {
                     if (!result.isNullOrEmpty()) {
@@ -62,7 +63,7 @@ class RegisterLocationViewModel @Inject constructor(
                         _effect.emit(RegisterLocationContract.Effect.ShowToast("주소명을 찾을 수 없습니다."))
                     }
                 }
-            }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope + exceptionHandler)
         }
     }
 }

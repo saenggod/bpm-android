@@ -3,7 +3,6 @@ package com.team.bpm.presentation.ui.studio_detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
@@ -17,8 +16,17 @@ import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -152,26 +160,14 @@ class StudioDetailViewModel @Inject constructor(
                     it.copy(isLoading = true)
                 }
 
-                withContext(ioDispatcher + exceptionHandler) {
+                withContext(ioDispatcher) {
                     studioDetailUseCase(studioId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
-                            when (result) {
-                                is ResponseState.Success -> {
-                                    _state.update {
-                                        it.copy(isLoading = false, studio = result.data)
-                                    }
-                                }
-
-                                is ResponseState.Error -> {
-                                    _state.update {
-                                        it.copy(isLoading = false)
-                                    }
-
-                                    // TODO : Show error dialog
-                                }
+                            _state.update {
+                                it.copy(isLoading = false, studio = result)
                             }
                         }
-                    }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope + exceptionHandler)
                 }
             }
         }
@@ -185,26 +181,12 @@ class StudioDetailViewModel @Inject constructor(
                 }
 
                 reviewListUseCase(studioId).onEach { result ->
-                    withContext(ioDispatcher + exceptionHandler) {
-                        when (result) {
-                            is ResponseState.Success -> {
-                                result.data.reviews?.let { reviews ->
-                                    _state.update {
-                                        it.copy(isReviewLoading = false, originalReviewList = reviews, reviewList = sortRefreshedReviewList(reviews))
-                                    }
-                                }
-                            }
-
-                            is ResponseState.Error -> {
-                                _state.update {
-                                    it.copy(isReviewLoading = false)
-                                }
-
-                                // TODO : Show error dialog
-                            }
+                    withContext(ioDispatcher) {
+                        _state.update {
+                            it.copy(isReviewLoading = false, originalReviewList = result.reviews ?: emptyList(), reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList())
                         }
                     }
-                }.launchIn(viewModelScope)
+                }.launchIn(viewModelScope + exceptionHandler)
             }
         }
     }
@@ -377,51 +359,35 @@ class StudioDetailViewModel @Inject constructor(
 
     private fun onClickReviewLikeButton(reviewId: Int) {
         state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
-            viewModelScope.launch(ioDispatcher + exceptionHandler) {
+            viewModelScope.launch(ioDispatcher) {
                 when (selectedReview.liked) {
                     true -> {
                         state.value.studio?.id?.let { studioId ->
-                            dislikeReviewUseCase(studioId, reviewId).onEach { result ->
+                            dislikeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
-                                    when (result) {
-                                        is ResponseState.Success -> {
-                                            _state.update {
-                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
-                                                    val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                                    this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
-                                                }))
-                                            }
-                                        }
-
-                                        is ResponseState.Error -> {
-                                            _effect.emit(StudioDetailContract.Effect.ShowToast("리뷰 추천을 취소할 수 없습니다."))
-                                        }
+                                    _state.update {
+                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                            this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
+                                        }))
                                     }
                                 }
-                            }.launchIn(viewModelScope)
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
                     }
 
                     false -> {
                         state.value.studio?.id?.let { studioId ->
-                            likeReviewUseCase(studioId, reviewId).onEach { result ->
+                            likeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
-                                    when (result) {
-                                        is ResponseState.Success -> {
-                                            _state.update {
-                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
-                                                    val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                                    this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
-                                                }))
-                                            }
-                                        }
-
-                                        is ResponseState.Error -> {
-                                            _effect.emit(StudioDetailContract.Effect.ShowToast("리뷰를 추천할 수 없습니다."))
-                                        }
+                                    _state.update {
+                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                            this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
+                                        }))
                                     }
                                 }
-                            }.launchIn(viewModelScope)
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
                     }
 
@@ -442,62 +408,40 @@ class StudioDetailViewModel @Inject constructor(
                     it.copy(isLoading = true)
                 }
 
-                withContext(ioDispatcher + exceptionHandler) {
+                withContext(ioDispatcher) {
                     when (state.value.studio?.scrapped) {
                         true -> {
-                            scrapCancelUseCase(studioId).onEach { result ->
+                            scrapCancelUseCase(studioId).onEach {
                                 withContext(mainImmediateDispatcher) {
-                                    when (result) {
-                                        is ResponseState.Success -> {
-                                            _state.update {
-                                                it.copy(
-                                                    isLoading = false,
-                                                    studio = it.studio?.copy(
-                                                        scrapCount = it.studio.scrapCount?.minus(1),
-                                                        scrapped = false
-                                                    )
-                                                )
-                                            }
-                                        }
-
-                                        is ResponseState.Error -> {
-                                            _state.update {
-                                                it.copy(isLoading = false)
-                                            }
-
-                                            _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩을 취소할 수 없습니다."))
-                                        }
+                                    _state.update {
+                                        it.copy(
+                                            isLoading = false,
+                                            studio = it.studio?.copy(
+                                                scrapCount = it.studio.scrapCount?.minus(1),
+                                                scrapped = false
+                                            )
+                                        )
                                     }
                                 }
-                            }.launchIn(viewModelScope)
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
+
                         false -> {
-                            scrapUseCase(studioId).onEach { result ->
+                            scrapUseCase(studioId).onEach {
                                 withContext(mainImmediateDispatcher) {
-                                    when (result) {
-                                        is ResponseState.Success -> {
-                                            _state.update {
-                                                it.copy(
-                                                    isLoading = false,
-                                                    studio = it.studio?.copy(
-                                                        scrapCount = it.studio.scrapCount?.plus(1),
-                                                        scrapped = true
-                                                    )
-                                                )
-                                            }
-                                        }
-
-                                        is ResponseState.Error -> {
-                                            _state.update {
-                                                it.copy(isLoading = false)
-                                            }
-
-                                            _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 할 수 없습니다."))
-                                        }
+                                    _state.update {
+                                        it.copy(
+                                            isLoading = false,
+                                            studio = it.studio?.copy(
+                                                scrapCount = it.studio.scrapCount?.plus(1),
+                                                scrapped = true
+                                            )
+                                        )
                                     }
                                 }
-                            }.launchIn(viewModelScope)
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
+
                         null -> {
                             _state.update {
                                 it.copy(isLoading = false)
