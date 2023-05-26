@@ -16,17 +16,24 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterStart
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -35,6 +42,8 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.util.addFocusCleaner
+import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,6 +53,7 @@ import kotlinx.coroutines.flow.collectLatest
 class QuestionDetailActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         QuestionDetailActivityContent()
     }
 
@@ -65,6 +75,7 @@ private fun QuestionDetailActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         event.invoke(QuestionDetailContract.Event.GetQuestionDetail)
@@ -82,11 +93,18 @@ private fun QuestionDetailActivityContent(
     }
 
     with(state) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
+                .imePadding()
+                .addFocusCleaner(focusManager = focusManager)
+        ) {
             val scrollState = rememberScrollState()
 
             Column(
                 modifier = Modifier
+                    .padding(bottom = 54.dp)
                     .fillMaxWidth()
                     .verticalScroll(scrollState)
             ) {
@@ -207,8 +225,8 @@ private fun QuestionDetailActivityContent(
                         .fillMaxWidth(),
                     text = question?.content ?: "",
                     fontWeight = Normal,
-                fontSize = 13.sp,
-                letterSpacing = 0.sp
+                    fontSize = 13.sp,
+                    letterSpacing = 0.sp
                 )
 
                 BPMSpacer(height = 8.dp)
@@ -268,6 +286,46 @@ private fun QuestionDetailActivityContent(
                 } ?: run {
                     LoadingBlock(modifier = Modifier.height(300.dp))
                 }
+            }
+
+            val commentTextFieldState = remember { mutableStateOf("") }
+
+            Box(
+                modifier = Modifier
+                    .align(BottomCenter)
+                    .fillMaxWidth()
+                    .heightIn(min = 54.dp)
+                    .background(color = Color.White)
+            ) {
+                BPMTextField(
+                    modifier = Modifier.padding(
+                        horizontal = 16.dp,
+                        vertical = 10.dp
+                    ),
+                    textState = commentTextFieldState,
+                    label = null,
+                    limit = null,
+                    radius = 8.dp,
+                    minHeight = 34.dp,
+                    singleLine = true,
+                    hint = "댓글을 입력해보세요",
+                    icon = { hasFocus ->
+                        Icon(
+                            modifier = Modifier
+                                .padding(
+                                    top = 12.dp,
+                                    end = 16.dp
+                                )
+                                .size(20.dp)
+                                .align(TopEnd)
+                                .clickableWithoutRipple { },
+                            painter = painterResource(id = R.drawable.ic_send_comment),
+                            contentDescription = "sendIconButton",
+                            tint = if (hasFocus) GrayColor2 else GrayColor5
+                        )
+                    },
+                    iconSize = 20.dp
+                )
             }
 
             if (isLoading) {

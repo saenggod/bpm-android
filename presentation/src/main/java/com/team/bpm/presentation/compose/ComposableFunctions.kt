@@ -213,6 +213,7 @@ fun BPMTextField(
     textState: MutableState<String>,
     label: String?,
     limit: Int?,
+    radius: Dp = 12.dp,
     minHeight: Dp = 40.dp,
     iconSize: Dp = 0.dp,
     singleLine: Boolean,
@@ -223,7 +224,7 @@ fun BPMTextField(
     errorMessage: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    icon: @Composable (BoxScope.() -> Unit)? = null
+    icon: @Composable (BoxScope.(Boolean) -> Unit)? = null
 ) {
     Column(modifier = modifier.background(color = Color.White)) {
         if (label != null || limit != null) {
@@ -266,7 +267,7 @@ fun BPMTextField(
                 .heightIn(min = minHeight)
                 .border(
                     width = 1.dp,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(radius),
                     color = if (hasFocus.value) GrayColor1 else GrayColor6
                 )
                 .clickableWithoutRipple { onClick?.invoke() }
@@ -289,7 +290,7 @@ fun BPMTextField(
             }
 
             if (icon != null) {
-                icon()
+                icon(hasFocus.value)
             }
 
             if (onClick == null) {
@@ -297,9 +298,10 @@ fun BPMTextField(
                     BasicTextField(
                         modifier = Modifier
                             .padding(
-                                horizontal = 14.dp,
-                                vertical = 12.dp
+                                start = 14.dp,
+                                end = if (icon == null) 14.dp else 20.dp + iconSize,
                             )
+                            .padding(vertical = 12.dp)
                             .fillMaxWidth()
                             .heightIn(min = minHeight - 24.dp)
                             .align(Center)
