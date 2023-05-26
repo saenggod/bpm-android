@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
-import okhttp3.ResponseBody
 import javax.inject.Inject
 
 class ReviewRepositoryImpl @Inject constructor(
@@ -48,32 +47,32 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun likeReview(
         studioId: Int,
         reviewId: Int
-    ): Flow<ResponseBody> {
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendReviewLike(
                     studioId = studioId,
                     reviewId = reviewId
                 )
-            }.onEach { result ->
-                result.response?.let { emit(it) }
-            }.collect()
+            }.collect {
+                emit(Unit)
+            }
         }
     }
 
     override suspend fun dislikeReview(
         studioId: Int,
         reviewId: Int)
-    : Flow<ResponseBody> {
+    : Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteReviewLike(
                     studioId = studioId,
                     reviewId = reviewId
                 )
-            }.onEach { result ->
-                result.response?.let { emit(it) }
-            }.collect()
+            }.collect {
+                emit(Unit)
+            }
         }
     }
 }
