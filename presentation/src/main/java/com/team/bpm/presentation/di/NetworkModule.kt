@@ -1,20 +1,23 @@
 package com.team.bpm.presentation.di
 
-import com.team.bpm.presentation.BuildConfig
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.presentation.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJuaWNrbmFtZSI6Ilwi7KCA66as7KCA66as7KCA66asXCIiLCJpYXQiOjE2ODQwNzI0NjYsImV4cCI6MTY4NzA3MjQ2Nn0.Ak6H5fAhz5Ntu6uazSZ2oXh1AqueDK56N-eUwD6PaI4" // forTest
+const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiNiIsImlhdCI6MTY4NTA3MDQ0NCwiZXhwIjoxNjg4MDcwNDQ0fQ.QhzaeQj8kCLOOaMawbUNXKv849g4M9QItIfKZfSEcio" // forTest
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -76,13 +79,34 @@ object NetworkModule {
 
     @Singleton
     @Provides
+    fun provideNullOnEmptyConverterFactory(): Converter.Factory = object : Converter.Factory() {
+        fun converterFactory() = this
+        override fun responseBodyConverter(type: Type, annotations: Array<out Annotation>, retrofit: Retrofit) = object : Converter<ResponseBody, Any?> {
+            val nextResponseBodyConverter = retrofit.nextResponseBodyConverter<Any?>(converterFactory(), type, annotations)
+            override fun convert(value: ResponseBody) = if (value.contentLength() != 0L) {
+                try {
+                    nextResponseBodyConverter.convert(value)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            } else {
+                null
+            }
+        }
+    }
+
+    @Singleton
+    @Provides
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
+        nullOnEmptyConverterFactory: Converter.Factory,
         gsonConverterFactory: GsonConverterFactory
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
+            .addConverterFactory(nullOnEmptyConverterFactory)
             .addConverterFactory(gsonConverterFactory)
             .build()
     }

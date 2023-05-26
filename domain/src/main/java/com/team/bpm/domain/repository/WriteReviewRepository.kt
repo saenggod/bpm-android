@@ -1,8 +1,7 @@
 package com.team.bpm.domain.repository
 
-import com.team.bpm.domain.model.ResponseState
-import com.team.bpm.domain.model.Review
 import kotlinx.coroutines.flow.Flow
+import okhttp3.ResponseBody
 
 interface WriteReviewRepository {
     suspend fun sendReview(
@@ -11,5 +10,5 @@ interface WriteReviewRepository {
         rating: Double,
         recommends: List<String>,
         content: String
-    ): Flow<ResponseState<Review>>
+    ): Flow<ResponseBody>
 }

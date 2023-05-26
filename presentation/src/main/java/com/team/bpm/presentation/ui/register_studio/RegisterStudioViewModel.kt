@@ -3,7 +3,6 @@ package com.team.bpm.presentation.ui.register_studio
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.RegisterStudioWrapper
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
@@ -20,6 +19,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -63,21 +63,12 @@ class RegisterStudioViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            registerStudioUseCase(registerStudioWrapper).onEach { result ->
+        viewModelScope.launch(ioDispatcher) {
+            registerStudioUseCase(registerStudioWrapper).onEach {
                 withContext(mainImmediateDispatcher) {
                     _state.update { it.copy(isLoading = false) }
-
-                    when (result) {
-                        is ResponseState.Success -> {
-                            // TODO : Show pop up?
-                        }
-                        is ResponseState.Error -> {
-                            _effect.emit(RegisterStudioContract.Effect.ShowToast("스튜디오를 등록할 수 없습니다."))
-                        }
-                    }
                 }
-            }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope + exceptionHandler)
         }
     }
 

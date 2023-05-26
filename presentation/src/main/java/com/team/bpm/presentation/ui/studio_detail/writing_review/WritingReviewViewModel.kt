@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.review.WriteReviewUseCase
 import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
@@ -16,6 +15,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
@@ -72,26 +72,15 @@ class WritingReviewViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
+        viewModelScope.launch(ioDispatcher) {
             getStudioId()?.let { studioId ->
                 studioDetailUseCase(studioId).onEach { result ->
                     withContext(mainImmediateDispatcher) {
-                        when (result) {
-                            is ResponseState.Success -> {
-                                _state.update {
-                                    it.copy(isLoading = false, studio = result.data)
-                                }
-                            }
-                            is ResponseState.Error -> {
-                                _state.update {
-                                    it.copy(isLoading = false)
-                                }
-
-                                // TODO : Show error dialog
-                            }
+                        _state.update {
+                            it.copy(isLoading = false, studio = result)
                         }
                     }
-                }.launchIn(viewModelScope)
+                }.launchIn(viewModelScope + exceptionHandler)
             }
         }
     }
@@ -166,7 +155,7 @@ class WritingReviewViewModel @Inject constructor(
                 it.copy(isLoading = true)
             }
 
-            withContext(ioDispatcher + exceptionHandler) {
+            withContext(ioDispatcher) {
                 state.value.studio?.id?.let { studioId ->
                     writeReviewUseCase(
                         studioId = studioId,
@@ -176,18 +165,10 @@ class WritingReviewViewModel @Inject constructor(
                         content = content
                     ).onEach { result ->
                         withContext(mainImmediateDispatcher) {
-                            when (result) {
-                                is ResponseState.Success -> {
-                                    _state.update { it.copy(isLoading = false) }
-                                    // TODO : Show success dialog
-                                }
-                                is ResponseState.Error -> {
-                                    _state.update { it.copy(isLoading = false) }
-                                    _effect.emit(WritingReviewContract.Effect.ShowToast("리뷰를 작성할 수 없습니다."))
-                                }
-                            }
+                            _state.update { it.copy(isLoading = false) }
+                            _effect.emit(WritingReviewContract.Effect.ShowToast("리뷰를 작성하였습니다."))
                         }
-                    }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope + exceptionHandler)
                 }
             }
         }

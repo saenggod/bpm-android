@@ -32,35 +32,35 @@ interface MainApi {
     @POST("api/users/verification")
     suspend fun sendKakaoUserIdVerification(
         @Body kakaoUserIdReq: UserVerificationRequest
-    ): Response<SignUpResponse>
+    ): Response<BPMResponseV2<SignUpResponse>>
 
     @GET("api/studio/{studioId}")
     suspend fun fetchStudioDetail(
         @Path("studioId") studioId: Int
-    ): Response<StudioResponse>
+    ): Response<BPMResponseV2<StudioResponse>>
 
     @GET("api/studio/{studioId}/review")
     suspend fun fetchReviewList(
         @Path("studioId") studioId: Int
-    ): Response<ReviewListResponse>
+    ): Response<BPMResponseV2<ReviewListResponse>>
 
     @GET("api/studio/{studioId}/review/{reviewId}")
     suspend fun fetchReviewDetail(
         @Path("studioId") studioId: Int,
         @Path("reviewId") reviewId: Int
-    ): Response<ReviewResponse>
+    ): Response<BPMResponseV2<ReviewResponse>>
 
     @POST("api/studio/{studioId}/review/{reviewId}/like")
     suspend fun sendReviewLike(
         @Path("studioId") studioId: Int,
         @Path("reviewId") reviewId: Int
-    ): Response<ResponseBody>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @DELETE("api/studio/{studioId}/review/{reviewId}/like")
     suspend fun deleteReviewLike(
         @Path("studioId") studioId: Int,
         @Path("reviewId") reviewId: Int
-    ): Response<ResponseBody>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @Multipart
     @POST("api/studio/{studioId}/review")
@@ -70,13 +70,13 @@ interface MainApi {
         @Part("rating") rating: Double,
         @Part("recommends") recommends: List<String>,
         @Part("content") content: String
-    ): Response<ReviewResponse>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @GET("api/studio/list")
     suspend fun getStudioList(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
-    ): Response<StudioListResponse>
+    ): Response<BPMResponseV2<StudioListResponse>>
 
     @GET("api/users/schedule")
     suspend fun getUserSchedule(): Response<UserScheduleResponse>
@@ -89,25 +89,25 @@ interface MainApi {
     @POST("api/studio")
     suspend fun sendStudio(
         @Body studio: StudioRequest
-    ): Response<ResponseBody>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @GET("api/community/story/{storyId}")
     suspend fun fetchPostDetail(
         @Path("storyId") postId: Int
-    ): Response<PostResponse>
+    ): Response<BPMResponseV2<PostResponse>>
 
     @GET("api/community/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int
-    ): Response<QuestionResponse>
+    ): Response<BPMResponseV2<QuestionResponse>>
 
     @POST("api/studio/{studioId}/scrap")
     suspend fun sendScrap(
         @Path("studioId") studioId: Int
-    ): Response<ResponseBody>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @DELETE("api/studio/{studioId}/scrap")
     suspend fun deleteScrap(
         @Path("studioId") studioId: Int
-    ): Response<ResponseBody>
+    ): Response<BPMResponseV2<ResponseBody>>
 }

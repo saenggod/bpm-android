@@ -1,6 +1,5 @@
 package com.team.bpm.domain.usecase.studio_detail
 
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.repository.StudioDetailRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +10,7 @@ class StudioDetailUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         studioId: Int
-    ): Flow<ResponseState<Studio>> {
+    ): Flow<Studio> {
         return studioDetailRepository.fetchStudioDetail(studioId = studioId)
     }
 }

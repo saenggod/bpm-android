@@ -1,6 +1,5 @@
 package com.team.bpm.domain.repository
 
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -14,5 +13,5 @@ interface SplashRepository {
 
     suspend fun setUserToken(userToken: String): Flow<String?>
 
-    suspend fun sendSignIn(kakaoUserId: Long): Flow<ResponseState<UserInfo>>
+    suspend fun sendSignIn(kakaoUserId: Long): Flow<UserInfo>
 }

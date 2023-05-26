@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface MainRepository {
 
     // TODO : Move to HomeRepository
-    suspend fun getStudioList(limit: Int, offset: Int): Flow<ResponseState<StudioList>>
+    suspend fun getStudioList(limit: Int, offset: Int): Flow<StudioList>
 
     suspend fun getUserSchedule(): Flow<ResponseState<UserSchedule>>
 

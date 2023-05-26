@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 
 @HiltViewModel
 class StudioHomeViewModel @Inject constructor(
@@ -45,7 +46,7 @@ class StudioHomeViewModel @Inject constructor(
     }
 
     fun getUserSchedule() {
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
+        viewModelScope.launch(ioDispatcher) {
             getUserScheduleUseCase().onEach { state ->
                 when (state) {
                     is ResponseState.Success -> {
@@ -56,7 +57,7 @@ class StudioHomeViewModel @Inject constructor(
                         _state.emit(StudioHomeState.Error)
                     }
                 }
-            }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope + exceptionHandler)
         }
     }
 

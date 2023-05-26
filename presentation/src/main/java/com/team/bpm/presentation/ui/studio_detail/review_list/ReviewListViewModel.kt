@@ -3,7 +3,6 @@ package com.team.bpm.presentation.ui.studio_detail.review_list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
@@ -23,6 +22,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -89,28 +89,15 @@ class ReviewListViewModel @Inject constructor(
                     it.copy(isLoading = true)
                 }
 
-                withContext(ioDispatcher + exceptionHandler) {
+                withContext(ioDispatcher) {
                     reviewListUseCase(studioId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
-                            when (result) {
-                                is ResponseState.Success -> {
-                                    result.data.reviews?.let { reviews ->
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                originalReviewList = reviews,
-                                                reviewList = sortRefreshedReviewList(reviews)
-                                            )
-                                        }
-                                    }
-                                }
-
-                                is ResponseState.Error -> {
-                                    // TODO : Show error dialog
-                                }
+                            _state.update {
+                                it.copy(isLoading = false, originalReviewList = result.reviews ?: emptyList(), reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
+                                )
                             }
                         }
-                    }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope + exceptionHandler)
                 }
             }
         }
@@ -185,51 +172,35 @@ class ReviewListViewModel @Inject constructor(
 
     private fun onClickReviewLikeButton(reviewId: Int) {
         state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
-            viewModelScope.launch(ioDispatcher + exceptionHandler) {
+            viewModelScope.launch(ioDispatcher) {
                 when (selectedReview.liked) {
                     true -> {
                         getStudioId()?.let { studioId ->
-                            dislikeReviewUseCase(studioId, reviewId).onEach { result ->
+                            dislikeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
-                                    when (result) {
-                                        is ResponseState.Success -> {
-                                            _state.update {
-                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
-                                                    val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                                    this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
-                                                }))
-                                            }
-                                        }
-
-                                        is ResponseState.Error -> {
-                                            _effect.emit(ReviewListContract.Effect.ShowToast("리뷰 추천을 취소할 수 없습니다."))
-                                        }
+                                    _state.update {
+                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                            this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
+                                        }))
                                     }
                                 }
-                            }.launchIn(viewModelScope)
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
                     }
 
                     false -> {
                         getStudioId()?.let { studioId ->
-                            likeReviewUseCase(studioId, reviewId).onEach { result ->
+                            likeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
-                                    when (result) {
-                                        is ResponseState.Success -> {
-                                            _state.update {
-                                                it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
-                                                    val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                                    this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
-                                                }))
-                                            }
-                                        }
-
-                                        is ResponseState.Error -> {
-                                            _effect.emit(ReviewListContract.Effect.ShowToast("리뷰를 추천할 수 없습니다."))
-                                        }
+                                    _state.update {
+                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                            this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
+                                        }))
                                     }
                                 }
-                            }.launchIn(viewModelScope)
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
                     }
 
