@@ -9,13 +9,13 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class ScheduleResponse(
     @SerializedName(value = "studioName")
-    val studioName: String,
+    val studioName: String?,
     @SerializedName(value = "date")
-    val date: String,
+    val date: String?,
     @SerializedName(value = "time")
-    val time: String,
+    val time: String?,
     @SerializedName(value = "memo")
-    val memo: String
+    val memo: String?
 ) : BaseResponse {
 
     companion object : DataMapper<ScheduleResponse, Schedule> {

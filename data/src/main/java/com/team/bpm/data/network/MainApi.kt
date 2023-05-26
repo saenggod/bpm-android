@@ -110,4 +110,9 @@ interface MainApi {
     suspend fun deleteScrap(
         @Path("studioId") studioId: Int
     ): Response<BPMResponseV2<ResponseBody>>
+
+    @GET("api/community/question-board/{questionBoardArticleId}/comments")
+    suspend fun fetchComments(
+        @Path("questionBoardArticleId") questionId: Int
+    ): Response<BPMResponseV2<CommentListResponse>>
 }

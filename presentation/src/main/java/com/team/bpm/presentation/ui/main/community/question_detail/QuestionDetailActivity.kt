@@ -47,6 +47,7 @@ import com.team.bpm.presentation.compose.theme.GrayColor13
 import com.team.bpm.presentation.compose.theme.GrayColor4
 import com.team.bpm.presentation.compose.theme.GrayColor5
 import com.team.bpm.presentation.util.dateOnly
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -78,13 +79,14 @@ private fun QuestionDetailActivityContent(
 
     LaunchedEffect(Unit) {
         event.invoke(QuestionDetailContract.Event.GetQuestionDetail)
+        event.invoke(QuestionDetailContract.Event.GetCommentList)
     }
 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
                 is QuestionDetailContract.Effect.ShowToast -> {
-
+                    context.showToast(effect.text)
                 }
             }
         }

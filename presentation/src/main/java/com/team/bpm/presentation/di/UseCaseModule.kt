@@ -2,6 +2,7 @@ package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.post.GetPostDetailUseCase
+import com.team.bpm.domain.usecase.question.GetCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
@@ -135,5 +136,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideScrapCancelUseCase(scrapRepository: ScrapRepository): ScrapCancelUseCase {
         return ScrapCancelUseCase(scrapRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetCommentListUseCase(commentRepository: CommentRepository): GetCommentListUseCase {
+        return GetCommentListUseCase(commentRepository)
     }
 }

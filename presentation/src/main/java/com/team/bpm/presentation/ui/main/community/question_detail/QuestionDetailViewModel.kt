@@ -3,6 +3,7 @@ package com.team.bpm.presentation.ui.main.community.question_detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.question.GetCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
@@ -16,6 +17,7 @@ class QuestionDetailViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
+    private val getCommentListUseCase: GetCommentListUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), QuestionDetailContract {
 
@@ -28,6 +30,9 @@ class QuestionDetailViewModel @Inject constructor(
     override fun event(event: QuestionDetailContract.Event) = when (event) {
         is QuestionDetailContract.Event.GetQuestionDetail -> {
             getQuestionDetail()
+        }
+        is QuestionDetailContract.Event.GetCommentList -> {
+            getCommentList()
         }
     }
 
@@ -47,6 +52,20 @@ class QuestionDetailViewModel @Inject constructor(
                 withContext(mainImmediateDispatcher) {
                     _state.update {
                         it.copy(isLoading = false, question = result)
+                    }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
+    }
+
+    private fun getCommentList() {
+        viewModelScope.launch(ioDispatcher) {
+            getCommentListUseCase(1).onEach { result ->
+                withContext(mainImmediateDispatcher) {
+                    result.comments?.let { comments ->
+                        _state.update {
+                            it.copy(commentList = comments)
+                        }
                     }
                 }
             }.launchIn(viewModelScope + exceptionHandler)
