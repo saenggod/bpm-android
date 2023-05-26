@@ -8,7 +8,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
     data class State(
         val isLoading: Boolean = false,
         val question: Question? = null,
-        val commentList: List<Comment> = emptyList()
+        val commentList: List<Comment>? = null,
+        val commentsCount: Int? = 0,
     )
 
     sealed interface Event {

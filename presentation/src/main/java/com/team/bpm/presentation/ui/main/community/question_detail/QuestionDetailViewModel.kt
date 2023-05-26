@@ -62,10 +62,8 @@ class QuestionDetailViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             getCommentListUseCase(1).onEach { result ->
                 withContext(mainImmediateDispatcher) {
-                    result.comments?.let { comments ->
-                        _state.update {
-                            it.copy(commentList = comments)
-                        }
+                    _state.update {
+                        it.copy(commentList = result.comments, commentsCount = result.commentsCount ?: result.comments?.size)
                     }
                 }
             }.launchIn(viewModelScope + exceptionHandler)

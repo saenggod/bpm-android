@@ -4,17 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -27,11 +17,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Medium
+import androidx.compose.ui.text.font.FontWeight.Companion.Normal
+import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,11 +34,7 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
-import com.team.bpm.presentation.compose.theme.FilteredWhiteColor
-import com.team.bpm.presentation.compose.theme.GrayColor10
-import com.team.bpm.presentation.compose.theme.GrayColor13
-import com.team.bpm.presentation.compose.theme.GrayColor4
-import com.team.bpm.presentation.compose.theme.GrayColor5
+import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -126,7 +115,7 @@ private fun QuestionDetailActivityContent(
 
                             Text(
                                 text = question?.author?.nickname ?: "",
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = SemiBold,
                                 fontSize = 14.sp,
                                 letterSpacing = 0.sp
                             )
@@ -135,7 +124,7 @@ private fun QuestionDetailActivityContent(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = question?.createdAt?.dateOnly() ?: "",
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = Medium,
                                 fontSize = 13.sp,
                                 letterSpacing = 0.sp,
                                 color = GrayColor5
@@ -198,7 +187,7 @@ private fun QuestionDetailActivityContent(
                                 Text(
                                     modifier = Modifier.align(Alignment.Center),
                                     text = "${images.size}/${horizontalPagerState.currentPage + 1}",
-                                    fontWeight = FontWeight.Normal,
+                                    fontWeight = Normal,
                                     fontSize = 12.sp,
                                     letterSpacing = 2.sp
                                 )
@@ -217,9 +206,9 @@ private fun QuestionDetailActivityContent(
                         )
                         .fillMaxWidth(),
                     text = question?.content ?: "",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 13.sp,
-                    letterSpacing = 0.sp
+                    fontWeight = Normal,
+                fontSize = 13.sp,
+                letterSpacing = 0.sp
                 )
 
                 BPMSpacer(height = 8.dp)
@@ -234,9 +223,51 @@ private fun QuestionDetailActivityContent(
                 BPMSpacer(height = 28.dp)
 
                 Divider(
+                    thickness = 4.dp,
+                    color = GrayColor10
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(55.dp)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .align(CenterStart),
+                        text = "댓글 $commentsCount",
+                        fontSize = 16.sp,
+                        fontWeight = SemiBold,
+                        letterSpacing = 0.sp
+                    )
+                }
+
+                Divider(
                     thickness = 1.dp,
                     color = GrayColor10
                 )
+
+                commentList?.let {
+                    Column(
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                                vertical = 20.dp
+                            )
+                    ) {
+                        it.forEach { comment ->
+                            CommentComposable(
+                                comment = comment,
+                                onClickLike = {
+
+                                }
+                            )
+                        }
+                    }
+                } ?: run {
+                    LoadingBlock(modifier = Modifier.height(300.dp))
+                }
             }
 
             if (isLoading) {

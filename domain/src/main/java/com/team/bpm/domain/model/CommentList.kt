@@ -6,5 +6,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class CommentList(
     val comments: List<Comment>?,
-    val commentCount: Int?
+    val commentsCount: Int?
 ) : BaseModel

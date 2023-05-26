@@ -51,6 +51,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
+import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,6 +61,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.Review
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
@@ -753,6 +755,107 @@ inline fun ImagePlaceHolder(
                     painter = painterResource(id = R.drawable.ic_remove),
                     contentDescription = "removeImageIcon"
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+inline fun CommentComposable(
+    modifier: Modifier = Modifier,
+    comment: Comment,
+    crossinline onClickLike: () -> Unit
+) {
+    with(comment) {
+        Row(modifier = modifier.fillMaxWidth()) {
+            GlideImage(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(26.dp),
+                model = comment.author?.profilePath,
+                contentDescription = "authorImage",
+                contentScale = ContentScale.FillBounds
+            )
+
+            BPMSpacer(width = 8.dp)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 73.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(22.dp),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = SpaceBetween
+                ) {
+                    Row(verticalAlignment = CenterVertically) {
+                        Text(
+                            text = author?.nickname ?: "",
+                            fontWeight = SemiBold,
+                            fontSize = 12.sp,
+                            letterSpacing = 0.sp,
+                            color = GrayColor3
+                        )
+
+                        BPMSpacer(width = 4.dp)
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_dot),
+                            contentDescription = "dotIcon",
+                            tint = GrayColor3
+                        )
+
+                        BPMSpacer(width = 4.dp)
+
+                        Text(
+                            text = createdAt?.dateOnly() ?: "",
+                            fontWeight = SemiBold,
+                            fontSize = 12.sp,
+                            letterSpacing = 0.sp,
+                            color = GrayColor3
+                        )
+                    }
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_edit),
+                        contentDescription = "editIcon",
+                        tint = GrayColor4
+                    )
+                }
+
+                BPMSpacer(height = 5.dp)
+
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = body ?: "",
+                    fontWeight = Normal,
+                    fontSize = 13.sp,
+                    letterSpacing = 0.sp
+                )
+
+                BPMSpacer(height = 10.dp)
+
+                Row(verticalAlignment = CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_like),
+                        contentDescription = "likeIcon",
+                        tint = GrayColor8
+                    )
+
+                    BPMSpacer(width = 4.dp)
+
+                    Text(
+                        text = "2", // TODO : Will be modified
+                        fontWeight = Medium,
+                        fontSize = 13.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor1
+                    )
+                }
             }
         }
     }
