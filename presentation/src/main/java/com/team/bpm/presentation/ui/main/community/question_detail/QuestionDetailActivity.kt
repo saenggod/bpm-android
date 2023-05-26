@@ -318,7 +318,7 @@ private fun QuestionDetailActivityContent(
                                 )
                                 .size(20.dp)
                                 .align(TopEnd)
-                                .clickableWithoutRipple { },
+                                .clickableWithoutRipple { event.invoke(QuestionDetailContract.Event.OnClickSendComment(parentId = null, comment = commentTextFieldState.value)) },
                             painter = painterResource(id = R.drawable.ic_send_comment),
                             contentDescription = "sendIconButton",
                             tint = if (hasFocus) GrayColor2 else GrayColor5

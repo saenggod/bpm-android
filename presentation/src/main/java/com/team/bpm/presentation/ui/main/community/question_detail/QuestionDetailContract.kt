@@ -15,6 +15,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
     sealed interface Event {
         object GetQuestionDetail : Event
         object GetCommentList : Event
+        data class OnClickSendComment(val parentId: Int?, val comment: String) : Event
     }
 
     sealed interface Effect {

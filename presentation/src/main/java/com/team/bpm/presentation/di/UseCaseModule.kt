@@ -4,6 +4,7 @@ import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.post.GetPostDetailUseCase
 import com.team.bpm.domain.usecase.question.GetCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
+import com.team.bpm.domain.usecase.question.SendCommentUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
@@ -142,5 +143,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetCommentListUseCase(commentRepository: CommentRepository): GetCommentListUseCase {
         return GetCommentListUseCase(commentRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSendCommentUseCase(commentRepository: CommentRepository): SendCommentUseCase {
+        return SendCommentUseCase(commentRepository)
     }
 }

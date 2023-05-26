@@ -1,5 +1,6 @@
 package com.team.bpm.data.network
 
+import com.team.bpm.data.model.request.CommentRequest
 import com.team.bpm.data.model.request.ScheduleRequest
 import com.team.bpm.data.model.request.StudioRequest
 import com.team.bpm.data.model.request.UserVerificationRequest
@@ -115,4 +116,10 @@ interface MainApi {
     suspend fun fetchComments(
         @Path("questionBoardArticleId") questionId: Int
     ): Response<BPMResponseV2<CommentListResponse>>
+
+    @POST("api/community/question-board/{questionBoardArticleId}/comments")
+    suspend fun sendComment(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Body comment: CommentRequest
+    ): Response<BPMResponseV2<ResponseBody>>
 }

@@ -1,5 +1,6 @@
 package com.team.bpm.data.repositoryImpl
 
+import com.team.bpm.data.model.request.CommentRequest
 import com.team.bpm.data.model.response.CommentListResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
@@ -21,6 +22,16 @@ class CommentRepositoryImpl @Inject constructor(
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
+        }
+    }
+
+    override suspend fun sendComment(questionId: Int, parentId: Int?, comment: String): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendComment(questionId, CommentRequest(parentId, comment))
+            }.collect {
+                emit(Unit)
+            }
         }
     }
 }

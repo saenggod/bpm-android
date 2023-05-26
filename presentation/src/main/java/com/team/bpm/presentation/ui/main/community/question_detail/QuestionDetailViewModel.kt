@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.question.GetCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
+import com.team.bpm.domain.usecase.question.SendCommentUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ class QuestionDetailViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
     private val getCommentListUseCase: GetCommentListUseCase,
+    private val sendCommentUseCase: SendCommentUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), QuestionDetailContract {
 
@@ -33,6 +35,9 @@ class QuestionDetailViewModel @Inject constructor(
         }
         is QuestionDetailContract.Event.GetCommentList -> {
             getCommentList()
+        }
+        is QuestionDetailContract.Event.OnClickSendComment -> {
+            onClickSendComment(parentId = event.parentId, comment = event.comment)
         }
     }
 
@@ -65,6 +70,16 @@ class QuestionDetailViewModel @Inject constructor(
                     _state.update {
                         it.copy(commentList = result.comments, commentsCount = result.commentsCount ?: result.comments?.size)
                     }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
+    }
+
+    private fun onClickSendComment(parentId: Int?, comment: String) {
+        viewModelScope.launch(ioDispatcher) {
+            sendCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach { result ->
+                withContext(mainImmediateDispatcher) {
+
                 }
             }.launchIn(viewModelScope + exceptionHandler)
         }

@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface CommentRepository {
     suspend fun fetchCommentList(questionId: Int): Flow<CommentList>
+    suspend fun sendComment(questionId: Int, parentId: Int?, comment: String): Flow<Unit>
 }
