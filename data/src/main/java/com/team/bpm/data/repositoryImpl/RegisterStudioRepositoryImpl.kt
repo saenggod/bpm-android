@@ -7,17 +7,14 @@ import com.team.bpm.data.network.MainApi
 import com.team.bpm.domain.model.RegisterStudioWrapper
 import com.team.bpm.domain.repository.RegisterStudioRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import okhttp3.ResponseBody
 import javax.inject.Inject
 
 class RegisterStudioRepositoryImpl @Inject constructor(
     private val mainApi: MainApi,
     private val geocoder: Geocoder
 ) : RegisterStudioRepository {
-    override suspend fun sendStudio(registerStudioWrapper: RegisterStudioWrapper): Flow<ResponseBody> {
+    override suspend fun sendStudio(registerStudioWrapper: RegisterStudioWrapper): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 with(registerStudioWrapper) {
@@ -35,9 +32,9 @@ class RegisterStudioRepositoryImpl @Inject constructor(
                         )
                     )
                 }
-            }.onEach { result ->
-                result.response?.let { emit(it) }
-            }.collect()
+            }.collect {
+                emit(Unit)
+            }
         }
     }
 

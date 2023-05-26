@@ -163,9 +163,12 @@ class WritingReviewViewModel @Inject constructor(
                         rating = rating,
                         recommends = state.value.recommendKeywordMap.keys.toList(),
                         content = content
-                    ).onEach { result ->
+                    ).onEach {
                         withContext(mainImmediateDispatcher) {
-                            _state.update { it.copy(isLoading = false) }
+                            _state.update {
+                                it.copy(isLoading = false)
+                            }
+
                             _effect.emit(WritingReviewContract.Effect.ShowToast("리뷰를 작성하였습니다."))
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
