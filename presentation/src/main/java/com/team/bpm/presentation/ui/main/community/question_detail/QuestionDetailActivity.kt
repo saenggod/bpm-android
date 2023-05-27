@@ -76,6 +76,7 @@ private fun QuestionDetailActivityContent(
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val focusManager = LocalFocusManager.current
+    val commentTextFieldState = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         event.invoke(QuestionDetailContract.Event.GetQuestionDetail)
@@ -88,6 +89,13 @@ private fun QuestionDetailActivityContent(
                 is QuestionDetailContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
+                is QuestionDetailContract.Effect.OnCommentSent -> {
+                    commentTextFieldState.value = ""
+                    focusManager.clearFocus()
+                }
+                is QuestionDetailContract.Effect.GetCommentList -> {
+                    event.invoke(QuestionDetailContract.Event.GetCommentList)
+                }
             }
         }
     }
@@ -96,8 +104,8 @@ private fun QuestionDetailActivityContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
                 .imePadding()
+                .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
                 .addFocusCleaner(focusManager = focusManager)
         ) {
             val scrollState = rememberScrollState()
@@ -288,8 +296,6 @@ private fun QuestionDetailActivityContent(
                 }
             }
 
-            val commentTextFieldState = remember { mutableStateOf("") }
-
             Box(
                 modifier = Modifier
                     .align(BottomCenter)
@@ -318,7 +324,11 @@ private fun QuestionDetailActivityContent(
                                 )
                                 .size(20.dp)
                                 .align(TopEnd)
-                                .clickableWithoutRipple { event.invoke(QuestionDetailContract.Event.OnClickSendComment(parentId = null, comment = commentTextFieldState.value)) },
+                                .clickableWithoutRipple {
+                                    if (commentTextFieldState.value.isNotEmpty()) {
+                                        event.invoke(QuestionDetailContract.Event.OnClickSendComment(parentId = null, comment = commentTextFieldState.value))
+                                    }
+                                },
                             painter = painterResource(id = R.drawable.ic_send_comment),
                             contentDescription = "sendIconButton",
                             tint = if (hasFocus) GrayColor2 else GrayColor5

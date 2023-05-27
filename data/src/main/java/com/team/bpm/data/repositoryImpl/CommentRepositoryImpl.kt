@@ -2,8 +2,10 @@ package com.team.bpm.data.repositoryImpl
 
 import com.team.bpm.data.model.request.CommentRequest
 import com.team.bpm.data.model.response.CommentListResponse.Companion.toDataModel
+import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
 import com.team.bpm.domain.repository.CommentRepository
 import kotlinx.coroutines.flow.Flow
@@ -25,13 +27,13 @@ class CommentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendComment(questionId: Int, parentId: Int?, comment: String): Flow<Unit> {
+    override suspend fun sendComment(questionId: Int, parentId: Int?, comment: String): Flow<Comment> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendComment(questionId, CommentRequest(parentId, comment))
-            }.collect {
-                emit(Unit)
-            }
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
         }
     }
 }

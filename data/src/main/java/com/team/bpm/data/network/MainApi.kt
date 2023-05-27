@@ -97,7 +97,7 @@ interface MainApi {
         @Path("storyId") postId: Int
     ): Response<BPMResponseV2<PostResponse>>
 
-    @GET("api/community/question-board/{questionId}")
+    @GET("api/lounge/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int
     ): Response<BPMResponseV2<QuestionResponse>>
@@ -112,14 +112,14 @@ interface MainApi {
         @Path("studioId") studioId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
-    @GET("api/community/question-board/{questionBoardArticleId}/comments")
+    @GET("api/lounge/question-board/{questionBoardArticleId}/comments")
     suspend fun fetchComments(
         @Path("questionBoardArticleId") questionId: Int
     ): Response<BPMResponseV2<CommentListResponse>>
 
-    @POST("api/community/question-board/{questionBoardArticleId}/comments")
+    @POST("api/lounge/question-board/{questionBoardArticleId}/comments")
     suspend fun sendComment(
         @Path("questionBoardArticleId") questionId: Int,
         @Body comment: CommentRequest
-    ): Response<BPMResponseV2<ResponseBody>>
+    ): Response<BPMResponseV2<CommentResponse>>
 }

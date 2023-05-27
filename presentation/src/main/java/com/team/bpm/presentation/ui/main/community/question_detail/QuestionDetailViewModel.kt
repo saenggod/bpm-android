@@ -52,6 +52,12 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun getQuestionDetail() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+        }
+
         viewModelScope.launch(ioDispatcher) {
             getQuestionDetailUseCase(1).onEach { result ->
                 withContext(mainImmediateDispatcher) {
@@ -76,10 +82,21 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun onClickSendComment(parentId: Int?, comment: String) {
-        viewModelScope.launch(ioDispatcher) {
-            sendCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach { result ->
-                withContext(mainImmediateDispatcher) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+        }
 
+        viewModelScope.launch(ioDispatcher) {
+            sendCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach {
+                withContext(mainImmediateDispatcher) {
+                    _state.update {
+                        it.copy(isLoading = false)
+                    }
+
+                    _effect.emit(QuestionDetailContract.Effect.OnCommentSent)
+                    _effect.emit(QuestionDetailContract.Effect.GetCommentList)
                 }
             }.launchIn(viewModelScope + exceptionHandler)
         }
