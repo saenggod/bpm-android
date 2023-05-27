@@ -14,10 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterStart
@@ -26,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
@@ -48,6 +47,8 @@ import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class QuestionDetailActivity : BaseComponentActivityV2() {
@@ -92,8 +93,6 @@ private fun QuestionDetailActivityContent(
                 is QuestionDetailContract.Effect.OnCommentSent -> {
                     commentTextFieldState.value = ""
                     focusManager.clearFocus()
-                }
-                is QuestionDetailContract.Effect.GetCommentList -> {
                     event.invoke(QuestionDetailContract.Event.GetCommentList)
                 }
             }
@@ -282,13 +281,20 @@ private fun QuestionDetailActivityContent(
                                 vertical = 20.dp
                             )
                     ) {
+                        val redirectScrollPosition = remember { mutableStateOf(0) }
+
                         it.forEach { comment ->
                             CommentComposable(
+                                modifier = Modifier.onGloballyPositioned { if (redirectCommentId == comment.id) { redirectScrollPosition.value = it.positionInRoot().y.roundToInt() } },
                                 comment = comment,
                                 onClickLike = {
 
                                 }
                             )
+                        }
+
+                        LaunchedEffect(commentList) {
+                            scrollState.animateScrollTo(redirectScrollPosition.value)
                         }
                     }
                 } ?: run {

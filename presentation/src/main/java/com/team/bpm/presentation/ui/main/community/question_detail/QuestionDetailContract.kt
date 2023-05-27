@@ -10,6 +10,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val question: Question? = null,
         val commentList: List<Comment>? = null,
         val commentsCount: Int? = 0,
+        val redirectCommentId: Int? = null
     )
 
     sealed interface Event {
@@ -20,7 +21,6 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
-        object GetCommentList : Effect
         object OnCommentSent : Effect
     }
 }

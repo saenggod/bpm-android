@@ -89,14 +89,13 @@ class QuestionDetailViewModel @Inject constructor(
         }
 
         viewModelScope.launch(ioDispatcher) {
-            sendCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach {
+            sendCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach { result ->
                 withContext(mainImmediateDispatcher) {
                     _state.update {
-                        it.copy(isLoading = false)
+                        it.copy(isLoading = false, redirectCommentId = result.id)
                     }
 
                     _effect.emit(QuestionDetailContract.Effect.OnCommentSent)
-                    _effect.emit(QuestionDetailContract.Effect.GetCommentList)
                 }
             }.launchIn(viewModelScope + exceptionHandler)
         }
