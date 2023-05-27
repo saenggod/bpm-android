@@ -11,16 +11,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -47,7 +51,6 @@ import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
@@ -69,7 +72,7 @@ class QuestionDetailActivity : BaseComponentActivityV2() {
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 private fun QuestionDetailActivityContent(
     viewModel: QuestionDetailViewModel = hiltViewModel()
@@ -77,7 +80,10 @@ private fun QuestionDetailActivityContent(
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val commentTextFieldState = remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         event.invoke(QuestionDetailContract.Event.GetQuestionDetail)
@@ -95,257 +101,362 @@ private fun QuestionDetailActivityContent(
                     focusManager.clearFocus()
                     event.invoke(QuestionDetailContract.Event.GetCommentList)
                 }
+                is QuestionDetailContract.Effect.ExpandBottomSheet -> {
+                    bottomSheetState.show()
+                }
+                is QuestionDetailContract.Effect.ShowKeyboard -> {
+                    bottomSheetState.hide()
+                    focusRequester.requestFocus()
+                }
             }
         }
     }
 
     with(state) {
-        Box(
+        ModalBottomSheetLayout(
             modifier = Modifier
-                .fillMaxSize()
                 .imePadding()
                 .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
-                .addFocusCleaner(focusManager = focusManager)
-        ) {
-            val scrollState = rememberScrollState()
+                .addFocusCleaner(focusManager = focusManager),
+            sheetState = bottomSheetState,
+            sheetBackgroundColor = Transparent,
+            sheetContent = {
+                Column(
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 12.dp,
+                                topEnd = 12.dp
+                            )
+                        )
+                        .fillMaxWidth()
+                        .height(136.dp)
+                        .background(Color.White)
+                ) {
+                    BPMSpacer(height = 8.dp)
 
-            Column(
-                modifier = Modifier
-                    .padding(bottom = 54.dp)
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-            ) {
-                ScreenHeader(header = "커뮤니티")
-
-                Column(modifier = Modifier.height(56.dp)) {
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
+                            .align(CenterHorizontally)
+                            .clip(RoundedCornerShape(30.dp))
+                            .background(GrayColor4)
+                            .width(56.dp)
+                            .height(4.dp)
+                    )
+
+                    BPMSpacer(height = 16.dp)
+
+                    Box(
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .height(55.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .height(54.dp)
+                            .clickableWithoutRipple { event.invoke(QuestionDetailContract.Event.OnClickWriteCommentOnComment) }
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            GlideImage(
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .align(CenterStart),
+                            text = "대댓글 달기",
+                            fontWeight = Medium,
+                            fontSize = 14.sp,
+                            letterSpacing = 0.sp
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(54.dp)
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .align(CenterStart),
+                            text = "신고하기",
+                            fontWeight = Medium,
+                            fontSize = 14.sp,
+                            letterSpacing = 0.sp
+                        )
+                    }
+                }
+            }
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .padding(bottom = 54.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                ) {
+                    ScreenHeader(header = "커뮤니티")
+
+                    Column(modifier = Modifier.height(56.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth()
+                                .height(55.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                GlideImage(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .size(24.dp),
+                                    model = question?.author?.profilePath,
+                                    contentScale = ContentScale.FillBounds,
+                                    contentDescription = "authorImage"
+                                )
+
+                                BPMSpacer(width = 8.dp)
+
+                                Text(
+                                    text = question?.author?.nickname ?: "",
+                                    fontWeight = SemiBold,
+                                    fontSize = 14.sp,
+                                    letterSpacing = 0.sp
+                                )
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = question?.createdAt?.dateOnly() ?: "",
+                                    fontWeight = Medium,
+                                    fontSize = 13.sp,
+                                    letterSpacing = 0.sp,
+                                    color = GrayColor5
+                                )
+
+                                BPMSpacer(width = 8.dp)
+
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_edit),
+                                    contentDescription = "editIcon",
+                                    tint = GrayColor4
+                                )
+                            }
+                        }
+
+                        Divider(
+                            thickness = 1.dp,
+                            color = GrayColor13
+                        )
+                    }
+
+                    question?.filesPath?.let { images ->
+                        if (images.isNotEmpty()) {
+                            Box(
                                 modifier = Modifier
-                                    .clip(CircleShape)
-                                    .size(24.dp),
-                                model = question?.author?.profilePath,
-                                contentScale = ContentScale.FillBounds,
-                                contentDescription = "authorImage"
-                            )
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                            ) {
+                                val horizontalPagerState = rememberPagerState()
 
-                            BPMSpacer(width = 8.dp)
+                                HorizontalPager(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f),
+                                    state = horizontalPagerState,
+                                    pageCount = images.size
+                                ) { index ->
+                                    GlideImage(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(1f),
+                                        model = images[index],
+                                        contentDescription = "postImage",
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
 
-                            Text(
-                                text = question?.author?.nickname ?: "",
-                                fontWeight = SemiBold,
-                                fontSize = 14.sp,
-                                letterSpacing = 0.sp
-                            )
+                                Box(
+                                    modifier = Modifier
+                                        .padding(
+                                            start = 16.dp,
+                                            bottom = 16.dp
+                                        )
+                                        .clip(RoundedCornerShape(40.dp))
+                                        .width(42.dp)
+                                        .height(25.dp)
+                                        .background(color = FilteredWhiteColor)
+                                        .align(Alignment.BottomStart)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        text = "${images.size}/${horizontalPagerState.currentPage + 1}",
+                                        fontWeight = Normal,
+                                        fontSize = 12.sp,
+                                        letterSpacing = 2.sp
+                                    )
+                                }
+                            }
                         }
+                    }
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = question?.createdAt?.dateOnly() ?: "",
-                                fontWeight = Medium,
-                                fontSize = 13.sp,
-                                letterSpacing = 0.sp,
-                                color = GrayColor5
+                    Text(
+                        modifier = Modifier
+                            .padding(
+                                top = 20.dp,
+                                start = 20.dp,
+                                end = 20.dp,
+                                bottom = 16.dp
                             )
+                            .fillMaxWidth(),
+                        text = question?.content ?: "",
+                        fontWeight = Normal,
+                        fontSize = 13.sp,
+                        letterSpacing = 0.sp
+                    )
 
-                            BPMSpacer(width = 8.dp)
+                    BPMSpacer(height = 8.dp)
 
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_edit),
-                                contentDescription = "editIcon",
-                                tint = GrayColor4
-                            )
-                        }
+                    LikeButton(
+                        modifier = Modifier.padding(start = 20.dp),
+                        liked = false,
+                        likeCount = 0,
+                        onClick = {}
+                    )
+
+                    BPMSpacer(height = 28.dp)
+
+                    Divider(
+                        thickness = 4.dp,
+                        color = GrayColor10
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp)
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .align(CenterStart),
+                            text = "댓글 $commentsCount",
+                            fontSize = 16.sp,
+                            fontWeight = SemiBold,
+                            letterSpacing = 0.sp
+                        )
                     }
 
                     Divider(
                         thickness = 1.dp,
-                        color = GrayColor13
+                        color = GrayColor10
                     )
-                }
 
-                question?.filesPath?.let { images ->
-                    if (images.isNotEmpty()) {
-                        Box(
+                    commentList?.let {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1f)
-                        ) {
-                            val horizontalPagerState = rememberPagerState()
-
-                            HorizontalPager(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f),
-                                state = horizontalPagerState,
-                                pageCount = images.size
-                            ) { index ->
-                                GlideImage(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f),
-                                    model = images[index],
-                                    contentDescription = "postImage",
-                                    contentScale = ContentScale.Crop
+                                .padding(
+                                    horizontal = 16.dp,
+                                    vertical = 20.dp
                                 )
+                        ) {
+                            val redirectCommentScrollPosition = remember { mutableStateOf(0) }
+
+                            it.forEach { comment ->
+                                CommentComposable(
+                                    modifier = Modifier
+                                        .onGloballyPositioned {
+                                            if (redirectCommentId == comment.id) {
+                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
+                                            }
+                                        }
+                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
+                                    comment = comment,
+                                    onClickLike = {},
+                                    onClickActionButton = {
+                                        focusManager.clearFocus()
+                                        comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId)) }
+                                    }
+                                )
+
+                                BPMSpacer(height = 22.dp)
+
+                                comment.children?.let { children ->
+                                    if (children.isNotEmpty()) {
+                                        children.forEach { childComment ->
+                                            CommentComposable(
+                                                modifier = Modifier
+                                                    .padding(start = 30.dp)
+                                                    .onGloballyPositioned {
+                                                        if (redirectCommentId == childComment.id) {
+                                                            redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
+                                                        }
+                                                    }
+                                                    .background(color = if (parentCommentId == childComment.id) HighlightColor else Color.White),
+                                                comment = childComment,
+                                                onClickLike = {},
+                                                onClickActionButton = {
+                                                    focusManager.clearFocus()
+                                                    childComment.id?.let { childCommentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(childCommentId)) }
+                                                }
+                                            )
+
+                                            BPMSpacer(height = 22.dp)
+                                        }
+                                    }
+                                }
                             }
 
-                            Box(
-                                modifier = Modifier
-                                    .padding(
-                                        start = 16.dp,
-                                        bottom = 16.dp
-                                    )
-                                    .clip(RoundedCornerShape(40.dp))
-                                    .width(42.dp)
-                                    .height(25.dp)
-                                    .background(color = FilteredWhiteColor)
-                                    .align(Alignment.BottomStart)
-                            ) {
-                                Text(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    text = "${images.size}/${horizontalPagerState.currentPage + 1}",
-                                    fontWeight = Normal,
-                                    fontSize = 12.sp,
-                                    letterSpacing = 2.sp
-                                )
+                            LaunchedEffect(commentList) {
+                                scrollState.animateScrollTo(redirectCommentScrollPosition.value)
                             }
                         }
+                    } ?: run {
+                        LoadingBlock(modifier = Modifier.height(300.dp))
                     }
                 }
-
-                Text(
-                    modifier = Modifier
-                        .padding(
-                            top = 20.dp,
-                            start = 20.dp,
-                            end = 20.dp,
-                            bottom = 16.dp
-                        )
-                        .fillMaxWidth(),
-                    text = question?.content ?: "",
-                    fontWeight = Normal,
-                    fontSize = 13.sp,
-                    letterSpacing = 0.sp
-                )
-
-                BPMSpacer(height = 8.dp)
-
-                LikeButton(
-                    modifier = Modifier.padding(start = 20.dp),
-                    liked = false,
-                    likeCount = 0,
-                    onClick = {}
-                )
-
-                BPMSpacer(height = 28.dp)
-
-                Divider(
-                    thickness = 4.dp,
-                    color = GrayColor10
-                )
 
                 Box(
                     modifier = Modifier
+                        .align(BottomCenter)
                         .fillMaxWidth()
-                        .height(55.dp)
+                        .heightIn(min = 54.dp)
+                        .background(color = Color.White)
                 ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .align(CenterStart),
-                        text = "댓글 $commentsCount",
-                        fontSize = 16.sp,
-                        fontWeight = SemiBold,
-                        letterSpacing = 0.sp
-                    )
-                }
-
-                Divider(
-                    thickness = 1.dp,
-                    color = GrayColor10
-                )
-
-                commentList?.let {
-                    Column(
+                    BPMTextField(
                         modifier = Modifier
                             .padding(
                                 horizontal = 16.dp,
-                                vertical = 20.dp
+                                vertical = 10.dp
                             )
-                    ) {
-                        val redirectScrollPosition = remember { mutableStateOf(0) }
-
-                        it.forEach { comment ->
-                            CommentComposable(
-                                modifier = Modifier.onGloballyPositioned { if (redirectCommentId == comment.id) { redirectScrollPosition.value = it.positionInRoot().y.roundToInt() } },
-                                comment = comment,
-                                onClickLike = {
-
-                                }
+                            .focusRequester(focusRequester),
+                        textState = commentTextFieldState,
+                        label = null,
+                        limit = null,
+                        radius = 8.dp,
+                        minHeight = 34.dp,
+                        singleLine = true,
+                        hint = "댓글을 입력해보세요",
+                        icon = { hasFocus ->
+                            Icon(
+                                modifier = Modifier
+                                    .padding(
+                                        top = 12.dp,
+                                        end = 16.dp
+                                    )
+                                    .size(20.dp)
+                                    .align(TopEnd)
+                                    .clickableWithoutRipple {
+                                        if (commentTextFieldState.value.isNotEmpty()) {
+                                            event.invoke(QuestionDetailContract.Event.OnClickSendComment(parentId = parentCommentId, comment = commentTextFieldState.value))
+                                        }
+                                    },
+                                painter = painterResource(id = R.drawable.ic_send_comment),
+                                contentDescription = "sendIconButton",
+                                tint = if (hasFocus) GrayColor2 else GrayColor5
                             )
-                        }
-
-                        LaunchedEffect(commentList) {
-                            scrollState.animateScrollTo(redirectScrollPosition.value)
-                        }
-                    }
-                } ?: run {
-                    LoadingBlock(modifier = Modifier.height(300.dp))
+                        },
+                        iconSize = 20.dp
+                    )
                 }
-            }
 
-            Box(
-                modifier = Modifier
-                    .align(BottomCenter)
-                    .fillMaxWidth()
-                    .heightIn(min = 54.dp)
-                    .background(color = Color.White)
-            ) {
-                BPMTextField(
-                    modifier = Modifier.padding(
-                        horizontal = 16.dp,
-                        vertical = 10.dp
-                    ),
-                    textState = commentTextFieldState,
-                    label = null,
-                    limit = null,
-                    radius = 8.dp,
-                    minHeight = 34.dp,
-                    singleLine = true,
-                    hint = "댓글을 입력해보세요",
-                    icon = { hasFocus ->
-                        Icon(
-                            modifier = Modifier
-                                .padding(
-                                    top = 12.dp,
-                                    end = 16.dp
-                                )
-                                .size(20.dp)
-                                .align(TopEnd)
-                                .clickableWithoutRipple {
-                                    if (commentTextFieldState.value.isNotEmpty()) {
-                                        event.invoke(QuestionDetailContract.Event.OnClickSendComment(parentId = null, comment = commentTextFieldState.value))
-                                    }
-                                },
-                            painter = painterResource(id = R.drawable.ic_send_comment),
-                            contentDescription = "sendIconButton",
-                            tint = if (hasFocus) GrayColor2 else GrayColor5
-                        )
-                    },
-                    iconSize = 20.dp
-                )
-            }
-
-            if (isLoading) {
-                LoadingScreen()
+                if (isLoading) {
+                    LoadingScreen()
+                }
             }
         }
     }

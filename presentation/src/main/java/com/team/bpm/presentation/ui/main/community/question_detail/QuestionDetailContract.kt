@@ -10,17 +10,23 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val question: Question? = null,
         val commentList: List<Comment>? = null,
         val commentsCount: Int? = 0,
-        val redirectCommentId: Int? = null
+        val redirectCommentId: Int? = null,
+        val selectedCommentId: Int? = null,
+        val parentCommentId: Int? = null
     )
 
     sealed interface Event {
         object GetQuestionDetail : Event
         object GetCommentList : Event
         data class OnClickSendComment(val parentId: Int?, val comment: String) : Event
+        data class OnClickCommentActionButton(val commentId: Int) : Event
+        object OnClickWriteCommentOnComment : Event
     }
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
         object OnCommentSent : Effect
+        object ExpandBottomSheet : Effect
+        object ShowKeyboard : Effect
     }
 }

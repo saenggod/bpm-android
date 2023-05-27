@@ -767,7 +767,8 @@ inline fun ImagePlaceHolder(
 inline fun CommentComposable(
     modifier: Modifier = Modifier,
     comment: Comment,
-    crossinline onClickLike: () -> Unit
+    crossinline onClickLike: () -> Unit,
+    crossinline onClickActionButton: () -> Unit
 ) {
     with(comment) {
         Row(modifier = modifier.fillMaxWidth()) {
@@ -823,6 +824,7 @@ inline fun CommentComposable(
                     }
 
                     Icon(
+                        modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
                         painter = painterResource(id = R.drawable.ic_edit),
                         contentDescription = "editIcon",
                         tint = GrayColor4

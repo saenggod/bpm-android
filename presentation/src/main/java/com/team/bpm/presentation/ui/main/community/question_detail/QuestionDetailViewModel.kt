@@ -39,6 +39,12 @@ class QuestionDetailViewModel @Inject constructor(
         is QuestionDetailContract.Event.OnClickSendComment -> {
             onClickSendComment(parentId = event.parentId, comment = event.comment)
         }
+        is QuestionDetailContract.Event.OnClickCommentActionButton -> {
+            onClickCommentActionButton(event.commentId)
+        }
+        is QuestionDetailContract.Event.OnClickWriteCommentOnComment -> {
+            onClickWriteCommentOnComment()
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -92,12 +98,32 @@ class QuestionDetailViewModel @Inject constructor(
             sendCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach { result ->
                 withContext(mainImmediateDispatcher) {
                     _state.update {
-                        it.copy(isLoading = false, redirectCommentId = result.id)
+                        it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)
                     }
 
                     _effect.emit(QuestionDetailContract.Effect.OnCommentSent)
                 }
             }.launchIn(viewModelScope + exceptionHandler)
+        }
+    }
+
+    private fun onClickCommentActionButton(commentId: Int) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(selectedCommentId = commentId)
+            }
+
+            _effect.emit(QuestionDetailContract.Effect.ExpandBottomSheet)
+        }
+    }
+
+    private fun onClickWriteCommentOnComment() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(parentCommentId = state.value.selectedCommentId)
+            }
+
+            _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
         }
     }
 }
