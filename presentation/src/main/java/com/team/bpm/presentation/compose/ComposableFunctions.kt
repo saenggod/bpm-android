@@ -767,11 +767,21 @@ inline fun ImagePlaceHolder(
 inline fun CommentComposable(
     modifier: Modifier = Modifier,
     comment: Comment,
+    isChildComment: Boolean,
     crossinline onClickLike: () -> Unit,
     crossinline onClickActionButton: () -> Unit
 ) {
     with(comment) {
         Row(modifier = modifier.fillMaxWidth()) {
+            if (isChildComment) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_child_comment),
+                    contentDescription = "childCommentIcon",
+                tint = GrayColor7)
+
+                BPMSpacer(width = 12.dp)
+            }
+
             GlideImage(
                 modifier = Modifier
                     .clip(CircleShape)

@@ -25,7 +25,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
-        object OnCommentSent : Effect
+        object RefreshCommentList : Effect
         object ExpandBottomSheet : Effect
         object ShowKeyboard : Effect
     }

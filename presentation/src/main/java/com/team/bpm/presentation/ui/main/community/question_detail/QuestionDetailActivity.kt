@@ -96,7 +96,7 @@ private fun QuestionDetailActivityContent(
                 is QuestionDetailContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
-                is QuestionDetailContract.Effect.OnCommentSent -> {
+                is QuestionDetailContract.Effect.RefreshCommentList -> {
                     commentTextFieldState.value = ""
                     focusManager.clearFocus()
                     event.invoke(QuestionDetailContract.Event.GetCommentList)
@@ -366,6 +366,7 @@ private fun QuestionDetailActivityContent(
                                         }
                                         .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
                                     comment = comment,
+                                    isChildComment = false,
                                     onClickLike = {},
                                     onClickActionButton = {
                                         focusManager.clearFocus()
@@ -380,7 +381,6 @@ private fun QuestionDetailActivityContent(
                                         children.forEach { childComment ->
                                             CommentComposable(
                                                 modifier = Modifier
-                                                    .padding(start = 30.dp)
                                                     .onGloballyPositioned {
                                                         if (redirectCommentId == childComment.id) {
                                                             redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
@@ -388,10 +388,11 @@ private fun QuestionDetailActivityContent(
                                                     }
                                                     .background(color = if (parentCommentId == childComment.id) HighlightColor else Color.White),
                                                 comment = childComment,
+                                                isChildComment = true,
                                                 onClickLike = {},
                                                 onClickActionButton = {
                                                     focusManager.clearFocus()
-                                                    childComment.id?.let { childCommentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(childCommentId)) }
+                                                    comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId)) }
                                                 }
                                             )
 

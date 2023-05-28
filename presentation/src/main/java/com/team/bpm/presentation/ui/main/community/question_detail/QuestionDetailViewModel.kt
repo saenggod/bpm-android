@@ -101,7 +101,7 @@ class QuestionDetailViewModel @Inject constructor(
                         it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)
                     }
 
-                    _effect.emit(QuestionDetailContract.Effect.OnCommentSent)
+                    _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
                 }
             }.launchIn(viewModelScope + exceptionHandler)
         }
