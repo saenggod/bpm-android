@@ -6,6 +6,7 @@
     <color name="red">#FF2E00</color>
     <color name="green">#ABFF0F</color>
     <color name="green_B2FF0E">#B2FF0E</color>
+    <color name="green_A8FF0F">#A8FF0F</color>
 
     <color name="gray_filter">#AAE6E6E7</color>
     <color name="gray_01">#171717</color>
@@ -22,5 +23,7 @@
     <color name="gray_12">#F4F6F6</color>
     <color name="gray_13">#F5F6F6</color>
     <color name="gray_14">#EEEEEE</color>
+
+    <color name="gray_F5F6F6">#F5F6F6</color>
 
 </resources>

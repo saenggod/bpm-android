@@ -87,4 +87,12 @@ object RepositoryModule {
     fun provideEyeBodyRepository(mainApi: MainApi): EyeBodyRepository {
         return EyeBodyRepositoryImpl(mainApi)
     }
+
+    @Singleton
+    @Provides
+    fun provideMyPageRepository(
+        dataStoreManager: DataStoreManager
+    ): MyPageRepository {
+        return MyPageRepositoryImpl(dataStoreManager)
+    }
 }

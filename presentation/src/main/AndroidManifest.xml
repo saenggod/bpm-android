@@ -117,8 +117,14 @@
             android:name=".ui.main.community.eye_body_posting.EyeBodyPostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Bpm.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize" 
+            android:theme="@style/Theme.Bpm.NoActionBar" />
+            
+        <activity
+            android:name=".ui.main.mypage.starttab.MyPageStartTabActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Bpm.NoActionBar" />
 
         <activity
             android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"

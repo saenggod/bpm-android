@@ -38,6 +38,7 @@
             android:layout_height="42dp"
             android:layout_marginStart="4dp"
             android:padding="8dp"
+            android:id="@+id/back"
             android:src="@drawable/ic_arrow_back"
             android:visibility="@{backEnable ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"

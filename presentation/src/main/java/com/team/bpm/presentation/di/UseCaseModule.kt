@@ -3,7 +3,20 @@ package com.team.bpm.presentation.di
 import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
-import com.team.bpm.domain.usecase.question.*
+import com.team.bpm.domain.usecase.question.DeleteQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
+import com.team.bpm.domain.usecase.mypage.GetMainTabIndexUseCase
+import com.team.bpm.domain.usecase.mypage.SetMainTabIndexUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
+import com.team.bpm.domain.usecase.question.WriteQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.WriteQuestionUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.*
@@ -317,5 +330,21 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideWriteEyeBodyUseCase(eyeBodyRepository: EyeBodyRepository): WriteEyeBodyUseCase {
         return WriteEyeBodyUseCase(eyeBodyRepository)
+    }
+    
+     /*
+    마이페이지
+     */
+
+    @Provides
+    @ViewModelScoped
+    fun provideSetMainTabIndexUseCase(myPageRepository: MyPageRepository): SetMainTabIndexUseCase {
+        return SetMainTabIndexUseCase(myPageRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetMainTabIndexUseCase(myPageRepository: MyPageRepository): GetMainTabIndexUseCase {
+        return GetMainTabIndexUseCase(myPageRepository)
     }
 }
