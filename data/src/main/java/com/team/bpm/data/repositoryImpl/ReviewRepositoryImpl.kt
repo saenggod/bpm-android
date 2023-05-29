@@ -44,7 +44,7 @@ class ReviewRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun likeReview(
+    override suspend fun sendReviewLike(
         studioId: Int,
         reviewId: Int
     ): Flow<Unit> {
@@ -60,7 +60,7 @@ class ReviewRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun dislikeReview(
+    override suspend fun deleteReviewLike(
         studioId: Int,
         reviewId: Int)
     : Flow<Unit> {

@@ -1,5 +1,6 @@
 package com.team.bpm.data.network
 
+import com.team.bpm.data.model.request.CommentRequest
 import com.team.bpm.data.model.request.ScheduleRequest
 import com.team.bpm.data.model.request.StudioRequest
 import com.team.bpm.data.model.request.UserVerificationRequest
@@ -96,7 +97,7 @@ interface MainApi {
         @Path("storyId") postId: Int
     ): Response<BPMResponseV2<PostResponse>>
 
-    @GET("api/community/question-board/{questionId}")
+    @GET("api/lounge/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int
     ): Response<BPMResponseV2<QuestionResponse>>
@@ -110,4 +111,37 @@ interface MainApi {
     suspend fun deleteScrap(
         @Path("studioId") studioId: Int
     ): Response<BPMResponseV2<ResponseBody>>
+
+    @GET("api/lounge/question-board/{questionBoardArticleId}/comments")
+    suspend fun fetchComments(
+        @Path("questionBoardArticleId") questionId: Int
+    ): Response<BPMResponseV2<CommentListResponse>>
+
+    @POST("api/lounge/question-board/{questionBoardArticleId}/comments")
+    suspend fun sendComment(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Body comment: CommentRequest
+    ): Response<BPMResponseV2<CommentResponse>>
+
+    @POST("api/lounge/question-board/{questionBoardArticleId}/favorite")
+    suspend fun sendQuestionLike(
+        @Path("questionBoardArticleId") questionId: Int
+    ): Response<BPMResponseV2<Unit>>
+
+    @DELETE("api/lounge/question-board/{questionBoardArticleId}/favorite")
+    suspend fun deleteQuestionLike(
+        @Path("questionBoardArticleId") questionId: Int
+    ): Response<BPMResponseV2<Unit>>
+
+    @POST("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}/favorite")
+    suspend fun sendQuestionCommentLike(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<Unit>>
+
+    @DELETE("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}/favorite")
+    suspend fun deleteQuestionCommentLike(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<Unit>>
 }

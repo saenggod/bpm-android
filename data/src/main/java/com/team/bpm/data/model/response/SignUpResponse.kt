@@ -9,13 +9,13 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class SignUpResponse(
     @SerializedName(value = "nickname")
-    val nickname: String,
+    val nickname: String?,
     @SerializedName(value = "bio")
-    val bio: String,
+    val bio: String?,
     @SerializedName(value = "token")
-    val token: String,
+    val token: String?,
     @SerializedName(value = "image")
-    val image: String
+    val image: String?
 ) : BaseResponse {
 
     companion object : DataMapper<SignUpResponse, UserInfo> {

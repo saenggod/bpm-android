@@ -11,6 +11,7 @@ val MainBlackColor = Color(0xFF1B1B1B)
 val MainGreenColor = Color(0xFFA8FF0F)
 val SubGreenColor = Color(0xFFB2FF0E)
 val PointRedColor = Color(0xFFFF2E00)
+val HighlightColor = Color(0x26A8FF0F)
 
 val GrayColor0 = Color(0xFF171717)
 val GrayColor1 = Color(0xFF292929)

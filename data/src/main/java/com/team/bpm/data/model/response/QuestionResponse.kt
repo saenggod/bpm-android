@@ -14,7 +14,7 @@ data class QuestionResponse(
     @SerializedName(value = "slug")
     val slug: String?,
     @SerializedName(value = "content")
-    val content: String,
+    val content: String?,
     @SerializedName(value = "filesPath")
     val filesPath: List<String>?,
     @SerializedName(value = "author")

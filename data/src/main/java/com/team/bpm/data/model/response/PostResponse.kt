@@ -12,7 +12,7 @@ data class PostResponse(
     @SerializedName(value = "id")
     val id: Int?,
     @SerializedName(value = "content")
-    val content: String,
+    val content: String?,
     @SerializedName(value = "filesPath")
     val filesPath: List<String>?,
     @SerializedName(value = "author")

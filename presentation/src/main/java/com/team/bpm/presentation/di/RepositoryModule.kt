@@ -113,4 +113,12 @@ object RepositoryModule {
     ): ScrapRepository {
         return ScrapRepositoryImpl(mainApi)
     }
+
+    @Singleton
+    @Provides
+    fun provideCommentRepository(
+        mainApi: MainApi
+    ): CommentRepository {
+        return CommentRepositoryImpl(mainApi)
+    }
 }

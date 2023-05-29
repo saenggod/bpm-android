@@ -23,4 +23,44 @@ class QuestionRepositoryImpl @Inject constructor(
             }.collect()
         }
     }
+
+    override suspend fun sendQuestionLike(questionId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendQuestionLike(questionId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun deleteQuestionLike(questionId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteQuestionLike(questionId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun sendQuestionCommentLike(questionId: Int, commentId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendQuestionCommentLike(questionId, commentId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun deleteQuestionCommentLike(questionId: Int, commentId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteQuestionCommentLike(questionId, commentId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
 }

@@ -2,7 +2,13 @@ package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.post.GetPostDetailUseCase
+import com.team.bpm.domain.usecase.question.GetCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
+import com.team.bpm.domain.usecase.question.SendCommentUseCase
+import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.like.DislikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.like.LikeQuestionUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
@@ -135,5 +141,41 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideScrapCancelUseCase(scrapRepository: ScrapRepository): ScrapCancelUseCase {
         return ScrapCancelUseCase(scrapRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetCommentListUseCase(commentRepository: CommentRepository): GetCommentListUseCase {
+        return GetCommentListUseCase(commentRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSendCommentUseCase(commentRepository: CommentRepository): SendCommentUseCase {
+        return SendCommentUseCase(commentRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideLikeQuestionUseCase(questionRepository: QuestionRepository): LikeQuestionUseCase {
+        return LikeQuestionUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideDislikeQuestionUseCase(questionRepository: QuestionRepository): DislikeQuestionUseCase {
+        return DislikeQuestionUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideLikeQuestionCommentUseCase(questionRepository: QuestionRepository): LikeQuestionCommentUseCase {
+        return LikeQuestionCommentUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideDislikeQuestionCommentUseCase(questionRepository: QuestionRepository): DislikeQuestionCommentUseCase {
+        return DislikeQuestionCommentUseCase(questionRepository)
     }
 }

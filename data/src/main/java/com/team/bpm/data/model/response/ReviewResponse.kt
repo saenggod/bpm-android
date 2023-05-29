@@ -23,7 +23,7 @@ data class ReviewResponse(
     @SerializedName(value = "filesPath")
     val filesPath: List<String>?,
     @SerializedName(value = "content")
-    val content: String,
+    val content: String?,
     @SerializedName(value = "likeCount")
     val likeCount: Int?,
     @SerializedName(value = "createdAt")

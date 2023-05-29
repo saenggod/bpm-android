@@ -8,6 +8,6 @@ class LikeReviewUseCase @Inject constructor(
     private val reviewRepository: ReviewRepository
 ) {
     suspend operator fun invoke(studioId: Int, reviewId: Int): Flow<Unit> {
-        return reviewRepository.likeReview(studioId, reviewId)
+        return reviewRepository.sendReviewLike(studioId, reviewId)
     }
 }

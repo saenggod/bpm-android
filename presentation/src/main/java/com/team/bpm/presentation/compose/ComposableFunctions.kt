@@ -51,6 +51,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
+import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,6 +61,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.Review
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
@@ -211,6 +213,7 @@ fun BPMTextField(
     textState: MutableState<String>,
     label: String?,
     limit: Int?,
+    radius: Dp = 12.dp,
     minHeight: Dp = 40.dp,
     iconSize: Dp = 0.dp,
     singleLine: Boolean,
@@ -221,7 +224,7 @@ fun BPMTextField(
     errorMessage: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    icon: @Composable (BoxScope.() -> Unit)? = null
+    icon: @Composable (BoxScope.(Boolean) -> Unit)? = null
 ) {
     Column(modifier = modifier.background(color = Color.White)) {
         if (label != null || limit != null) {
@@ -264,7 +267,7 @@ fun BPMTextField(
                 .heightIn(min = minHeight)
                 .border(
                     width = 1.dp,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(radius),
                     color = if (hasFocus.value) GrayColor1 else GrayColor6
                 )
                 .clickableWithoutRipple { onClick?.invoke() }
@@ -287,7 +290,7 @@ fun BPMTextField(
             }
 
             if (icon != null) {
-                icon()
+                icon(hasFocus.value)
             }
 
             if (onClick == null) {
@@ -295,9 +298,10 @@ fun BPMTextField(
                     BasicTextField(
                         modifier = Modifier
                             .padding(
-                                horizontal = 14.dp,
-                                vertical = 12.dp
+                                start = 14.dp,
+                                end = if (icon == null) 14.dp else 20.dp + iconSize,
                             )
+                            .padding(vertical = 12.dp)
                             .fillMaxWidth()
                             .heightIn(min = minHeight - 24.dp)
                             .align(Center)
@@ -753,6 +757,122 @@ inline fun ImagePlaceHolder(
                     painter = painterResource(id = R.drawable.ic_remove),
                     contentDescription = "removeImageIcon"
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+inline fun CommentComposable(
+    modifier: Modifier = Modifier,
+    comment: Comment,
+    crossinline onClickLike: () -> Unit,
+    crossinline onClickActionButton: () -> Unit
+) {
+    with(comment) {
+        Row(modifier = modifier.fillMaxWidth()) {
+            if (comment.parentId != null) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_child_comment),
+                    contentDescription = "childCommentIcon",
+                    tint = GrayColor7
+                )
+
+                BPMSpacer(width = 12.dp)
+            }
+
+            GlideImage(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(26.dp),
+                model = comment.author?.profilePath,
+                contentDescription = "authorImage",
+                contentScale = ContentScale.FillBounds
+            )
+
+            BPMSpacer(width = 8.dp)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 73.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(22.dp),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = SpaceBetween
+                ) {
+                    Row(verticalAlignment = CenterVertically) {
+                        Text(
+                            text = author?.nickname ?: "",
+                            fontWeight = SemiBold,
+                            fontSize = 12.sp,
+                            letterSpacing = 0.sp,
+                            color = GrayColor3
+                        )
+
+                        BPMSpacer(width = 4.dp)
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_dot),
+                            contentDescription = "dotIcon",
+                            tint = GrayColor3
+                        )
+
+                        BPMSpacer(width = 4.dp)
+
+                        Text(
+                            text = createdAt?.dateOnly() ?: "",
+                            fontWeight = SemiBold,
+                            fontSize = 12.sp,
+                            letterSpacing = 0.sp,
+                            color = GrayColor3
+                        )
+                    }
+
+                    Icon(
+                        modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
+                        painter = painterResource(id = R.drawable.ic_edit),
+                        contentDescription = "editIcon",
+                        tint = GrayColor4
+                    )
+                }
+
+                BPMSpacer(height = 5.dp)
+
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = body ?: "",
+                    fontWeight = Normal,
+                    fontSize = 13.sp,
+                    letterSpacing = 0.sp
+                )
+
+                BPMSpacer(height = 10.dp)
+
+                Row(
+                    modifier = Modifier.clickableWithoutRipple { onClickLike() },
+                    verticalAlignment = CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_like),
+                        contentDescription = "likeIcon",
+                        tint = if (liked == true) MainBlackColor else GrayColor8
+                    )
+
+                    BPMSpacer(width = 4.dp)
+
+                    Text(
+                        text = "${likeCount ?: 0}", // TODO : Will be modified
+                        fontWeight = Medium,
+                        fontSize = 13.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor1
+                    )
+                }
             }
         }
     }
