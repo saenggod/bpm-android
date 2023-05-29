@@ -94,8 +94,8 @@ object RepositoryModule {
     @Provides
     fun providePostRepository(
         mainApi: MainApi
-    ): PostRepository {
-        return PostRepositoryImpl(mainApi)
+    ): CommunityRepository {
+        return CommunityRepositoryImpl(mainApi)
     }
 
     @Singleton
@@ -112,13 +112,5 @@ object RepositoryModule {
         mainApi: MainApi
     ): ScrapRepository {
         return ScrapRepositoryImpl(mainApi)
-    }
-
-    @Singleton
-    @Provides
-    fun provideCommentRepository(
-        mainApi: MainApi
-    ): CommentRepository {
-        return CommentRepositoryImpl(mainApi)
     }
 }
