@@ -369,7 +369,11 @@ private fun QuestionDetailActivityContent(
                                     onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId, null)) } },
                                     onClickActionButton = {
                                         focusManager.clearFocus()
-                                        comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId)) }
+                                        if (comment.parentId == null) {
+                                            comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId)) }
+                                        } else {
+                                            comment.parentId?.let { parentCommentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(parentCommentId)) }
+                                        }
                                     }
                                 )
 
