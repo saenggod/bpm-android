@@ -122,4 +122,26 @@ interface MainApi {
         @Path("questionBoardArticleId") questionId: Int,
         @Body comment: CommentRequest
     ): Response<BPMResponseV2<CommentResponse>>
+
+    @POST("api/lounge/question-board/{questionBoardArticleId}/favorite")
+    suspend fun sendQuestionLike(
+        @Path("questionBoardArticleId") questionId: Int
+    ): Response<BPMResponseV2<Unit>>
+
+    @DELETE("api/lounge/question-board/{questionBoardArticleId}/favorite")
+    suspend fun deleteQuestionLike(
+        @Path("questionBoardArticleId") questionId: Int
+    ): Response<BPMResponseV2<Unit>>
+
+    @POST("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}/favorite")
+    suspend fun sendQuestionCommentLike(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<Unit>>
+
+    @DELETE("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}/favorite")
+    suspend fun deleteQuestionCommentLike(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<Unit>>
 }

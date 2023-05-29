@@ -12,7 +12,9 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val commentsCount: Int? = 0,
         val redirectCommentId: Int? = null,
         val selectedCommentId: Int? = null,
-        val parentCommentId: Int? = null
+        val parentCommentId: Int? = null,
+        val liked: Boolean? = null,
+        val likeCount: Int? = null
     )
 
     sealed interface Event {
@@ -21,6 +23,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         data class OnClickSendComment(val parentId: Int?, val comment: String) : Event
         data class OnClickCommentActionButton(val commentId: Int) : Event
         object OnClickWriteCommentOnComment : Event
+        object OnClickLike : Event
+        data class OnClickCommentLike(val commentId: Int, val parentCommentId: Int?) : Event
     }
 
     sealed interface Effect {

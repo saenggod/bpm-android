@@ -767,17 +767,17 @@ inline fun ImagePlaceHolder(
 inline fun CommentComposable(
     modifier: Modifier = Modifier,
     comment: Comment,
-    isChildComment: Boolean,
     crossinline onClickLike: () -> Unit,
     crossinline onClickActionButton: () -> Unit
 ) {
     with(comment) {
         Row(modifier = modifier.fillMaxWidth()) {
-            if (isChildComment) {
+            if (comment.parentId != null) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_child_comment),
                     contentDescription = "childCommentIcon",
-                tint = GrayColor7)
+                    tint = GrayColor7
+                )
 
                 BPMSpacer(width = 12.dp)
             }
@@ -853,17 +853,20 @@ inline fun CommentComposable(
 
                 BPMSpacer(height = 10.dp)
 
-                Row(verticalAlignment = CenterVertically) {
+                Row(
+                    modifier = Modifier.clickableWithoutRipple { onClickLike() },
+                    verticalAlignment = CenterVertically
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_like),
                         contentDescription = "likeIcon",
-                        tint = GrayColor8
+                        tint = if (liked == true) MainBlackColor else GrayColor8
                     )
 
                     BPMSpacer(width = 4.dp)
 
                     Text(
-                        text = "2", // TODO : Will be modified
+                        text = "${likeCount ?: 0}", // TODO : Will be modified
                         fontWeight = Medium,
                         fontSize = 13.sp,
                         letterSpacing = 0.sp,

@@ -24,7 +24,11 @@ data class CommentResponse(
     @SerializedName(value = "reportCount")
     val reportCount: Int?,
     @SerializedName(value = "children")
-    val children: List<Comment>?
+    val children: List<CommentResponse>?,
+    @SerializedName(value = "favorited")
+    val favorited: Boolean?,
+    @SerializedName(value = "favoritesCount")
+    val favoritesCount: Int?
 ) : BaseResponse {
     companion object : DataMapper<CommentResponse, Comment> {
         override fun CommentResponse.toDataModel(): Comment {
@@ -36,7 +40,9 @@ data class CommentResponse(
                 updatedAt = updatedAt,
                 parentId = parentId,
                 reportCount = reportCount,
-                children = children
+                children = children?.map { it.toDataModel() },
+                liked = favorited,
+                likeCount = favoritesCount
             )
         }
     }

@@ -313,9 +313,9 @@ private fun QuestionDetailActivityContent(
 
                     LikeButton(
                         modifier = Modifier.padding(start = 20.dp),
-                        liked = false,
-                        likeCount = 0,
-                        onClick = {}
+                        liked = liked ?: false,
+                        likeCount = likeCount ?: 0,
+                        onClick = { event.invoke(QuestionDetailContract.Event.OnClickLike) }
                     )
 
                     BPMSpacer(height = 28.dp)
@@ -366,8 +366,7 @@ private fun QuestionDetailActivityContent(
                                         }
                                         .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
                                     comment = comment,
-                                    isChildComment = false,
-                                    onClickLike = {},
+                                    onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId, null)) } },
                                     onClickActionButton = {
                                         focusManager.clearFocus()
                                         comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId)) }
@@ -375,35 +374,6 @@ private fun QuestionDetailActivityContent(
                                 )
 
                                 BPMSpacer(height = 22.dp)
-
-                                comment.children?.let { children ->
-                                    if (children.isNotEmpty()) {
-                                        children.forEach { childComment ->
-                                            CommentComposable(
-                                                modifier = Modifier
-                                                    .onGloballyPositioned {
-                                                        if (redirectCommentId == childComment.id) {
-                                                            redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-                                                        }
-                                                    }
-                                                    .background(color = if (parentCommentId == childComment.id) HighlightColor else Color.White),
-                                                comment = childComment,
-                                                isChildComment = true,
-                                                onClickLike = {},
-                                                onClickActionButton = {
-                                                    focusManager.clearFocus()
-                                                    comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId)) }
-                                                }
-                                            )
-
-                                            BPMSpacer(height = 22.dp)
-                                        }
-                                    }
-                                }
-                            }
-
-                            LaunchedEffect(commentList) {
-                                scrollState.animateScrollTo(redirectCommentScrollPosition.value)
                             }
                         }
                     } ?: run {

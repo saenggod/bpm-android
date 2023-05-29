@@ -13,12 +13,12 @@ interface ReviewRepository {
         reviewId: Int
     ): Flow<Review>
 
-    suspend fun likeReview(
+    suspend fun sendReviewLike(
         studioId: Int,
         reviewId: Int
     ): Flow<Unit>
 
-    suspend fun dislikeReview(
+    suspend fun deleteReviewLike(
         studioId: Int,
         reviewId: Int
     ): Flow<Unit>
