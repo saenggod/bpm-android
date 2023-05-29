@@ -188,7 +188,7 @@ private fun QuestionDetailActivityContent(
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
                 ) {
-                    ScreenHeader(header = "커뮤니티")
+                    ScreenHeader(header = "질문")
 
                     Column(modifier = Modifier.height(56.dp)) {
                         Row(
@@ -366,7 +366,7 @@ private fun QuestionDetailActivityContent(
                                         }
                                         .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
                                     comment = comment,
-                                    onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId, null)) } },
+                                    onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
                                     onClickActionButton = {
                                         focusManager.clearFocus()
                                         if (comment.parentId == null) {

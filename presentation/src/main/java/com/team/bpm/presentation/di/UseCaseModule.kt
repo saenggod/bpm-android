@@ -1,10 +1,16 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
-import com.team.bpm.domain.usecase.post.GetPostDetailUseCase
-import com.team.bpm.domain.usecase.question.GetCommentListUseCase
+import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
+import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
+import com.team.bpm.domain.usecase.community.SendCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.like.DislikeCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.like.DislikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.like.LikeCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.like.LikeCommunityUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
-import com.team.bpm.domain.usecase.question.SendCommentUseCase
+import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionUseCase
 import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
@@ -121,14 +127,44 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetPostUseCase(postRepository: PostRepository): GetPostDetailUseCase {
-        return GetPostDetailUseCase(postRepository)
+    fun provideGetCommunityUseCase(communityRepository: CommunityRepository): GetCommunityDetailUseCase {
+        return GetCommunityDetailUseCase(communityRepository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideGetQuestionDetailUseCase(questionRepository: QuestionRepository): GetQuestionDetailUseCase {
-        return GetQuestionDetailUseCase(questionRepository)
+    fun provideGetCommunityCommentListUseCase(communityRepository: CommunityRepository): GetCommunityCommentListUseCase {
+        return GetCommunityCommentListUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSendCommunityCommentUseCase(communityRepository: CommunityRepository): SendCommunityCommentUseCase {
+        return SendCommunityCommentUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideLikeCommunityUseCase(communityRepository: CommunityRepository): LikeCommunityUseCase {
+        return LikeCommunityUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideDislikeCommunityUseCase(communityRepository: CommunityRepository): DislikeCommunityUseCase {
+        return DislikeCommunityUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideLikeCommunityCommentUseCase(communityRepository: CommunityRepository): LikeCommunityCommentUseCase {
+        return LikeCommunityCommentUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideDislikeCommunityCommentUseCase(communityRepository: CommunityRepository): DislikeCommunityCommentUseCase {
+        return DislikeCommunityCommentUseCase(communityRepository)
     }
 
     @Provides
@@ -145,14 +181,20 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetCommentListUseCase(commentRepository: CommentRepository): GetCommentListUseCase {
-        return GetCommentListUseCase(commentRepository)
+    fun provideGetQuestionDetailUseCase(questionRepository: QuestionRepository): GetQuestionDetailUseCase {
+        return GetQuestionDetailUseCase(questionRepository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideSendCommentUseCase(commentRepository: CommentRepository): SendCommentUseCase {
-        return SendCommentUseCase(commentRepository)
+    fun provideGetQuestionCommentListUseCase(questionRepository: QuestionRepository): GetQuestionCommentListUseCase {
+        return GetQuestionCommentListUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSendQuestionCommentUseCase(questionRepository: QuestionRepository): SendQuestionCommentUseCase {
+        return SendQuestionCommentUseCase(questionRepository)
     }
 
     @Provides

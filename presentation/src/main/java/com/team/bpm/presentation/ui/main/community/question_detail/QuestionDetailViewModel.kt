@@ -4,9 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
-import com.team.bpm.domain.usecase.question.GetCommentListUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
-import com.team.bpm.domain.usecase.question.SendCommentUseCase
+import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionUseCase
 import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
@@ -23,8 +23,8 @@ class QuestionDetailViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
-    private val getCommentListUseCase: GetCommentListUseCase,
-    private val sendCommentUseCase: SendCommentUseCase,
+    private val getQuestionCommentListUseCase: GetQuestionCommentListUseCase,
+    private val sendQuestionCommentUseCase: SendQuestionCommentUseCase,
     private val likeQuestionUseCase: LikeQuestionUseCase,
     private val dislikeQuestionUseCase: DislikeQuestionUseCase,
     private val likeQuestionCommentUseCase: LikeQuestionCommentUseCase,
@@ -92,7 +92,7 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun getCommentList() {
         viewModelScope.launch(ioDispatcher) {
-            getCommentListUseCase(1).onEach { result ->
+            getQuestionCommentListUseCase(1).onEach { result ->
                 withContext(mainImmediateDispatcher) {
                     val commentList = mutableListOf<Comment>().apply {
                         result.comments?.forEach { comment ->
@@ -122,7 +122,7 @@ class QuestionDetailViewModel @Inject constructor(
         }
 
         viewModelScope.launch(ioDispatcher) {
-            sendCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach { result ->
+            sendQuestionCommentUseCase(questionId = 1, parentId = parentId, comment = comment).onEach { result ->
                 withContext(mainImmediateDispatcher) {
                     _state.update {
                         it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)

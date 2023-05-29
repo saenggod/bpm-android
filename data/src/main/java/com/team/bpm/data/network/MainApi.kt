@@ -40,6 +40,16 @@ interface MainApi {
         @Path("studioId") studioId: Int
     ): Response<BPMResponseV2<StudioResponse>>
 
+    @POST("api/studio/{studioId}/scrap")
+    suspend fun sendScrap(
+        @Path("studioId") studioId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
+    @DELETE("api/studio/{studioId}/scrap")
+    suspend fun deleteScrap(
+        @Path("studioId") studioId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
     @GET("api/studio/{studioId}/review")
     suspend fun fetchReviewList(
         @Path("studioId") studioId: Int
@@ -92,33 +102,56 @@ interface MainApi {
         @Body studio: StudioRequest
     ): Response<BPMResponseV2<ResponseBody>>
 
-    @GET("api/community/story/{storyId}")
-    suspend fun fetchPostDetail(
-        @Path("storyId") postId: Int
-    ): Response<BPMResponseV2<PostResponse>>
+    @GET("api/lounge/community/{communityId}")
+    suspend fun fetchCommunityDetail(
+        @Path("communityId") postId: Int
+    ): Response<BPMResponseV2<CommunityResponse>>
+
+    @GET("api/lounge/community/{communityId}/comments")
+    suspend fun fetchCommunityComments(
+        @Path("communityId") communityId: Int
+    ): Response<BPMResponseV2<CommentListResponse>>
+
+    @POST("api/lounge/community/{communityId}/comments")
+    suspend fun sendCommunityComment(
+        @Path("communityId") communityId: Int,
+        @Body comment: CommentRequest
+    ): Response<BPMResponseV2<CommentResponse>>
+
+    @POST("api/lounge/community/{communityId}/favorite")
+    suspend fun sendCommunityLike(
+        @Path("communityId") communityId: Int,
+    ): Response<BPMResponseV2<ResponseBody>>
+
+    @DELETE("api/lounge/community/{communityId}/favorite")
+    suspend fun deleteCommunityLike(
+        @Path("communityId") communityId: Int,
+    ): Response<BPMResponseV2<ResponseBody>>
+
+    @POST("api/lounge/community/{communityId}/comments/{commentId}/favorite")
+    suspend fun sendCommunityCommentLike(
+        @Path("communityId") communityId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
+    @DELETE("api/lounge/community/{communityId}/comments/{commentId}/favorite")
+    suspend fun deleteCommunityCommentLike(
+        @Path("communityId") communityId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @GET("api/lounge/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int
     ): Response<BPMResponseV2<QuestionResponse>>
 
-    @POST("api/studio/{studioId}/scrap")
-    suspend fun sendScrap(
-        @Path("studioId") studioId: Int
-    ): Response<BPMResponseV2<ResponseBody>>
-
-    @DELETE("api/studio/{studioId}/scrap")
-    suspend fun deleteScrap(
-        @Path("studioId") studioId: Int
-    ): Response<BPMResponseV2<ResponseBody>>
-
     @GET("api/lounge/question-board/{questionBoardArticleId}/comments")
-    suspend fun fetchComments(
+    suspend fun fetchQuestionComments(
         @Path("questionBoardArticleId") questionId: Int
     ): Response<BPMResponseV2<CommentListResponse>>
 
     @POST("api/lounge/question-board/{questionBoardArticleId}/comments")
-    suspend fun sendComment(
+    suspend fun sendQuestionComment(
         @Path("questionBoardArticleId") questionId: Int,
         @Body comment: CommentRequest
     ): Response<BPMResponseV2<CommentResponse>>
@@ -126,22 +159,22 @@ interface MainApi {
     @POST("api/lounge/question-board/{questionBoardArticleId}/favorite")
     suspend fun sendQuestionLike(
         @Path("questionBoardArticleId") questionId: Int
-    ): Response<BPMResponseV2<Unit>>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @DELETE("api/lounge/question-board/{questionBoardArticleId}/favorite")
     suspend fun deleteQuestionLike(
         @Path("questionBoardArticleId") questionId: Int
-    ): Response<BPMResponseV2<Unit>>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @POST("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}/favorite")
     suspend fun sendQuestionCommentLike(
         @Path("questionBoardArticleId") questionId: Int,
         @Path("commentId") commentId: Int
-    ): Response<BPMResponseV2<Unit>>
+    ): Response<BPMResponseV2<ResponseBody>>
 
     @DELETE("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}/favorite")
     suspend fun deleteQuestionCommentLike(
         @Path("questionBoardArticleId") questionId: Int,
         @Path("commentId") commentId: Int
-    ): Response<BPMResponseV2<Unit>>
+    ): Response<BPMResponseV2<ResponseBody>>
 }

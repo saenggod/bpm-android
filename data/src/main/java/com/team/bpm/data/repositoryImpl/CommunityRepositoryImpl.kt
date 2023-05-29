@@ -3,86 +3,86 @@ package com.team.bpm.data.repositoryImpl
 import com.team.bpm.data.model.request.CommentRequest
 import com.team.bpm.data.model.response.CommentListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
-import com.team.bpm.data.model.response.QuestionResponse.Companion.toDataModel
+import com.team.bpm.data.model.response.CommunityResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
-import com.team.bpm.domain.model.Question
-import com.team.bpm.domain.repository.QuestionRepository
+import com.team.bpm.domain.model.Community
+import com.team.bpm.domain.repository.CommunityRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class QuestionRepositoryImpl @Inject constructor(
+class CommunityRepositoryImpl @Inject constructor(
     private val mainApi: MainApi
-) : QuestionRepository {
-    override suspend fun fetchQuestionDetail(questionId: Int): Flow<Question> {
+) : CommunityRepository {
+    override suspend fun fetchCommunityDetail(communityId: Int): Flow<Community> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.fetchQuestionDetail(questionId)
+                mainApi.fetchCommunityDetail(communityId)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
         }
     }
 
-    override suspend fun fetchQuestionCommentList(questionId: Int): Flow<CommentList> {
+    override suspend fun fetchCommunityCommentList(communityId: Int): Flow<CommentList> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.fetchQuestionComments(questionId)
+                mainApi.fetchCommunityComments(communityId)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
         }
     }
 
-    override suspend fun sendQuestionComment(questionId: Int, parentId: Int?, comment: String): Flow<Comment> {
+    override suspend fun sendCommunityComment(communityId: Int, parentId: Int?, comment: String): Flow<Comment> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.sendQuestionComment(questionId, CommentRequest(parentId, comment))
+                mainApi.sendCommunityComment(communityId, CommentRequest(parentId, comment))
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
         }
     }
 
-    override suspend fun sendQuestionLike(questionId: Int): Flow<Unit> {
+    override suspend fun sendCommunityLike(communityId: Int): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.sendQuestionLike(questionId)
+                mainApi.sendCommunityLike(communityId)
             }.collect {
                 emit(Unit)
             }
         }
     }
 
-    override suspend fun deleteQuestionLike(questionId: Int): Flow<Unit> {
+    override suspend fun deleteCommunityLike(communityId: Int): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.deleteQuestionLike(questionId)
+                mainApi.deleteCommunityLike(communityId)
             }.collect {
                 emit(Unit)
             }
         }
     }
 
-    override suspend fun sendQuestionCommentLike(questionId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun sendCommunityCommentLike(communityId: Int, commentId: Int): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.sendQuestionCommentLike(questionId, commentId)
+                mainApi.sendCommunityCommentLike(communityId, commentId)
             }.collect {
                 emit(Unit)
             }
         }
     }
 
-    override suspend fun deleteQuestionCommentLike(questionId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun deleteCommunityCommentLike(communityId: Int, commentId: Int): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.deleteQuestionCommentLike(questionId, commentId)
+                mainApi.deleteCommunityCommentLike(communityId, commentId)
             }.collect {
                 emit(Unit)
             }
