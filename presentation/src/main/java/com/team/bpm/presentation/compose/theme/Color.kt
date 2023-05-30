@@ -29,6 +29,7 @@ val GrayColor12 = Color(0x80000000)
 val GrayColor13 = Color(0xFFEEEEEE)
 val GrayColor14 = Color(0xCCAFAFAF)
 val GrayColor15 = Color(0xFFD7D7D8)
+val GrayColor16 = Color(0x99000000)
 val FilteredWhiteColor = Color(0xB3FFFFFF)
 
 @Composable
