@@ -29,7 +29,7 @@ class QuestionRepositoryImpl @Inject constructor(
                     content,
                     imageByteArrays.map { imageByteArray ->
                         createImageMultipartBody(
-                            key = "file",
+                            key = "files",
                             file = convertByteArrayToWebpFile(imageByteArray)
                         )
                     }
