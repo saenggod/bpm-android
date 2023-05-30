@@ -4,17 +4,33 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.question.SendQuestionUseCase
 import com.team.bpm.presentation.di.IoDispatcher
+import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.*
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
+import java.util.LinkedList
 import javax.inject.Inject
 
 @HiltViewModel
 class QuestionPostingViewModel @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val sendQuestionUseCase: SendQuestionUseCase
 ) : ViewModel(), QuestionPostingContract {
     private val _state = MutableStateFlow(QuestionPostingContract.State())
     override val state: StateFlow<QuestionPostingContract.State> = _state.asStateFlow()
@@ -26,11 +42,23 @@ class QuestionPostingViewModel @Inject constructor(
         is QuestionPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
+
         is QuestionPostingContract.Event.OnClickRemoveImage -> {
             onClickRemoveImage(event.index)
         }
+
         is QuestionPostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
+        }
+
+        is QuestionPostingContract.Event.OnClickSubmit -> {
+            onClickSubmit(event.title, event.content)
+        }
+    }
+
+    private val exceptionHandler: CoroutineExceptionHandler by lazy {
+        CoroutineExceptionHandler { coroutineContext, throwable ->
+
         }
     }
 
@@ -64,6 +92,26 @@ class QuestionPostingViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(imageList = linkedList.toMutableList())
+            }
+        }
+    }
+
+    private fun onClickSubmit(title: String, content: String) {
+        viewModelScope.launch {
+            if (title.isNotEmpty() && content.isNotEmpty()) {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    sendQuestionUseCase(title, content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            result.id?.let { questionId -> _effect.emit(QuestionPostingContract.Effect.RedirectToQuestion(questionId)) }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            } else {
+                _effect.emit(QuestionPostingContract.Effect.ShowToast("제목과 내용을 모두 입력해주세요."))
             }
         }
     }

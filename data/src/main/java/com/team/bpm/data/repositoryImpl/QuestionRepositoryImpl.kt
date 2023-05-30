@@ -6,6 +6,8 @@ import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.QuestionResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.data.util.convertByteArrayToWebpFile
+import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
 import com.team.bpm.domain.model.Question
@@ -19,6 +21,25 @@ import javax.inject.Inject
 class QuestionRepositoryImpl @Inject constructor(
     private val mainApi: MainApi
 ) : QuestionRepository {
+    override suspend fun sendQuestion(title: String, content: String, imageByteArrays: List<ByteArray>): Flow<Question> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendQuestion(
+                    title,
+                    content,
+                    imageByteArrays.map { imageByteArray ->
+                        createImageMultipartBody(
+                            key = "file",
+                            file = convertByteArrayToWebpFile(imageByteArray)
+                        )
+                    }
+                )
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
     override suspend fun fetchQuestionDetail(questionId: Int): Flow<Question> {
         return flow {
             BPMResponseHandlerV2().handle {

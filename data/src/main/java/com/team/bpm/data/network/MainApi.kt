@@ -147,6 +147,14 @@ interface MainApi {
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @Multipart
+    @POST("api/lounge/question-board")
+    suspend fun sendQuestion(
+        @Part("title") title: String,
+        @Part("content") content: String,
+        @Part files: List<MultipartBody.Part>,
+    ): Response<BPMResponseV2<QuestionResponse>>
+
     @GET("api/lounge/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
         @Path("questionId") questionId: Int

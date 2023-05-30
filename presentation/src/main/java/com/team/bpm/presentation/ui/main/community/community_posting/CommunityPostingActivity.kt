@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMTextField
 import com.team.bpm.presentation.compose.ImagePlaceHolder
+import com.team.bpm.presentation.compose.LoadingScreen
 import com.team.bpm.presentation.compose.RoundedCornerButton
 import com.team.bpm.presentation.compose.ScreenHeader
 import com.team.bpm.presentation.compose.getLocalContext
@@ -90,66 +92,72 @@ private fun CommunityPostingActivityContent(
     }
 
     with(state) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = SpaceBetween
-        ) {
-            Column {
-                ScreenHeader(header = "커뮤니티 글 작성하기")
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = SpaceBetween
+            ) {
+                Column {
+                    ScreenHeader(header = "커뮤니티 글 작성하기")
 
-                LazyRow(
-                    modifier = Modifier
-                        .padding(top = 30.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = spacedBy(14.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
-                ) {
-                    if (imageList.size < 5) {
-                        item {
+                    LazyRow(
+                        modifier = Modifier
+                            .padding(top = 30.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = spacedBy(14.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp)
+                    ) {
+                        if (imageList.size < 5) {
+                            item {
+                                ImagePlaceHolder(
+                                    image = null,
+                                    onClick = { event.invoke(CommunityPostingContract.Event.OnClickImagePlaceHolder) }
+                                )
+                            }
+                        }
+
+                        itemsIndexed(imageList, key = { _, pair ->
+                            pair.first
+                        }) { index, pair ->
                             ImagePlaceHolder(
-                                image = null,
-                                onClick = { event.invoke(CommunityPostingContract.Event.OnClickImagePlaceHolder) }
+                                image = pair.second,
+                                onClick = {},
+                                onClickRemove = { event.invoke(CommunityPostingContract.Event.OnClickRemoveImage(index)) }
                             )
                         }
                     }
 
-                    itemsIndexed(imageList, key = { _, pair ->
-                        pair.first
-                    }) { index, pair ->
-                        ImagePlaceHolder(
-                            image = pair.second,
-                            onClick = {},
-                            onClickRemove = { event.invoke(CommunityPostingContract.Event.OnClickRemoveImage(index)) }
-                        )
-                    }
+                    BPMTextField(
+                        modifier = Modifier
+                            .padding(top = 22.dp)
+                            .padding(horizontal = 16.dp),
+                        textState = contentTextState,
+                        minHeight = 180.dp,
+                        label = "내용을 적어주세요",
+                        limit = 300,
+                        singleLine = false,
+                        hint = "내용을 입력해주세요",
+                    )
                 }
 
-                BPMTextField(
+                RoundedCornerButton(
                     modifier = Modifier
-                        .padding(top = 22.dp)
-                        .padding(horizontal = 16.dp),
-                    textState = contentTextState,
-                    minHeight = 180.dp,
-                    label = "내용을 적어주세요",
-                    limit = 300,
-                    singleLine = false,
-                    hint = "내용을 입력해주세요",
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 14.dp
+                        )
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    text = "저장하기",
+                    textColor = MainBlackColor,
+                    buttonColor = MainGreenColor,
+                    onClick = { event.invoke(CommunityPostingContract.Event.OnClickSubmit(contentTextState.value)) }
                 )
             }
 
-            RoundedCornerButton(
-                modifier = Modifier
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 14.dp
-                    )
-                    .fillMaxWidth()
-                    .height(48.dp),
-                text = "저장하기",
-                textColor = MainBlackColor,
-                buttonColor = MainGreenColor,
-                onClick = { event.invoke(CommunityPostingContract.Event.OnClickSubmit(contentTextState.value)) }
-            )
+            if (isLoading) {
+                LoadingScreen()
+            }
         }
     }
 }

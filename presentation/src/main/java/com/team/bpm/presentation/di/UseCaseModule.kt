@@ -13,6 +13,7 @@ import com.team.bpm.domain.usecase.eye_body.SendEyeBodyUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.SendQuestionUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionUseCase
 import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
@@ -185,6 +186,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideScrapCancelUseCase(scrapRepository: ScrapRepository): ScrapCancelUseCase {
         return ScrapCancelUseCase(scrapRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSendQuestionUseCase(questionRepository: QuestionRepository): SendQuestionUseCase {
+        return SendQuestionUseCase(questionRepository)
     }
 
     @Provides
