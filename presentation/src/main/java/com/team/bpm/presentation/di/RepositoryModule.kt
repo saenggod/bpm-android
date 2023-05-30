@@ -113,4 +113,12 @@ object RepositoryModule {
     ): ScrapRepository {
         return ScrapRepositoryImpl(mainApi)
     }
+
+    @Singleton
+    @Provides
+    fun provideEyeBodyRepository(
+        mainApi: MainApi
+    ): EyeBodyRepository {
+        return EyeBodyRepositoryImpl(mainApi)
+    }
 }

@@ -6,6 +6,7 @@ import com.team.bpm.domain.model.Question
 import kotlinx.coroutines.flow.Flow
 
 interface QuestionRepository {
+    suspend fun sendQuestion(title: String, content: String, imageByteArrays: List<ByteArray>): Flow<Question>
     suspend fun fetchQuestionDetail(questionId: Int): Flow<Question>
     suspend fun fetchQuestionCommentList(questionId: Int): Flow<CommentList>
     suspend fun sendQuestionComment(questionId: Int, parentId: Int?, comment: String): Flow<Comment>

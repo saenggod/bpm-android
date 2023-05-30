@@ -4,17 +4,33 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.eye_body.SendEyeBodyUseCase
 import com.team.bpm.presentation.di.IoDispatcher
+import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.*
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
+import java.util.LinkedList
 import javax.inject.Inject
 
 @HiltViewModel
 class EyeBodyPostingViewModel @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val sendEyeBodyUseCase: SendEyeBodyUseCase
 ) : ViewModel(), EyeBodyPostingContract {
     private val _state = MutableStateFlow(EyeBodyPostingContract.State())
     override val state: StateFlow<EyeBodyPostingContract.State> = _state.asStateFlow()
@@ -26,11 +42,23 @@ class EyeBodyPostingViewModel @Inject constructor(
         is EyeBodyPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
+
         is EyeBodyPostingContract.Event.OnClickRemoveImage -> {
             onClickRemoveImage(event.index)
         }
+
         is EyeBodyPostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
+        }
+
+        is EyeBodyPostingContract.Event.OnClickSubmit -> {
+            onClickSubmit(event.content)
+        }
+    }
+
+    private val exceptionHandler: CoroutineExceptionHandler by lazy {
+        CoroutineExceptionHandler { coroutineContext, throwable ->
+
         }
     }
 
@@ -63,6 +91,26 @@ class EyeBodyPostingViewModel @Inject constructor(
 
         _state.update {
             it.copy(imageList = linkedList.toMutableList())
+        }
+    }
+
+    private fun onClickSubmit(content: String) {
+        viewModelScope.launch {
+            if (content.isNotEmpty()) {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    sendEyeBodyUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            result.id?.let { eyeBodyId -> _effect.emit(EyeBodyPostingContract.Effect.RedirectToEyeBody(eyeBodyId)) }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            } else {
+                _effect.emit(EyeBodyPostingContract.Effect.ShowToast("내용을 입력해주세요."))
+            }
         }
     }
 }

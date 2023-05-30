@@ -4,13 +4,16 @@ import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
 import com.team.bpm.domain.usecase.community.SendCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.SendCommunityUseCase
 import com.team.bpm.domain.usecase.community.like.DislikeCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.like.DislikeCommunityUseCase
 import com.team.bpm.domain.usecase.community.like.LikeCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.like.LikeCommunityUseCase
+import com.team.bpm.domain.usecase.eye_body.SendEyeBodyUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.SendQuestionUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionUseCase
 import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
@@ -127,6 +130,12 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
+    fun provideSendCommunityUseCase(communityRepository: CommunityRepository): SendCommunityUseCase {
+        return SendCommunityUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
     fun provideGetCommunityUseCase(communityRepository: CommunityRepository): GetCommunityDetailUseCase {
         return GetCommunityDetailUseCase(communityRepository)
     }
@@ -181,6 +190,12 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
+    fun provideSendQuestionUseCase(questionRepository: QuestionRepository): SendQuestionUseCase {
+        return SendQuestionUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
     fun provideGetQuestionDetailUseCase(questionRepository: QuestionRepository): GetQuestionDetailUseCase {
         return GetQuestionDetailUseCase(questionRepository)
     }
@@ -219,5 +234,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDislikeQuestionCommentUseCase(questionRepository: QuestionRepository): DislikeQuestionCommentUseCase {
         return DislikeQuestionCommentUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSendEyeBodyUseCase(eyeBodyRepository: EyeBodyRepository): SendEyeBodyUseCase {
+        return SendEyeBodyUseCase(eyeBodyRepository)
     }
 }

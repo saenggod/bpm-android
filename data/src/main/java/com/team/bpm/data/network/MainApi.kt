@@ -102,9 +102,16 @@ interface MainApi {
         @Body studio: StudioRequest
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @Multipart
+    @POST("api/lounge/community")
+    suspend fun sendCommunity(
+        @Part("content") content: String,
+        @Part files: List<MultipartBody.Part>,
+    ): Response<BPMResponseV2<CommunityResponse>>
+
     @GET("api/lounge/community/{communityId}")
     suspend fun fetchCommunityDetail(
-        @Path("communityId") postId: Int
+        @Path("communityId") communityId: Int
     ): Response<BPMResponseV2<CommunityResponse>>
 
     @GET("api/lounge/community/{communityId}/comments")
@@ -139,6 +146,14 @@ interface MainApi {
         @Path("communityId") communityId: Int,
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
+
+    @Multipart
+    @POST("api/lounge/question-board")
+    suspend fun sendQuestion(
+        @Part("title") title: String,
+        @Part("content") content: String,
+        @Part files: List<MultipartBody.Part>,
+    ): Response<BPMResponseV2<QuestionResponse>>
 
     @GET("api/lounge/question-board/{questionId}")
     suspend fun fetchQuestionDetail(
@@ -177,4 +192,11 @@ interface MainApi {
         @Path("questionBoardArticleId") questionId: Int,
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
+
+    @Multipart
+    @POST("api/community/body-shape")
+    suspend fun sendEyeBody(
+        @Part("content") content: String,
+        @Part files: List<MultipartBody.Part>,
+    ): Response<BPMResponseV2<EyeBodyResponse>>
 }

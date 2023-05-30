@@ -6,7 +6,8 @@ import com.team.bpm.domain.model.Community
 import kotlinx.coroutines.flow.Flow
 
 interface CommunityRepository {
-    suspend fun fetchCommunityDetail(postId: Int): Flow<Community>
+    suspend fun sendCommunity(content: String, imageByteArrays: List<ByteArray>): Flow<Community>
+    suspend fun fetchCommunityDetail(communityId: Int): Flow<Community>
     suspend fun fetchCommunityCommentList(communityId: Int): Flow<CommentList>
     suspend fun sendCommunityComment(communityId: Int, parentId: Int?, comment: String): Flow<Comment>
     suspend fun sendCommunityLike(communityId: Int): Flow<Unit>

@@ -6,6 +6,8 @@ import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommunityResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.data.util.convertByteArrayToWebpFile
+import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
 import com.team.bpm.domain.model.Community
@@ -19,6 +21,25 @@ import javax.inject.Inject
 class CommunityRepositoryImpl @Inject constructor(
     private val mainApi: MainApi
 ) : CommunityRepository {
+
+    override suspend fun sendCommunity(content: String, imageByteArrays: List<ByteArray>): Flow<Community> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendCommunity(
+                    content,
+                    imageByteArrays.map { imageByteArray ->
+                        createImageMultipartBody(
+                            key = "file",
+                            file = convertByteArrayToWebpFile(imageByteArray)
+                        )
+                    },
+                )
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
     override suspend fun fetchCommunityDetail(communityId: Int): Flow<Community> {
         return flow {
             BPMResponseHandlerV2().handle {
