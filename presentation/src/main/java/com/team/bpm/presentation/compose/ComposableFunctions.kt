@@ -217,6 +217,7 @@ fun BPMTextField(
     minHeight: Dp = 40.dp,
     iconSize: Dp = 0.dp,
     singleLine: Boolean,
+    isExtendable: Boolean = true,
     hint: String?,
     onClick: (() -> Unit)? = null,
     allocatedErrorCode: String? = null,
@@ -303,7 +304,7 @@ fun BPMTextField(
                             )
                             .padding(vertical = 12.dp)
                             .fillMaxWidth()
-                            .heightIn(min = minHeight - 24.dp)
+                            .heightIn(min = minHeight - 24.dp, max = if (isExtendable) Dp.Unspecified else minHeight - 24.dp)
                             .align(Center)
                             .onFocusChanged { hasFocus.value = it.hasFocus },
                         value = textState.value,

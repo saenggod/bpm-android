@@ -858,13 +858,13 @@ private fun StudioDetailActivityContent(
                 LoadingScreen()
             }
 
-//            if (isErrorDialogShowing) {
+            if (isErrorDialogShowing) {
                 NoticeDialog(
                     title = null,
                     content = "스튜디오 정보를 불러 올 수 없습니다.",
                     onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickQuit) }
                 )
-//            }
+            }
         }
     }
 }

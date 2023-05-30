@@ -1,16 +1,16 @@
 package com.team.bpm.presentation.compose
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -23,6 +23,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import com.team.bpm.presentation.compose.theme.GrayColor16
+import com.team.bpm.presentation.compose.theme.GrayColor5
 import com.team.bpm.presentation.compose.theme.MainBlackColor
 import com.team.bpm.presentation.util.clickableWithoutRipple
 
@@ -109,6 +110,104 @@ fun NoticeDialog(
                         color = MainBlackColor
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+inline fun TextFieldDialog(
+    title: String,
+    hint: String = "내용을 입력해주세요.",
+    cancelButtonText: String = "취소",
+    confirmButtonText: String = "확인",
+    crossinline onClickCancel: () -> Unit,
+    crossinline onClickConfirm: (String) -> Unit
+) {
+    BaseComposableDialog(
+        isCancelable = false,
+    ) {
+        Box(
+            modifier = Modifier
+                .shadow(elevation = 12.dp, shape = RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .width(280.dp)
+                .height(274.dp)
+                .background(color = Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        top = 24.dp,
+                        start = 16.dp,
+                        end = 16.dp,
+                    )
+                    .width(248.dp)
+            ) {
+                Text(
+                    modifier = Modifier.align(CenterHorizontally),
+                    text = title,
+                    fontWeight = Medium,
+                    fontSize = 16.sp,
+                    letterSpacing = 0.sp,
+                    color = MainBlackColor
+                )
+
+                BPMSpacer(height = 20.dp)
+
+                val contentTextState = remember { mutableStateOf("") }
+
+                BPMTextField(
+                    textState = contentTextState,
+                    minHeight = 140.dp,
+                    label = null,
+                    limit = null,
+                    singleLine = false,
+                    hint = hint,
+                    isExtendable = false
+                )
+
+                BPMSpacer(height = 24.dp)
+
+                Row(
+                    modifier = Modifier.align(End)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(41.dp)
+                            .height(34.dp)
+                            .clickableWithoutRipple { onClickCancel() }
+                    ) {
+                        Text(
+                            modifier = Modifier.align(Center),
+                            text = cancelButtonText,
+                            fontWeight = Medium,
+                            fontSize = 14.sp,
+                            letterSpacing = 0.sp,
+                            color = GrayColor5
+                        )
+                    }
+
+                    BPMSpacer(width = 8.dp)
+
+                    Box(
+                        modifier = Modifier
+                            .width(41.dp)
+                            .height(34.dp)
+                            .clickableWithoutRipple { onClickConfirm(contentTextState.value) }
+                    ) {
+                        Text(
+                            modifier = Modifier.align(Center),
+                            text = confirmButtonText,
+                            fontWeight = Medium,
+                            fontSize = 14.sp,
+                            letterSpacing = 0.sp,
+                            color = MainBlackColor
+                        )
+                    }
+                }
+
+                BPMSpacer(height = 8.dp)
             }
         }
     }
