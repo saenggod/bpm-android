@@ -5,6 +5,18 @@ import com.team.bpm.domain.model.ReviewList
 import kotlinx.coroutines.flow.Flow
 
 interface ReviewRepository {
+    suspend fun sendReview(
+        studioId: Int,
+        imageByteArrays: List<ByteArray>,
+        rating: Double,
+        recommends: List<String>,
+        content: String
+    ): Flow<Unit>
+
+    suspend fun deleteReview(
+        studioId: Int,
+        reviewId: Int
+    ): Flow<Unit>
 
     suspend fun fetchReviewList(studioId: Int): Flow<ReviewList>
 

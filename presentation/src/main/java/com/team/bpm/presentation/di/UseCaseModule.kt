@@ -20,9 +20,10 @@ import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.like.LikeQuestionUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
+import com.team.bpm.domain.usecase.review.DeleteReviewUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
-import com.team.bpm.domain.usecase.review.WriteReviewUseCase
+import com.team.bpm.domain.usecase.review.SendReviewUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
@@ -94,8 +95,14 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideWriteReviewUseCase(writeReviewRepository: WriteReviewRepository): WriteReviewUseCase {
-        return WriteReviewUseCase(writeReviewRepository)
+    fun provideSendReviewUseCase(reviewRepository: ReviewRepository): SendReviewUseCase {
+        return SendReviewUseCase(reviewRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideDeleteReviewUseCase(reviewRepository: ReviewRepository): DeleteReviewUseCase {
+        return DeleteReviewUseCase(reviewRepository)
     }
 
     @Provides

@@ -83,6 +83,12 @@ interface MainApi {
         @Part("content") content: String
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @DELETE("api/studio/{studioId}/review/{reviewId}")
+    suspend fun deleteReview(
+        @Path("studioId") studioId: Int,
+        @Path("reviewId") reviewId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
     @GET("api/studio/list")
     suspend fun getStudioList(
         @Query("limit") limit: Int,

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
+import com.team.bpm.domain.usecase.review.DeleteReviewUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
@@ -40,6 +41,7 @@ class StudioDetailViewModel @Inject constructor(
     private val dislikeReviewUseCase: DislikeReviewUseCase,
     private val scrapUseCase: ScrapUseCase,
     private val scrapCancelUseCase: ScrapCancelUseCase,
+    private val deleteReviewUseCase: DeleteReviewUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), StudioDetailContract {
 
@@ -141,6 +143,14 @@ class StudioDetailViewModel @Inject constructor(
         is StudioDetailContract.Event.OnClickScrap -> {
             onClickScrap()
         }
+
+        is StudioDetailContract.Event.OnClickReviewActionButton -> {
+            onClickReviewActionButton(event.reviewId)
+        }
+
+        is StudioDetailContract.Event.OnClickDeleteReview -> {
+            onClickDeleteReview()
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -190,7 +200,6 @@ class StudioDetailViewModel @Inject constructor(
             }
         }
     }
-
 
     private fun showErrorDialog() {
         viewModelScope.launch {
@@ -450,6 +459,46 @@ class StudioDetailViewModel @Inject constructor(
                             _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 기능을 사용할 수 없습니다."))
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun onClickReviewActionButton(reviewId: Int) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(selectedReviewId = reviewId)
+            }
+
+            _effect.emit(StudioDetailContract.Effect.ExpandBottomSheet)
+        }
+    }
+
+    private fun onClickDeleteReview() {
+        getStudioId()?.let { studioId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                state.value.selectedReviewId?.let { reviewId ->
+                    withContext(ioDispatcher) {
+                        deleteReviewUseCase(studioId, reviewId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(isLoading = false)
+                                }
+
+                                _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                } ?: run {
+                    _state.update {
+                        it.copy(isLoading = false)
+                    }
+
+                    _effect.emit(StudioDetailContract.Effect.ShowToast("리뷰를 삭제할 수 없습니다."))
                 }
             }
         }
