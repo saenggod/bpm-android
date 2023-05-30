@@ -4,7 +4,16 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,8 +32,19 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.*
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.BPMTextField
+import com.team.bpm.presentation.compose.ImagePlaceHolder
+import com.team.bpm.presentation.compose.RoundedCornerButton
+import com.team.bpm.presentation.compose.ScreenHeader
+import com.team.bpm.presentation.compose.getLocalContext
+import com.team.bpm.presentation.compose.initImageLauncher
+import com.team.bpm.presentation.compose.theme.GrayColor10
+import com.team.bpm.presentation.compose.theme.GrayColor4
+import com.team.bpm.presentation.compose.theme.GrayColor5
+import com.team.bpm.presentation.compose.theme.GrayColor8
+import com.team.bpm.presentation.compose.theme.MainBlackColor
+import com.team.bpm.presentation.compose.theme.MainGreenColor
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -57,6 +77,7 @@ private fun EyeBodyPostingActivityContent(
 
         }
     )
+    val contentTextState = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         // TODO : Call Api
@@ -65,8 +86,16 @@ private fun EyeBodyPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
+                is EyeBodyPostingContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+
                 is EyeBodyPostingContract.Effect.AddImages -> {
                     imageLauncher.launch(PickVisualMediaRequest())
+                }
+
+                is EyeBodyPostingContract.Effect.RedirectToEyeBody -> {
+//                    context.startActivity() TODO : Redirect to eyeBody detail screen
                 }
             }
         }
@@ -107,12 +136,11 @@ private fun EyeBodyPostingActivityContent(
                     }
                 }
 
-                val bodyTextState = remember { mutableStateOf("") }
                 BPMTextField(
                     modifier = Modifier
                         .padding(top = 22.dp)
                         .padding(horizontal = 16.dp),
-                    textState = bodyTextState,
+                    textState = contentTextState,
                     minHeight = 180.dp,
                     limit = 300,
                     label = "오늘의 내 몸에 대한 이야기를 작성해주세요",
@@ -172,7 +200,7 @@ private fun EyeBodyPostingActivityContent(
                     text = "저장하기",
                     textColor = MainBlackColor,
                     buttonColor = MainGreenColor,
-                    onClick = { }
+                    onClick = { event.invoke(EyeBodyPostingContract.Event.OnClickSubmit(contentTextState.value)) }
                 )
             }
         }

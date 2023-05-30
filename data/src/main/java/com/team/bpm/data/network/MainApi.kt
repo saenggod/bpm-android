@@ -185,5 +185,10 @@ interface MainApi {
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
-
+    @Multipart
+    @POST("api/community/body-shape")
+    suspend fun sendEyeBody(
+        @Part("content") content: String,
+        @Part files: List<MultipartBody.Part>,
+    ): Response<BPMResponseV2<EyeBodyResponse>>
 }
