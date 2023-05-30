@@ -361,7 +361,7 @@ fun ReviewComposable(
     modifier: Modifier = Modifier,
     review: Review,
     onClickLike: (Int) -> Unit,
-    onClickActionButton: (Int) -> Unit
+    onClickActionButton: () -> Unit
 ) {
     val context = getLocalContext()
 
@@ -494,7 +494,7 @@ fun ReviewComposable(
                 )
 
                 Icon(
-                    modifier = Modifier.clickableWithoutRipple { review.id?.let { reviewId -> onClickActionButton(reviewId) } },
+                    modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
                     painter = painterResource(id = R.drawable.ic_edit),
                     contentDescription = "editIcon",
                     tint = GrayColor4

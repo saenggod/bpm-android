@@ -15,20 +15,8 @@ import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -145,7 +133,7 @@ class StudioDetailViewModel @Inject constructor(
         }
 
         is StudioDetailContract.Event.OnClickReviewActionButton -> {
-            onClickReviewActionButton(event.reviewId)
+            onClickReviewActionButton(event.review)
         }
 
         is StudioDetailContract.Event.OnClickDeleteReview -> {
@@ -464,13 +452,15 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickReviewActionButton(reviewId: Int) {
+    private fun onClickReviewActionButton(review: Review) {
         viewModelScope.launch {
             _state.update {
-                it.copy(selectedReviewId = reviewId)
+                it.copy(selectedReview = review)
             }
 
-            _effect.emit(StudioDetailContract.Effect.ExpandBottomSheet)
+            review.author?.id?.let { authorId ->
+//                _effect.emit(StudioDetailContract.Effect.ExpandBottomSheet(authorId == )) // TODO : will be added which comparing with user id
+            }
         }
     }
 
@@ -481,7 +471,7 @@ class StudioDetailViewModel @Inject constructor(
                     it.copy(isLoading = true)
                 }
 
-                state.value.selectedReviewId?.let { reviewId ->
+                state.value.selectedReview?.id?.let { reviewId ->
                     withContext(ioDispatcher) {
                         deleteReviewUseCase(studioId, reviewId).onEach {
                             withContext(mainImmediateDispatcher) {

@@ -750,7 +750,7 @@ private fun StudioDetailActivityContent(
                                                 ReviewComposable(
                                                     review = review,
                                                     onClickLike = { reviewId -> event.invoke(StudioDetailContract.Event.OnClickReviewLikeButton(reviewId)) },
-                                                    onClickActionButton = { reviewId -> event.invoke(StudioDetailContract.Event.OnClickReviewActionButton(reviewId)) }
+                                                    onClickActionButton = { event.invoke(StudioDetailContract.Event.OnClickReviewActionButton(review)) }
                                                 )
                                             }
                                         }
