@@ -62,9 +62,9 @@ class CommunityDetailActivity : BaseComponentActivityV2() {
     companion object {
         const val KEY_COMMUNITY_ID = "community_id"
 
-        fun newIntent(context: Context, postId: Int): Intent {
+        fun newIntent(context: Context, communityId: Int): Intent {
             return Intent(context, CommunityDetailActivity::class.java).apply {
-                putExtra(KEY_COMMUNITY_ID, postId)
+                putExtra(KEY_COMMUNITY_ID, communityId)
             }
         }
     }

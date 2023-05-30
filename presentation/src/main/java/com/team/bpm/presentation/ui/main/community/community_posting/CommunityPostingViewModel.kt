@@ -4,17 +4,33 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.community.SendCommunityUseCase
 import com.team.bpm.presentation.di.IoDispatcher
+import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.*
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
+import java.util.LinkedList
 import javax.inject.Inject
 
 @HiltViewModel
 class CommunityPostingViewModel @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val sendCommunityUseCase: SendCommunityUseCase
 ) : ViewModel(), CommunityPostingContract {
     private val _state = MutableStateFlow(CommunityPostingContract.State())
     override val state: StateFlow<CommunityPostingContract.State> = _state.asStateFlow()
@@ -26,11 +42,23 @@ class CommunityPostingViewModel @Inject constructor(
         is CommunityPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
+
         is CommunityPostingContract.Event.OnClickRemoveImage -> {
             onClickRemoveImage(event.index)
         }
+
         is CommunityPostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
+        }
+
+        is CommunityPostingContract.Event.OnClickSubmit -> {
+            onClickSubmit(event.content)
+        }
+    }
+
+    private val exceptionHandler: CoroutineExceptionHandler by lazy {
+        CoroutineExceptionHandler { coroutineContext, throwable ->
+
         }
     }
 
@@ -64,6 +92,26 @@ class CommunityPostingViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(imageList = linkedList.toMutableList())
+            }
+        }
+    }
+
+    private fun onClickSubmit(content: String) {
+        viewModelScope.launch {
+            if (content.isNotEmpty()) {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    sendCommunityUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            result.id?.let { communityId -> _effect.emit(CommunityPostingContract.Effect.RedirectToCommunity(communityId)) }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler) // todo add exception handler
+                }
+            } else {
+                _effect.emit(CommunityPostingContract.Effect.ShowToast("내용을 입력해주세요."))
             }
         }
     }

@@ -4,6 +4,7 @@ import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
 import com.team.bpm.domain.usecase.community.SendCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.SendCommunityUseCase
 import com.team.bpm.domain.usecase.community.like.DislikeCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.like.DislikeCommunityUseCase
 import com.team.bpm.domain.usecase.community.like.LikeCommunityCommentUseCase
@@ -123,6 +124,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetAddressNameUseCase(registerStudioRepository: RegisterStudioRepository): GetAddressNameUseCase {
         return GetAddressNameUseCase(registerStudioRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSendCommunityUseCase(communityRepository: CommunityRepository): SendCommunityUseCase {
+        return SendCommunityUseCase(communityRepository)
     }
 
     @Provides
