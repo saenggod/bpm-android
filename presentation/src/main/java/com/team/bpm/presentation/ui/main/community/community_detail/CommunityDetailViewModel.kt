@@ -70,64 +70,70 @@ class CommunityDetailViewModel @Inject constructor(
     }
 
     private fun getCommunityDetail() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isLoading = true)
-            }
-        }
-
-        viewModelScope.launch(ioDispatcher) {
-            getCommunityDetailUseCase(1).onEach { result ->
-                withContext(mainImmediateDispatcher) {
-                    _state.update {
-                        it.copy(isLoading = false, community = result, liked = result.liked, likeCount = result.likeCount)
-                    }
+        getCommunityId()?.let { communityId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
                 }
-            }.launchIn(viewModelScope + exceptionHandler)
+            }
+
+            viewModelScope.launch(ioDispatcher) {
+                getCommunityDetailUseCase(communityId).onEach { result ->
+                    withContext(mainImmediateDispatcher) {
+                        _state.update {
+                            it.copy(isLoading = false, community = result, liked = result.liked, likeCount = result.likeCount)
+                        }
+                    }
+                }.launchIn(viewModelScope + exceptionHandler)
+            }
         }
     }
 
     private fun getCommentList() {
-        viewModelScope.launch(ioDispatcher) {
-            getCommunityCommentListUseCase(1).onEach { result ->
-                withContext(mainImmediateDispatcher) {
-                    val commentList = mutableListOf<Comment>().apply {
-                        result.comments?.forEach { comment ->
-                            add(comment)
+        getCommunityId()?.let { communityId ->
+            viewModelScope.launch(ioDispatcher) {
+                getCommunityCommentListUseCase(communityId).onEach { result ->
+                    withContext(mainImmediateDispatcher) {
+                        val commentList = mutableListOf<Comment>().apply {
+                            result.comments?.forEach { comment ->
+                                add(comment)
 
-                            comment.children?.let { childrenCommentList ->
-                                childrenCommentList.forEach { childComment ->
-                                    add(childComment)
+                                comment.children?.let { childrenCommentList ->
+                                    childrenCommentList.forEach { childComment ->
+                                        add(childComment)
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    _state.update {
-                        it.copy(commentList = commentList, commentsCount = result.commentsCount ?: result.comments?.size)
+                        _state.update {
+                            it.copy(commentList = commentList, commentsCount = result.commentsCount ?: result.comments?.size)
+                        }
                     }
-                }
-            }.launchIn(viewModelScope + exceptionHandler)
+                }.launchIn(viewModelScope + exceptionHandler)
+            }
         }
     }
 
     private fun onClickSendComment(comment: String) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isLoading = true)
-            }
-        }
-
-        viewModelScope.launch(ioDispatcher) {
-            sendCommunityCommentUseCase(communityId = 1, parentId = null, comment = comment).onEach { result ->
-                withContext(mainImmediateDispatcher) {
-                    _state.update {
-                        it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)
-                    }
-
-                    _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
+        getCommunityId()?.let { communityId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
                 }
-            }.launchIn(viewModelScope + exceptionHandler)
+            }
+
+            viewModelScope.launch(ioDispatcher) {
+                sendCommunityCommentUseCase(communityId = communityId, parentId = null, comment = comment).onEach { result ->
+                    withContext(mainImmediateDispatcher) {
+                        _state.update {
+                            it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)
+                        }
+
+                        _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
+                    }
+                }.launchIn(viewModelScope + exceptionHandler)
+            }
         }
     }
 
@@ -142,36 +148,38 @@ class CommunityDetailViewModel @Inject constructor(
     }
 
     private fun onClickLike() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isLoading = true)
-            }
+        getCommunityId()?.let { communityId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
 
-            withContext(ioDispatcher) {
-                state.value.liked?.let {
-                    when (it) {
-                        true -> {
-                            dislikeCommunityUseCase(1).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(isLoading = false, liked = false, likeCount = state.value.likeCount?.minus(1))
+                withContext(ioDispatcher) {
+                    state.value.liked?.let {
+                        when (it) {
+                            true -> {
+                                dislikeCommunityUseCase(communityId).onEach {
+                                    withContext(mainImmediateDispatcher) {
+                                        _state.update {
+                                            it.copy(isLoading = false, liked = false, likeCount = state.value.likeCount?.minus(1))
+                                        }
+
+                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글 추천을 취소하였습니다."))
                                     }
+                                }.launchIn(viewModelScope + exceptionHandler)
+                            }
 
-                                    _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글 추천을 취소하였습니다."))
-                                }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
+                            false -> {
+                                likeCommunityUseCase(communityId).onEach {
+                                    withContext(mainImmediateDispatcher) {
+                                        _state.update {
+                                            it.copy(isLoading = false, liked = true, likeCount = state.value.likeCount?.plus(1))
+                                        }
 
-                        false -> {
-                            likeCommunityUseCase(1).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(isLoading = false, liked = true, likeCount = state.value.likeCount?.plus(1))
+                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글을 추천하였습니다."))
                                     }
-
-                                    _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글을 추천하였습니다."))
-                                }
-                            }.launchIn(viewModelScope + exceptionHandler)
+                                }.launchIn(viewModelScope + exceptionHandler)
+                            }
                         }
                     }
                 }
@@ -180,39 +188,41 @@ class CommunityDetailViewModel @Inject constructor(
     }
 
     private fun onClickCommentLike(commentId: Int) {
-        val comment = state.value.commentList?.find { comment -> comment.id == commentId }
+        getCommunityId()?.let { communityId ->
+            val comment = state.value.commentList?.find { comment -> comment.id == commentId }
 
-        viewModelScope.launch(ioDispatcher) {
-            when (comment?.liked) {
-                true -> {
-                    dislikeCommunityCommentUseCase(1, commentId).onEach {
-                        withContext(mainImmediateDispatcher) {
-                            _state.update {
-                                it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
-                                    val targetIndex = indexOf(comment)
-                                    this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
-                                })
+            viewModelScope.launch(ioDispatcher) {
+                when (comment?.liked) {
+                    true -> {
+                        dislikeCommunityCommentUseCase(communityId, commentId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
+                                        val targetIndex = indexOf(comment)
+                                        this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
+                                    })
+                                }
                             }
-                        }
-                    }.launchIn(viewModelScope + exceptionHandler)
-                }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
 
-                false -> {
-                    likeCommunityCommentUseCase(1, commentId).onEach {
-                        withContext(mainImmediateDispatcher) {
-                            _state.update {
-                                it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
-                                    val targetIndex = indexOf(comment)
-                                    this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
-                                })
+                    false -> {
+                        likeCommunityCommentUseCase(communityId, commentId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
+                                        val targetIndex = indexOf(comment)
+                                        this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
+                                    })
+                                }
                             }
-                        }
-                    }.launchIn(viewModelScope + exceptionHandler)
-                }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
 
-                null -> {
-                    withContext(mainImmediateDispatcher) {
-                        _effect.emit(CommunityDetailContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
+                    null -> {
+                        withContext(mainImmediateDispatcher) {
+                            _effect.emit(CommunityDetailContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
+                        }
                     }
                 }
             }
