@@ -109,4 +109,14 @@ class QuestionRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun deleteQuestion(questionId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteQuestion(questionId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
 }

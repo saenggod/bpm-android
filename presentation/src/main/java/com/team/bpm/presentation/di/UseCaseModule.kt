@@ -10,6 +10,7 @@ import com.team.bpm.domain.usecase.community.like.DislikeCommunityUseCase
 import com.team.bpm.domain.usecase.community.like.LikeCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.like.LikeCommunityUseCase
 import com.team.bpm.domain.usecase.eye_body.SendEyeBodyUseCase
+import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
@@ -248,6 +249,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDislikeQuestionCommentUseCase(questionRepository: QuestionRepository): DislikeQuestionCommentUseCase {
         return DislikeQuestionCommentUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideDeleteQuestionUseCase(questionRepository: QuestionRepository): DeleteQuestionUseCase {
+        return DeleteQuestionUseCase(questionRepository)
     }
 
     @Provides
