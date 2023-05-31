@@ -215,7 +215,7 @@ fun BPMTextField(
     limit: Int?,
     radius: Dp = 12.dp,
     minHeight: Dp = 40.dp,
-    iconSize: Dp = 0.dp,
+    iconPadding: Dp = 0.dp,
     singleLine: Boolean,
     isExtendable: Boolean = true,
     hint: String?,
@@ -291,7 +291,13 @@ fun BPMTextField(
             }
 
             if (icon != null) {
-                icon(hasFocus.value)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(minHeight)
+                ) {
+                    icon(hasFocus.value)
+                }
             }
 
             if (onClick == null) {
@@ -300,7 +306,7 @@ fun BPMTextField(
                         modifier = Modifier
                             .padding(
                                 start = 14.dp,
-                                end = if (icon == null) 14.dp else 20.dp + iconSize,
+                                end = if (icon == null) 14.dp else 20.dp + iconPadding,
                             )
                             .padding(vertical = 12.dp)
                             .fillMaxWidth()
@@ -326,7 +332,7 @@ fun BPMTextField(
                     modifier = Modifier
                         .padding(
                             start = 14.dp,
-                            end = if (icon == null) 14.dp else 14.dp + iconSize,
+                            end = if (icon == null) 14.dp else 14.dp + iconPadding,
                         )
                         .padding(vertical = 8.dp)
                         .align(TopStart),

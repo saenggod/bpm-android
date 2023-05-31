@@ -183,7 +183,7 @@ private fun RegisterStudioActivityContent(
                         label = "위치",
                         hint = "업체 위치를 등록해주세요",
                         limit = null,
-                        iconSize = 30.dp,
+                        iconPadding = 30.dp,
                         singleLine = true,
                         icon = {
                             Icon(

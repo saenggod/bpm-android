@@ -45,7 +45,7 @@ interface MainApi {
     @GET("api/studio")
     suspend fun searchStudio(
         @Query("q") query: String
-    ): Response<StudioListResponse>
+    ): Response<BPMResponseV2<StudioListResponse>>
 
     @GET("api/studio/list")
     suspend fun getStudioList(

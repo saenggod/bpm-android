@@ -66,15 +66,13 @@ class SelectStudioViewModel @Inject constructor(
             withContext(ioDispatcher) {
                 searchStudioUseCase(query = query).onEach { result ->
                     withContext(mainImmediateDispatcher) {
-                        when (result) {
-                            is ResponseState.Success -> {
-                                _state.update {
-                                    it.copy(isLoading = false, studioList = result.data.studios ?: emptyList(), studioCount = result.data.studioCount ?: 0)
-                                }
-                            }
-
-                            is ResponseState.Error -> {
-                                // TODO : Show Error Dialog
+                        result.studios?.let { studios ->
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    studioList = studios,
+                                    studioCount = result.studioCount ?: studios.size
+                                )
                             }
                         }
                     }
