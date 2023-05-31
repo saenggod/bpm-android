@@ -1,10 +1,6 @@
 package com.team.bpm.data.network
 
-import com.team.bpm.data.model.request.CommentRequest
-import com.team.bpm.data.model.request.ReportRequest
-import com.team.bpm.data.model.request.ScheduleRequest
-import com.team.bpm.data.model.request.StudioRequest
-import com.team.bpm.data.model.request.UserVerificationRequest
+import com.team.bpm.data.model.request.*
 import com.team.bpm.data.model.response.*
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
@@ -20,12 +16,12 @@ interface MainApi {
     @Headers("shouldBeAuthorized: false")
     @Multipart
     @POST("api/users/signup")
-    suspend fun signUp(
+    suspend fun sendSignUp(
         @Part("kakaoId") kakaoId: Long,
         @Part("nickname") nickname: String,
         @Part("bio") bio: String,
         @Part file: MultipartBody.Part,
-    ): Response<SignUpResponse>
+    ): Response<BPMResponseV2<SignUpResponse>>
 
     @Headers("shouldBeAuthorized: false")
     @POST("api/users/verification")
@@ -45,7 +41,7 @@ interface MainApi {
     @GET("api/studio")
     suspend fun searchStudio(
         @Query("q") query: String
-    ): Response<StudioListResponse>
+    ): Response<BPMResponseV2<StudioListResponse>>
 
     @GET("api/studio/list")
     suspend fun getStudioList(
@@ -75,10 +71,10 @@ interface MainApi {
     @POST("api/users/schedule")
     suspend fun sendSchedule(
         @Body schedule: ScheduleRequest
-    ): Response<ScheduleResponse>
+    ): Response<BPMResponseV2<UserScheduleResponse>>
 
     @GET("api/users/schedule")
-    suspend fun fetchSchedule(): Response<ScheduleResponse> // 중복
+    suspend fun fetchSchedule(): Response<BPMResponseV2<UserScheduleResponse>> // 중복
 
     @GET("api/users/schedule")
     suspend fun getUserSchedule(): Response<UserScheduleResponse> // 중복

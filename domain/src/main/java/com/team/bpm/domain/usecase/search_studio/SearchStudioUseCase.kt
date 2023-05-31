@@ -1,6 +1,5 @@
 package com.team.bpm.domain.usecase.search_studio
 
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.StudioList
 import com.team.bpm.domain.repository.SearchStudioRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +10,7 @@ class SearchStudioUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         query: String
-    ): Flow<ResponseState<StudioList>> {
-        return searchStudioRepository.fetchSearchStudioResult(query = query)
+    ): Flow<StudioList> {
+        return searchStudioRepository.fetchSearchedStudioList(query = query)
     }
 }

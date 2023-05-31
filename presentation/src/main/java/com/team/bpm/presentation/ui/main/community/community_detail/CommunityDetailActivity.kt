@@ -406,7 +406,7 @@ private fun CommunityDetailActivityContent(
                                 tint = if (hasFocus) GrayColor2 else GrayColor5
                             )
                         },
-                        iconSize = 20.dp
+                        iconPadding = 20.dp
                     )
                 }
 

@@ -1,13 +1,10 @@
 package com.team.bpm.data.repositoryImpl
 
 import com.team.bpm.data.model.request.ScheduleRequest
-import com.team.bpm.data.model.response.ScheduleResponse.Companion.toDataModel
-import com.team.bpm.data.network.BPMResponse
-import com.team.bpm.data.network.BPMResponseHandler
-import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
+import com.team.bpm.data.model.response.UserScheduleResponse.Companion.toDataModel
+import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
-import com.team.bpm.domain.model.ResponseState
-import com.team.bpm.domain.model.Schedule
+import com.team.bpm.domain.model.UserSchedule
 import com.team.bpm.domain.repository.ScheduleRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -24,9 +21,9 @@ class ScheduleRepositoryImpl @Inject constructor(
         date: String,
         time: String,
         memo: String
-    ): Flow<ResponseState<Schedule>> {
+    ): Flow<UserSchedule> {
         return flow {
-            BPMResponseHandler().handle {
+            BPMResponseHandlerV2().handle {
                 mainApi.sendSchedule(
                     schedule = ScheduleRequest(
                         studioName = studioName,
@@ -36,23 +33,17 @@ class ScheduleRepositoryImpl @Inject constructor(
                     )
                 )
             }.onEach { result ->
-                when (result) {
-                    is BPMResponse.Success -> emit(ResponseState.Success(result.data.toDataModel()))
-                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
-                }
+                result.response?.let { emit(it.toDataModel()) }
             }.collect()
         }
     }
 
-    override suspend fun fetchSchedule(): Flow<ResponseState<Schedule>> {
+    override suspend fun fetchSchedule(): Flow<UserSchedule> {
         return flow {
-            BPMResponseHandler().handle {
+            BPMResponseHandlerV2().handle {
                 mainApi.fetchSchedule()
             }.onEach { result ->
-                when (result) {
-                    is BPMResponse.Success -> emit(ResponseState.Success(result.data.toDataModel()))
-                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
-                }
+                result.response?.let { emit(it.toDataModel()) }
             }.collect()
         }
     }

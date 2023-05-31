@@ -5,28 +5,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.domain.usecase.splash.SetUserTokenUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -135,18 +121,8 @@ class SignUpViewModel @Inject constructor(
                             // TODO : Error handling
                         }.onEach { result ->
                             withContext(mainImmediateDispatcher) {
-                                when (result) {
-                                    is ResponseState.Success -> {
-                                        result.data.token?.let { saveUserToken(it) }
-                                    }
-                                    is ResponseState.Error -> {
-                                        /*
-                                      TODO : will be modified when function develop
-                                     */
-                                        _state.update {
-                                            it.copy(isLoading = false, errorCode = result.error.code)
-                                        }
-                                    }
+                                result.token?.let { token ->
+                                    saveUserToken(token)
                                 }
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
@@ -156,18 +132,20 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private suspend fun saveUserToken(token: String) {
-        setUserTokenUseCase(token).onEach { tokenResult ->
-            withContext(mainImmediateDispatcher) {
-                if (!tokenResult.isNullOrEmpty()) {
-                    _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
-                } else {
-                    _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))
-                    _state.update {
-                        it.copy(isLoading = false)
+    private fun saveUserToken(token: String) {
+        viewModelScope.launch(ioDispatcher) {
+            setUserTokenUseCase(token).onEach { tokenResult ->
+                withContext(mainImmediateDispatcher) {
+                    if (!tokenResult.isNullOrEmpty()) {
+                        _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
+                    } else {
+                        _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))
+                        _state.update {
+                            it.copy(isLoading = false)
+                        }
                     }
                 }
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
     }
 }

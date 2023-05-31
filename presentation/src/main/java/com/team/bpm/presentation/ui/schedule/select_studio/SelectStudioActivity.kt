@@ -11,27 +11,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.CenterEnd
-import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
@@ -45,6 +38,7 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMSpacer
+import com.team.bpm.presentation.compose.BPMTextField
 import com.team.bpm.presentation.compose.LoadingScreen
 import com.team.bpm.presentation.compose.RoundedCornerButton
 import com.team.bpm.presentation.compose.getLocalContext
@@ -125,7 +119,7 @@ private fun SelectStudioActivityContent(
                 ) {
                     Icon(
                         modifier = Modifier
-                            .padding(start = 12.dp)
+                            .padding(start = 14.dp)
                             .size(26.dp)
                             .align(CenterVertically)
                             .clickableWithoutRipple { context.finish() },
@@ -133,59 +127,41 @@ private fun SelectStudioActivityContent(
                         contentDescription = ""
                     )
 
-                    BPMSpacer(width = 16.dp)
+                    val searchTextState = remember { mutableStateOf("") }
 
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 14.dp)
-                            .border(
-                                width = 1.dp,
-                                shape = RoundedCornerShape(12.dp),
-                                color = GrayColor8
-                            )
-                            .fillMaxWidth()
-                            .height(40.dp),
-                    ) {
-                        val searchTextState = remember { mutableStateOf("") }
-
-                        CompositionLocalProvider(LocalTextSelectionColors.provides(textSelectionColor())) {
-                            BasicTextField(
+                    BPMTextField(
+                        modifier = Modifier.padding(horizontal = 14.dp),
+                        textState = searchTextState,
+                        label = null,
+                        limit = null,
+                        singleLine = true,
+                        hint = null,
+                        isExtendable = false,
+                        minHeight = 40.dp,
+                        iconPadding = 12.dp,
+                        keyboardActions = KeyboardActions(onDone = {
+                            focusManager.clearFocus()
+                            if (searchTextState.value.isNotEmpty()) {
+                                event.invoke(SelectStudioContract.Event.OnClickSearch(searchTextState.value))
+                            }
+                        }),
+                        icon = { hasFocus ->
+                            Icon(
                                 modifier = Modifier
-                                    .padding(
-                                        start = 14.dp,
-                                        end = 50.dp
-                                    )
-                                    .fillMaxWidth()
-                                    .align(CenterStart),
-                                value = searchTextState.value,
-                                onValueChange = { searchTextState.value = it },
-                                singleLine = true,
-                                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }), // TODO OnDoneAction
-                                cursorBrush = SolidColor(MainBlackColor),
-                                textStyle = TextStyle(
-                                    fontWeight = Medium,
-                                    fontSize = 14.sp,
-                                    letterSpacing = 0.sp
-                                )
+                                    .padding(end = 4.dp)
+                                    .size(32.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .clickableWithoutRipple {
+                                        if (searchTextState.value.isNotEmpty()) {
+                                            event.invoke(SelectStudioContract.Event.OnClickSearch(searchTextState.value))
+                                        }
+                                    },
+                                painter = painterResource(id = R.drawable.ic_search),
+                                contentDescription = "searchIconButton",
+                                tint = if (hasFocus) GrayColor2 else GrayColor5
                             )
                         }
-
-                        Icon(
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .size(32.dp)
-                                .align(CenterEnd)
-                                .clickableWithoutRipple {
-                                    focusManager.clearFocus()
-                                    event.invoke(SelectStudioContract.Event.OnClickSearch(searchTextState.value))
-                                },
-                            painter = painterResource(
-                                id = R.drawable.ic_search
-                            ),
-                            contentDescription = "searchIcon",
-                            tint = GrayColor7
-                        )
-                    }
+                    )
                 }
             }
 
