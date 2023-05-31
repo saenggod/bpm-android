@@ -13,6 +13,7 @@ import com.team.bpm.domain.usecase.eye_body.SendEyeBodyUseCase
 import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionUseCase
 import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
@@ -255,6 +256,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDeleteQuestionUseCase(questionRepository: QuestionRepository): DeleteQuestionUseCase {
         return DeleteQuestionUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideReportQuestionUseCase(questionRepository: QuestionRepository): ReportQuestionUseCase {
+        return ReportQuestionUseCase(questionRepository)
     }
 
     @Provides

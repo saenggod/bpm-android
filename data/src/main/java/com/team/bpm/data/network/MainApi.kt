@@ -94,7 +94,7 @@ interface MainApi {
     suspend fun reportReview(
         @Path("studioId") studioId: Int,
         @Path("reviewId") reviewId: Int,
-        @Body report: ReportRequest
+        @Body reportRequest: ReportRequest
     ): Response<BPMResponseV2<ResponseBody>>
 
     @GET("api/studio/list")
@@ -210,6 +210,12 @@ interface MainApi {
     @DELETE("api/lounge/question-board/{questionBoardArticleId}")
     suspend fun deleteQuestion(
         @Path("questionBoardArticleId") questionId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
+    @POST("api/lounge/question-board/{questionBoardArticleId}/report")
+    suspend fun reportQuestion(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Body reportRequest: ReportRequest
     ): Response<BPMResponseV2<ResponseBody>>
 
     @Multipart

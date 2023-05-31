@@ -1,6 +1,7 @@
 package com.team.bpm.data.repositoryImpl
 
 import com.team.bpm.data.model.request.CommentRequest
+import com.team.bpm.data.model.request.ReportRequest
 import com.team.bpm.data.model.response.CommentListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.QuestionResponse.Companion.toDataModel
@@ -114,6 +115,16 @@ class QuestionRepositoryImpl @Inject constructor(
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteQuestion(questionId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun reportQuestion(questionId: Int, reason: String): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.reportQuestion(questionId, ReportRequest(reason))
             }.collect {
                 emit(Unit)
             }
