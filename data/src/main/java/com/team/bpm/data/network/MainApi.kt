@@ -235,6 +235,13 @@ interface MainApi {
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @POST("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}/report")
+    suspend fun reportQuestionComment(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Path("commentId") commentId: Int,
+        @Body reportRequest: ReportRequest
+    ): Response<BPMResponseV2<ResponseBody>>
+
     @Multipart
     @POST("api/community/body-shape")
     suspend fun sendEyeBody(

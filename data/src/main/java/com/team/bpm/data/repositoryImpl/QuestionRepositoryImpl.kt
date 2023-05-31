@@ -140,4 +140,14 @@ class QuestionRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun reportQuestionComment(questionId: Int, commentId: Int, reason: String): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.reportQuestionComment(questionId, commentId, ReportRequest(reason))
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
 }

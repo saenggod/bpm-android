@@ -17,4 +17,5 @@ interface QuestionRepository {
     suspend fun deleteQuestion(questionId: Int): Flow<Unit>
     suspend fun reportQuestion(questionId: Int, reason: String): Flow<Unit>
     suspend fun deleteQuestionComment(questionId: Int, commentId: Int): Flow<Unit>
+    suspend fun reportQuestionComment(questionId: Int, commentId: Int, reason: String): Flow<Unit>
 }

@@ -16,6 +16,7 @@ import com.team.bpm.domain.usecase.question.DeleteQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionUseCase
@@ -283,6 +284,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDeleteQuestionCommentUseCase(questionRepository: QuestionRepository): DeleteQuestionCommentUseCase {
         return DeleteQuestionCommentUseCase(questionRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideReportQuestionCommentUseCase(questionRepository: QuestionRepository): ReportQuestionCommentUseCase {
+        return ReportQuestionCommentUseCase(questionRepository)
     }
 
     @Provides
