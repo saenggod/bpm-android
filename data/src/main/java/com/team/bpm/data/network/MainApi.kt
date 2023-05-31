@@ -172,6 +172,12 @@ interface MainApi {
         @Body reportRequest: ReportRequest
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @DELETE("api/lounge/community/{communityId}/comments/{commentId}")
+    suspend fun deleteCommunityComment(
+        @Path("communityId") communityId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
     @Multipart
     @POST("api/lounge/question-board")
     suspend fun sendQuestion(

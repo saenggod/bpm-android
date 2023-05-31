@@ -1,6 +1,7 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
+import com.team.bpm.domain.usecase.community.DeleteCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.DeleteCommunityUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
@@ -206,6 +207,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideReportCommunityUseCase(communityRepository: CommunityRepository): ReportCommunityUseCase {
         return ReportCommunityUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideDeleteCommunityCommentUseCase(communityRepository: CommunityRepository): DeleteCommunityCommentUseCase {
+        return DeleteCommunityCommentUseCase(communityRepository)
     }
 
     @Provides
