@@ -34,4 +34,10 @@ interface ReviewRepository {
         studioId: Int,
         reviewId: Int
     ): Flow<Unit>
+
+    suspend fun reportReview(
+        studioId: Int,
+        reviewId: Int,
+        reason: String
+    ): Flow<Unit>
 }

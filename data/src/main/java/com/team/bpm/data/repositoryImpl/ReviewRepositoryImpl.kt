@@ -1,5 +1,6 @@
 package com.team.bpm.data.repositoryImpl
 
+import com.team.bpm.data.model.request.ReportRequest
 import com.team.bpm.data.model.response.ReviewListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.ReviewResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
@@ -106,13 +107,30 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun deleteReviewLike(
         studioId: Int,
         reviewId: Int
-    )
-            : Flow<Unit> {
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteReviewLike(
                     studioId = studioId,
                     reviewId = reviewId
+                )
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun reportReview(
+        studioId: Int,
+        reviewId: Int,
+        reason: String
+    ): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.reportReview(
+                    studioId = studioId,
+                    reviewId = reviewId,
+                    report = ReportRequest(reason)
                 )
             }.collect {
                 emit(Unit)

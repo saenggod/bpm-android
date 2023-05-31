@@ -1,6 +1,7 @@
 package com.team.bpm.data.network
 
 import com.team.bpm.data.model.request.CommentRequest
+import com.team.bpm.data.model.request.ReportRequest
 import com.team.bpm.data.model.request.ScheduleRequest
 import com.team.bpm.data.model.request.StudioRequest
 import com.team.bpm.data.model.request.UserVerificationRequest
@@ -87,6 +88,13 @@ interface MainApi {
     suspend fun deleteReview(
         @Path("studioId") studioId: Int,
         @Path("reviewId") reviewId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
+    @POST("api/studio/{studioId}/review/{reviewId}/report")
+    suspend fun reportReview(
+        @Path("studioId") studioId: Int,
+        @Path("reviewId") reviewId: Int,
+        @Body report: ReportRequest
     ): Response<BPMResponseV2<ResponseBody>>
 
     @GET("api/studio/list")

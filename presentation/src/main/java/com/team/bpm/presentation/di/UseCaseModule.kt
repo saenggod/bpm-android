@@ -23,6 +23,7 @@ import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressN
 import com.team.bpm.domain.usecase.review.DeleteReviewUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
+import com.team.bpm.domain.usecase.review.ReportReviewUseCase
 import com.team.bpm.domain.usecase.review.SendReviewUseCase
 import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
@@ -121,6 +122,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDislikeReviewUseCase(reviewRepository: ReviewRepository): DislikeReviewUseCase {
         return DislikeReviewUseCase(reviewRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideReportReviewUseCase(reviewRepository: ReviewRepository): ReportReviewUseCase {
+        return ReportReviewUseCase(reviewRepository)
     }
 
     @Provides
