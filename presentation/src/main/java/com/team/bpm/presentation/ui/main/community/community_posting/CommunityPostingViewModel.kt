@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.community.SendCommunityUseCase
+import com.team.bpm.domain.usecase.community.WriteCommunityUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
@@ -30,7 +30,7 @@ import javax.inject.Inject
 class CommunityPostingViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val sendCommunityUseCase: SendCommunityUseCase
+    private val writeCommunityUseCase: WriteCommunityUseCase
 ) : ViewModel(), CommunityPostingContract {
     private val _state = MutableStateFlow(CommunityPostingContract.State())
     override val state: StateFlow<CommunityPostingContract.State> = _state.asStateFlow()
@@ -104,7 +104,7 @@ class CommunityPostingViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    sendCommunityUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                    writeCommunityUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             result.id?.let { communityId -> _effect.emit(CommunityPostingContract.Effect.RedirectToCommunity(communityId)) }
                         }

@@ -6,7 +6,7 @@ import com.team.bpm.domain.repository.ScheduleRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class SaveScheduleUseCase @Inject constructor(
+class MakeScheduleUseCase @Inject constructor(
     private val scheduleRepository: ScheduleRepository
 ) {
 

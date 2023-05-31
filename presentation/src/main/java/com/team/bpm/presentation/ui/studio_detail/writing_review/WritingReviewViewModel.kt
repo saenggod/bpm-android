@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.review.SendReviewUseCase
+import com.team.bpm.domain.usecase.review.WriteReviewUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
@@ -24,7 +24,7 @@ import javax.inject.Inject
 class WritingReviewViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val sendReviewUseCase: SendReviewUseCase,
+    private val writeReviewUseCase: WriteReviewUseCase,
     private val getStudioDetailUseCase: GetStudioDetailUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), WritingReviewContract {
@@ -157,7 +157,7 @@ class WritingReviewViewModel @Inject constructor(
 
             withContext(ioDispatcher) {
                 state.value.studio?.id?.let { studioId ->
-                    sendReviewUseCase(
+                    writeReviewUseCase(
                         studioId = studioId,
                         imageByteArrays = state.value.imageList.map { convertImageBitmapToByteArray(it.second) },
                         rating = rating,

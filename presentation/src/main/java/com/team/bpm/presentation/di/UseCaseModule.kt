@@ -3,47 +3,47 @@ package com.team.bpm.presentation.di
 import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.community.DeleteCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.DeleteCommunityUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
-import com.team.bpm.domain.usecase.community.ReportCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.ReportCommunityUseCase
-import com.team.bpm.domain.usecase.community.SendCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.SendCommunityUseCase
 import com.team.bpm.domain.usecase.community.DislikeCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.DislikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
+import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
 import com.team.bpm.domain.usecase.community.LikeCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.LikeCommunityUseCase
-import com.team.bpm.domain.usecase.eye_body.SendEyeBodyUseCase
+import com.team.bpm.domain.usecase.community.ReportCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.ReportCommunityUseCase
+import com.team.bpm.domain.usecase.community.WriteCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.WriteCommunityUseCase
+import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
 import com.team.bpm.domain.usecase.question.DeleteQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
-import com.team.bpm.domain.usecase.question.ReportQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
-import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.SendQuestionUseCase
 import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
 import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
+import com.team.bpm.domain.usecase.question.WriteQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.WriteQuestionUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.DeleteReviewUseCase
+import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
-import com.team.bpm.domain.usecase.review.ReportReviewUseCase
-import com.team.bpm.domain.usecase.review.SendReviewUseCase
-import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.LikeReviewUseCase
+import com.team.bpm.domain.usecase.review.ReportReviewUseCase
+import com.team.bpm.domain.usecase.review.WriteReviewUseCase
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
-import com.team.bpm.domain.usecase.schedule.SaveScheduleUseCase
-import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
-import com.team.bpm.domain.usecase.studio.ScrapUseCase
+import com.team.bpm.domain.usecase.schedule.MakeScheduleUseCase
 import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.domain.usecase.splash.GetKakaoUserIdUseCase
 import com.team.bpm.domain.usecase.splash.SetKakaoUserIdUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
+import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
+import com.team.bpm.domain.usecase.studio.ScrapUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,6 +53,10 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @Module
 @InstallIn(ViewModelComponent::class)
 object UseCaseModule {
+
+    /*
+    계정
+     */
 
     @Provides
     @ViewModelScoped
@@ -71,6 +75,10 @@ object UseCaseModule {
     fun provideSignUpUseCase(signUpRepository: SignUpRepository): SignUpUseCase {
         return SignUpUseCase(signUpRepository)
     }
+
+    /*
+    스튜디오
+     */
 
     @Provides
     @ViewModelScoped
@@ -108,10 +116,14 @@ object UseCaseModule {
         return ScrapCancelUseCase(studioRepository)
     }
 
+    /*
+    일정
+     */
+
     @Provides
     @ViewModelScoped
-    fun provideSaveScheduleUseCase(scheduleRepository: ScheduleRepository): SaveScheduleUseCase {
-        return SaveScheduleUseCase(scheduleRepository)
+    fun provideSaveScheduleUseCase(scheduleRepository: ScheduleRepository): MakeScheduleUseCase {
+        return MakeScheduleUseCase(scheduleRepository)
     }
 
     @Provides
@@ -120,10 +132,14 @@ object UseCaseModule {
         return GetScheduleUseCase(scheduleRepository)
     }
 
+    /*
+    리뷰
+     */
+
     @Provides
     @ViewModelScoped
-    fun provideSendReviewUseCase(reviewRepository: ReviewRepository): SendReviewUseCase {
-        return SendReviewUseCase(reviewRepository)
+    fun provideWriteReviewUseCase(reviewRepository: ReviewRepository): WriteReviewUseCase {
+        return WriteReviewUseCase(reviewRepository)
     }
 
     @Provides
@@ -162,10 +178,14 @@ object UseCaseModule {
         return DislikeReviewUseCase(reviewRepository)
     }
 
+    /*
+    커뮤니티
+    */
+
     @Provides
     @ViewModelScoped
-    fun provideSendCommunityUseCase(communityRepository: CommunityRepository): SendCommunityUseCase {
-        return SendCommunityUseCase(communityRepository)
+    fun provideWriteCommunityUseCase(communityRepository: CommunityRepository): WriteCommunityUseCase {
+        return WriteCommunityUseCase(communityRepository)
     }
 
     @Provides
@@ -200,8 +220,8 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideSendCommunityCommentUseCase(communityRepository: CommunityRepository): SendCommunityCommentUseCase {
-        return SendCommunityCommentUseCase(communityRepository)
+    fun provideWriteCommunityCommentUseCase(communityRepository: CommunityRepository): WriteCommunityCommentUseCase {
+        return WriteCommunityCommentUseCase(communityRepository)
     }
 
     @Provides
@@ -234,10 +254,14 @@ object UseCaseModule {
         return DislikeCommunityCommentUseCase(communityRepository)
     }
 
+    /*
+    질문
+     */
+
     @Provides
     @ViewModelScoped
-    fun provideSendQuestionUseCase(questionRepository: QuestionRepository): SendQuestionUseCase {
-        return SendQuestionUseCase(questionRepository)
+    fun provideWriteQuestionUseCase(questionRepository: QuestionRepository): WriteQuestionUseCase {
+        return WriteQuestionUseCase(questionRepository)
     }
 
     @Provides
@@ -272,8 +296,8 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideSendQuestionCommentUseCase(questionRepository: QuestionRepository): SendQuestionCommentUseCase {
-        return SendQuestionCommentUseCase(questionRepository)
+    fun provideWriteQuestionCommentUseCase(questionRepository: QuestionRepository): WriteQuestionCommentUseCase {
+        return WriteQuestionCommentUseCase(questionRepository)
     }
 
     @Provides
@@ -306,9 +330,13 @@ object UseCaseModule {
         return DislikeQuestionCommentUseCase(questionRepository)
     }
 
+    /*
+    눈바디
+     */
+
     @Provides
     @ViewModelScoped
-    fun provideSendEyeBodyUseCase(eyeBodyRepository: EyeBodyRepository): SendEyeBodyUseCase {
-        return SendEyeBodyUseCase(eyeBodyRepository)
+    fun provideWriteEyeBodyUseCase(eyeBodyRepository: EyeBodyRepository): WriteEyeBodyUseCase {
+        return WriteEyeBodyUseCase(eyeBodyRepository)
     }
 }

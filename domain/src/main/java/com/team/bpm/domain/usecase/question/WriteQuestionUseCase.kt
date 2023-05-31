@@ -5,7 +5,7 @@ import com.team.bpm.domain.repository.QuestionRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class SendQuestionUseCase @Inject constructor(
+class WriteQuestionUseCase @Inject constructor(
     private val questionRepository: QuestionRepository
 ) {
     suspend operator fun invoke(title: String, content: String, imageByteArrays: List<ByteArray>): Flow<Question> {
