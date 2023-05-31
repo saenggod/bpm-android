@@ -8,11 +8,11 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class UserResponse(
-    @SerializedName(value = "id")
+    @SerializedName("id")
     val id: Int?,
-    @SerializedName(value = "nickname")
+    @SerializedName("nickname")
     val nickname: String?,
-    @SerializedName(value = "profilePath")
+    @SerializedName("profilePath")
     val profilePath: String?
 ) : BaseResponse {
 

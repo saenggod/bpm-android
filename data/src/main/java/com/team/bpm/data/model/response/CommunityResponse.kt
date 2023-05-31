@@ -9,21 +9,21 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CommunityResponse(
-    @SerializedName(value = "id")
+    @SerializedName("id")
     val id: Int?,
-    @SerializedName(value = "content")
+    @SerializedName("content")
     val content: String?,
-    @SerializedName(value = "filesPath")
+    @SerializedName("filesPath")
     val filesPath: List<String>?,
-    @SerializedName(value = "author")
+    @SerializedName("author")
     val author: UserResponse?,
-    @SerializedName(value = "createdAt")
+    @SerializedName("createdAt")
     val createdAt: String?,
-    @SerializedName(value = "updatedAt")
+    @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName(value = "liked")
+    @SerializedName("liked")
     val liked: Boolean?,
-    @SerializedName(value = "likeCount")
+    @SerializedName("likeCount")
     val likeCount: Int?
 ) : BaseResponse {
     companion object : DataMapper<CommunityResponse, Community> {

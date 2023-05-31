@@ -10,27 +10,27 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ReviewResponse(
-    @SerializedName(value = "id")
+    @SerializedName("id")
     val id: Int?,
-    @SerializedName(value = "studio")
+    @SerializedName("studio")
     val studio: StudioResponse?,
-    @SerializedName(value = "author")
+    @SerializedName("author")
     val author: UserResponse?,
-    @SerializedName(value = "rating")
+    @SerializedName("rating")
     val rating: Double?,
-    @SerializedName(value = "recommends")
+    @SerializedName("recommends")
     val recommends: List<String>?,
-    @SerializedName(value = "filesPath")
+    @SerializedName("filesPath")
     val filesPath: List<String>?,
-    @SerializedName(value = "content")
+    @SerializedName("content")
     val content: String?,
-    @SerializedName(value = "likeCount")
+    @SerializedName("likeCount")
     val likeCount: Int?,
-    @SerializedName(value = "createdAt")
+    @SerializedName("createdAt")
     val createdAt: String?,
-    @SerializedName(value = "updatedAt")
+    @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName(value = "liked")
+    @SerializedName("liked")
     val liked: Boolean?
 ) : BaseResponse {
     companion object : DataMapper<ReviewResponse, Review> {

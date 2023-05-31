@@ -8,13 +8,13 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SignUpResponse(
-    @SerializedName(value = "nickname")
+    @SerializedName("nickname")
     val nickname: String?,
-    @SerializedName(value = "bio")
+    @SerializedName("bio")
     val bio: String?,
-    @SerializedName(value = "token")
+    @SerializedName("token")
     val token: String?,
-    @SerializedName(value = "image")
+    @SerializedName("image")
     val image: String?
 ) : BaseResponse {
 
