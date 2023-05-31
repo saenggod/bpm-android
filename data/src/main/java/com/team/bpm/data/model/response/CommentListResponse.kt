@@ -9,9 +9,9 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CommentListResponse(
-    @SerializedName(value = "comments")
+    @SerializedName("comments")
     val comments: List<CommentResponse>?,
-    @SerializedName(value = "commentsCount")
+    @SerializedName("commentsCount")
     val commentsCount: Int?
 ) : BaseResponse {
     companion object : DataMapper<CommentListResponse, CommentList> {

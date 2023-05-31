@@ -53,8 +53,8 @@ object RepositoryModule {
     @Provides
     fun provideStudioDetailRepository(
         mainApi: MainApi
-    ): StudioDetailRepository {
-        return StudioDetailRepositoryImpl(mainApi)
+    ): StudioRepository {
+        return StudioRepositoryImpl(mainApi)
     }
 
     @Singleton
@@ -63,14 +63,6 @@ object RepositoryModule {
         mainApi: MainApi
     ): ReviewRepository {
         return ReviewRepositoryImpl(mainApi)
-    }
-
-    @Singleton
-    @Provides
-    fun provideWriteReviewRepository(
-        mainApi: MainApi
-    ): WriteReviewRepository {
-        return WriteReviewRepositoryImpl(mainApi)
     }
 
     @Singleton
@@ -104,14 +96,6 @@ object RepositoryModule {
         mainApi: MainApi
     ): QuestionRepository {
         return QuestionRepositoryImpl(mainApi)
-    }
-
-    @Singleton
-    @Provides
-    fun provideScrapRepository(
-        mainApi: MainApi
-    ): ScrapRepository {
-        return ScrapRepositoryImpl(mainApi)
     }
 
     @Singleton

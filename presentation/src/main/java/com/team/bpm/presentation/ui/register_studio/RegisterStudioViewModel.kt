@@ -2,7 +2,7 @@ package com.team.bpm.presentation.ui.register_studio
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.RegisterStudioWrapper
+import com.team.bpm.domain.model.request_wrapper.RegisterStudioWrapper
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher

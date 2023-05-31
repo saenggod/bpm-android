@@ -9,17 +9,17 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class EyeBodyResponse(
-    @SerializedName(value = "id")
+    @SerializedName("id")
     val id: Int?,
-    @SerializedName(value = "content")
+    @SerializedName("content")
     val content: String?,
-    @SerializedName(value = "createdAt")
+    @SerializedName("createdAt")
     val createdAt: String?,
-    @SerializedName(value = "updatedAt")
+    @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName(value = "filesPath")
+    @SerializedName("filesPath")
     val filesPath: List<String>?,
-    @SerializedName(value = "author")
+    @SerializedName("author")
     val author: UserResponse?
 ) : BaseResponse {
     companion object : DataMapper<EyeBodyResponse, EyeBody> {

@@ -6,11 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
-import com.team.bpm.domain.usecase.community.SendCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.like.DislikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.like.DislikeCommunityUseCase
-import com.team.bpm.domain.usecase.community.like.LikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.like.LikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.WriteCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.DislikeCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.DislikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.LikeCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.LikeCommunityUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +24,7 @@ class CommunityDetailViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getCommunityDetailUseCase: GetCommunityDetailUseCase,
     private val getCommunityCommentListUseCase: GetCommunityCommentListUseCase,
-    private val sendCommunityCommentUseCase: SendCommunityCommentUseCase,
+    private val writeCommunityCommentUseCase: WriteCommunityCommentUseCase,
     private val likeCommunityUseCase: LikeCommunityUseCase,
     private val dislikeCommunityUseCase: DislikeCommunityUseCase,
     private val likeCommunityCommentUseCase: LikeCommunityCommentUseCase,
@@ -124,7 +124,7 @@ class CommunityDetailViewModel @Inject constructor(
             }
 
             viewModelScope.launch(ioDispatcher) {
-                sendCommunityCommentUseCase(communityId = communityId, parentId = null, comment = comment).onEach { result ->
+                writeCommunityCommentUseCase(communityId = communityId, parentId = null, comment = comment).onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
                             it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)

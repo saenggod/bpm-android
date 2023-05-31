@@ -217,6 +217,7 @@ fun BPMTextField(
     minHeight: Dp = 40.dp,
     iconSize: Dp = 0.dp,
     singleLine: Boolean,
+    isExtendable: Boolean = true,
     hint: String?,
     onClick: (() -> Unit)? = null,
     allocatedErrorCode: String? = null,
@@ -303,7 +304,7 @@ fun BPMTextField(
                             )
                             .padding(vertical = 12.dp)
                             .fillMaxWidth()
-                            .heightIn(min = minHeight - 24.dp)
+                            .heightIn(min = minHeight - 24.dp, max = if (isExtendable) Dp.Unspecified else minHeight - 24.dp)
                             .align(Center)
                             .onFocusChanged { hasFocus.value = it.hasFocus },
                         value = textState.value,
@@ -359,7 +360,8 @@ fun BPMTextField(
 fun ReviewComposable(
     modifier: Modifier = Modifier,
     review: Review,
-    onClickLike: (Int) -> Unit
+    onClickLike: (Int) -> Unit,
+    onClickActionButton: () -> Unit
 ) {
     val context = getLocalContext()
 
@@ -480,12 +482,24 @@ fun ReviewComposable(
 
             BPMSpacer(height = 25.dp)
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = CenterVertically,
+                horizontalArrangement = SpaceBetween
+            ) {
+                LikeButton(
+                    liked = liked ?: false,
+                    likeCount = likeCount ?: 0,
+                    onClick = { review.id?.let { reviewId -> onClickLike(reviewId) } }
+                )
 
-            LikeButton(
-                liked = liked ?: false,
-                likeCount = likeCount ?: 0,
-                onClick = { review.id?.let { reviewId -> onClickLike(reviewId) } }
-            )
+                Icon(
+                    modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
+                    painter = painterResource(id = R.drawable.ic_edit),
+                    contentDescription = "editIcon",
+                    tint = GrayColor4
+                )
+            }
         }
 
         BPMSpacer(height = 20.dp)
@@ -767,8 +781,8 @@ inline fun ImagePlaceHolder(
 inline fun CommentComposable(
     modifier: Modifier = Modifier,
     comment: Comment,
-    crossinline onClickLike: () -> Unit,
-    crossinline onClickActionButton: () -> Unit
+    crossinline onClickLike: (Int) -> Unit,
+    crossinline onClickActionButton: (Int) -> Unit
 ) {
     with(comment) {
         Row(modifier = modifier.fillMaxWidth()) {
@@ -834,7 +848,7 @@ inline fun CommentComposable(
                     }
 
                     Icon(
-                        modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
+                        modifier = Modifier.clickableWithoutRipple { comment.id?.let { commentId -> onClickActionButton(commentId) } },
                         painter = painterResource(id = R.drawable.ic_edit),
                         contentDescription = "editIcon",
                         tint = GrayColor4
@@ -854,7 +868,7 @@ inline fun CommentComposable(
                 BPMSpacer(height = 10.dp)
 
                 Row(
-                    modifier = Modifier.clickableWithoutRipple { onClickLike() },
+                    modifier = Modifier.clickableWithoutRipple { comment.id?.let { commentId -> onClickLike(commentId) } },
                     verticalAlignment = CenterVertically
                 ) {
                     Icon(

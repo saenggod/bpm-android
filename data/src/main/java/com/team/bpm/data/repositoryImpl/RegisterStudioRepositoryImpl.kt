@@ -4,7 +4,7 @@ import android.location.Geocoder
 import com.team.bpm.data.model.request.StudioRequest
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
-import com.team.bpm.domain.model.RegisterStudioWrapper
+import com.team.bpm.domain.model.request_wrapper.RegisterStudioWrapper
 import com.team.bpm.domain.repository.RegisterStudioRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

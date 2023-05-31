@@ -366,11 +366,11 @@ private fun QuestionDetailActivityContent(
                                         }
                                         .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
                                     comment = comment,
-                                    onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
-                                    onClickActionButton = {
+                                    onClickLike = { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) },
+                                    onClickActionButton = { commentId ->
                                         focusManager.clearFocus()
                                         if (comment.parentId == null) {
-                                            comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId)) }
+                                            event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId))
                                         } else {
                                             comment.parentId?.let { parentCommentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(parentCommentId)) }
                                         }

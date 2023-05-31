@@ -10,45 +10,45 @@ import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class StudioResponse(
-    @SerializedName(value = "id")
+    @SerializedName("id")
     val id: Int?,
-    @SerializedName(value = "name")
+    @SerializedName("name")
     val name: String?,
-    @SerializedName(value = "address")
+    @SerializedName("address")
     val address: String?,
-    @SerializedName(value = "latitude")
+    @SerializedName("latitude")
     val latitude: Double?,
-    @SerializedName(value = "longitude")
+    @SerializedName("longitude")
     val longitude: Double?,
-    @SerializedName(value = "firstTag")
+    @SerializedName("firstTag")
     val firstTag: String?,
-    @SerializedName(value = "secondTag")
+    @SerializedName("secondTag")
     val secondTag: String?,
-    @SerializedName(value = "topRecommends")
+    @SerializedName("topRecommends")
     val topRecommends: @RawValue JsonObject?,
-    @SerializedName(value = "phone")
+    @SerializedName("phone")
     val phone: String?,
-    @SerializedName(value = "sns")
+    @SerializedName("sns")
     val sns: String?,
-    @SerializedName(value = "openHours")
+    @SerializedName("openHours")
     val openHours: String?,
-    @SerializedName(value = "price")
+    @SerializedName("price")
     val price: String?,
-    @SerializedName(value = "filesPath")
+    @SerializedName("filesPath")
     val filesPath: List<String>?,
-    @SerializedName(value = "content")
+    @SerializedName("content")
     val content: String?,
-    @SerializedName(value = "rating")
+    @SerializedName("rating")
     val rating: Double?,
-    @SerializedName(value = "reviewCount")
+    @SerializedName("reviewCount")
     val reviewCount: Int?,
-    @SerializedName(value = "scrapCount")
+    @SerializedName("scrapCount")
     val scrapCount: Int?,
-    @SerializedName(value = "createdAt")
+    @SerializedName("createdAt")
     val createdAt: String?,
-    @SerializedName(value = "updatedAt")
+    @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName(value = "scrapped")
+    @SerializedName("scrapped")
     val scrapped: Boolean?
 ) : BaseResponse {
 

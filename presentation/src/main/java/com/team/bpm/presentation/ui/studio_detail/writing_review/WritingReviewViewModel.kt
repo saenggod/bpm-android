@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.review.WriteReviewUseCase
-import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
+import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
@@ -25,7 +25,7 @@ class WritingReviewViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val writeReviewUseCase: WriteReviewUseCase,
-    private val studioDetailUseCase: StudioDetailUseCase,
+    private val getStudioDetailUseCase: GetStudioDetailUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), WritingReviewContract {
 
@@ -74,7 +74,7 @@ class WritingReviewViewModel @Inject constructor(
 
         viewModelScope.launch(ioDispatcher) {
             getStudioId()?.let { studioId ->
-                studioDetailUseCase(studioId).onEach { result ->
+                getStudioDetailUseCase(studioId).onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
                             it.copy(isLoading = false, studio = result)

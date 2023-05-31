@@ -3,12 +3,12 @@ package com.team.bpm.data.model.request
 import com.google.gson.annotations.SerializedName
 
 data class ScheduleRequest(
-    @SerializedName(value = "studioName")
+    @SerializedName("studioName")
     val studioName: String,
-    @SerializedName(value = "date")
+    @SerializedName("date")
     val date: String,
-    @SerializedName(value = "time")
+    @SerializedName("time")
     val time: String,
-    @SerializedName(value = "memo")
+    @SerializedName("memo")
     val memo: String
 )

@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.eye_body.SendEyeBodyUseCase
+import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
@@ -30,7 +30,7 @@ import javax.inject.Inject
 class EyeBodyPostingViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val sendEyeBodyUseCase: SendEyeBodyUseCase
+    private val writeEyeBodyUseCase: WriteEyeBodyUseCase
 ) : ViewModel(), EyeBodyPostingContract {
     private val _state = MutableStateFlow(EyeBodyPostingContract.State())
     override val state: StateFlow<EyeBodyPostingContract.State> = _state.asStateFlow()
@@ -102,7 +102,7 @@ class EyeBodyPostingViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    sendEyeBodyUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                    writeEyeBodyUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             result.id?.let { eyeBodyId -> _effect.emit(EyeBodyPostingContract.Effect.RedirectToEyeBody(eyeBodyId)) }
                         }

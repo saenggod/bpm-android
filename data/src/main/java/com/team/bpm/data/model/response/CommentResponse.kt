@@ -9,25 +9,25 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CommentResponse(
-    @SerializedName(value = "id")
+    @SerializedName("id")
     val id: Int?,
-    @SerializedName(value = "author")
+    @SerializedName("author")
     val author: User?,
-    @SerializedName(value = "body")
+    @SerializedName("body")
     val body: String?,
-    @SerializedName(value = "createdAt")
+    @SerializedName("createdAt")
     val createdAt: String?,
-    @SerializedName(value = "updatedAt")
+    @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName(value = "parentId")
+    @SerializedName("parentId")
     val parentId: Int?,
-    @SerializedName(value = "reportCount")
+    @SerializedName("reportCount")
     val reportCount: Int?,
-    @SerializedName(value = "children")
+    @SerializedName("children")
     val children: List<CommentResponse>?,
-    @SerializedName(value = "favorited")
+    @SerializedName("favorited")
     val favorited: Boolean?,
-    @SerializedName(value = "favoritesCount")
+    @SerializedName("favoritesCount")
     val favoritesCount: Int?
 ) : BaseResponse {
     companion object : DataMapper<CommentResponse, Comment> {

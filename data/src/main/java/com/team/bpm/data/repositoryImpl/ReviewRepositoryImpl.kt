@@ -1,9 +1,12 @@
 package com.team.bpm.data.repositoryImpl
 
+import com.team.bpm.data.model.request.ReportRequest
 import com.team.bpm.data.model.response.ReviewListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.ReviewResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.data.util.convertByteArrayToWebpFile
+import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.ReviewList
 import com.team.bpm.domain.repository.ReviewRepository
@@ -16,6 +19,47 @@ import javax.inject.Inject
 class ReviewRepositoryImpl @Inject constructor(
     private val mainApi: MainApi
 ) : ReviewRepository {
+
+    override suspend fun sendReview(
+        studioId: Int,
+        imageByteArrays: List<ByteArray>,
+        rating: Double,
+        recommends: List<String>,
+        content: String
+    ): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendReview(
+                    studioId = 1,
+                    files = imageByteArrays.map { imageByteArray ->
+                        createImageMultipartBody(
+                            key = "file",
+                            file = convertByteArrayToWebpFile(imageByteArray)
+                        )
+                    },
+                    rating = rating,
+                    recommends = recommends,
+                    content = content
+                )
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun deleteReview(
+        studioId: Int,
+        reviewId: Int
+    ): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteReview(studioId, reviewId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
     override suspend fun fetchReviewList(
         studioId: Int
     ): Flow<ReviewList> {
@@ -44,6 +88,24 @@ class ReviewRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendReviewReport(
+        studioId: Int,
+        reviewId: Int,
+        reason: String
+    ): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendReviewReport(
+                    studioId = studioId,
+                    reviewId = reviewId,
+                    reportRequest = ReportRequest(reason)
+                )
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
     override suspend fun sendReviewLike(
         studioId: Int,
         reviewId: Int
@@ -62,8 +124,8 @@ class ReviewRepositoryImpl @Inject constructor(
 
     override suspend fun deleteReviewLike(
         studioId: Int,
-        reviewId: Int)
-    : Flow<Unit> {
+        reviewId: Int
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteReviewLike(

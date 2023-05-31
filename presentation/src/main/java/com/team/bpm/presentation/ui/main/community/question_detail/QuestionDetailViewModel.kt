@@ -6,11 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
-import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.like.DislikeQuestionUseCase
-import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.like.LikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.WriteQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +36,7 @@ class QuestionDetailViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
     private val getQuestionCommentListUseCase: GetQuestionCommentListUseCase,
-    private val sendQuestionCommentUseCase: SendQuestionCommentUseCase,
+    private val writeQuestionCommentUseCase: WriteQuestionCommentUseCase,
     private val likeQuestionUseCase: LikeQuestionUseCase,
     private val dislikeQuestionUseCase: DislikeQuestionUseCase,
     private val likeQuestionCommentUseCase: LikeQuestionCommentUseCase,
@@ -144,7 +144,7 @@ class QuestionDetailViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    sendQuestionCommentUseCase(questionId = questionId, parentId = parentId, comment = comment).onEach { result ->
+                    writeQuestionCommentUseCase(questionId = questionId, parentId = parentId, comment = comment).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
                                 it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)
