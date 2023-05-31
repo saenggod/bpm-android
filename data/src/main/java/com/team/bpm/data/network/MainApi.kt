@@ -161,6 +161,11 @@ interface MainApi {
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @DELETE("api/lounge/community/{communityId}")
+    suspend fun deleteCommunity(
+        @Path("communityId") communityId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
     @Multipart
     @POST("api/lounge/question-board")
     suspend fun sendQuestion(

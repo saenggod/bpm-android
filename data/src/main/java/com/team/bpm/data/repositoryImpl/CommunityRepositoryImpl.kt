@@ -109,4 +109,14 @@ class CommunityRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun deleteCommunity(communityId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteCommunity(communityId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
 }
