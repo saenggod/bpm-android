@@ -1,13 +1,13 @@
-package com.team.bpm.domain.usecase.review.like
+package com.team.bpm.domain.usecase.review
 
 import com.team.bpm.domain.repository.ReviewRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class DislikeReviewUseCase @Inject constructor(
+class LikeReviewUseCase @Inject constructor(
     private val reviewRepository: ReviewRepository
 ) {
     suspend operator fun invoke(studioId: Int, reviewId: Int): Flow<Unit> {
-        return reviewRepository.deleteReviewLike(studioId, reviewId)
+        return reviewRepository.sendReviewLike(studioId, reviewId)
     }
 }

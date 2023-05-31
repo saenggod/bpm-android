@@ -41,6 +41,16 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteCommunity(communityId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteCommunity(communityId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
     override suspend fun fetchCommunityDetail(communityId: Int): Flow<Community> {
         return flow {
             BPMResponseHandlerV2().handle {
@@ -51,23 +61,13 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchCommunityCommentList(communityId: Int): Flow<CommentList> {
+    override suspend fun sendCommunityReport(communityId: Int, reason: String): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.fetchCommunityComments(communityId)
-            }.onEach { result ->
-                result.response?.let { emit(it.toDataModel()) }
-            }.collect()
-        }
-    }
-
-    override suspend fun sendCommunityComment(communityId: Int, parentId: Int?, comment: String): Flow<Comment> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.sendCommunityComment(communityId, CommentRequest(parentId, comment))
-            }.onEach { result ->
-                result.response?.let { emit(it.toDataModel()) }
-            }.collect()
+                mainApi.sendCommunityReport(communityId, ReportRequest(reason))
+            }.collect {
+                emit(Unit)
+            }
         }
     }
 
@@ -91,6 +91,46 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendCommunityComment(communityId: Int, parentId: Int?, comment: String): Flow<Comment> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendCommunityComment(communityId, CommentRequest(parentId, comment))
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun deleteCommunityComment(communityId: Int, commentId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteCommunityComment(communityId, commentId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun fetchCommunityCommentList(communityId: Int): Flow<CommentList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchCommunityCommentList(communityId)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun sendCommunityCommentReport(communityId: Int, commentId: Int, reason: String): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendCommunityCommentReport(communityId, commentId, ReportRequest(reason))
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
     override suspend fun sendCommunityCommentLike(communityId: Int, commentId: Int): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
@@ -105,46 +145,6 @@ class CommunityRepositoryImpl @Inject constructor(
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteCommunityCommentLike(communityId, commentId)
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun deleteCommunity(communityId: Int): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.deleteCommunity(communityId)
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun reportCommunity(communityId: Int, reason: String): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.reportCommunity(communityId, ReportRequest(reason))
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun deleteCommunityComment(communityId: Int, commentId: Int): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.deleteCommunityComment(communityId, commentId)
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun reportCommunityComment(communityId: Int, commentId: Int, reason: String): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.reportCommunityComment(communityId, commentId, ReportRequest(reason))
             }.collect {
                 emit(Unit)
             }

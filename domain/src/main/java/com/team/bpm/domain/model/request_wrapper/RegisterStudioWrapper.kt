@@ -1,4 +1,4 @@
-package com.team.bpm.domain.model
+package com.team.bpm.domain.model.request_wrapper
 
 data class RegisterStudioWrapper(
     val name: String,

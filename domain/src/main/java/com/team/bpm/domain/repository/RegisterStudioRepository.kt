@@ -1,6 +1,6 @@
 package com.team.bpm.domain.repository
 
-import com.team.bpm.domain.model.RegisterStudioWrapper
+import com.team.bpm.domain.model.request_wrapper.RegisterStudioWrapper
 import kotlinx.coroutines.flow.Flow
 
 interface RegisterStudioRepository {

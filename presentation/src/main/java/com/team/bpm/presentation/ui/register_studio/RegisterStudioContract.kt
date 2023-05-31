@@ -1,6 +1,6 @@
 package com.team.bpm.presentation.ui.register_studio
 
-import com.team.bpm.domain.model.RegisterStudioWrapper
+import com.team.bpm.domain.model.request_wrapper.RegisterStudioWrapper
 import com.team.bpm.presentation.base.BaseContract
 
 interface RegisterStudioContract : BaseContract<RegisterStudioContract.State, RegisterStudioContract.Event, RegisterStudioContract.Effect> {

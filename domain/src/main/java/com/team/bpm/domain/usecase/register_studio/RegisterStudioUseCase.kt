@@ -1,6 +1,6 @@
 package com.team.bpm.domain.usecase.register_studio
 
-import com.team.bpm.domain.model.RegisterStudioWrapper
+import com.team.bpm.domain.model.request_wrapper.RegisterStudioWrapper
 import com.team.bpm.domain.repository.RegisterStudioRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

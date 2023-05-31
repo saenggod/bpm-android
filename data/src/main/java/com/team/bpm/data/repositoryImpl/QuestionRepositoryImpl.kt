@@ -41,6 +41,16 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteQuestion(questionId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteQuestion(questionId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
     override suspend fun fetchQuestionDetail(questionId: Int): Flow<Question> {
         return flow {
             BPMResponseHandlerV2().handle {
@@ -51,23 +61,13 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchQuestionCommentList(questionId: Int): Flow<CommentList> {
+    override suspend fun sendQuestionReport(questionId: Int, reason: String): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.fetchQuestionComments(questionId)
-            }.onEach { result ->
-                result.response?.let { emit(it.toDataModel()) }
-            }.collect()
-        }
-    }
-
-    override suspend fun sendQuestionComment(questionId: Int, parentId: Int?, comment: String): Flow<Comment> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.sendQuestionComment(questionId, CommentRequest(parentId, comment))
-            }.onEach { result ->
-                result.response?.let { emit(it.toDataModel()) }
-            }.collect()
+                mainApi.sendQuestionReport(questionId, ReportRequest(reason))
+            }.collect {
+                emit(Unit)
+            }
         }
     }
 
@@ -91,6 +91,46 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendQuestionComment(questionId: Int, parentId: Int?, comment: String): Flow<Comment> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendQuestionComment(questionId, CommentRequest(parentId, comment))
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun deleteQuestionComment(questionId: Int, commentId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteQuestionComment(questionId, commentId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun fetchQuestionCommentList(questionId: Int): Flow<CommentList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchQuestionCommentList(questionId)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun sendQuestionCommentReport(questionId: Int, commentId: Int, reason: String): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendQuestionCommentReport(questionId, commentId, ReportRequest(reason))
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
     override suspend fun sendQuestionCommentLike(questionId: Int, commentId: Int): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
@@ -105,46 +145,6 @@ class QuestionRepositoryImpl @Inject constructor(
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteQuestionCommentLike(questionId, commentId)
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun deleteQuestion(questionId: Int): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.deleteQuestion(questionId)
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun reportQuestion(questionId: Int, reason: String): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.reportQuestion(questionId, ReportRequest(reason))
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun deleteQuestionComment(questionId: Int, commentId: Int): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.deleteQuestionComment(questionId, commentId)
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun reportQuestionComment(questionId: Int, commentId: Int, reason: String): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.reportQuestionComment(questionId, commentId, ReportRequest(reason))
             }.collect {
                 emit(Unit)
             }

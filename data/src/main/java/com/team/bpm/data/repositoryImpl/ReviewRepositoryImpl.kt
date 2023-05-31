@@ -88,6 +88,24 @@ class ReviewRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendReviewReport(
+        studioId: Int,
+        reviewId: Int,
+        reason: String
+    ): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendReviewReport(
+                    studioId = studioId,
+                    reviewId = reviewId,
+                    reportRequest = ReportRequest(reason)
+                )
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
     override suspend fun sendReviewLike(
         studioId: Int,
         reviewId: Int
@@ -113,24 +131,6 @@ class ReviewRepositoryImpl @Inject constructor(
                 mainApi.deleteReviewLike(
                     studioId = studioId,
                     reviewId = reviewId
-                )
-            }.collect {
-                emit(Unit)
-            }
-        }
-    }
-
-    override suspend fun reportReview(
-        studioId: Int,
-        reviewId: Int,
-        reason: String
-    ): Flow<Unit> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.reportReview(
-                    studioId = studioId,
-                    reviewId = reviewId,
-                    report = ReportRequest(reason)
                 )
             }.collect {
                 emit(Unit)

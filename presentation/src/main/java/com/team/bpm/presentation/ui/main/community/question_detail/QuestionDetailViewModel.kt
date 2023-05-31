@@ -7,10 +7,10 @@ import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
 import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
 import com.team.bpm.domain.usecase.question.SendQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.like.DislikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.like.DislikeQuestionUseCase
-import com.team.bpm.domain.usecase.question.like.LikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.like.LikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -8,6 +8,6 @@ class ReportReviewUseCase @Inject constructor(
     private val reviewRepository: ReviewRepository
 ) {
     suspend operator fun invoke(studioId: Int, reviewId: Int, reason: String): Flow<Unit> {
-        return reviewRepository.reportReview(studioId, reviewId, reason)
+        return reviewRepository.sendReviewReport(studioId, reviewId, reason)
     }
 }

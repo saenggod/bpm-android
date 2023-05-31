@@ -5,8 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
-import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
-import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
+import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
+import com.team.bpm.domain.usecase.review.LikeReviewUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel

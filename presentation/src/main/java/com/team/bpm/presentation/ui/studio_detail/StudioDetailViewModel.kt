@@ -6,11 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.DeleteReviewUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
-import com.team.bpm.domain.usecase.review.like.DislikeReviewUseCase
-import com.team.bpm.domain.usecase.review.like.LikeReviewUseCase
-import com.team.bpm.domain.usecase.scrap.ScrapCancelUseCase
-import com.team.bpm.domain.usecase.scrap.ScrapUseCase
-import com.team.bpm.domain.usecase.studio_detail.StudioDetailUseCase
+import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
+import com.team.bpm.domain.usecase.review.LikeReviewUseCase
+import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
+import com.team.bpm.domain.usecase.studio.ScrapUseCase
+import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.model.StudioDetailTabType
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class StudioDetailViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val studioDetailUseCase: StudioDetailUseCase,
+    private val getStudioDetailUseCase: GetStudioDetailUseCase,
     private val reviewListUseCase: GetReviewListUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
     private val dislikeReviewUseCase: DislikeReviewUseCase,
@@ -159,7 +159,7 @@ class StudioDetailViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    studioDetailUseCase(studioId).onEach { result ->
+                    getStudioDetailUseCase(studioId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
                                 it.copy(isLoading = false, studio = result)

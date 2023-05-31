@@ -25,6 +25,12 @@ interface ReviewRepository {
         reviewId: Int
     ): Flow<Review>
 
+    suspend fun sendReviewReport(
+        studioId: Int,
+        reviewId: Int,
+        reason: String
+    ): Flow<Unit>
+
     suspend fun sendReviewLike(
         studioId: Int,
         reviewId: Int
@@ -33,11 +39,5 @@ interface ReviewRepository {
     suspend fun deleteReviewLike(
         studioId: Int,
         reviewId: Int
-    ): Flow<Unit>
-
-    suspend fun reportReview(
-        studioId: Int,
-        reviewId: Int,
-        reason: String
     ): Flow<Unit>
 }
