@@ -4,6 +4,7 @@ import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.community.DeleteCommunityUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
+import com.team.bpm.domain.usecase.community.ReportCommunityUseCase
 import com.team.bpm.domain.usecase.community.SendCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.SendCommunityUseCase
 import com.team.bpm.domain.usecase.community.like.DislikeCommunityCommentUseCase
@@ -197,6 +198,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDeleteCommunityUseCase(communityRepository: CommunityRepository): DeleteCommunityUseCase {
         return DeleteCommunityUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideReportCommunityUseCase(communityRepository: CommunityRepository): ReportCommunityUseCase {
+        return ReportCommunityUseCase(communityRepository)
     }
 
     @Provides

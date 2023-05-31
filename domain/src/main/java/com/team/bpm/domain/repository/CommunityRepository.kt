@@ -15,4 +15,5 @@ interface CommunityRepository {
     suspend fun sendCommunityCommentLike(communityId: Int, commentId: Int): Flow<Unit>
     suspend fun deleteCommunityCommentLike(communityId: Int, commentId: Int): Flow<Unit>
     suspend fun deleteCommunity(communityId: Int): Flow<Unit>
+    suspend fun reportCommunity(communityId: Int, reason: String): Flow<Unit>
 }

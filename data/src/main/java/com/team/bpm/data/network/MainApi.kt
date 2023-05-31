@@ -166,6 +166,12 @@ interface MainApi {
         @Path("communityId") communityId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @POST("api/lounge/community/{communityId}/report")
+    suspend fun reportCommunity(
+        @Path("communityId") communityId: Int,
+        @Body reportRequest: ReportRequest
+    ): Response<BPMResponseV2<ResponseBody>>
+
     @Multipart
     @POST("api/lounge/question-board")
     suspend fun sendQuestion(

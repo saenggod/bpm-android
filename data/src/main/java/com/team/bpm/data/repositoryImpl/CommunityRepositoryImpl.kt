@@ -1,6 +1,7 @@
 package com.team.bpm.data.repositoryImpl
 
 import com.team.bpm.data.model.request.CommentRequest
+import com.team.bpm.data.model.request.ReportRequest
 import com.team.bpm.data.model.response.CommentListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommunityResponse.Companion.toDataModel
@@ -114,6 +115,16 @@ class CommunityRepositoryImpl @Inject constructor(
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteCommunity(communityId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun reportCommunity(communityId: Int, reason: String): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.reportCommunity(communityId, ReportRequest(reason))
             }.collect {
                 emit(Unit)
             }
