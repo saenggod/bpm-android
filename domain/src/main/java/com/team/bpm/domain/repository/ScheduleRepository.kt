@@ -1,7 +1,6 @@
 package com.team.bpm.domain.repository
 
-import com.team.bpm.domain.model.ResponseState
-import com.team.bpm.domain.model.Schedule
+import com.team.bpm.domain.model.UserSchedule
 import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
@@ -11,7 +10,7 @@ interface ScheduleRepository {
         date: String,
         time: String,
         memo: String
-    ): Flow<ResponseState<Schedule>>
+    ): Flow<UserSchedule>
 
-    suspend fun fetchSchedule(): Flow<ResponseState<Schedule>>
+    suspend fun fetchSchedule(): Flow<UserSchedule>
 }

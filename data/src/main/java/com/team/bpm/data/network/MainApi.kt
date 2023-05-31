@@ -71,10 +71,10 @@ interface MainApi {
     @POST("api/users/schedule")
     suspend fun sendSchedule(
         @Body schedule: ScheduleRequest
-    ): Response<ScheduleResponse>
+    ): Response<BPMResponseV2<UserScheduleResponse>>
 
     @GET("api/users/schedule")
-    suspend fun fetchSchedule(): Response<ScheduleResponse> // 중복
+    suspend fun fetchSchedule(): Response<BPMResponseV2<UserScheduleResponse>> // 중복
 
     @GET("api/users/schedule")
     suspend fun getUserSchedule(): Response<UserScheduleResponse> // 중복
