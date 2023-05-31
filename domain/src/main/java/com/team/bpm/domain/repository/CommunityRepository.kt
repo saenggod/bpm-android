@@ -17,4 +17,5 @@ interface CommunityRepository {
     suspend fun deleteCommunity(communityId: Int): Flow<Unit>
     suspend fun reportCommunity(communityId: Int, reason: String): Flow<Unit>
     suspend fun deleteCommunityComment(communityId: Int, commentId: Int): Flow<Unit>
+    suspend fun reportCommunityComment(communityId: Int, commentId: Int, reason: String): Flow<Unit>
 }

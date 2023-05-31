@@ -140,4 +140,14 @@ class CommunityRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun reportCommunityComment(communityId: Int, commentId: Int, reason: String): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.reportCommunityComment(communityId, commentId, ReportRequest(reason))
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
 }

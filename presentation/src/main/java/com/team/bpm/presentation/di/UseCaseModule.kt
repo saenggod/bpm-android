@@ -5,6 +5,7 @@ import com.team.bpm.domain.usecase.community.DeleteCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.DeleteCommunityUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
 import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
+import com.team.bpm.domain.usecase.community.ReportCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.ReportCommunityUseCase
 import com.team.bpm.domain.usecase.community.SendCommunityCommentUseCase
 import com.team.bpm.domain.usecase.community.SendCommunityUseCase
@@ -213,6 +214,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideDeleteCommunityCommentUseCase(communityRepository: CommunityRepository): DeleteCommunityCommentUseCase {
         return DeleteCommunityCommentUseCase(communityRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideReportCommunityCommentUseCase(communityRepository: CommunityRepository): ReportCommunityCommentUseCase {
+        return ReportCommunityCommentUseCase(communityRepository)
     }
 
     @Provides
