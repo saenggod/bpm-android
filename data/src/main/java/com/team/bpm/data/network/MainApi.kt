@@ -229,6 +229,12 @@ interface MainApi {
         @Body reportRequest: ReportRequest
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @DELETE("api/lounge/question-board/{questionBoardArticleId}/comments/{commentId}")
+    suspend fun deleteQuestionComment(
+        @Path("questionBoardArticleId") questionId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
     @Multipart
     @POST("api/community/body-shape")
     suspend fun sendEyeBody(

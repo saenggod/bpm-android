@@ -130,4 +130,14 @@ class QuestionRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun deleteQuestionComment(questionId: Int, commentId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteQuestionComment(questionId, commentId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
 }
