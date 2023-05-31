@@ -1,13 +1,10 @@
 package com.team.bpm.data.repositoryImpl
 
 import com.team.bpm.data.model.response.SignUpResponse.Companion.toDataModel
-import com.team.bpm.data.network.BPMResponse
-import com.team.bpm.data.network.BPMResponseHandler
-import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
+import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.data.util.convertByteArrayToWebpFile
 import com.team.bpm.data.util.createImageMultipartBody
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.UserInfo
 import com.team.bpm.domain.repository.SignUpRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,10 +21,10 @@ class SignUpRepositoryImpl @Inject constructor(
         nickname: String,
         bio: String,
         imageByteArray: ByteArray
-    ): Flow<ResponseState<UserInfo>> {
+    ): Flow<UserInfo> {
         return flow {
-            BPMResponseHandler().handle {
-                mainApi.signUp(
+            BPMResponseHandlerV2().handle {
+                mainApi.sendSignUp(
                     kakaoId = kakaoId,
                     nickname = nickname,
                     bio = bio,
@@ -37,10 +34,7 @@ class SignUpRepositoryImpl @Inject constructor(
                     )
                 )
             }.onEach { result ->
-                when (result) {
-                    is BPMResponse.Success -> emit(ResponseState.Success(result.data.toDataModel()))
-                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
-                }
+                result.response?.let { emit(it.toDataModel()) }
             }.collect()
         }
     }
