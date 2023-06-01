@@ -90,31 +90,31 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
-            android:name=".ui.main.community.community_posting.CommunityPostingActivity"
+            android:name=".ui.main.lounge.community.posting.CommunityPostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.main.community.question_posting.QuestionPostingActivity"
+            android:name=".ui.main.lounge.question.posting.QuestionPostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.main.community.community_detail.CommunityDetailActivity"
+            android:name=".ui.main.lounge.community.detail.CommunityDetailActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.main.community.question_detail.QuestionDetailActivity"
+            android:name=".ui.main.lounge.question.detail.QuestionDetailActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.main.community.eye_body_posting.EyeBodyPostingActivity"
+            android:name=".ui.main.lounge.community.eye_body_posting.EyeBodyPostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" 

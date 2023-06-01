@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/bind">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
+        <variable
+            name="vm"
+            type="com.team.bpm.presentation.ui.main.lounge.LoungeViewModel" />
 
     </data>
 
@@ -11,24 +14,50 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            android:id="@+id/action_bar"
-            layout="@layout/layout_action_bar"
-            app:layout_constraintEnd_toEndOf="parent"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab"
+            android:layout_width="0dp"
+            android:layout_height="43dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintEnd_toEndOf="@id/guide_tab"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            bind:backEnable="@{false}"
-            bind:titleText="@{@string/nav_lounge}" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_tab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.35" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_lounge_search"
+            app:layout_constraintBottom_toBottomOf="@id/tab"
+            app:layout_constraintEnd_toStartOf="@id/add"
+            app:layout_constraintTop_toTopOf="@id/tab" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/add"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_lounge_add"
+            app:layout_constraintBottom_toBottomOf="@id/tab"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/action_bar"
+            app:layout_constraintTop_toTopOf="@id/tab" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pager"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:nestedScrollingEnabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.3"
-            android:src="@drawable/img_home_tab_disable"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tab" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

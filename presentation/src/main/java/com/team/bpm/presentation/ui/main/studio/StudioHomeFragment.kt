@@ -13,6 +13,7 @@ import com.team.bpm.presentation.databinding.FragmentStudioHomeBinding
 import com.team.bpm.presentation.model.StudioMainTabType
 import com.team.bpm.presentation.ui.main.studio.recommend.StudioHomeRecommendFragment
 import com.team.bpm.presentation.ui.schedule.ScheduleActivity
+import com.team.bpm.presentation.util.BasePagerAdapter
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -79,7 +80,7 @@ class StudioHomeFragment :
 
     private fun setupPager() {
         bind {
-            pager.adapter = StudioHomePagerAdapter(requireActivity(), fragmentList)
+            pager.adapter = BasePagerAdapter(requireActivity(), fragmentList)
 
             TabLayoutMediator(tab, pager, false, true) { tab: TabLayout.Tab?, position: Int ->
                 val resId: Int = when (position) {

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/title"
+            style="@style/Font.Pretendard.Medium.13"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toStartOf="@id/time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/time"
+            tools:text="운동하다가 이런 게 궁금합니다!" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/time"
+            style="@style/Font.Pretendard.Medium.13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/gray_06"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="54분전" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/count_comment"
+            style="@style/Font.Pretendard.Medium.13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:drawableStart="@drawable/ic_lounge_question_comment"
+            android:drawablePadding="4dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/gray_05"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintStart_toStartOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            tools:text="1" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/count_like"
+            style="@style/Font.Pretendard.Medium.13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:drawableStart="@drawable/ic_lounge_question_like"
+            android:drawablePadding="4dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/gray_05"
+            app:layout_constraintStart_toEndOf="@id/count_comment"
+            app:layout_constraintTop_toTopOf="@id/count_comment"
+            tools:text="1" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/gray_10"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
