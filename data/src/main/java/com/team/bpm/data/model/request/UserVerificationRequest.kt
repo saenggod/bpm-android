@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class UserVerificationRequest(
     @SerializedName("kakaoId")
-    val kakaoUserId: Long
+    val kakaoId: Long
 )

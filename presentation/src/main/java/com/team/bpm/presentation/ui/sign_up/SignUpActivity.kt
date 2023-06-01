@@ -56,11 +56,11 @@ class SignUpActivity : BaseComponentActivityV2() {
         const val KEY_KAKAO_USER_ID = "kakao_user_id"
         const val KEY_KAKAO_NICK_NAME = "kakao_nickname"
 
-        fun newIntent(context: Context, kakaoUserId: Long?, kakaoNickName: String): Intent {
+        fun newIntent(context: Context, kakaoId: Long?, kakaoNickName: String): Intent {
             return Intent(context, SignUpActivity::class.java).apply {
                 putExtra(
                     KEY_BUNDLE, bundleOf(
-                        KEY_KAKAO_USER_ID to kakaoUserId,
+                        KEY_KAKAO_USER_ID to kakaoId,
                         KEY_KAKAO_NICK_NAME to kakaoNickName
                     )
                 )

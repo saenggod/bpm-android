@@ -1,132 +1,131 @@
 package com.team.bpm.presentation.ui.splash
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.Error
-import com.team.bpm.domain.usecase.splash.GetKakaoUserIdUseCase
-import com.team.bpm.domain.usecase.splash.GetUserTokenUseCase
-import com.team.bpm.domain.usecase.splash.SendKakaoUserIdVerificationUseCase
-import com.team.bpm.domain.usecase.splash.SetKakaoUserIdUseCase
-import com.team.bpm.domain.usecase.splash.SetUserTokenUseCase
-import com.team.bpm.presentation.base.BaseViewModel
+import com.team.bpm.domain.usecase.splash.*
 import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainDispatcher
+import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.zip
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlin.properties.Delegates
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val getKakaoUserIdUseCase: GetKakaoUserIdUseCase,
-    private val setKakaoUserIdUseCase: SetKakaoUserIdUseCase,
+    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
+    private val setKakaoIdUseCase: SetKakaoIdUseCase,
     private val getUserTokenUseCase: GetUserTokenUseCase,
     private val setUserTokenUseCase: SetUserTokenUseCase,
-    private val sendKakaoUserIdVerificationUseCase: SendKakaoUserIdVerificationUseCase,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-) : BaseViewModel() {
+    private val sendKakaoIdVerificationUseCase: SendKakaoIdVerificationUseCase
+) : ViewModel(), SplashContract {
 
-    private val _event = MutableSharedFlow<SplashViewEvent>()
-    val event: SharedFlow<SplashViewEvent>
-        get() = _event
+    private var kakaoIdForSignUp by Delegates.notNull<Long>()
+    private lateinit var kakaoNicknameForSignUp: String
 
-    private val _state = MutableStateFlow<SplashState>(SplashState.Init)
-    val state: StateFlow<SplashState>
-        get() = _state
+    private val _state = MutableStateFlow(SplashContract.State())
+    override val state: StateFlow<SplashContract.State> = _state.asStateFlow()
+
+    private val _effect = MutableSharedFlow<SplashContract.Effect>()
+    override val effect: SharedFlow<SplashContract.Effect> = _effect.asSharedFlow()
+
+    override fun event(event: SplashContract.Event) = when (event) {
+        is SplashContract.Event.OnStart -> {
+            onStart()
+        }
+
+        is SplashContract.Event.GetStoredUserInfo -> {
+            getStoredUserInfo()
+        }
+
+        is SplashContract.Event.OnClickKakaoButton -> {
+            onClickKakaoButton()
+        }
+
+        is SplashContract.Event.OnFailureKakaoLogin -> {
+            onFailureKakaoLogin()
+        }
+
+        is SplashContract.Event.OnSuccessKakaoLogin -> {
+            onSuccessKakaoLogin(event.kakaoId, event.kakaoNickname)
+        }
+    }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
-            when (state.value) {
-                SplashState.NoUserInfo -> Unit
-                else -> Unit
+            // TODO : GoToSignUp
+        }
+    }
+
+
+
+    private fun onStart() {
+        viewModelScope.launch {
+            _effect.emit(SplashContract.Effect.Init)
+        }
+    }
+
+    private fun getStoredUserInfo() {
+        viewModelScope.launch(ioDispatcher) {
+            getKakaoIdUseCase().zip(getUserTokenUseCase()) { kakaoId, userToken ->
+                Pair(kakaoId, userToken)
+            }.onEach { result ->
+                withContext(mainImmediateDispatcher) {
+                    if (result.first != null && result.second != null) {
+                        _effect.emit(SplashContract.Effect.GoToMainActivity)
+                    } else {
+                        _state.update {
+                            it.copy(isSignUpNeeded = true)
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
+    }
+
+    private fun onClickKakaoButton() {
+        viewModelScope.launch {
+            _effect.emit(SplashContract.Effect.GetKakaoUserInfo)
+        }
+    }
+
+    private fun onFailureKakaoLogin() {
+        viewModelScope.launch {
+            _effect.emit(SplashContract.Effect.ShowToast("로그인에 실패하였습니다. 다시 시도해 주세요."))
+        }
+    }
+
+    private fun onSuccessKakaoLogin(
+        kakaoId: Long,
+        kakaoNickname: String
+    ) {
+        kakaoIdForSignUp = kakaoId
+        kakaoNicknameForSignUp = kakaoNickname
+
+        viewModelScope.launch(ioDispatcher) {
+            setKakaoIdUseCase(kakaoId).onEach {
+                sendKakaoIdVerification(kakaoId)
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
+    }
+
+    private suspend fun sendKakaoIdVerification(kakaoId: Long) {
+        sendKakaoIdVerificationUseCase(kakaoId).collect { result ->
+            result.token?.let { userToken ->
+                saveUserToken(userToken)
+            } ?: run {
+                _effect.emit(SplashContract.Effect.GoToSignUpActivity(kakaoIdForSignUp, kakaoNicknameForSignUp))
             }
         }
     }
 
-    // 1. 저장된 카카오 아이디와 유저 토큰 가져오기
-    // state - Init
-    fun getStoredUserInfo() {
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            getKakaoUserIdUseCase().zip(getUserTokenUseCase()) { kakaoId, userToken ->
-                Pair(kakaoId, userToken)
-            }.onEach {
-                // 저장 값 있을 경우 바로 메인 페이지로 이동
-                // TODO : 추후에 모두 validation 체크 할 수 있도록 변경
-                if (it.first == null || it.second == null) {
-                    _state.emit(SplashState.NoUserInfo)
-                } else {
-                    // 저장 값 없을 경우 메인 페이지에서는 stop
-                    _state.emit(SplashState.Finish)
-                }
-            }.launchIn(viewModelScope)
+    private suspend fun saveUserToken(userToken: String) {
+        setUserTokenUseCase(userToken).collect {
+            withContext(mainImmediateDispatcher) {
+                _effect.emit(SplashContract.Effect.GoToMainActivity)
+            }
         }
-    }
-
-    // 2. 카카오 SDK에서 가져온 유저ID set
-    // state - Init, SignIn
-    fun setKakaoUserId(kakaoUserId: Long, kakaoNickName : String) {
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            setKakaoUserIdUseCase(kakaoUserId).onEach { kakaoUserId ->
-                withContext(mainDispatcher) {
-                    kakaoUserId?.let { _state.emit(SplashState.ValidationCheck(it, kakaoNickName)) }
-                }
-            }.launchIn(viewModelScope)
-        }
-    }
-
-    // 3. 서버에서 카카오 UserId로 Valid Check 완료 이후
-    // 완료 이후 서버에서 받은 토큰 저장 이후 메인 화면으로 이동
-    // state - ValidationCheck
-    fun sendKakaoIdVerification(kakaoUserId: Long, kakaoNickName : String) {
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            sendKakaoUserIdVerificationUseCase(kakaoUserId).onEach { result ->
-                withContext(mainDispatcher) {
-                    _state.emit(SplashState.SaveToken(result.token))
-//                    when (state) {
-//                        is ResponseState.Success -> _state.emit(SplashState.SaveToken(state.data.token))
-//                        is ResponseState.Error -> {
-//                            if (state.error.code == CODE_NOT_FOUND_USER_ID) {
-//                                // TODO : 카카오 SDK에서 내려받은 객체 던지기
-//                                // 좋은 방법 찾아보자..
-//                                _state.emit(SplashState.SignUp(kakaoUserId, kakaoNickName))
-//                            } else {
-//                                _state.emit(SplashState.Error(state.error))
-//                            }
-//                        }
-//                    }
-                }
-            }.launchIn(viewModelScope)
-        }
-    }
-
-    // 4. 서버에서 받은 유저 토큰 저장
-    // 이후 메인 화면으로 이동
-    // state - SaveToken
-    fun saveUserToken(token: String) {
-        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-            setUserTokenUseCase(token).onEach {
-                withContext(mainDispatcher) {
-                    if (!it.isNullOrEmpty()) {
-                        _state.emit(SplashState.Finish)
-                    } else {
-//                        _state.emit(SplashState.Error(com.team.bpm.domain.model.Error(null, null, null)))
-                    }
-                }
-            }.launchIn(viewModelScope)
-        }
-    }
-
-    companion object {
-        private const val CODE_NOT_FOUND_USER_ID = "404"
-
     }
 }
