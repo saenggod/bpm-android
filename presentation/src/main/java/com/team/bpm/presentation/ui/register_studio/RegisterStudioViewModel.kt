@@ -52,7 +52,7 @@ class RegisterStudioViewModel @Inject constructor(
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
-            // TODO : Error Handling
+
         }
     }
 

@@ -4,8 +4,9 @@ import com.team.bpm.domain.base.BaseModel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class NetworkError(
-    val error: String = "",
-    val code: String = "",
-    override val message: String = "Unknown ErrorOccurred."
+data class Error(
+    val status: Int,
+    val error: String,
+    val code: Int,
+    override val message: String
 ) : BaseModel, Throwable()

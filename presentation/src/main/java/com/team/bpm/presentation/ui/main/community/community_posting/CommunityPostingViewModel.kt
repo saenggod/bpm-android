@@ -108,7 +108,7 @@ class CommunityPostingViewModel @Inject constructor(
                         withContext(mainImmediateDispatcher) {
                             result.id?.let { communityId -> _effect.emit(CommunityPostingContract.Effect.RedirectToCommunity(communityId)) }
                         }
-                    }.launchIn(viewModelScope + exceptionHandler) // todo add exception handler
+                    }.launchIn(viewModelScope + exceptionHandler)
                 }
             } else {
                 _effect.emit(CommunityPostingContract.Effect.ShowToast("내용을 입력해주세요."))

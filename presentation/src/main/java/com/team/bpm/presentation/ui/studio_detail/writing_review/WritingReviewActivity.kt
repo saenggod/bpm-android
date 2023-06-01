@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
@@ -41,7 +40,6 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
-import com.team.bpm.presentation.ui.register_studio.dummyKeywordChipList
 import com.team.bpm.presentation.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -315,13 +313,13 @@ private fun WritingReviewActivityContent(
                     mainAxisSpacing = 8.dp,
                     crossAxisSpacing = 10.dp
                 ) {
-                    dummyKeywordChipList.forEach { dummyKeyword ->
-                        KeywordChip(
-                            text = dummyKeyword,
-                            isChosen = recommendKeywordMap[dummyKeyword] ?: false,
-                            onClick = { event(WritingReviewContract.Event.OnClickKeywordChip(dummyKeyword))} // TODO : will be modified
-                        )
-                    }
+//                    dummyKeywordChipList.forEach { dummyKeyword ->
+//                        KeywordChip(
+//                            text = dummyKeyword,
+//                            isChosen = recommendKeywordMap[dummyKeyword] ?: false,
+//                            onClick = { event(WritingReviewContract.Event.OnClickKeywordChip(dummyKeyword))} //
+//                        )
+//                    }
                 }
 
                 BPMSpacer(height = 20.dp)

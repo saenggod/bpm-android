@@ -3,6 +3,7 @@ package com.team.bpm.data.util
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
+import com.team.bpm.domain.model.Error
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -29,7 +30,14 @@ fun convertByteArrayToWebpFile(byteArray: ByteArray): File {
             )
         }
     } catch (e: Exception) {
-        // TODO : Error Handling
+        throw (Exception(
+            Error(
+                status = 0,
+                error = "CONVERT_FAILED",
+                code = 700,
+                message = "이미지를 변환할 수 없습니다."
+            )
+        ))
     }
 
     return webpFile
