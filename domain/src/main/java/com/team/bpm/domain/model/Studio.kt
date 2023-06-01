@@ -10,6 +10,7 @@ data class Studio(
     val id: Int?,
     val name: String?,
     val address: String?,
+    val addressDescription: String?,
     val latitude: Double?,
     val longitude: Double?,
     val firstTag: String?,

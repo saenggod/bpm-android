@@ -62,24 +62,6 @@ import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
-val dummyKeywordChipList = listOf(
-    "친절해요",
-    "소통이 빨라요",
-    "소품이 다양해요",
-    "세트장 구성이 다양해요",
-    "제공하는 컨셉이 다양해요",
-    "자연스럽게 연출해줘요",
-    "시설이 깔끔해요",
-    "원하는 스타일을 바로 파악해줘요",
-    "주차하기 편해요",
-    "보정을 꼼꼼하게 해줘요",
-    "가격이 합리적이에요",
-    "파우더룸이 잘 되어있어요",
-    "요청사항을 잘 들어주세요",
-    "스튜디오가 넓어요",
-    "여유롭게 준비할 수 있어요"
-)
-
 @AndroidEntryPoint
 class RegisterStudioActivity : BaseComponentActivityV2() {
     @Composable
@@ -245,13 +227,13 @@ private fun RegisterStudioActivityContent(
                     mainAxisSpacing = 7.dp,
                     crossAxisSpacing = 12.dp
                 ) {
-                    dummyKeywordChipList.forEach { dummyKeyword -> // TODO : will be modified
-                        KeywordChip(
-                            text = dummyKeyword,
-                            isChosen = recommendKeywordMap[dummyKeyword] ?: false,
-                            onClick = { event.invoke(RegisterStudioContract.Event.OnClickKeywordChip(dummyKeyword)) }
-                        )
-                    }
+//                    dummyKeywordChipList.forEach { dummyKeyword ->
+//                        KeywordChip(
+//                            text = dummyKeyword,
+//                            isChosen = recommendKeywordMap[dummyKeyword] ?: false,
+//                            onClick = { event.invoke(RegisterStudioContract.Event.OnClickKeywordChip(dummyKeyword)) }
+//                        )
+//                    }
                 }
 
                 BPMSpacer(height = 30.dp)
@@ -341,7 +323,7 @@ private fun RegisterStudioActivityContent(
                                 RegisterStudioWrapper(
                                     name = nameTextState.value,
                                     address = addressNameState.value,
-                                    latitude = state.latitude, // TODO : Will be fixed
+                                    latitude = state.latitude,
                                     longitude = state.longitude,
                                     recommends = state.recommendKeywordMap.filter { it.value }.map { it.key },
                                     phone = phoneTextState.value,

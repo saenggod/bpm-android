@@ -344,7 +344,7 @@ private fun StudioDetailActivityContent(
                                     modifier = Modifier
                                         .size(22.dp)
                                         .clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickScrap) },
-                                    painter = painterResource(id = if (studio?.scrapped == true) R.drawable.ic_heart_active else R.drawable.ic_heart_inactive), // TODO : Will be modified when api changed.
+                                    painter = painterResource(id = if (studio?.scrapped == true) R.drawable.ic_heart_active else R.drawable.ic_heart_inactive),
                                     contentDescription = "likeButtonImage"
                                 )
                             }
@@ -467,7 +467,7 @@ private fun StudioDetailActivityContent(
 
                             Text(
                                 modifier = Modifier.padding(top = 4.dp),
-                                text = "주소에 관한 설명", // TODO : Request about this
+                                text = "주소에 관한 설명",
                                 fontSize = 12.sp,
                                 fontWeight = Normal,
                                 letterSpacing = 0.sp,

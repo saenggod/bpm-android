@@ -117,9 +117,7 @@ class SignUpViewModel @Inject constructor(
                             imageByteArray = convertImageBitmapToByteArray(profileImage),
                             nickname = nickname,
                             bio = bio
-                        ).catch {
-                            // TODO : Error handling
-                        }.onEach { result ->
+                        ).onEach { result ->
                             withContext(mainImmediateDispatcher) {
                                 result.token?.let { token ->
                                     saveUserToken(token)

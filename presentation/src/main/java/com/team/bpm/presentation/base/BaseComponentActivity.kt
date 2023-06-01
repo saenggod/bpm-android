@@ -10,7 +10,7 @@ import com.team.bpm.presentation.compose.theme.BPMTheme
 
 abstract class BaseComponentActivity : ComponentActivity() {
 
-    protected abstract val viewModel: BaseViewModel // TODO : Will be removed
+    protected abstract val viewModel: BaseViewModel
     private val loadingVisibilityState = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +20,7 @@ abstract class BaseComponentActivity : ComponentActivity() {
         setupCollect()
     }
 
-    protected open fun initUi() {} // TODO : will be removed
+    protected open fun initUi() {}
 
     protected fun initComposeUi(block: @Composable () -> Unit) {
         setContent {
@@ -42,5 +42,5 @@ abstract class BaseComponentActivity : ComponentActivity() {
         loadingVisibilityState.value = false
     }
 
-    protected open fun setupCollect() {} // TODO : will be removed
+    protected open fun setupCollect() {}
 }

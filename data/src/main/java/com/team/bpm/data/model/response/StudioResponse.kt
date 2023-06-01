@@ -16,6 +16,8 @@ data class StudioResponse(
     val name: String?,
     @SerializedName("address")
     val address: String?,
+    @SerializedName("addressDescription")
+    val addressDescription: String?,
     @SerializedName("latitude")
     val latitude: Double?,
     @SerializedName("longitude")
@@ -64,6 +66,7 @@ data class StudioResponse(
                 id = id,
                 name = name,
                 address = address,
+                addressDescription = addressDescription,
                 latitude = latitude,
                 longitude = longitude,
                 firstTag = firstTag,
