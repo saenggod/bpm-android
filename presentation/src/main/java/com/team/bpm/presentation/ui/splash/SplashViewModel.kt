@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
@@ -20,6 +21,9 @@ class SplashViewModel @Inject constructor(
     private val setUserTokenUseCase: SetUserTokenUseCase,
     private val sendKakaoIdVerificationUseCase: SendKakaoIdVerificationUseCase
 ) : ViewModel(), SplashContract {
+
+    private var kakaoIdForSignUp by Delegates.notNull<Long>()
+    private lateinit var kakaoNicknameForSignUp: String
 
     private val _state = MutableStateFlow(SplashContract.State())
     override val state: StateFlow<SplashContract.State> = _state.asStateFlow()
@@ -51,9 +55,11 @@ class SplashViewModel @Inject constructor(
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
-
+            // TODO : GoToSignUp
         }
     }
+
+
 
     private fun onStart() {
         viewModelScope.launch {
@@ -95,35 +101,31 @@ class SplashViewModel @Inject constructor(
         kakaoId: Long,
         kakaoNickname: String
     ) {
+        kakaoIdForSignUp = kakaoId
+        kakaoNicknameForSignUp = kakaoNickname
+
         viewModelScope.launch(ioDispatcher) {
-            setKakaoIdUseCase(kakaoId).onEach { result ->
-                result?.let {
-                    sendKakaoIdVerification(kakaoId, kakaoNickname)
-                }
+            setKakaoIdUseCase(kakaoId).onEach {
+                sendKakaoIdVerification(kakaoId)
             }.launchIn(viewModelScope + exceptionHandler)
         }
     }
 
-    private suspend fun sendKakaoIdVerification(
-        kakaoId: Long,
-        kakaoNickname: String
-    ) {
-        sendKakaoIdVerificationUseCase(kakaoId).onEach { result ->
+    private suspend fun sendKakaoIdVerification(kakaoId: Long) {
+        sendKakaoIdVerificationUseCase(kakaoId).collect { result ->
             result.token?.let { userToken ->
                 saveUserToken(userToken)
             } ?: run {
-                withContext(mainImmediateDispatcher) {
-                    _effect.emit(SplashContract.Effect.GoToSignUpActivity(kakaoId, kakaoNickname))
-                }
+                _effect.emit(SplashContract.Effect.GoToSignUpActivity(kakaoIdForSignUp, kakaoNicknameForSignUp))
             }
-        }.collect()
+        }
     }
 
     private suspend fun saveUserToken(userToken: String) {
-        setUserTokenUseCase(userToken).onEach { result ->
+        setUserTokenUseCase(userToken).collect {
             withContext(mainImmediateDispatcher) {
-                _effect.emit(if (!result.isNullOrEmpty()) SplashContract.Effect.GoToMainActivity else SplashContract.Effect.ShowToast(""))
+                _effect.emit(SplashContract.Effect.GoToMainActivity)
             }
-        }.collect()
+        }
     }
 }
