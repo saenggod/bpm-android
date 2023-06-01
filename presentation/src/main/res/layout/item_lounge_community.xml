@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/binds"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <variable
+            name="item"
+            type="com.team.bpm.domain.model.Community" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/image"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="1dp"
-            tools:background="@color/red"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            tools:background="@color/red"
             tools:src="@drawable/shoulder_man" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,6 +8,8 @@
             name="vm"
             type="com.team.bpm.presentation.ui.main.lounge.LoungeViewModel" />
 
+        <import type="android.view.View"/>
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,12 +18,21 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab"
+            style="@style/Widget.Design.TabLayout"
             android:layout_width="0dp"
-            android:layout_height="43dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="7dp"
             app:layout_constraintEnd_toEndOf="@id/guide_tab"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tabGravity="start"
+            app:tabIndicatorColor="@color/black"
+            app:tabIndicatorHeight="3dp"
+            app:tabInlineLabel="false"
+            app:tabMode="fixed"
+            app:tabRippleColor="@android:color/transparent"
+            app:tabTextAppearance="@style/LoungeTabTextAppearance" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_tab"
@@ -35,6 +46,8 @@
             android:layout_height="22dp"
             android:layout_marginEnd="14dp"
             android:src="@drawable/ic_lounge_search"
+            android:onClick="@{() -> vm.onClickSearch()}"
+            android:visibility="@{vm.state.currentTabPosition == 1 ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="@id/tab"
             app:layout_constraintEnd_toStartOf="@id/add"
             app:layout_constraintTop_toTopOf="@id/tab" />
@@ -45,6 +58,7 @@
             android:layout_height="22dp"
             android:layout_marginEnd="16dp"
             android:src="@drawable/ic_lounge_add"
+            android:onClick="@{() -> vm.onClickAdd()}"
             app:layout_constraintBottom_toBottomOf="@id/tab"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tab" />

@@ -18,6 +18,8 @@
 
     <string name="lounge_tab_community">커뮤니티</string>
     <string name="lounge_tab_question">질문</string>
+    <string name="lounge_add_community_post">커뮤니티 글 작성하기</string>
+    <string name="lounge_add_question_post">운동인에게 질문하기</string>
 
     <string name="mypage_post">게시물</string>
     <string name="mypage_scrap">스크랩</string>
