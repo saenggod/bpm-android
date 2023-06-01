@@ -886,7 +886,7 @@ inline fun CommentComposable(
                     BPMSpacer(width = 4.dp)
 
                     Text(
-                        text = "${likeCount ?: 0}", // TODO : Will be modified
+                        text = "${likeCount ?: 0}",
                         fontWeight = Medium,
                         fontSize = 13.sp,
                         letterSpacing = 0.sp,
