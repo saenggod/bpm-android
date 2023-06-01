@@ -1,6 +1,5 @@
 package com.team.bpm.presentation.ui.splash
 
-import com.team.bpm.domain.model.NetworkError
 import com.team.bpm.presentation.util.ComposeUiState
 
 sealed interface SplashState : ComposeUiState {
@@ -30,5 +29,5 @@ sealed interface SplashState : ComposeUiState {
 
     object Finish : SplashState
 
-    data class Error(val errorRes: NetworkError) : SplashState
+    data class Error(val errorRes: com.team.bpm.domain.model.Error) : SplashState
 }

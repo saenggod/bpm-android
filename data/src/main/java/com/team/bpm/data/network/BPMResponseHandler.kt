@@ -1,5 +1,6 @@
 package com.team.bpm.data.network
 
+import com.team.bpm.data.model.response.ErrorResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response

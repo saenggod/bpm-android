@@ -5,7 +5,7 @@ import com.team.bpm.data.model.response.UserScheduleResponse.Companion.toDataMod
 import com.team.bpm.data.network.BPMResponse
 import com.team.bpm.data.network.BPMResponseHandler
 import com.team.bpm.data.network.BPMResponseHandlerV2
-import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
+import com.team.bpm.data.model.response.ErrorResponse.Companion.toDataModel
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.StudioList

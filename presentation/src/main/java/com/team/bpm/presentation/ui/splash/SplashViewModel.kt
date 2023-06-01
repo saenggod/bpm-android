@@ -1,7 +1,7 @@
 package com.team.bpm.presentation.ui.splash
 
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.NetworkError
+import com.team.bpm.domain.model.Error
 import com.team.bpm.domain.usecase.splash.GetKakaoUserIdUseCase
 import com.team.bpm.domain.usecase.splash.GetUserTokenUseCase
 import com.team.bpm.domain.usecase.splash.SendKakaoUserIdVerificationUseCase
@@ -118,7 +118,7 @@ class SplashViewModel @Inject constructor(
                     if (!it.isNullOrEmpty()) {
                         _state.emit(SplashState.Finish)
                     } else {
-                        _state.emit(SplashState.Error(NetworkError()))
+//                        _state.emit(SplashState.Error(com.team.bpm.domain.model.Error(null, null, null)))
                     }
                 }
             }.launchIn(viewModelScope)

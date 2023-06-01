@@ -2,7 +2,8 @@ package com.team.bpm.data.network
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.team.bpm.data.network.ErrorResponse.Companion.toDataModel
+import com.team.bpm.data.model.response.ErrorResponse
+import com.team.bpm.data.model.response.ErrorResponse.Companion.toDataModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
