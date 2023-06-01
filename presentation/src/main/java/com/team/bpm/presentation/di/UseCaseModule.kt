@@ -39,8 +39,8 @@ import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.MakeScheduleUseCase
 import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
-import com.team.bpm.domain.usecase.splash.GetKakaoUserIdUseCase
-import com.team.bpm.domain.usecase.splash.SetKakaoUserIdUseCase
+import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
+import com.team.bpm.domain.usecase.splash.SetKakaoIdUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.studio.ScrapUseCase
@@ -60,14 +60,14 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetKakaoUserIdUseCase(splashRepository: SplashRepository): GetKakaoUserIdUseCase {
-        return GetKakaoUserIdUseCase(splashRepository)
+    fun provideGetKakaoIdUseCase(splashRepository: SplashRepository): GetKakaoIdUseCase {
+        return GetKakaoIdUseCase(splashRepository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideSetKakaoUserIdUseCase(splashRepository: SplashRepository): SetKakaoUserIdUseCase {
-        return SetKakaoUserIdUseCase(splashRepository)
+    fun provideSetKakaoIdUseCase(splashRepository: SplashRepository): SetKakaoIdUseCase {
+        return SetKakaoIdUseCase(splashRepository)
     }
 
     @Provides

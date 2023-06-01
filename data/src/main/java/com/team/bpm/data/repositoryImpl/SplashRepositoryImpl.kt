@@ -18,12 +18,12 @@ class SplashRepositoryImpl @Inject constructor(
     private val mainApi: MainApi
 ) : SplashRepository {
 
-    override fun getKakaoUserId(): Flow<Long?> {
-        return dataStoreManager.getKakaoUserId()
+    override fun getKakaoId(): Flow<Long?> {
+        return dataStoreManager.getKakaoId()
     }
 
-    override suspend fun setKakaoUserId(kakaoUserId: Long): Flow<Long?> {
-        return dataStoreManager.setKakaoUserId(kakaoUserId)
+    override suspend fun setKakaoId(kakaoId: Long): Flow<Long?> {
+        return dataStoreManager.setKakaoId(kakaoId)
     }
 
     override fun getUserToken(): Flow<String?> {
@@ -34,18 +34,10 @@ class SplashRepositoryImpl @Inject constructor(
         return dataStoreManager.setUserToken(userToken)
     }
 
-    override suspend fun sendSignIn(kakaoUserId: Long): Flow<UserInfo> {
+    override suspend fun sendSignIn(kakaoId: Long): Flow<UserInfo> {
         return flow {
-//            BPMResponseHandler().handle {
-//                mainApi.sendKakaoUserIdVerification(UserVerificationRequest(kakaoUserId))
-//            }.onEach { result ->
-//                when (result) {
-//                    is BPMResponse.Success -> emit(ResponseState.Success(result.data.toDataModel()))
-//                    is BPMResponse.Error -> emit(ResponseState.Error(result.error.toDataModel()))
-//                }
-//            }.collect()
             BPMResponseHandlerV2().handle {
-                mainApi.sendKakaoUserIdVerification(UserVerificationRequest(kakaoUserId))
+                mainApi.sendKakaoIdVerification(UserVerificationRequest(kakaoId))
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()

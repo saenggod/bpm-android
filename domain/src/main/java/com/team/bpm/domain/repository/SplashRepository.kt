@@ -5,13 +5,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface SplashRepository {
 
-    fun getKakaoUserId(): Flow<Long?>
+    fun getKakaoId(): Flow<Long?>
 
-    suspend fun setKakaoUserId(kakaoUserId: Long): Flow<Long?>
+    suspend fun setKakaoId(kakaoId: Long): Flow<Long?>
 
     fun getUserToken(): Flow<String?>
 
     suspend fun setUserToken(userToken: String): Flow<String?>
 
-    suspend fun sendSignIn(kakaoUserId: Long): Flow<UserInfo>
+    suspend fun sendSignIn(kakaoId: Long): Flow<UserInfo>
 }

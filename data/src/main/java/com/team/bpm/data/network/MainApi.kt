@@ -25,8 +25,8 @@ interface MainApi {
 
     @Headers("shouldBeAuthorized: false")
     @POST("api/users/verification")
-    suspend fun sendKakaoUserIdVerification(
-        @Body kakaoUserIdReq: UserVerificationRequest
+    suspend fun sendKakaoIdVerification(
+        @Body kakaoIdReq: UserVerificationRequest
     ): Response<BPMResponseV2<SignUpResponse>>
 
     /*
