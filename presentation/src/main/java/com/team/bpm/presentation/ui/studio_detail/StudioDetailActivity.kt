@@ -344,7 +344,7 @@ private fun StudioDetailActivityContent(
                                     modifier = Modifier
                                         .size(22.dp)
                                         .clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickScrap) },
-                                    painter = painterResource(id = if (studio?.scrapped == true) R.drawable.ic_heart_active else R.drawable.ic_heart_inactive),
+                                    painter = painterResource(id = if (studio?.scrapped == true) R.drawable.ic_scrap_active else R.drawable.ic_scrap_inactive),
                                     contentDescription = "likeButtonImage"
                                 )
                             }
