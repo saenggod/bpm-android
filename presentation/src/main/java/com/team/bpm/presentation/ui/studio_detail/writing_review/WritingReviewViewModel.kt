@@ -78,7 +78,10 @@ class WritingReviewViewModel @Inject constructor(
                 getStudioDetailUseCase(studioId).onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
-                            it.copy(isLoading = false, studio = result)
+                            it.copy(
+                                isLoading = false,
+                                studio = result
+                            )
                         }
                     }
                 }.launchIn(viewModelScope + exceptionHandler)

@@ -81,7 +81,10 @@ class ReviewListViewModel @Inject constructor(
                     reviewListUseCase(studioId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
-                                it.copy(isLoading = false, originalReviewList = result.reviews ?: emptyList(), reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
+                                it.copy(
+                                    isLoading = false,
+                                    originalReviewList = result.reviews ?: emptyList(),
+                                    reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
                                 )
                             }
                         }
@@ -159,42 +162,46 @@ class ReviewListViewModel @Inject constructor(
     }
 
     private fun onClickReviewLikeButton(reviewId: Int) {
-        state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
-            viewModelScope.launch(ioDispatcher) {
-                when (selectedReview.liked) {
-                    true -> {
-                        getStudioId()?.let { studioId ->
+        getStudioId()?.let { studioId ->
+            state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
+                viewModelScope.launch(ioDispatcher) {
+                    when (selectedReview.liked) {
+                        true -> {
                             dislikeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
                                         it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                            this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
+                                            this[targetIndex] = this[targetIndex].copy(
+                                                liked = false,
+                                                likeCount = this[targetIndex].likeCount?.minus(1)
+                                            )
                                         }))
                                     }
                                 }
                             }.launchIn(viewModelScope + exceptionHandler)
                         }
-                    }
 
-                    false -> {
-                        getStudioId()?.let { studioId ->
+                        false -> {
                             likeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
                                         it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                            this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
+                                            this[targetIndex] = this[targetIndex].copy(
+                                                liked = true,
+                                                likeCount = this[targetIndex].likeCount?.plus(1)
+                                            )
                                         }))
                                     }
                                 }
                             }.launchIn(viewModelScope + exceptionHandler)
                         }
-                    }
 
-                    null -> {
-                        withContext(mainImmediateDispatcher) {
-                            _effect.emit(ReviewListContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
+                        null -> {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(ReviewListContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
+                            }
                         }
                     }
                 }
