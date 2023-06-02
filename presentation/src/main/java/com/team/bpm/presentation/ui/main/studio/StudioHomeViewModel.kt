@@ -53,6 +53,7 @@ class StudioHomeViewModel @Inject constructor(
                         _userScheduleInfo.emit(state.data)
                         _state.emit(StudioHomeState.UserSchedule)
                     }
+
                     is ResponseState.Error -> {
                         _state.emit(StudioHomeState.Error)
                     }

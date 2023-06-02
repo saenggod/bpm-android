@@ -97,14 +97,17 @@ private fun CommunityDetailActivityContent(
                 is CommunityDetailContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
+
                 is CommunityDetailContract.Effect.RefreshCommentList -> {
                     commentTextFieldState.value = ""
                     focusManager.clearFocus()
                     event.invoke(CommunityDetailContract.Event.GetCommentList)
                 }
+
                 is CommunityDetailContract.Effect.ExpandBottomSheet -> {
                     bottomSheetState.show()
                 }
+
                 is CommunityDetailContract.Effect.ShowKeyboard -> {
                     bottomSheetState.hide()
                     focusRequester.requestFocus()

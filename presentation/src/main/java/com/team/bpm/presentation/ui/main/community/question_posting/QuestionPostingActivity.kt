@@ -91,7 +91,6 @@ private fun QuestionPostingActivityContent(
         }
     }
 
-
     with(state) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(

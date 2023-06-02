@@ -85,15 +85,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             R.id.nav_eyebody -> {
                 EyebodyFragment.newInstance()
             }
+
             R.id.nav_studio -> {
                 StudioHomeFragment.newInstance()
             }
+
             R.id.nav_lounge -> {
                 LoungeFragment.newInstance()
             }
+
             R.id.nav_mypage -> {
                 MyPageFragment.newInstance()
             }
+
             else -> {
                 binding.mainTab.selectedItemId = R.id.nav_studio
                 StudioHomeFragment.newInstance()
