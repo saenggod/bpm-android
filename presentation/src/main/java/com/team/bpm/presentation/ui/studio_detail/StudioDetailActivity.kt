@@ -191,16 +191,16 @@ private fun StudioDetailActivityContent(
     with(state) {
         val screenHeight = remember { mutableStateOf(0f) }
         val layoutHeight = remember { mutableStateOf(0) }
-        val tabByScrollState = remember { mutableStateOf(StudioDetailTabType.Info) }
+        val tabByScrollState = remember { mutableStateOf(StudioDetailTabType.INFO) }
         screenHeight.value = LocalConfiguration.current.screenHeightDp.dp.toPx()
 
         LaunchedEffect(tabByScrollState.value) {
             when (tabByScrollState.value) {
-                StudioDetailTabType.Info -> {
+                StudioDetailTabType.INFO -> {
                     event.invoke(StudioDetailContract.Event.OnScrolledAtInfoArea)
                 }
 
-                StudioDetailTabType.Review -> {
+                StudioDetailTabType.REVIEW -> {
                     event.invoke(StudioDetailContract.Event.OnScrolledAtReviewArea)
                 }
             }
@@ -720,7 +720,7 @@ private fun StudioDetailActivityContent(
                     }
 
                     ReviewListHeader(
-                        modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y > screenHeight.value / 2f) StudioDetailTabType.Info else StudioDetailTabType.Review },
+                        modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y > screenHeight.value / 2f) StudioDetailTabType.INFO else StudioDetailTabType.REVIEW },
                         isShowingImageReviewsOnly = isReviewListShowingImageReviewsOnly,
                         isSortedByLike = isReviewListSortedByLike,
                         onClickShowImageReviewsOnlyOrNot = {
@@ -735,7 +735,7 @@ private fun StudioDetailActivityContent(
                     )
 
                     if (isReviewLoading) {
-                        LoadingBlock(modifier = Modifier.height(300.dp))
+                        LoadingBlock()
                     } else {
                         LaunchedEffect(Unit) {
                             scrollState.animateScrollTo(scrollPosition.value)
@@ -847,19 +847,19 @@ private fun StudioDetailActivityContent(
                     ) {
                         Tab(
                             text = "상품 설명",
-                            focused = focusedTab == StudioDetailTabType.Info,
+                            focused = focusedTab == StudioDetailTabType.INFO,
                             onClick = { event.invoke(StudioDetailContract.Event.OnClickInfoTab) }
                         )
 
                         Tab(
                             text = "리뷰",
-                            focused = focusedTab == StudioDetailTabType.Review,
+                            focused = focusedTab == StudioDetailTabType.REVIEW,
                             onClick = { event.invoke(StudioDetailContract.Event.OnClickReviewTab) }
                         )
                     }
                 }
 
-                if (tabByScrollState.value == StudioDetailTabType.Info) {
+                if (tabByScrollState.value == StudioDetailTabType.INFO) {
                     Box(
                         modifier = Modifier
                             .padding(

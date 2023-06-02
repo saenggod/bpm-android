@@ -229,7 +229,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onScrolledAtInfoArea() {
         viewModelScope.launch {
             _state.update {
-                it.copy(focusedTab = StudioDetailTabType.Info)
+                it.copy(focusedTab = StudioDetailTabType.INFO)
             }
         }
     }
@@ -237,7 +237,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onScrolledAtReviewArea() {
         viewModelScope.launch {
             _state.update {
-                it.copy(focusedTab = StudioDetailTabType.Review)
+                it.copy(focusedTab = StudioDetailTabType.REVIEW)
             }
         }
     }

@@ -68,10 +68,6 @@ private fun QuestionPostingActivityContent(
     val titleTextState = remember { mutableStateOf("") }
     val contentTextState = remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        // TODO : Call Api
-    }
-
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
