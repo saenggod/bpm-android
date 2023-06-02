@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.TopEnd
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -29,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
@@ -75,7 +77,7 @@ class QuestionDetailActivity : BaseComponentActivityV2() {
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun QuestionDetailActivityContent(
     viewModel: QuestionDetailViewModel = hiltViewModel()
@@ -87,6 +89,7 @@ private fun QuestionDetailActivityContent(
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val commentTextFieldState = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         event.invoke(QuestionDetailContract.Event.GetUserId)
@@ -114,6 +117,11 @@ private fun QuestionDetailActivityContent(
                 is QuestionDetailContract.Effect.ShowKeyboard -> {
                     bottomSheetState.hide()
                     focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+
+                is QuestionDetailContract.Effect.GoToQuestionList -> {
+                    context.finish()
                 }
             }
         }
@@ -129,20 +137,20 @@ private fun QuestionDetailActivityContent(
             sheetBackgroundColor = Transparent,
             sheetContent = {
                 BPMBottomSheet {
-                    BottomSheetButtonComposable(
-                        button = BottomSheetButton.REPLY_COMMENT,
-                        onClick = { event.invoke(QuestionDetailContract.Event.OnClickWriteReplyComment) }
-                    )
-
-                    if (selectedCommentAuthorId?.toLong() == userId) {
+                    bottomSheetButtonList.forEach { bottomSheetButton ->
                         BottomSheetButtonComposable(
-                            button = BottomSheetButton.DELETE_COMMENT,
-                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickDeleteComment) }
-                        )
-                    } else {
-                        BottomSheetButtonComposable(
-                            button = BottomSheetButton.REPORT_COMMENT,
-                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickReportComment) }
+                            button = bottomSheetButton,
+                            onClick = {
+                                event.invoke(
+                                    when (bottomSheetButton) {
+                                        BottomSheetButton.DELETE_POST -> QuestionDetailContract.Event.OnClickDeleteQuestion
+                                        BottomSheetButton.REPORT_POST -> QuestionDetailContract.Event.OnClickReportQuestion
+                                        BottomSheetButton.REPLY_COMMENT -> QuestionDetailContract.Event.OnClickReplyComment
+                                        BottomSheetButton.DELETE_COMMENT -> QuestionDetailContract.Event.OnClickDeleteComment
+                                        BottomSheetButton.REPORT_COMMENT -> QuestionDetailContract.Event.OnClickReportComment
+                                    }
+                                )
+                            }
                         )
                     }
                 }
@@ -422,6 +430,14 @@ private fun QuestionDetailActivityContent(
                         title = "신고 사유를 작성해주세요",
                         onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
                         onClickConfirm = { reason -> event.invoke(QuestionDetailContract.Event.OnClickSendCommentReport(reason)) }
+                    )
+                }
+
+                if (isNoticeDialogShowing) {
+                    NoticeDialog(
+                        title = null,
+                        content = noticeDialogContent,
+                        onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
                 }
             }

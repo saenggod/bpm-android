@@ -3,6 +3,7 @@ package com.team.bpm.presentation.ui.main.community.question_detail
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.Question
 import com.team.bpm.presentation.base.BaseContract
+import com.team.bpm.presentation.model.BottomSheetButton
 
 interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, QuestionDetailContract.Event, QuestionDetailContract.Effect> {
     data class State(
@@ -18,7 +19,10 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val parentCommentId: Int? = null,
         val liked: Boolean? = null,
         val likeCount: Int? = null,
-        val isReportDialogShowing: Boolean = false
+        val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
+        val isReportDialogShowing: Boolean = false,
+        val isNoticeDialogShowing: Boolean = false,
+        val noticeDialogContent: String = ""
     )
 
     sealed interface Event {
@@ -27,6 +31,12 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         object GetQuestionDetail : Event
 
         object GetCommentList : Event
+
+        object OnClickDeleteQuestion : Event
+
+        object OnClickReportQuestion : Event
+
+        data class OnClickSendQuestionReport(val reason: String) : Event
 
         data class OnClickSendComment(
             val parentId: Int?,
@@ -39,17 +49,19 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
             val parentCommentId: Int?
         ) : Event
 
-        object OnClickWriteReplyComment : Event
+        object OnClickReplyComment : Event
 
         object OnClickDeleteComment : Event
 
         object OnClickReportComment : Event
 
+        object OnClickDismissReportDialog : Event
+
+        object OnClickDismissNoticeDialog : Event
+
         object OnClickLike : Event
 
         data class OnClickCommentLike(val commentId: Int) : Event
-
-        object OnClickDismissReportDialog : Event
 
         data class OnClickSendCommentReport(val reason: String) : Event
     }
@@ -62,5 +74,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         object ExpandBottomSheet : Effect
 
         object ShowKeyboard : Effect
+
+        object GoToQuestionList : Effect
     }
 }

@@ -8,6 +8,7 @@ import com.team.bpm.domain.usecase.question.*
 import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.model.BottomSheetButton
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -19,6 +20,8 @@ class QuestionDetailViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
     private val getQuestionCommentListUseCase: GetQuestionCommentListUseCase,
+    private val deleteQuestionUseCase: DeleteQuestionUseCase,
+    private val reportQuestionUseCase: ReportQuestionUseCase,
     private val writeQuestionCommentUseCase: WriteQuestionCommentUseCase,
     private val likeQuestionUseCase: LikeQuestionUseCase,
     private val dislikeQuestionUseCase: DislikeQuestionUseCase,
@@ -49,6 +52,18 @@ class QuestionDetailViewModel @Inject constructor(
             getCommentList()
         }
 
+        is QuestionDetailContract.Event.OnClickDeleteQuestion -> {
+            onClickDeleteQuestion()
+        }
+
+        is QuestionDetailContract.Event.OnClickReportQuestion -> {
+            onClickReportQuestion()
+        }
+
+        is QuestionDetailContract.Event.OnClickSendQuestionReport -> {
+            onClickSendQuestionReport(event.reason)
+        }
+
         is QuestionDetailContract.Event.OnClickSendComment -> {
             onClickSendComment(parentId = event.parentId, comment = event.comment)
         }
@@ -61,8 +76,8 @@ class QuestionDetailViewModel @Inject constructor(
             )
         }
 
-        is QuestionDetailContract.Event.OnClickWriteReplyComment -> {
-            onClickWriteCommentOnComment()
+        is QuestionDetailContract.Event.OnClickReplyComment -> {
+            onClickReplyComment()
         }
 
         is QuestionDetailContract.Event.OnClickDeleteComment -> {
@@ -75,6 +90,10 @@ class QuestionDetailViewModel @Inject constructor(
 
         is QuestionDetailContract.Event.OnClickDismissReportDialog -> {
             onClickDismissReportDialog()
+        }
+
+        is QuestionDetailContract.Event.OnClickDismissNoticeDialog -> {
+            onClickDismissNoticeDialog()
         }
 
         is QuestionDetailContract.Event.OnClickSendCommentReport -> {
@@ -176,6 +195,52 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
+    private fun onClickDeleteQuestion() {
+        getQuestionId()?.let { questionId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    deleteQuestionUseCase(questionId).onEach {
+                        withContext(mainImmediateDispatcher) {
+                            _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
+    private fun onClickReportQuestion() {
+        // TODO Show Dialog
+    }
+
+    private fun onClickSendQuestionReport(reason: String) {
+        getQuestionId()?.let { questionId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    reportQuestionUseCase(questionId, reason).onEach {
+                        withContext(mainImmediateDispatcher) {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isNoticeDialogShowing = true,
+                                    noticeDialogContent = "신고가 완료되었습니다"
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
     private fun onClickSendComment(parentId: Int?, comment: String) {
         getQuestionId()?.let { questionId ->
             viewModelScope.launch {
@@ -211,10 +276,20 @@ class QuestionDetailViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _state.update {
+                val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
+                    add(BottomSheetButton.REPLY_COMMENT)
+                    if (selectedCommentAuthorId.toLong() == state.value.userId) {
+                        add(BottomSheetButton.DELETE_COMMENT)
+                    } else {
+                        add(BottomSheetButton.REPORT_COMMENT)
+                    }
+                }
+
                 it.copy(
                     selectedCommentId = selectedCommentId,
                     selectedCommentAuthorId = selectedCommentAuthorId,
                     parentCommentId = parentCommentId,
+                    bottomSheetButtonList = bottomSheetButtonList
                 )
             }
 
@@ -222,7 +297,7 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickWriteCommentOnComment() {
+    private fun onClickReplyComment() {
         viewModelScope.launch {
             _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
         }
@@ -260,6 +335,14 @@ class QuestionDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(isReportDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isNoticeDialogShowing = false)
             }
         }
     }
