@@ -79,6 +79,8 @@ class LoungeFragment : BaseFragment<FragmentLoungeBinding>(FragmentLoungeBinding
                 }
             }.attach()
 
+            pager.isUserInputEnabled = false
+
             pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)

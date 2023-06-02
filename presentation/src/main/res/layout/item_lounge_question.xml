@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/bind"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <variable
+            name="item"
+            type="com.team.bpm.domain.model.Question" />
 
     </data>
 
@@ -19,6 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="10dp"
+            android:text="@{item.slug}"
             android:textColor="@color/black"
             app:layout_constraintEnd_toStartOf="@id/time"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,6 +41,7 @@
             android:textColor="@color/gray_06"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            bind:time_before_now="@{item.createdAt}"
             tools:text="54분전" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -47,6 +54,7 @@
             android:drawableStart="@drawable/ic_lounge_question_comment"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
+            android:text="@{item.commentsCount.toString()}"
             android:textColor="@color/gray_05"
             app:layout_constraintBottom_toTopOf="@id/divider"
             app:layout_constraintStart_toStartOf="@id/title"
@@ -62,6 +70,7 @@
             android:drawableStart="@drawable/ic_lounge_question_like"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
+            android:text="@{item.favoritesCount.toString()}"
             android:textColor="@color/gray_05"
             app:layout_constraintStart_toEndOf="@id/count_comment"
             app:layout_constraintTop_toTopOf="@id/count_comment"

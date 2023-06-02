@@ -17,7 +17,9 @@ class LoungeAddBottomSheet :
 
     override val viewModel: LoungeAddViewModel by viewModels()
 
-    private val fragmentViewModel: LoungeViewModel by viewModels()
+    private val fragmentViewModel: LoungeViewModel by viewModels(
+        ownerProducer = { requireParentFragment() }
+    )
 
     override fun initLayout() {
         bind {
@@ -42,6 +44,7 @@ class LoungeAddBottomSheet :
                         goToAddQuestionPost()
                     }
                 }
+                dismissAllowingStateLoss()
             }
         }
     }
