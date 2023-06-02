@@ -735,7 +735,7 @@ private fun StudioDetailActivityContent(
                     )
 
                     if (isReviewLoading) {
-                        LoadingBlock(modifier = Modifier.height(300.dp))
+                        LoadingBlock()
                     } else {
                         LaunchedEffect(Unit) {
                             scrollState.animateScrollTo(scrollPosition.value)

@@ -100,14 +100,17 @@ private fun QuestionDetailActivityContent(
                 is QuestionDetailContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
+
                 is QuestionDetailContract.Effect.RefreshCommentList -> {
                     commentTextFieldState.value = ""
                     focusManager.clearFocus()
                     event.invoke(QuestionDetailContract.Event.GetCommentList)
                 }
+
                 is QuestionDetailContract.Effect.ExpandBottomSheet -> {
                     bottomSheetState.show()
                 }
+
                 is QuestionDetailContract.Effect.ShowKeyboard -> {
                     bottomSheetState.hide()
                     focusRequester.requestFocus()
@@ -134,12 +137,12 @@ private fun QuestionDetailActivityContent(
                     if (selectedCommentAuthorId?.toLong() == userId) {
                         BottomSheetButtonComposable(
                             button = BottomSheetButton.DELETE_COMMENT,
-                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickDeleteComment)}
+                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickDeleteComment) }
                         )
                     } else {
                         BottomSheetButtonComposable(
                             button = BottomSheetButton.REPORT_COMMENT,
-                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickReportComment)}
+                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickReportComment) }
                         )
                     }
                 }
@@ -319,45 +322,49 @@ private fun QuestionDetailActivityContent(
                     ) {
                         val redirectCommentScrollPosition = remember { mutableStateOf(0) }
 
-                        commentList.forEach { comment ->
-                            CommentComposable(
-                                modifier = Modifier
-                                    .onGloballyPositioned {
-                                        if (redirectCommentId == comment.id) {
-                                            redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
+                        if (isCommentListLoading) {
+                            LoadingBlock()
+                        } else {
+                            commentList.forEach { comment ->
+                                CommentComposable(
+                                    modifier = Modifier
+                                        .onGloballyPositioned {
+                                            if (redirectCommentId == comment.id) {
+                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
+                                            }
                                         }
-                                    }
-                                    .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
-                                comment = comment,
-                                onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
-                                onClickActionButton = {
-                                    comment.id?.let { commentId ->
-                                        comment.author?.id?.let { authorId ->
-                                            comment.parentId?.let { parentCommentId ->
-                                                event.invoke(
-                                                    QuestionDetailContract.Event.OnClickCommentActionButton(
-                                                        commentId = commentId,
-                                                        authorId = authorId,
-                                                        parentCommentId = parentCommentId
-                                                    )
-                                                )
-                                            } ?: run {
-                                                comment.id?.let { commentId ->
+                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
+                                    comment = comment,
+                                    onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
+                                    onClickActionButton = {
+                                        comment.id?.let { commentId ->
+                                            comment.author?.id?.let { authorId ->
+                                                comment.parentId?.let { parentCommentId ->
                                                     event.invoke(
                                                         QuestionDetailContract.Event.OnClickCommentActionButton(
                                                             commentId = commentId,
                                                             authorId = authorId,
-                                                            parentCommentId = null
+                                                            parentCommentId = parentCommentId
                                                         )
                                                     )
+                                                } ?: run {
+                                                    comment.id?.let { commentId ->
+                                                        event.invoke(
+                                                            QuestionDetailContract.Event.OnClickCommentActionButton(
+                                                                commentId = commentId,
+                                                                authorId = authorId,
+                                                                parentCommentId = null
+                                                            )
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            )
+                                )
 
-                            BPMSpacer(height = 22.dp)
+                                BPMSpacer(height = 22.dp)
+                            }
                         }
                     }
                 }
@@ -408,6 +415,14 @@ private fun QuestionDetailActivityContent(
 
                 if (isLoading) {
                     LoadingScreen()
+                }
+
+                if (isReportDialogShowing) {
+                    TextFieldDialog(
+                        title = "신고 사유를 작성해주세요",
+                        onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
+                        onClickConfirm = { reason -> event.invoke(QuestionDetailContract.Event.OnClickSendCommentReport(reason)) }
+                    )
                 }
             }
         }

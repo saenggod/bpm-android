@@ -22,6 +22,8 @@ class QuestionDetailViewModel @Inject constructor(
     private val writeQuestionCommentUseCase: WriteQuestionCommentUseCase,
     private val likeQuestionUseCase: LikeQuestionUseCase,
     private val dislikeQuestionUseCase: DislikeQuestionUseCase,
+    private val deleteQuestionCommentUseCase: DeleteQuestionCommentUseCase,
+    private val reportQuestionCommentUseCase: ReportQuestionCommentUseCase,
     private val likeQuestionCommentUseCase: LikeQuestionCommentUseCase,
     private val dislikeQuestionCommentUseCase: DislikeQuestionCommentUseCase,
     private val getKakaoIdUseCase: GetKakaoIdUseCase,
@@ -69,6 +71,14 @@ class QuestionDetailViewModel @Inject constructor(
 
         is QuestionDetailContract.Event.OnClickReportComment -> {
             onClickReportComment()
+        }
+
+        is QuestionDetailContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
+        }
+
+        is QuestionDetailContract.Event.OnClickSendCommentReport -> {
+            onClickSendCommentReport(event.reason)
         }
 
         is QuestionDetailContract.Event.OnClickLike -> {
@@ -132,29 +142,36 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun getCommentList() {
         getQuestionId()?.let { questionId ->
-            viewModelScope.launch(ioDispatcher) {
-                getQuestionCommentListUseCase(questionId).onEach { result ->
-                    withContext(mainImmediateDispatcher) {
-                        val commentList = mutableListOf<Comment>().apply {
-                            result.comments?.forEach { comment ->
-                                add(comment)
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isCommentListLoading = true)
+                }
 
-                                comment.children?.let { childrenCommentList ->
-                                    childrenCommentList.forEach { childComment ->
-                                        add(childComment)
+                withContext(ioDispatcher) {
+                    getQuestionCommentListUseCase(questionId).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            val commentList = mutableListOf<Comment>().apply {
+                                result.comments?.forEach { comment ->
+                                    add(comment)
+
+                                    comment.children?.let { childrenCommentList ->
+                                        childrenCommentList.forEach { childComment ->
+                                            add(childComment)
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        _state.update {
-                            it.copy(
-                                commentList = commentList,
-                                commentsCount = result.commentsCount ?: result.comments?.size
-                            )
+                            _state.update {
+                                it.copy(
+                                    isCommentListLoading = false,
+                                    commentList = commentList,
+                                    commentsCount = result.commentsCount ?: result.comments?.size
+                                )
+                            }
                         }
-                    }
-                }.launchIn(viewModelScope + exceptionHandler)
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
             }
         }
     }
@@ -212,11 +229,59 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun onClickDeleteComment() {
+        getQuestionId()?.let { questionId ->
+            state.value.selectedCommentId?.let { selectedCommentId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isCommentListLoading = true)
+                    }
 
+                    withContext(ioDispatcher) {
+                        deleteQuestionCommentUseCase(questionId, selectedCommentId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
     }
 
     private fun onClickReportComment() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isReportDialogShowing = true)
+            }
+        }
+    }
 
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isReportDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickSendCommentReport(reason: String) {
+        getQuestionId()?.let { questionId ->
+            state.value.selectedCommentId?.let { selectedCommentId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isCommentListLoading = true)
+                    }
+
+                    withContext(ioDispatcher) {
+                        reportQuestionCommentUseCase(questionId, selectedCommentId, reason).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
     }
 
     private fun onClickLike() {

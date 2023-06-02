@@ -368,7 +368,7 @@ private fun CommunityDetailActivityContent(
 //                            }
                         }
                     } ?: run {
-                        LoadingBlock(modifier = Modifier.height(300.dp))
+                        LoadingBlock()
                     }
                 }
 

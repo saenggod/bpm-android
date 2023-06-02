@@ -926,7 +926,11 @@ fun LoadingScreen() {
 
 @Composable
 fun LoadingBlock(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxWidth()) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
         CircularProgressIndicator(
             modifier = Modifier.align(Center),
             color = MainGreenColor
