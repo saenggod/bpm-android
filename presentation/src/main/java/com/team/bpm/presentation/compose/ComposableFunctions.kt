@@ -66,6 +66,7 @@ import com.team.bpm.domain.model.Review
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.convertUriToBitmap
@@ -797,8 +798,8 @@ inline fun ImagePlaceHolder(
 inline fun CommentComposable(
     modifier: Modifier = Modifier,
     comment: Comment,
-    crossinline onClickLike: (Int) -> Unit,
-    crossinline onClickActionButton: (Int) -> Unit
+    crossinline onClickLike: () -> Unit,
+    crossinline onClickActionButton: () -> Unit
 ) {
     with(comment) {
         Row(modifier = modifier.fillMaxWidth()) {
@@ -864,7 +865,7 @@ inline fun CommentComposable(
                     }
 
                     Icon(
-                        modifier = Modifier.clickableWithoutRipple { comment.id?.let { commentId -> onClickActionButton(commentId) } },
+                        modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
                         painter = painterResource(id = R.drawable.ic_edit),
                         contentDescription = "editIcon",
                         tint = GrayColor4
@@ -884,7 +885,7 @@ inline fun CommentComposable(
                 BPMSpacer(height = 10.dp)
 
                 Row(
-                    modifier = Modifier.clickableWithoutRipple { comment.id?.let { commentId -> onClickLike(commentId) } },
+                    modifier = Modifier.clickableWithoutRipple { onClickLike() },
                     verticalAlignment = CenterVertically
                 ) {
                     Icon(
@@ -969,6 +970,59 @@ fun rememberLifecycleEvent(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.
     }
 
     return lifecycleEvent
+}
+
+@Composable
+fun BPMBottomSheet(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .clip(
+                RoundedCornerShape(
+                    topStart = 12.dp,
+                    topEnd = 12.dp
+                )
+            )
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
+        BPMSpacer(height = 8.dp)
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .clip(RoundedCornerShape(30.dp))
+                .background(GrayColor4)
+                .width(56.dp)
+                .height(4.dp)
+        )
+
+        BPMSpacer(height = 16.dp)
+
+        content()
+    }
+}
+
+@Composable
+fun BottomSheetButtonComposable(
+    button: BottomSheetButton,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(54.dp)
+            .clickableWithoutRipple { onClick() }
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .align(CenterStart),
+            text = button.text,
+            fontWeight = Medium,
+            fontSize = 14.sp,
+            letterSpacing = 0.sp
+        )
+    }
 }
 
 @Composable

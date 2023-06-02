@@ -18,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
@@ -45,6 +44,7 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.dateOnly
@@ -89,6 +89,7 @@ private fun QuestionDetailActivityContent(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
+        event.invoke(QuestionDetailContract.Event.GetUserId)
         event.invoke(QuestionDetailContract.Event.GetQuestionDetail)
         event.invoke(QuestionDetailContract.Event.GetCommentList)
     }
@@ -124,61 +125,21 @@ private fun QuestionDetailActivityContent(
             sheetState = bottomSheetState,
             sheetBackgroundColor = Transparent,
             sheetContent = {
-                Column(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 12.dp,
-                                topEnd = 12.dp
-                            )
-                        )
-                        .fillMaxWidth()
-                        .height(136.dp)
-                        .background(Color.White)
-                ) {
-                    BPMSpacer(height = 8.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .align(CenterHorizontally)
-                            .clip(RoundedCornerShape(30.dp))
-                            .background(GrayColor4)
-                            .width(56.dp)
-                            .height(4.dp)
+                BPMBottomSheet {
+                    BottomSheetButtonComposable(
+                        button = BottomSheetButton.REPLY_COMMENT,
+                        onClick = { event.invoke(QuestionDetailContract.Event.OnClickWriteReplyComment) }
                     )
 
-                    BPMSpacer(height = 16.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp)
-                            .clickableWithoutRipple { event.invoke(QuestionDetailContract.Event.OnClickWriteCommentOnComment) }
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .align(CenterStart),
-                            text = "대댓글 달기",
-                            fontWeight = Medium,
-                            fontSize = 14.sp,
-                            letterSpacing = 0.sp
+                    if (selectedCommentAuthorId?.toLong() == userId) {
+                        BottomSheetButtonComposable(
+                            button = BottomSheetButton.DELETE_COMMENT,
+                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickDeleteComment)}
                         )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .align(CenterStart),
-                            text = "신고하기",
-                            fontWeight = Medium,
-                            fontSize = 14.sp,
-                            letterSpacing = 0.sp
+                    } else {
+                        BottomSheetButtonComposable(
+                            button = BottomSheetButton.REPORT_COMMENT,
+                            onClick = { event.invoke(QuestionDetailContract.Event.OnClickReportComment)}
                         )
                     }
                 }
@@ -349,42 +310,55 @@ private fun QuestionDetailActivityContent(
                         color = GrayColor10
                     )
 
-                    commentList?.let {
-                        Column(
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 16.dp,
-                                    vertical = 20.dp
-                                )
-                        ) {
-                            val redirectCommentScrollPosition = remember { mutableStateOf(0) }
+                    Column(
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                                vertical = 20.dp
+                            )
+                    ) {
+                        val redirectCommentScrollPosition = remember { mutableStateOf(0) }
 
-                            it.forEach { comment ->
-                                CommentComposable(
-                                    modifier = Modifier
-                                        .onGloballyPositioned {
-                                            if (redirectCommentId == comment.id) {
-                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-                                            }
-                                        }
-                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
-                                    comment = comment,
-                                    onClickLike = { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) },
-                                    onClickActionButton = { commentId ->
-                                        focusManager.clearFocus()
-                                        if (comment.parentId == null) {
-                                            event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(commentId))
-                                        } else {
-                                            comment.parentId?.let { parentCommentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentActionButton(parentCommentId)) }
+                        commentList.forEach { comment ->
+                            CommentComposable(
+                                modifier = Modifier
+                                    .onGloballyPositioned {
+                                        if (redirectCommentId == comment.id) {
+                                            redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
                                         }
                                     }
-                                )
+                                    .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
+                                comment = comment,
+                                onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
+                                onClickActionButton = {
+                                    comment.id?.let { commentId ->
+                                        comment.author?.id?.let { authorId ->
+                                            comment.parentId?.let { parentCommentId ->
+                                                event.invoke(
+                                                    QuestionDetailContract.Event.OnClickCommentActionButton(
+                                                        commentId = commentId,
+                                                        authorId = authorId,
+                                                        parentCommentId = parentCommentId
+                                                    )
+                                                )
+                                            } ?: run {
+                                                comment.id?.let { commentId ->
+                                                    event.invoke(
+                                                        QuestionDetailContract.Event.OnClickCommentActionButton(
+                                                            commentId = commentId,
+                                                            authorId = authorId,
+                                                            parentCommentId = null
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            )
 
-                                BPMSpacer(height = 22.dp)
-                            }
+                            BPMSpacer(height = 22.dp)
                         }
-                    } ?: run {
-                        LoadingBlock(modifier = Modifier.height(300.dp))
                     }
                 }
 

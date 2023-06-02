@@ -4,30 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
-import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
-import com.team.bpm.domain.usecase.question.WriteQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
-import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.*
+import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +24,7 @@ class QuestionDetailViewModel @Inject constructor(
     private val dislikeQuestionUseCase: DislikeQuestionUseCase,
     private val likeQuestionCommentUseCase: LikeQuestionCommentUseCase,
     private val dislikeQuestionCommentUseCase: DislikeQuestionCommentUseCase,
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), QuestionDetailContract {
 
@@ -51,6 +35,10 @@ class QuestionDetailViewModel @Inject constructor(
     override val effect: SharedFlow<QuestionDetailContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: QuestionDetailContract.Event) = when (event) {
+        is QuestionDetailContract.Event.GetUserId -> {
+            getUserId()
+        }
+
         is QuestionDetailContract.Event.GetQuestionDetail -> {
             getQuestionDetail()
         }
@@ -64,11 +52,23 @@ class QuestionDetailViewModel @Inject constructor(
         }
 
         is QuestionDetailContract.Event.OnClickCommentActionButton -> {
-            onClickCommentActionButton(event.commentId)
+            onClickCommentActionButton(
+                selectedCommentId = event.commentId,
+                selectedCommentAuthorId = event.authorId,
+                parentCommentId = event.parentCommentId
+            )
         }
 
-        is QuestionDetailContract.Event.OnClickWriteCommentOnComment -> {
+        is QuestionDetailContract.Event.OnClickWriteReplyComment -> {
             onClickWriteCommentOnComment()
+        }
+
+        is QuestionDetailContract.Event.OnClickDeleteComment -> {
+            onClickDeleteComment()
+        }
+
+        is QuestionDetailContract.Event.OnClickReportComment -> {
+            onClickReportComment()
         }
 
         is QuestionDetailContract.Event.OnClickLike -> {
@@ -87,7 +87,22 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun getQuestionId(): Int? {
-        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
+//        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
+        return 1
+    }
+
+    private fun getUserId() {
+        viewModelScope.launch(ioDispatcher) {
+            getKakaoIdUseCase().onEach { result ->
+                result?.let { userId ->
+                    withContext(mainImmediateDispatcher) {
+                        _state.update {
+                            it.copy(userId = userId)
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
     }
 
     private fun getQuestionDetail() {
@@ -159,6 +174,7 @@ class QuestionDetailViewModel @Inject constructor(
                                     isLoading = false,
                                     redirectCommentId = result.id,
                                     selectedCommentId = null,
+                                    selectedCommentAuthorId = null,
                                     parentCommentId = null
                                 )
                             }
@@ -171,10 +187,18 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickCommentActionButton(commentId: Int) {
+    private fun onClickCommentActionButton(
+        selectedCommentId: Int,
+        selectedCommentAuthorId: Int,
+        parentCommentId: Int?
+    ) {
         viewModelScope.launch {
             _state.update {
-                it.copy(selectedCommentId = commentId)
+                it.copy(
+                    selectedCommentId = selectedCommentId,
+                    selectedCommentAuthorId = selectedCommentAuthorId,
+                    parentCommentId = parentCommentId,
+                )
             }
 
             _effect.emit(QuestionDetailContract.Effect.ExpandBottomSheet)
@@ -183,12 +207,16 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickWriteCommentOnComment() {
         viewModelScope.launch {
-            _state.update {
-                it.copy(parentCommentId = state.value.selectedCommentId)
-            }
-
             _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
         }
+    }
+
+    private fun onClickDeleteComment() {
+
+    }
+
+    private fun onClickReportComment() {
+
     }
 
     private fun onClickLike() {
@@ -241,7 +269,7 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickCommentLike(commentId: Int) {
         getQuestionId()?.let { questionId ->
-            val comment = state.value.commentList?.find { comment -> comment.id == commentId }
+            val comment = state.value.commentList.find { comment -> comment.id == commentId }
 
             viewModelScope.launch(ioDispatcher) {
                 when (comment?.liked) {
@@ -249,7 +277,7 @@ class QuestionDetailViewModel @Inject constructor(
                         dislikeQuestionCommentUseCase(questionId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
+                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = false,
@@ -265,7 +293,7 @@ class QuestionDetailViewModel @Inject constructor(
                         likeQuestionCommentUseCase(questionId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
+                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = true,

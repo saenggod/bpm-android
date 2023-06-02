@@ -14,7 +14,7 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
         val isErrorDialogShowing: Boolean = false,
-        val focusedTab: StudioDetailTabType = StudioDetailTabType.Info,
+        val focusedTab: StudioDetailTabType = StudioDetailTabType.INFO,
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,
         val isTopRecommendListExpanded: Boolean = false,

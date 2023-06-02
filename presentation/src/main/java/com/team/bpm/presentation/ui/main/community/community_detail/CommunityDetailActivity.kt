@@ -343,29 +343,29 @@ private fun CommunityDetailActivityContent(
                         ) {
                             val redirectCommentScrollPosition = remember { mutableStateOf(0) }
 
-                            it.forEach { comment ->
-                                CommentComposable(
-                                    modifier = Modifier
-                                        .onGloballyPositioned {
-                                            if (redirectCommentId == comment.id) {
-                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-                                            }
-                                        }
-                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
-                                    comment = comment,
-                                    onClickLike = { commentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentLike(commentId)) },
-                                    onClickActionButton = { commentId ->
-                                        focusManager.clearFocus()
-                                        if (comment.parentId == null) {
-                                            event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(commentId))
-                                        } else {
-                                            comment.parentId?.let { parentCommentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(parentCommentId)) }
-                                        }
-                                    }
-                                )
+//                            it.forEach { comment ->
+//                                CommentComposable(
+//                                    modifier = Modifier
+//                                        .onGloballyPositioned {
+//                                            if (redirectCommentId == comment.id) {
+//                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
+//                                            }
+//                                        }
+//                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
+//                                    comment = comment,
+//                                    onClickLike = { commentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentLike(commentId)) },
+//                                    onClickActionButton = { commentId ->
+//                                        focusManager.clearFocus()
+//                                        if (comment.parentId == null) {
+//                                            event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(commentId))
+//                                        } else {
+//                                            comment.parentId?.let { parentCommentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(parentCommentId)) }
+//                                        }
+//                                    }
+//                                )
 
-                                BPMSpacer(height = 22.dp)
-                            }
+//                                BPMSpacer(height = 22.dp)
+//                            }
                         }
                     } ?: run {
                         LoadingBlock(modifier = Modifier.height(300.dp))
