@@ -17,11 +17,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class MainRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : MainRepository {
+class MainRepositoryImpl @Inject constructor(private val mainApi: MainApi) : MainRepository {
 
-    override suspend fun getStudioList(limit: Int, offset: Int): Flow<StudioList> {
+    override suspend fun getStudioList(
+        limit: Int,
+        offset: Int
+    ): Flow<StudioList> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.getStudioList(limit, offset)

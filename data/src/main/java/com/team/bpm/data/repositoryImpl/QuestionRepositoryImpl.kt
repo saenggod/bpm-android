@@ -19,10 +19,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class QuestionRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : QuestionRepository {
-    override suspend fun sendQuestion(title: String, content: String, imageByteArrays: List<ByteArray>): Flow<Question> {
+class QuestionRepositoryImpl @Inject constructor(private val mainApi: MainApi) : QuestionRepository {
+    override suspend fun sendQuestion(
+        title: String,
+        content: String,
+        imageByteArrays: List<ByteArray>
+    ): Flow<Question> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendQuestion(
@@ -61,7 +63,10 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendQuestionReport(questionId: Int, reason: String): Flow<Unit> {
+    override suspend fun sendQuestionReport(
+        questionId: Int,
+        reason: String
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendQuestionReport(questionId, ReportRequest(reason))
@@ -91,7 +96,11 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendQuestionComment(questionId: Int, parentId: Int?, comment: String): Flow<Comment> {
+    override suspend fun sendQuestionComment(
+        questionId: Int,
+        parentId: Int?,
+        comment: String
+    ): Flow<Comment> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendQuestionComment(questionId, CommentRequest(parentId, comment))
@@ -101,7 +110,10 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteQuestionComment(questionId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun deleteQuestionComment(
+        questionId: Int,
+        commentId: Int
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteQuestionComment(questionId, commentId)
@@ -121,7 +133,11 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendQuestionCommentReport(questionId: Int, commentId: Int, reason: String): Flow<Unit> {
+    override suspend fun sendQuestionCommentReport(
+        questionId: Int,
+        commentId: Int,
+        reason: String
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendQuestionCommentReport(questionId, commentId, ReportRequest(reason))
@@ -131,7 +147,10 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendQuestionCommentLike(questionId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun sendQuestionCommentLike(
+        questionId: Int,
+        commentId: Int
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendQuestionCommentLike(questionId, commentId)
@@ -141,7 +160,10 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteQuestionCommentLike(questionId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun deleteQuestionCommentLike(
+        questionId: Int,
+        commentId: Int
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteQuestionCommentLike(questionId, commentId)

@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class SignUpRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : SignUpRepository {
+class SignUpRepositoryImpl @Inject constructor(private val mainApi: MainApi) : SignUpRepository {
     override suspend fun sendSignUp(
         kakaoId: Long,
         nickname: String,

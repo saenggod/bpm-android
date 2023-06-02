@@ -4,26 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
-import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
+import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.LikeReviewUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,27 +31,27 @@ class ReviewListViewModel @Inject constructor(
     override val effect: SharedFlow<ReviewListContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: ReviewListContract.Event) = when (event) {
-        ReviewListContract.Event.GetReviewList -> {
+        is ReviewListContract.Event.GetReviewList -> {
             getReviewList()
         }
 
-        ReviewListContract.Event.OnClickShowImageReviewsOnly -> {
+        is ReviewListContract.Event.OnClickShowImageReviewsOnly -> {
             onClickShowImageReviewsOnly()
         }
 
-        ReviewListContract.Event.OnClickShowNotOnlyImageReviews -> {
+        is ReviewListContract.Event.OnClickShowNotOnlyImageReviews -> {
             onClickShowNotOnlyImageReviews()
         }
 
-        ReviewListContract.Event.OnClickSortByLike -> {
+        is ReviewListContract.Event.OnClickSortByLike -> {
             onClickSortByLike()
         }
 
-        ReviewListContract.Event.OnClickSortByDate -> {
+        is ReviewListContract.Event.OnClickSortByDate -> {
             onClickSortByDate()
         }
 
-        ReviewListContract.Event.OnClickWriteReview -> {
+        is ReviewListContract.Event.OnClickWriteReview -> {
             onClickWriteReview()
         }
 

@@ -11,9 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class StudioRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : StudioRepository {
+class StudioRepositoryImpl @Inject constructor(private val mainApi: MainApi) : StudioRepository {
 
     override suspend fun fetchStudioDetail(studioId: Int): Flow<Studio> {
         return flow {

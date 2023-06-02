@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
@@ -41,7 +40,10 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
-import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.compose.theme.FilteredWhiteColor
+import com.team.bpm.presentation.compose.theme.GrayColor11
+import com.team.bpm.presentation.compose.theme.GrayColor3
+import com.team.bpm.presentation.compose.theme.GrayColor9
 import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,7 +62,11 @@ class ReviewDetailActivity : BaseComponentActivityV2() {
         const val KEY_STUDIO_ID = "studio_id"
         const val KEY_REVIEW_ID = "review_id"
 
-        fun newIntent(context: Context, studioId: Int, reviewId: Int): Intent {
+        fun newIntent(
+            context: Context,
+            studioId: Int,
+            reviewId: Int
+        ): Intent {
             return Intent(context, ReviewDetailActivity::class.java).apply {
                 putExtra(
                     KEY_BUNDLE, bundleOf(

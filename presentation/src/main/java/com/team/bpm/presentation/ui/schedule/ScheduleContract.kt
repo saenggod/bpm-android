@@ -15,9 +15,13 @@ interface ScheduleContract : BaseContract<ScheduleContract.State, ScheduleContra
 
     sealed interface Event {
         object OnClickEdit : Event
+
         object OnClickSearchStudio : Event
+
         data class SetStudio(val studio: Studio) : Event
+
         data class OnClickDate(val date: LocalDate) : Event
+
         data class OnClickSetTime(val time: String) : Event
     }
 

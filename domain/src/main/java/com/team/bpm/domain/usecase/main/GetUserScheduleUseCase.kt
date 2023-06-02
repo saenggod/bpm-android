@@ -8,9 +8,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 @Reusable
-class GetUserScheduleUseCase @Inject constructor(
-    private val mainRepository: MainRepository
-) {
+class GetUserScheduleUseCase @Inject constructor(private val mainRepository: MainRepository) {
     suspend operator fun invoke(): Flow<ResponseState<UserSchedule>> {
         return mainRepository.getUserSchedule()
     }

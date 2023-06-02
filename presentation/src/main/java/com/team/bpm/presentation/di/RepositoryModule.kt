@@ -18,9 +18,7 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideMainRepository(
-        mainApi: MainApi
-    ): MainRepository {
+    fun provideMainRepository(mainApi: MainApi): MainRepository {
         return MainRepositoryImpl(mainApi)
     }
 
@@ -35,41 +33,31 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideSignUpRepository(
-        mainApi: MainApi
-    ): SignUpRepository {
+    fun provideSignUpRepository(mainApi: MainApi): SignUpRepository {
         return SignUpRepositoryImpl(mainApi)
     }
 
     @Singleton
     @Provides
-    fun provideScheduleRepository(
-        mainApi: MainApi
-    ): ScheduleRepository {
+    fun provideScheduleRepository(mainApi: MainApi): ScheduleRepository {
         return ScheduleRepositoryImpl(mainApi)
     }
 
     @Singleton
     @Provides
-    fun provideStudioDetailRepository(
-        mainApi: MainApi
-    ): StudioRepository {
+    fun provideStudioDetailRepository(mainApi: MainApi): StudioRepository {
         return StudioRepositoryImpl(mainApi)
     }
 
     @Singleton
     @Provides
-    fun provideReviewRepository(
-        mainApi: MainApi
-    ): ReviewRepository {
+    fun provideReviewRepository(mainApi: MainApi): ReviewRepository {
         return ReviewRepositoryImpl(mainApi)
     }
 
     @Singleton
     @Provides
-    fun provideSearchStudioRepository(
-        mainApi: MainApi
-    ): SearchStudioRepository {
+    fun provideSearchStudioRepository(mainApi: MainApi): SearchStudioRepository {
         return SearchStudioRepositoryImpl(mainApi)
     }
 
@@ -84,25 +72,19 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun providePostRepository(
-        mainApi: MainApi
-    ): CommunityRepository {
+    fun providePostRepository(mainApi: MainApi): CommunityRepository {
         return CommunityRepositoryImpl(mainApi)
     }
 
     @Singleton
     @Provides
-    fun provideQuestionRepository(
-        mainApi: MainApi
-    ): QuestionRepository {
+    fun provideQuestionRepository(mainApi: MainApi): QuestionRepository {
         return QuestionRepositoryImpl(mainApi)
     }
 
     @Singleton
     @Provides
-    fun provideEyeBodyRepository(
-        mainApi: MainApi
-    ): EyeBodyRepository {
+    fun provideEyeBodyRepository(mainApi: MainApi): EyeBodyRepository {
         return EyeBodyRepositoryImpl(mainApi)
     }
 }

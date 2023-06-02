@@ -13,6 +13,7 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
 
     sealed interface Event {
         object GetReviewDetail : Event
+
         object OnClickLike : Event
     }
 

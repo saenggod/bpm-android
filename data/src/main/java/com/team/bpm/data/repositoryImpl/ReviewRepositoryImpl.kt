@@ -16,9 +16,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class ReviewRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : ReviewRepository {
+class ReviewRepositoryImpl @Inject constructor(private val mainApi: MainApi) : ReviewRepository {
 
     override suspend fun sendReview(
         studioId: Int,
@@ -65,7 +63,7 @@ class ReviewRepositoryImpl @Inject constructor(
     ): Flow<ReviewList> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.fetchReviewList(studioId = studioId)
+                mainApi.fetchReviewList(studioId)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
@@ -78,10 +76,7 @@ class ReviewRepositoryImpl @Inject constructor(
     ): Flow<Review> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.fetchReviewDetail(
-                    studioId = studioId,
-                    reviewId = reviewId
-                )
+                mainApi.fetchReviewDetail(studioId, reviewId)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
@@ -95,11 +90,7 @@ class ReviewRepositoryImpl @Inject constructor(
     ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.sendReviewReport(
-                    studioId = studioId,
-                    reviewId = reviewId,
-                    reportRequest = ReportRequest(reason)
-                )
+                mainApi.sendReviewReport(studioId, reviewId, ReportRequest(reason))
             }.collect {
                 emit(Unit)
             }
@@ -112,10 +103,7 @@ class ReviewRepositoryImpl @Inject constructor(
     ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.sendReviewLike(
-                    studioId = studioId,
-                    reviewId = reviewId
-                )
+                mainApi.sendReviewLike(studioId, reviewId)
             }.collect {
                 emit(Unit)
             }
@@ -128,10 +116,7 @@ class ReviewRepositoryImpl @Inject constructor(
     ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.deleteReviewLike(
-                    studioId = studioId,
-                    reviewId = reviewId
-                )
+                mainApi.deleteReviewLike(studioId, reviewId)
             }.collect {
                 emit(Unit)
             }

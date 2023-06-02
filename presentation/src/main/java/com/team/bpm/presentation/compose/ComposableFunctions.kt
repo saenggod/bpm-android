@@ -376,7 +376,17 @@ fun ReviewComposable(
             modifier = modifier
                 .fillMaxWidth()
                 .clickableWithoutRipple {
-                    review.studio?.id?.let { studioId -> review.id?.let { reviewId -> context.startActivity(ReviewDetailActivity.newIntent(context = context, studioId = studioId, reviewId = reviewId)) } }
+                    review.studio?.id?.let { studioId ->
+                        review.id?.let { reviewId ->
+                            context.startActivity(
+                                ReviewDetailActivity.newIntent(
+                                    context = context,
+                                    studioId = studioId,
+                                    reviewId = reviewId
+                                )
+                            )
+                        }
+                    }
                 }
         ) {
             BPMSpacer(height = 16.dp)

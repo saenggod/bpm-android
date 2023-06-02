@@ -7,9 +7,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 @Reusable
-class SendKakaoIdVerificationUseCase @Inject constructor(
-    private val splashRepository: SplashRepository
-) {
+class SendKakaoIdVerificationUseCase @Inject constructor(private val splashRepository: SplashRepository) {
     suspend operator fun invoke(kakaoId: Long): Flow<UserInfo> {
         return splashRepository.sendSignIn(kakaoId)
     }

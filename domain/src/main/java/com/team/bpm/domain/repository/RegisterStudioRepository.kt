@@ -5,5 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface RegisterStudioRepository {
     suspend fun sendStudio(registerStudioWrapper: RegisterStudioWrapper): Flow<Unit>
-    suspend fun fetchAddressName(latitude: Double, longitude: Double): Flow<String?>
+    suspend fun fetchAddressName(
+        latitude: Double,
+        longitude: Double
+    ): Flow<String?>
 }

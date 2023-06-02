@@ -5,12 +5,10 @@ import com.team.bpm.domain.repository.StudioRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetStudioDetailUseCase @Inject constructor(
-    private val studioRepository: StudioRepository
-) {
+class GetStudioDetailUseCase @Inject constructor(private val studioRepository: StudioRepository) {
     suspend operator fun invoke(
         studioId: Int
     ): Flow<Studio> {
-        return studioRepository.fetchStudioDetail(studioId = studioId)
+        return studioRepository.fetchStudioDetail(studioId)
     }
 }

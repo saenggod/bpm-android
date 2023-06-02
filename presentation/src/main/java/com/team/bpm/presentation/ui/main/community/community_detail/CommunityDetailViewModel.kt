@@ -4,13 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
-import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
-import com.team.bpm.domain.usecase.community.WriteCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,18 +36,23 @@ class CommunityDetailViewModel @Inject constructor(
         is CommunityDetailContract.Event.GetCommunityDetail -> {
             getCommunityDetail()
         }
+
         is CommunityDetailContract.Event.GetCommentList -> {
             getCommentList()
         }
+
         is CommunityDetailContract.Event.OnClickSendComment -> {
             onClickSendComment(comment = event.comment)
         }
+
         is CommunityDetailContract.Event.OnClickCommentActionButton -> {
             onClickCommentActionButton(event.commentId)
         }
+
         is CommunityDetailContract.Event.OnClickLike -> {
             onClickLike()
         }
+
         is CommunityDetailContract.Event.OnClickCommentLike -> {
             onClickCommentLike(event.commentId)
         }

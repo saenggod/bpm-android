@@ -7,10 +7,11 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 @Reusable
-class GetStudioListUseCase @Inject constructor(
-    private val mainRepository: MainRepository
-) {
-    suspend operator fun invoke(limit: Int, offset: Int): Flow<StudioList> {
+class GetStudioListUseCase @Inject constructor(private val mainRepository: MainRepository) {
+    suspend operator fun invoke(
+        limit: Int,
+        offset: Int
+    ): Flow<StudioList> {
         return mainRepository.getStudioList(limit, offset)
     }
 }

@@ -64,7 +64,10 @@ class QuestionDetailActivity : BaseComponentActivityV2() {
     companion object {
         const val KEY_QUESTION_ID = "question_id"
 
-        fun newIntent(context: Context, questionId: Int): Intent {
+        fun newIntent(
+            context: Context,
+            questionId: Int
+        ): Intent {
             return Intent(context, QuestionDetailActivity::class.java).apply {
                 putExtra(KEY_QUESTION_ID, questionId)
             }

@@ -5,9 +5,7 @@ import com.team.bpm.domain.repository.SignUpRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class SignUpUseCase @Inject constructor(
-    private val signUpRepository: SignUpRepository
-) {
+class SignUpUseCase @Inject constructor(private val signUpRepository: SignUpRepository) {
     suspend operator fun invoke(
         kakaoId: Long,
         imageByteArray: ByteArray,

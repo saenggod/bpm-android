@@ -11,10 +11,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 fun convertByteArrayToWebpFile(byteArray: ByteArray): File {
-    val webpFile = File.createTempFile(
-        "IMG_",
-        ".webp"
-    )
+    val webpFile = File.createTempFile("IMG_", ".webp")
 
     try {
         FileOutputStream(webpFile).use { stream ->
