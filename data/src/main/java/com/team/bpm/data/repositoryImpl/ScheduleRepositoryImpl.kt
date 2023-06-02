@@ -12,9 +12,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class ScheduleRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : ScheduleRepository {
+class ScheduleRepositoryImpl @Inject constructor(private val mainApi: MainApi) : ScheduleRepository {
 
     override suspend fun sendSchedule(
         studioName: String,
@@ -25,7 +23,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendSchedule(
-                    schedule = ScheduleRequest(
+                    ScheduleRequest(
                         studioName = studioName,
                         date = date,
                         time = time,

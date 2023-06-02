@@ -101,7 +101,12 @@ class QuestionDetailViewModel @Inject constructor(
                     getQuestionDetailUseCase(questionId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
-                                it.copy(isLoading = false, question = result, liked = result.favorited, likeCount = result.favoritesCount)
+                                it.copy(
+                                    isLoading = false,
+                                    question = result,
+                                    liked = result.favorited,
+                                    likeCount = result.favoritesCount
+                                )
                             }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
@@ -128,7 +133,10 @@ class QuestionDetailViewModel @Inject constructor(
                         }
 
                         _state.update {
-                            it.copy(commentList = commentList, commentsCount = result.commentsCount ?: result.comments?.size)
+                            it.copy(
+                                commentList = commentList,
+                                commentsCount = result.commentsCount ?: result.comments?.size
+                            )
                         }
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
@@ -147,7 +155,12 @@ class QuestionDetailViewModel @Inject constructor(
                     writeQuestionCommentUseCase(questionId = questionId, parentId = parentId, comment = comment).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
-                                it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)
+                                it.copy(
+                                    isLoading = false,
+                                    redirectCommentId = result.id,
+                                    selectedCommentId = null,
+                                    parentCommentId = null
+                                )
                             }
 
                             _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
@@ -192,7 +205,11 @@ class QuestionDetailViewModel @Inject constructor(
                                 dislikeQuestionUseCase(questionId).onEach {
                                     withContext(mainImmediateDispatcher) {
                                         _state.update {
-                                            it.copy(isLoading = false, liked = false, likeCount = state.value.likeCount?.minus(1))
+                                            it.copy(
+                                                isLoading = false,
+                                                liked = false,
+                                                likeCount = state.value.likeCount?.minus(1)
+                                            )
                                         }
 
                                         _effect.emit(QuestionDetailContract.Effect.ShowToast("질문 추천을 취소하였습니다."))
@@ -204,7 +221,11 @@ class QuestionDetailViewModel @Inject constructor(
                                 likeQuestionUseCase(questionId).onEach {
                                     withContext(mainImmediateDispatcher) {
                                         _state.update {
-                                            it.copy(isLoading = false, liked = true, likeCount = state.value.likeCount?.plus(1))
+                                            it.copy(
+                                                isLoading = false,
+                                                liked = true,
+                                                likeCount = state.value.likeCount?.plus(1)
+                                            )
                                         }
 
                                         _effect.emit(QuestionDetailContract.Effect.ShowToast("질문을 추천하였습니다."))
@@ -230,7 +251,10 @@ class QuestionDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
                                         val targetIndex = indexOf(comment)
-                                        this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
+                                        this[targetIndex] = this[targetIndex].copy(
+                                            liked = false,
+                                            likeCount = this[targetIndex].likeCount?.minus(1)
+                                        )
                                     })
                                 }
                             }
@@ -243,7 +267,10 @@ class QuestionDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
                                         val targetIndex = indexOf(comment)
-                                        this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
+                                        this[targetIndex] = this[targetIndex].copy(
+                                            liked = true,
+                                            likeCount = this[targetIndex].likeCount?.plus(1)
+                                        )
                                     })
                                 }
                             }

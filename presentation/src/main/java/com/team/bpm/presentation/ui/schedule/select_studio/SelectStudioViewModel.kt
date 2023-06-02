@@ -46,7 +46,7 @@ class SelectStudioViewModel @Inject constructor(
             onClickStudio(event.studio)
         }
 
-        SelectStudioContract.Event.OnClickComplete -> {
+        is SelectStudioContract.Event.OnClickComplete -> {
             onClickComplete()
         }
     }

@@ -4,9 +4,7 @@ import com.team.bpm.domain.repository.ReviewRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class WriteReviewUseCase @Inject constructor(
-    private val reviewRepository: ReviewRepository
-) {
+class WriteReviewUseCase @Inject constructor(private val reviewRepository: ReviewRepository) {
     suspend operator fun invoke(
         studioId: Int,
         imageByteArrays: List<ByteArray>,

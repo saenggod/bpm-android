@@ -61,10 +61,10 @@ class SignUpViewModel @Inject constructor(
         return savedStateHandle.get<Bundle>(SignUpActivity.KEY_BUNDLE)
     }
 
-    private val kakaoUserInfo: Pair<Long, String> by lazy {
+    private val kakaoUserInfo: Pair<Long?, String?> by lazy {
         Pair(
-            getBundle()?.getLong(SignUpActivity.KEY_KAKAO_USER_ID) ?: 0L,
-            getBundle()?.getString(SignUpActivity.KEY_KAKAO_NICK_NAME) ?: ""
+            getBundle()?.getLong(SignUpActivity.KEY_KAKAO_USER_ID),
+            getBundle()?.getString(SignUpActivity.KEY_KAKAO_NICK_NAME)
         )
     }
 
@@ -100,33 +100,37 @@ class SignUpViewModel @Inject constructor(
         nickname: String,
         bio: String
     ) {
-        viewModelScope.launch {
-            if (nickname.isEmpty()) {
-                _state.update {
-                    it.copy(submittedWithOmission = true)
-                }
-            } else {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
+        kakaoUserInfo.first?.let { kakaoId ->
+            viewModelScope.launch {
+                if (nickname.isEmpty()) {
+                    _state.update {
+                        it.copy(submittedWithOmission = true)
+                    }
+                } else {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
 
-                withContext(ioDispatcher) {
-                    state.value.profileImage?.let { profileImage ->
-                        signUpUseCase(
-                            kakaoId = kakaoUserInfo.first,
-                            imageByteArray = convertImageBitmapToByteArray(profileImage),
-                            nickname = nickname,
-                            bio = bio
-                        ).onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                result.token?.let { token ->
-                                    saveUserToken(token)
+                    withContext(ioDispatcher) {
+                        state.value.profileImage?.let { profileImage ->
+                            signUpUseCase(
+                                kakaoId = kakaoId,
+                                imageByteArray = convertImageBitmapToByteArray(profileImage),
+                                nickname = nickname,
+                                bio = bio
+                            ).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    result.token?.let { token ->
+                                        saveUserToken(token)
+                                    }
                                 }
-                            }
-                        }.launchIn(viewModelScope + exceptionHandler)
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
                     }
                 }
             }
+        } ?: run {
+            // TODO : Error Handling
         }
     }
 

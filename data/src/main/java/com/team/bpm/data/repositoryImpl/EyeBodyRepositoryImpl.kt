@@ -13,10 +13,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class EyeBodyRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : EyeBodyRepository {
-    override suspend fun sendEyeBody(content: String, imageByteArrays: List<ByteArray>): Flow<EyeBody> {
+class EyeBodyRepositoryImpl @Inject constructor(private val mainApi: MainApi) : EyeBodyRepository {
+    override suspend fun sendEyeBody(
+        content: String,
+        imageByteArrays: List<ByteArray>
+    ): Flow<EyeBody> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendEyeBody(

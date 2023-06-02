@@ -19,17 +19,25 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
 
     sealed interface Event {
         object GetCommunityDetail : Event
+
         object GetCommentList : Event
+
         data class OnClickSendComment(val comment: String) : Event
+
         data class OnClickCommentActionButton(val commentId: Int) : Event
+
         object OnClickLike : Event
+
         data class OnClickCommentLike(val commentId: Int) : Event
     }
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
+
         object RefreshCommentList : Effect
+
         object ExpandBottomSheet : Effect
+
         object ShowKeyboard : Effect
     }
 }

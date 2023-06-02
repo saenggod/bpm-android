@@ -162,7 +162,10 @@ class StudioDetailViewModel @Inject constructor(
                     getStudioDetailUseCase(studioId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
-                                it.copy(isLoading = false, studio = result)
+                                it.copy(
+                                    isLoading = false,
+                                    studio = result
+                                )
                             }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
@@ -181,7 +184,11 @@ class StudioDetailViewModel @Inject constructor(
                 reviewListUseCase(studioId).onEach { result ->
                     withContext(ioDispatcher) {
                         _state.update {
-                            it.copy(isReviewLoading = false, originalReviewList = result.reviews ?: emptyList(), reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList())
+                            it.copy(
+                                isReviewLoading = false,
+                                originalReviewList = result.reviews ?: emptyList(),
+                                reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
+                            )
                         }
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
@@ -365,7 +372,10 @@ class StudioDetailViewModel @Inject constructor(
                                     _state.update {
                                         it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                            this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
+                                            this[targetIndex] = this[targetIndex].copy(
+                                                liked = false,
+                                                likeCount = this[targetIndex].likeCount?.minus(1)
+                                            )
                                         }))
                                     }
                                 }
@@ -380,7 +390,10 @@ class StudioDetailViewModel @Inject constructor(
                                     _state.update {
                                         it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                            this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
+                                            this[targetIndex] = this[targetIndex].copy(
+                                                liked = true,
+                                                likeCount = this[targetIndex].likeCount?.plus(1)
+                                            )
                                         }))
                                     }
                                 }
@@ -491,6 +504,8 @@ class StudioDetailViewModel @Inject constructor(
                     _effect.emit(StudioDetailContract.Effect.ShowToast("리뷰를 삭제할 수 없습니다."))
                 }
             }
+        } ?: run {
+            // TODO : Error Handling
         }
     }
 }

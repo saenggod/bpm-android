@@ -59,8 +59,6 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-
-
     private fun onStart() {
         viewModelScope.launch {
             _effect.emit(SplashContract.Effect.Init)

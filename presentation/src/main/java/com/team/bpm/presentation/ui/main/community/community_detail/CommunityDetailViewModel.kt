@@ -4,13 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
-import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
-import com.team.bpm.domain.usecase.community.WriteCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,18 +36,23 @@ class CommunityDetailViewModel @Inject constructor(
         is CommunityDetailContract.Event.GetCommunityDetail -> {
             getCommunityDetail()
         }
+
         is CommunityDetailContract.Event.GetCommentList -> {
             getCommentList()
         }
+
         is CommunityDetailContract.Event.OnClickSendComment -> {
             onClickSendComment(comment = event.comment)
         }
+
         is CommunityDetailContract.Event.OnClickCommentActionButton -> {
             onClickCommentActionButton(event.commentId)
         }
+
         is CommunityDetailContract.Event.OnClickLike -> {
             onClickLike()
         }
+
         is CommunityDetailContract.Event.OnClickCommentLike -> {
             onClickCommentLike(event.commentId)
         }
@@ -81,7 +80,12 @@ class CommunityDetailViewModel @Inject constructor(
                 getCommunityDetailUseCase(communityId).onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
-                            it.copy(isLoading = false, community = result, liked = result.liked, likeCount = result.likeCount)
+                            it.copy(
+                                isLoading = false,
+                                community = result,
+                                liked = result.liked,
+                                likeCount = result.likeCount
+                            )
                         }
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
@@ -107,7 +111,10 @@ class CommunityDetailViewModel @Inject constructor(
                         }
 
                         _state.update {
-                            it.copy(commentList = commentList, commentsCount = result.commentsCount ?: result.comments?.size)
+                            it.copy(
+                                commentList = commentList,
+                                commentsCount = result.commentsCount ?: result.comments?.size
+                            )
                         }
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
@@ -127,7 +134,12 @@ class CommunityDetailViewModel @Inject constructor(
                 writeCommunityCommentUseCase(communityId = communityId, parentId = null, comment = comment).onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
-                            it.copy(isLoading = false, redirectCommentId = result.id, selectedCommentId = null, parentCommentId = null)
+                            it.copy(
+                                isLoading = false,
+                                redirectCommentId = result.id,
+                                selectedCommentId = null,
+                                parentCommentId = null
+                            )
                         }
 
                         _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
@@ -161,7 +173,11 @@ class CommunityDetailViewModel @Inject constructor(
                                 dislikeCommunityUseCase(communityId).onEach {
                                     withContext(mainImmediateDispatcher) {
                                         _state.update {
-                                            it.copy(isLoading = false, liked = false, likeCount = state.value.likeCount?.minus(1))
+                                            it.copy(
+                                                isLoading = false,
+                                                liked = false,
+                                                likeCount = state.value.likeCount?.minus(1)
+                                            )
                                         }
 
                                         _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글 추천을 취소하였습니다."))
@@ -173,7 +189,11 @@ class CommunityDetailViewModel @Inject constructor(
                                 likeCommunityUseCase(communityId).onEach {
                                     withContext(mainImmediateDispatcher) {
                                         _state.update {
-                                            it.copy(isLoading = false, liked = true, likeCount = state.value.likeCount?.plus(1))
+                                            it.copy(
+                                                isLoading = false,
+                                                liked = true,
+                                                likeCount = state.value.likeCount?.plus(1)
+                                            )
                                         }
 
                                         _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글을 추천하였습니다."))
@@ -199,7 +219,10 @@ class CommunityDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
                                         val targetIndex = indexOf(comment)
-                                        this[targetIndex] = this[targetIndex].copy(liked = false, likeCount = this[targetIndex].likeCount?.minus(1))
+                                        this[targetIndex] = this[targetIndex].copy(
+                                            liked = false,
+                                            likeCount = this[targetIndex].likeCount?.minus(1)
+                                        )
                                     })
                                 }
                             }
@@ -212,7 +235,10 @@ class CommunityDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
                                         val targetIndex = indexOf(comment)
-                                        this[targetIndex] = this[targetIndex].copy(liked = true, likeCount = this[targetIndex].likeCount?.plus(1))
+                                        this[targetIndex] = this[targetIndex].copy(
+                                            liked = true,
+                                            likeCount = this[targetIndex].likeCount?.plus(1)
+                                        )
                                     })
                                 }
                             }

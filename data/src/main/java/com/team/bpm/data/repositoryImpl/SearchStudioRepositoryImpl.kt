@@ -15,7 +15,7 @@ class SearchStudioRepositoryImpl @Inject constructor(private val mainApi: MainAp
     override suspend fun fetchSearchedStudioList(query: String): Flow<StudioList> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.searchStudio(query = query)
+                mainApi.searchStudio(query)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()

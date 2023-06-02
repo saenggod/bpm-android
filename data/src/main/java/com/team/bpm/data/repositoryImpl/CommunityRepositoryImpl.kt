@@ -19,11 +19,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class CommunityRepositoryImpl @Inject constructor(
-    private val mainApi: MainApi
-) : CommunityRepository {
+class CommunityRepositoryImpl @Inject constructor(private val mainApi: MainApi) : CommunityRepository {
 
-    override suspend fun sendCommunity(content: String, imageByteArrays: List<ByteArray>): Flow<Community> {
+    override suspend fun sendCommunity(
+        content: String,
+        imageByteArrays: List<ByteArray>
+    ): Flow<Community> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendCommunity(
@@ -61,7 +62,10 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendCommunityReport(communityId: Int, reason: String): Flow<Unit> {
+    override suspend fun sendCommunityReport(
+        communityId: Int,
+        reason: String
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendCommunityReport(communityId, ReportRequest(reason))
@@ -91,7 +95,11 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendCommunityComment(communityId: Int, parentId: Int?, comment: String): Flow<Comment> {
+    override suspend fun sendCommunityComment(
+        communityId: Int,
+        parentId: Int?,
+        comment: String
+    ): Flow<Comment> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendCommunityComment(communityId, CommentRequest(parentId, comment))
@@ -101,7 +109,10 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteCommunityComment(communityId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun deleteCommunityComment(
+        communityId: Int,
+        commentId: Int
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteCommunityComment(communityId, commentId)
@@ -121,7 +132,11 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendCommunityCommentReport(communityId: Int, commentId: Int, reason: String): Flow<Unit> {
+    override suspend fun sendCommunityCommentReport(
+        communityId: Int,
+        commentId: Int,
+        reason: String
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendCommunityCommentReport(communityId, commentId, ReportRequest(reason))
@@ -131,7 +146,10 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendCommunityCommentLike(communityId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun sendCommunityCommentLike(
+        communityId: Int,
+        commentId: Int
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendCommunityCommentLike(communityId, commentId)
@@ -141,7 +159,10 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteCommunityCommentLike(communityId: Int, commentId: Int): Flow<Unit> {
+    override suspend fun deleteCommunityCommentLike(
+        communityId: Int,
+        commentId: Int
+    ): Flow<Unit> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.deleteCommunityCommentLike(communityId, commentId)

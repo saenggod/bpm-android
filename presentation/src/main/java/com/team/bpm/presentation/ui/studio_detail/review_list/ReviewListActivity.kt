@@ -39,7 +39,10 @@ class ReviewListActivity : BaseComponentActivityV2() {
     companion object {
         const val KEY_STUDIO_ID = "studio_id"
 
-        fun newIntent(context: Context, studioId: Int): Intent {
+        fun newIntent(
+            context: Context,
+            studioId: Int
+        ): Intent {
             return Intent(context, ReviewListActivity::class.java).putExtra(KEY_STUDIO_ID, studioId)
         }
     }

@@ -19,18 +19,27 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
     sealed interface Event {
         object GetQuestionDetail : Event
+
         object GetCommentList : Event
+
         data class OnClickSendComment(val parentId: Int?, val comment: String) : Event
+
         data class OnClickCommentActionButton(val commentId: Int) : Event
+
         object OnClickWriteCommentOnComment : Event
+
         object OnClickLike : Event
+
         data class OnClickCommentLike(val commentId: Int) : Event
     }
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
+
         object RefreshCommentList : Effect
+
         object ExpandBottomSheet : Effect
+
         object ShowKeyboard : Effect
     }
 }

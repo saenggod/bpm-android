@@ -41,7 +41,7 @@ class RegisterStudioViewModel @Inject constructor(
             onClickSubmit(event.registerStudioWrapper)
         }
 
-        RegisterStudioContract.Event.OnClickSetLocation -> {
+        is RegisterStudioContract.Event.OnClickSetLocation -> {
             onClickSetLocation()
         }
 

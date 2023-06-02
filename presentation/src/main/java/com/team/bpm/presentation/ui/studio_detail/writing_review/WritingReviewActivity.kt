@@ -55,7 +55,10 @@ class WritingReviewActivity : BaseComponentActivityV2() {
     companion object {
         const val KEY_STUDIO_ID = "studio_id"
 
-        fun newIntent(context: Context, studioId: Int): Intent {
+        fun newIntent(
+            context: Context,
+            studioId: Int
+        ): Intent {
             return Intent(context, WritingReviewActivity::class.java).apply {
                 putExtra(KEY_STUDIO_ID, studioId)
             }

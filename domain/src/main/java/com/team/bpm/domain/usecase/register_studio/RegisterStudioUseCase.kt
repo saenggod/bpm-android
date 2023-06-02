@@ -5,9 +5,7 @@ import com.team.bpm.domain.repository.RegisterStudioRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class RegisterStudioUseCase @Inject constructor(
-    private val registerStudioRepository: RegisterStudioRepository
-) {
+class RegisterStudioUseCase @Inject constructor(private val registerStudioRepository: RegisterStudioRepository) {
     suspend operator fun invoke(registerStudioWrapper: RegisterStudioWrapper): Flow<Unit> {
         return registerStudioRepository.sendStudio(registerStudioWrapper)
     }

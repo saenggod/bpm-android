@@ -38,7 +38,10 @@ class RegisterStudioRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchAddressName(latitude: Double, longitude: Double): Flow<String?> {
+    override suspend fun fetchAddressName(
+        latitude: Double,
+        longitude: Double
+    ): Flow<String?> {
         return flow {
             geocoder.getFromLocation(latitude, longitude, 1)?.first()?.getAddressLine(0)?.drop(5)?.let { addressName ->
                 emit(addressName)

@@ -4,26 +4,14 @@ import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
+import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
 import com.team.bpm.domain.usecase.review.LikeReviewUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,62 +50,93 @@ class ReviewDetailViewModel @Inject constructor(
         return savedStateHandle.get<Bundle>(ReviewDetailActivity.KEY_BUNDLE)
     }
 
-    private val reviewInfo: Pair<Int, Int> by lazy {
+    private val reviewInfo: Pair<Int?, Int?> by lazy {
         Pair(
-            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID) ?: 0,
-            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID) ?: 0
+            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID),
+            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID)
         )
     }
 
     private fun getReviewDetail() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isLoading = true)
-            }
-
-            withContext(ioDispatcher) {
-                getReviewDetailUseCase(studioId = reviewInfo.first, reviewId = reviewInfo.second).onEach { result ->
-                    withContext(mainImmediateDispatcher) {
-                        _state.update {
-                            it.copy(isLoading = false, review = result, liked = result.liked, likeCount = result.likeCount)
-                        }
+        reviewInfo.first?.let { studioId ->
+            reviewInfo.second?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isLoading = true)
                     }
-                }.launchIn(viewModelScope + exceptionHandler)
+
+                    withContext(ioDispatcher) {
+                        getReviewDetailUseCase(studioId, reviewId).onEach { result ->
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        review = result,
+                                        liked = result.liked,
+                                        likeCount = result.likeCount
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            } ?: run {
+                // TODO : Error Handling
             }
+        } ?: run {
+            // TODO : Error Handling
         }
     }
 
     private fun onClickLike() {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+        reviewInfo.first?.let { studioId ->
+            reviewInfo.second?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update { it.copy(isLoading = true) }
 
-            withContext(ioDispatcher) {
-                state.value.liked?.let {
-                    when (it) {
-                        true -> {
-                            dislikeReviewUseCase(reviewInfo.first, reviewInfo.second).onEach { result ->
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update { state ->
-                                        state.copy(isLoading = false, liked = false, likeCount = state.likeCount?.minus(1))
-                                    }
+                    withContext(ioDispatcher) {
+                        state.value.liked?.let {
+                            when (it) {
+                                true -> {
+                                    dislikeReviewUseCase(studioId, reviewId).onEach { result ->
+                                        withContext(mainImmediateDispatcher) {
+                                            _state.update { state ->
+                                                state.copy(
+                                                    isLoading = false,
+                                                    liked = false,
+                                                    likeCount = state.likeCount?.minus(1)
+                                                )
+                                            }
 
-                                    _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰 추천을 취소하였습니다."))
+                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰 추천을 취소하였습니다."))
+                                        }
+                                    }.launchIn(viewModelScope + exceptionHandler)
                                 }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
 
-                        false -> {
-                            likeReviewUseCase(reviewInfo.first, reviewInfo.second).onEach { result ->
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update { state -> state.copy(isLoading = false, liked = true, likeCount = state.likeCount?.plus(1)) }
+                                false -> {
+                                    likeReviewUseCase(studioId, reviewId).onEach { result ->
+                                        withContext(mainImmediateDispatcher) {
+                                            _state.update { state ->
+                                                state.copy(
+                                                    isLoading = false,
+                                                    liked = true,
+                                                    likeCount = state.likeCount?.plus(1)
+                                                )
+                                            }
 
-                                    _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰를 추천하였습니다."))
+                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰를 추천하였습니다."))
+                                        }
+                                    }.launchIn(viewModelScope + exceptionHandler)
                                 }
-                            }.launchIn(viewModelScope + exceptionHandler)
+                            }
                         }
                     }
                 }
+            } ?: {
+                // TODO : Error Handling
             }
+        } ?: run {
+            // TODO : Error Handling
         }
     }
 }

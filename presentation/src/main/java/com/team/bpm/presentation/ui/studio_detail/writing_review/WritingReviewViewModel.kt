@@ -11,12 +11,8 @@ import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
 
@@ -35,21 +31,26 @@ class WritingReviewViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<WritingReviewContract.Effect>()
     override val effect: SharedFlow<WritingReviewContract.Effect> = _effect.asSharedFlow()
     override fun event(event: WritingReviewContract.Event) = when (event) {
-        WritingReviewContract.Event.GetStudio -> {
+        is WritingReviewContract.Event.GetStudio -> {
             getStudio()
         }
-        WritingReviewContract.Event.OnClickImagePlaceHolder -> {
+
+        is WritingReviewContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
+
         is WritingReviewContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
         }
+
         is WritingReviewContract.Event.OnClickRemoveImage -> {
             onClickRemoveImage(event.index)
         }
+
         is WritingReviewContract.Event.OnClickKeywordChip -> {
             onClickKeywordChip(event.keyword)
         }
+
         is WritingReviewContract.Event.OnClickSubmit -> {
             onClickSubmit(event.rating, event.content)
         }
@@ -77,7 +78,10 @@ class WritingReviewViewModel @Inject constructor(
                 getStudioDetailUseCase(studioId).onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
-                            it.copy(isLoading = false, studio = result)
+                            it.copy(
+                                isLoading = false,
+                                studio = result
+                            )
                         }
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
@@ -149,7 +153,10 @@ class WritingReviewViewModel @Inject constructor(
         }
     }
 
-    private fun onClickSubmit(rating: Double, content: String) {
+    private fun onClickSubmit(
+        rating: Double,
+        content: String
+    ) {
         viewModelScope.launch {
             _state.update {
                 it.copy(isLoading = true)

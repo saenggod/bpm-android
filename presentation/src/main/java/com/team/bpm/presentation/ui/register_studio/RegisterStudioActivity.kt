@@ -98,7 +98,7 @@ private fun RegisterStudioActivityContent(
                     context.showToast(effect.text)
                 }
 
-                RegisterStudioContract.Effect.GoToSetLocation -> {
+                is RegisterStudioContract.Effect.GoToSetLocation -> {
                     context.startActivity(RegisterLocationActivity.newIntent(context))
                 }
             }
