@@ -12,7 +12,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterStart
@@ -348,7 +351,7 @@ private fun QuestionDetailActivityContent(
                                                     QuestionDetailContract.Event.OnClickCommentActionButton(
                                                         commentId = commentId,
                                                         authorId = authorId,
-                                                        parentCommentId = comment.parentId
+                                                        parentCommentId = comment.parentId ?: commentId
                                                     )
                                                 )
                                             }
@@ -357,6 +360,10 @@ private fun QuestionDetailActivityContent(
                                 )
 
                                 BPMSpacer(height = 22.dp)
+
+                                LaunchedEffect(Unit) {
+                                    scrollState.animateScrollTo(redirectCommentScrollPosition.value)
+                                }
                             }
                         }
                     }
