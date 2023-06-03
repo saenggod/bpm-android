@@ -271,14 +271,14 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickCommentActionButton(
         selectedCommentId: Int,
-        selectedCommentAuthorId: Int,
+        selectedCommentAuthorId: Long,
         parentCommentId: Int?
     ) {
         viewModelScope.launch {
             _state.update {
                 val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
                     add(BottomSheetButton.REPLY_COMMENT)
-                    if (selectedCommentAuthorId.toLong() == state.value.userId) {
+                    if (selectedCommentAuthorId == state.value.userId) {
                         add(BottomSheetButton.DELETE_COMMENT)
                     } else {
                         add(BottomSheetButton.REPORT_COMMENT)

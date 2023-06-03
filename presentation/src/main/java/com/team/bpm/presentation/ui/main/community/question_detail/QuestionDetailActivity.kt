@@ -341,37 +341,29 @@ private fun QuestionDetailActivityContent(
                                                 redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
                                             }
                                         }
-                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
+                                        .background(color = if (selectedCommentId == comment.id) HighlightColor else Color.White),
                                     comment = comment,
                                     onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
                                     onClickActionButton = {
                                         comment.id?.let { commentId ->
                                             comment.author?.id?.let { authorId ->
-                                                comment.parentId?.let { parentCommentId ->
-                                                    event.invoke(
-                                                        QuestionDetailContract.Event.OnClickCommentActionButton(
-                                                            commentId = commentId,
-                                                            authorId = authorId,
-                                                            parentCommentId = parentCommentId
-                                                        )
+                                                event.invoke(
+                                                    QuestionDetailContract.Event.OnClickCommentActionButton(
+                                                        commentId = commentId,
+                                                        authorId = authorId,
+                                                        parentCommentId = comment.parentId ?: commentId
                                                     )
-                                                } ?: run {
-                                                    comment.id?.let { commentId ->
-                                                        event.invoke(
-                                                            QuestionDetailContract.Event.OnClickCommentActionButton(
-                                                                commentId = commentId,
-                                                                authorId = authorId,
-                                                                parentCommentId = null
-                                                            )
-                                                        )
-                                                    }
-                                                }
+                                                )
                                             }
                                         }
                                     }
                                 )
 
                                 BPMSpacer(height = 22.dp)
+
+                                LaunchedEffect(Unit) {
+                                    scrollState.animateScrollTo(redirectCommentScrollPosition.value)
+                                }
                             }
                         }
                     }

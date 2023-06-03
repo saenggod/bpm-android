@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class UserResponse(
     @SerializedName("id")
-    val id: Int?,
+    val id: Long?,
     @SerializedName("nickname")
     val nickname: String?,
     @SerializedName("profilePath")
