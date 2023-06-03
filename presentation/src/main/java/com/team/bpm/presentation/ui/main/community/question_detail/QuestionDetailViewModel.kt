@@ -9,6 +9,7 @@ import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.model.BottomSheetButton
+import com.team.bpm.presentation.model.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -50,6 +51,10 @@ class QuestionDetailViewModel @Inject constructor(
 
         is QuestionDetailContract.Event.GetCommentList -> {
             getCommentList()
+        }
+
+        is QuestionDetailContract.Event.OnClickQuestionActionButton -> {
+            onClickQuestionActionButton()
         }
 
         is QuestionDetailContract.Event.OnClickDeleteQuestion -> {
@@ -116,8 +121,7 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun getQuestionId(): Int? {
-//        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
-        return 1
+        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
     }
 
     private fun getUserId() {
@@ -195,6 +199,26 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
+    private fun onClickQuestionActionButton() {
+        state.value.question?.author?.id?.let { questionAuthorId ->
+            viewModelScope.launch {
+                _state.update {
+                    val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
+                        if (questionAuthorId == state.value.userId) {
+                            add(BottomSheetButton.DELETE_POST)
+                        } else {
+                            add(BottomSheetButton.REPORT_POST)
+                        }
+                    }
+
+                    it.copy(bottomSheetButtonList = bottomSheetButtonList)
+                }
+
+                _effect.emit(QuestionDetailContract.Effect.ExpandBottomSheet)
+            }
+        }
+    }
+
     private fun onClickDeleteQuestion() {
         getQuestionId()?.let { questionId ->
             viewModelScope.launch {
@@ -206,6 +230,7 @@ class QuestionDetailViewModel @Inject constructor(
                     deleteQuestionUseCase(questionId).onEach {
                         withContext(mainImmediateDispatcher) {
                             _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
+                            _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }
@@ -214,14 +239,26 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun onClickReportQuestion() {
-        // TODO Show Dialog
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reportType = ReportType.POST,
+                    isReportDialogShowing = true
+                )
+            }
+
+            _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
+        }
     }
 
     private fun onClickSendQuestionReport(reason: String) {
         getQuestionId()?.let { questionId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isLoading = true)
+                    it.copy(
+                        isLoading = true,
+                        isReportDialogShowing = false
+                    )
                 }
 
                 withContext(ioDispatcher) {
@@ -315,6 +352,7 @@ class QuestionDetailViewModel @Inject constructor(
                         deleteQuestionCommentUseCase(questionId, selectedCommentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
+                                _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
                     }
@@ -326,8 +364,13 @@ class QuestionDetailViewModel @Inject constructor(
     private fun onClickReportComment() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isReportDialogShowing = true)
+                it.copy(
+                    reportType = ReportType.COMMENT,
+                    isReportDialogShowing = true
+                )
             }
+
+            _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
         }
     }
 
@@ -352,12 +395,19 @@ class QuestionDetailViewModel @Inject constructor(
             state.value.selectedCommentId?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isCommentListLoading = true)
+                        it.copy(
+                            isCommentListLoading = true,
+                            isReportDialogShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {
                         reportQuestionCommentUseCase(questionId, selectedCommentId, reason).onEach {
                             withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(isCommentListLoading = false)
+                                }
+
                                 _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)

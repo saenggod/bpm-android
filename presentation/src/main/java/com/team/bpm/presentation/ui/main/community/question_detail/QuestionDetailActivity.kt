@@ -47,6 +47,7 @@ import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
+import com.team.bpm.presentation.model.ReportType
 import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.dateOnly
@@ -112,6 +113,10 @@ private fun QuestionDetailActivityContent(
 
                 is QuestionDetailContract.Effect.ExpandBottomSheet -> {
                     bottomSheetState.show()
+                }
+
+                is QuestionDetailContract.Effect.CollapseBottomSheet -> {
+                    bottomSheetState.hide()
                 }
 
                 is QuestionDetailContract.Effect.ShowKeyboard -> {
@@ -206,6 +211,7 @@ private fun QuestionDetailActivityContent(
                                 BPMSpacer(width = 8.dp)
 
                                 Icon(
+                                    modifier = Modifier.clickableWithoutRipple { event.invoke(QuestionDetailContract.Event.OnClickQuestionActionButton) },
                                     painter = painterResource(id = R.drawable.ic_edit),
                                     contentDescription = "editIcon",
                                     tint = GrayColor4
@@ -418,11 +424,20 @@ private fun QuestionDetailActivityContent(
                 }
 
                 if (isReportDialogShowing) {
-                    TextFieldDialog(
-                        title = "신고 사유를 작성해주세요",
-                        onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
-                        onClickConfirm = { reason -> event.invoke(QuestionDetailContract.Event.OnClickSendCommentReport(reason)) }
-                    )
+                    reportType?.let { reportType ->
+                        TextFieldDialog(
+                            title = "신고 사유를 작성해주세요",
+                            onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
+                            onClickConfirm = { reason ->
+                                event.invoke(
+                                    when (reportType) {
+                                        ReportType.POST -> QuestionDetailContract.Event.OnClickSendQuestionReport(reason)
+                                        ReportType.COMMENT -> QuestionDetailContract.Event.OnClickSendCommentReport(reason)
+                                    }
+                                )
+                            }
+                        )
+                    }
                 }
 
                 if (isNoticeDialogShowing) {
