@@ -25,6 +25,7 @@ import androidx.compose.ui.window.DialogWindowProvider
 import com.team.bpm.presentation.compose.theme.GrayColor16
 import com.team.bpm.presentation.compose.theme.GrayColor5
 import com.team.bpm.presentation.compose.theme.MainBlackColor
+import com.team.bpm.presentation.model.ReportType
 import com.team.bpm.presentation.util.clickableWithoutRipple
 
 @Composable

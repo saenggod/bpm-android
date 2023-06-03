@@ -4,6 +4,7 @@ import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.Question
 import com.team.bpm.presentation.base.BaseContract
 import com.team.bpm.presentation.model.BottomSheetButton
+import com.team.bpm.presentation.model.ReportType
 
 interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, QuestionDetailContract.Event, QuestionDetailContract.Effect> {
     data class State(
@@ -20,6 +21,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val liked: Boolean? = null,
         val likeCount: Int? = null,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
+        val reportType: ReportType? = null,
         val isReportDialogShowing: Boolean = false,
         val isNoticeDialogShowing: Boolean = false,
         val noticeDialogContent: String = ""
@@ -31,6 +33,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         object GetQuestionDetail : Event
 
         object GetCommentList : Event
+
+        object OnClickQuestionActionButton : Event
 
         object OnClickDeleteQuestion : Event
 
@@ -72,6 +76,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         object RefreshCommentList : Effect
 
         object ExpandBottomSheet : Effect
+
+        object CollapseBottomSheet : Effect
 
         object ShowKeyboard : Effect
 
