@@ -15,7 +15,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val commentsCount: Int? = 0,
         val redirectCommentId: Int? = null,
         val selectedCommentId: Int? = null,
-        val selectedCommentAuthorId: Int? = null,
+        val selectedCommentAuthorId: Long? = null,
         val parentCommentId: Int? = null,
         val liked: Boolean? = null,
         val likeCount: Int? = null,
@@ -45,7 +45,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         data class OnClickCommentActionButton(
             val commentId: Int,
-            val authorId: Int,
+            val authorId: Long,
             val parentCommentId: Int?
         ) : Event
 
