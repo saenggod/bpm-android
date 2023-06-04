@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.main.community.community_detail
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -87,7 +88,10 @@ private fun CommunityDetailActivityContent(
     val context = getLocalContext()
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
-    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val bottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { false }
+    )
     val commentTextFieldState = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -170,7 +174,7 @@ private fun CommunityDetailActivityContent(
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
                 ) {
-                    ScreenHeader(header = "질문")
+                    ScreenHeader(header = "커뮤니티")
 
                     Column(modifier = Modifier.height(56.dp)) {
                         Row(
@@ -448,6 +452,14 @@ private fun CommunityDetailActivityContent(
                         content = noticeDialogContent,
                         onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
+                }
+
+                BackHandler {
+                    if (isBottomSheetShowing) {
+                        event.invoke(CommunityDetailContract.Event.OnClickBackButton)
+                    } else {
+                        context.finish()
+                    }
                 }
             }
         }

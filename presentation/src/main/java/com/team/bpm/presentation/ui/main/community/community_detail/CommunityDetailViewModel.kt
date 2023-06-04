@@ -107,6 +107,10 @@ class CommunityDetailViewModel @Inject constructor(
         is CommunityDetailContract.Event.OnClickCommentLike -> {
             onClickCommentLike(event.commentId)
         }
+
+        is CommunityDetailContract.Event.OnClickBackButton -> {
+            onClickBackButton()
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -206,7 +210,10 @@ class CommunityDetailViewModel @Inject constructor(
                         }
                     }
 
-                    it.copy(bottomSheetButtonList = bottomSheetButtonList)
+                    it.copy(
+                        bottomSheetButtonList = bottomSheetButtonList,
+                        isBottomSheetShowing = true
+                    )
                 }
 
                 _effect.emit(CommunityDetailContract.Effect.ExpandBottomSheet)
@@ -317,7 +324,8 @@ class CommunityDetailViewModel @Inject constructor(
                 it.copy(
                     selectedCommentId = selectedCommentId,
                     selectedCommentAuthorId = selectedCommentAuthorId,
-                    bottomSheetButtonList = bottomSheetButtonList
+                    bottomSheetButtonList = bottomSheetButtonList,
+                    isBottomSheetShowing = true
                 )
             }
 
@@ -495,6 +503,20 @@ class CommunityDetailViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun onClickBackButton() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isBottomSheetShowing = false,
+                    selectedCommentId = null,
+                    selectedCommentAuthorId = null
+                )
+            }
+
+            _effect.emit(CommunityDetailContract.Effect.CollapseBottomSheet)
         }
     }
 }

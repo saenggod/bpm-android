@@ -11,6 +11,7 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
         val isLoading: Boolean = false,
         val isCommentListLoading: Boolean = false,
         val userId: Long? = null,
+        val isBottomSheetShowing: Boolean = false,
         val community: Community? = null,
         val commentList: List<Comment> = emptyList(),
         val commentsCount: Int? = 0,
@@ -62,6 +63,8 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
         data class OnClickCommentLike(val commentId: Int) : Event
 
         data class OnClickSendCommentReport(val reason: String) : Event
+
+        object OnClickBackButton : Event
     }
 
     sealed interface Effect {

@@ -11,6 +11,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val isLoading: Boolean = false,
         val isCommentListLoading: Boolean = false,
         val userId: Long? = null,
+        val isBottomSheetShowing: Boolean = false,
         val question: Question? = null,
         val commentList: List<Comment> = emptyList(),
         val commentsCount: Int? = 0,
@@ -68,6 +69,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         data class OnClickCommentLike(val commentId: Int) : Event
 
         data class OnClickSendCommentReport(val reason: String) : Event
+
+        object OnClickBackButton : QuestionDetailContract.Event
     }
 
     sealed interface Effect {
