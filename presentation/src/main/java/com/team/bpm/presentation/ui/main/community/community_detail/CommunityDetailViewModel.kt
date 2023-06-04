@@ -5,8 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.usecase.community.*
+import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.model.BottomSheetButton
+import com.team.bpm.presentation.model.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -18,11 +21,16 @@ class CommunityDetailViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getCommunityDetailUseCase: GetCommunityDetailUseCase,
     private val getCommunityCommentListUseCase: GetCommunityCommentListUseCase,
+    private val deleteCommunityUseCase: DeleteCommunityUseCase,
+    private val reportCommunityUseCase: ReportCommunityUseCase,
     private val writeCommunityCommentUseCase: WriteCommunityCommentUseCase,
     private val likeCommunityUseCase: LikeCommunityUseCase,
     private val dislikeCommunityUseCase: DislikeCommunityUseCase,
+    private val deleteCommunityCommentUseCase: DeleteCommunityCommentUseCase,
+    private val reportCommunityCommentUseCase: ReportCommunityCommentUseCase,
     private val likeCommunityCommentUseCase: LikeCommunityCommentUseCase,
     private val dislikeCommunityCommentUseCase: DislikeCommunityCommentUseCase,
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), CommunityDetailContract {
 
@@ -33,6 +41,10 @@ class CommunityDetailViewModel @Inject constructor(
     override val effect: SharedFlow<CommunityDetailContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: CommunityDetailContract.Event) = when (event) {
+        is CommunityDetailContract.Event.GetUserId -> {
+            getUserId()
+        }
+
         is CommunityDetailContract.Event.GetCommunityDetail -> {
             getCommunityDetail()
         }
@@ -41,12 +53,51 @@ class CommunityDetailViewModel @Inject constructor(
             getCommentList()
         }
 
+        is CommunityDetailContract.Event.OnClickCommunityActionButton -> {
+            onClickCommunityActionButton()
+        }
+
+        is CommunityDetailContract.Event.OnClickDeleteCommunity -> {
+            onClickDeleteCommunity()
+        }
+
+        is CommunityDetailContract.Event.OnClickReportCommunity -> {
+            onClickReportCommunity()
+        }
+
+        is CommunityDetailContract.Event.OnClickSendCommunityReport -> {
+            onClickSendCommunityReport(event.reason)
+        }
+
         is CommunityDetailContract.Event.OnClickSendComment -> {
             onClickSendComment(comment = event.comment)
         }
 
         is CommunityDetailContract.Event.OnClickCommentActionButton -> {
-            onClickCommentActionButton(event.commentId)
+            onClickCommentActionButton(
+                selectedCommentId = event.commentId,
+                selectedCommentAuthorId = event.authorId
+            )
+        }
+
+        is CommunityDetailContract.Event.OnClickDeleteComment -> {
+            onClickDeleteComment()
+        }
+
+        is CommunityDetailContract.Event.OnClickReportComment -> {
+            onClickReportComment()
+        }
+
+        is CommunityDetailContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
+        }
+
+        is CommunityDetailContract.Event.OnClickDismissNoticeDialog -> {
+            onClickDismissNoticeDialog()
+        }
+
+        is CommunityDetailContract.Event.OnClickSendCommentReport -> {
+            onClickSendCommentReport(event.reason)
         }
 
         is CommunityDetailContract.Event.OnClickLike -> {
@@ -65,7 +116,21 @@ class CommunityDetailViewModel @Inject constructor(
     }
 
     private fun getCommunityId(): Int? {
-        return savedStateHandle.get<Int>(CommunityDetailActivity.KEY_COMMUNITY_ID)
+        return savedStateHandle.get<Int>(CommunityDetailActivity.KEY_QUESTION_ID)
+    }
+
+    private fun getUserId() {
+        viewModelScope.launch(ioDispatcher) {
+            getKakaoIdUseCase().onEach { result ->
+                result?.let { userId ->
+                    withContext(mainImmediateDispatcher) {
+                        _state.update {
+                            it.copy(userId = userId)
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
     }
 
     private fun getCommunityDetail() {
@@ -74,50 +139,136 @@ class CommunityDetailViewModel @Inject constructor(
                 _state.update {
                     it.copy(isLoading = true)
                 }
-            }
 
-            viewModelScope.launch(ioDispatcher) {
-                getCommunityDetailUseCase(communityId).onEach { result ->
-                    withContext(mainImmediateDispatcher) {
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                community = result,
-                                liked = result.liked,
-                                likeCount = result.likeCount
-                            )
+                withContext(ioDispatcher) {
+                    getCommunityDetailUseCase(communityId).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    community = result,
+                                    liked = result.favorite,
+                                    likeCount = result.favoriteCount
+                                )
+                            }
                         }
-                    }
-                }.launchIn(viewModelScope + exceptionHandler)
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
             }
         }
     }
 
     private fun getCommentList() {
         getCommunityId()?.let { communityId ->
-            viewModelScope.launch(ioDispatcher) {
-                getCommunityCommentListUseCase(communityId).onEach { result ->
-                    withContext(mainImmediateDispatcher) {
-                        val commentList = mutableListOf<Comment>().apply {
-                            result.comments?.forEach { comment ->
-                                add(comment)
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isCommentListLoading = true)
+                }
 
-                                comment.children?.let { childrenCommentList ->
-                                    childrenCommentList.forEach { childComment ->
-                                        add(childComment)
+                withContext(ioDispatcher) {
+                    getCommunityCommentListUseCase(communityId).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            val commentList = mutableListOf<Comment>().apply {
+                                result.comments?.forEach { comment ->
+                                    add(comment)
+
+                                    comment.children?.let { childrenCommentList ->
+                                        childrenCommentList.forEach { childComment ->
+                                            add(childComment)
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        _state.update {
-                            it.copy(
-                                commentList = commentList,
-                                commentsCount = result.commentsCount ?: result.comments?.size
-                            )
+                            _state.update {
+                                it.copy(
+                                    isCommentListLoading = false,
+                                    commentList = commentList,
+                                    commentsCount = result.commentsCount ?: result.comments?.size
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
+    private fun onClickCommunityActionButton() {
+        state.value.community?.author?.id?.let { communityAuthorId ->
+            viewModelScope.launch {
+                _state.update {
+                    val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
+                        if (communityAuthorId == state.value.userId) {
+                            add(BottomSheetButton.DELETE_POST)
+                        } else {
+                            add(BottomSheetButton.REPORT_POST)
                         }
                     }
-                }.launchIn(viewModelScope + exceptionHandler)
+
+                    it.copy(bottomSheetButtonList = bottomSheetButtonList)
+                }
+
+                _effect.emit(CommunityDetailContract.Effect.ExpandBottomSheet)
+            }
+        }
+    }
+
+    private fun onClickDeleteCommunity() {
+        getCommunityId()?.let { communityId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    deleteCommunityUseCase(communityId).onEach {
+                        withContext(mainImmediateDispatcher) {
+                            _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
+                            _effect.emit(CommunityDetailContract.Effect.CollapseBottomSheet)
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
+    private fun onClickReportCommunity() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reportType = ReportType.POST,
+                    isReportDialogShowing = true
+                )
+            }
+
+            _effect.emit(CommunityDetailContract.Effect.CollapseBottomSheet)
+        }
+    }
+
+    private fun onClickSendCommunityReport(reason: String) {
+        getCommunityId()?.let { communityId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(
+                        isLoading = true,
+                        isReportDialogShowing = false
+                    )
+                }
+
+                withContext(ioDispatcher) {
+                    reportCommunityUseCase(communityId, reason).onEach {
+                        withContext(mainImmediateDispatcher) {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isNoticeDialogShowing = true,
+                                    noticeDialogContent = "신고가 완료되었습니다"
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
             }
         }
     }
@@ -128,34 +279,126 @@ class CommunityDetailViewModel @Inject constructor(
                 _state.update {
                     it.copy(isLoading = true)
                 }
-            }
 
-            viewModelScope.launch(ioDispatcher) {
-                writeCommunityCommentUseCase(communityId = communityId, parentId = null, comment = comment).onEach { result ->
-                    withContext(mainImmediateDispatcher) {
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                redirectCommentId = result.id,
-                                selectedCommentId = null,
-                                parentCommentId = null
-                            )
+                withContext(ioDispatcher) {
+                    writeCommunityCommentUseCase(communityId = communityId, parentId = null, comment = comment).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    redirectCommentId = result.id,
+                                    selectedCommentId = null,
+                                    selectedCommentAuthorId = null
+                                )
+                            }
+
+                            _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
                         }
-
-                        _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
-                    }
-                }.launchIn(viewModelScope + exceptionHandler)
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
             }
         }
     }
 
-    private fun onClickCommentActionButton(commentId: Int) {
+    private fun onClickCommentActionButton(
+        selectedCommentId: Int,
+        selectedCommentAuthorId: Long
+    ) {
         viewModelScope.launch {
             _state.update {
-                it.copy(selectedCommentId = commentId)
+                val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
+                    if (selectedCommentAuthorId == state.value.userId) {
+                        add(BottomSheetButton.DELETE_COMMENT)
+                    } else {
+                        add(BottomSheetButton.REPORT_COMMENT)
+                    }
+                }
+
+                it.copy(
+                    selectedCommentId = selectedCommentId,
+                    selectedCommentAuthorId = selectedCommentAuthorId,
+                    bottomSheetButtonList = bottomSheetButtonList
+                )
             }
 
             _effect.emit(CommunityDetailContract.Effect.ExpandBottomSheet)
+        }
+    }
+
+    private fun onClickDeleteComment() {
+        getCommunityId()?.let { communityId ->
+            state.value.selectedCommentId?.let { selectedCommentId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isCommentListLoading = true)
+                    }
+
+                    withContext(ioDispatcher) {
+                        deleteCommunityCommentUseCase(communityId, selectedCommentId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
+                                _effect.emit(CommunityDetailContract.Effect.CollapseBottomSheet)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickReportComment() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reportType = ReportType.COMMENT,
+                    isReportDialogShowing = true
+                )
+            }
+
+            _effect.emit(CommunityDetailContract.Effect.CollapseBottomSheet)
+        }
+    }
+
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isReportDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isNoticeDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickSendCommentReport(reason: String) {
+        getCommunityId()?.let { communityId ->
+            state.value.selectedCommentId?.let { selectedCommentId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            isCommentListLoading = true,
+                            isReportDialogShowing = false
+                        )
+                    }
+
+                    withContext(ioDispatcher) {
+                        reportCommunityCommentUseCase(communityId, selectedCommentId, reason).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(isCommentListLoading = false)
+                                }
+
+                                _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
         }
     }
 
@@ -180,7 +423,7 @@ class CommunityDetailViewModel @Inject constructor(
                                             )
                                         }
 
-                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글 추천을 취소하였습니다."))
+                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("질문 추천을 취소하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
@@ -196,7 +439,7 @@ class CommunityDetailViewModel @Inject constructor(
                                             )
                                         }
 
-                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("게시글을 추천하였습니다."))
+                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("질문을 추천하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
@@ -209,7 +452,7 @@ class CommunityDetailViewModel @Inject constructor(
 
     private fun onClickCommentLike(commentId: Int) {
         getCommunityId()?.let { communityId ->
-            val comment = state.value.commentList?.find { comment -> comment.id == commentId }
+            val comment = state.value.commentList.find { comment -> comment.id == commentId }
 
             viewModelScope.launch(ioDispatcher) {
                 when (comment?.liked) {
@@ -217,7 +460,7 @@ class CommunityDetailViewModel @Inject constructor(
                         dislikeCommunityCommentUseCase(communityId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
+                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = false,
@@ -233,7 +476,7 @@ class CommunityDetailViewModel @Inject constructor(
                         likeCommunityCommentUseCase(communityId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList?.toMutableList()?.apply {
+                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = true,
