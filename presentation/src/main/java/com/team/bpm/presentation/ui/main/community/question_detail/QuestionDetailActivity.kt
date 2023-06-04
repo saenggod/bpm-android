@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.main.community.question_detail
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -87,7 +88,7 @@ private fun QuestionDetailActivityContent(
     val context = getLocalContext()
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
-    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden, confirmStateChange = { false })
     val commentTextFieldState = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -446,6 +447,14 @@ private fun QuestionDetailActivityContent(
                         content = noticeDialogContent,
                         onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
+                }
+
+                BackHandler {
+                    if (isBottomSheetShowing) {
+                        event.invoke(QuestionDetailContract.Event.OnClickBackButton)
+                    } else {
+                        context.finish()
+                    }
                 }
             }
         }
