@@ -18,9 +18,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.TopEnd
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -30,12 +30,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -44,6 +46,8 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.model.BottomSheetButton
+import com.team.bpm.presentation.model.ReportType
 import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.dateOnly
@@ -56,24 +60,25 @@ import kotlin.math.roundToInt
 class CommunityDetailActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         CommunityDetailActivityContent()
     }
 
     companion object {
-        const val KEY_COMMUNITY_ID = "community_id"
+        const val KEY_QUESTION_ID = "community_id"
 
         fun newIntent(
             context: Context,
             communityId: Int
         ): Intent {
             return Intent(context, CommunityDetailActivity::class.java).apply {
-                putExtra(KEY_COMMUNITY_ID, communityId)
+                putExtra(KEY_QUESTION_ID, communityId)
             }
         }
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun CommunityDetailActivityContent(
     viewModel: CommunityDetailViewModel = hiltViewModel()
@@ -85,8 +90,10 @@ private fun CommunityDetailActivityContent(
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val commentTextFieldState = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
+        event.invoke(CommunityDetailContract.Event.GetUserId)
         event.invoke(CommunityDetailContract.Event.GetCommunityDetail)
         event.invoke(CommunityDetailContract.Event.GetCommentList)
     }
@@ -108,9 +115,18 @@ private fun CommunityDetailActivityContent(
                     bottomSheetState.show()
                 }
 
+                is CommunityDetailContract.Effect.CollapseBottomSheet -> {
+                    bottomSheetState.hide()
+                }
+
                 is CommunityDetailContract.Effect.ShowKeyboard -> {
                     bottomSheetState.hide()
                     focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+
+                is CommunityDetailContract.Effect.GoToCommunityList -> {
+                    context.finish()
                 }
             }
         }
@@ -125,44 +141,23 @@ private fun CommunityDetailActivityContent(
             sheetState = bottomSheetState,
             sheetBackgroundColor = Transparent,
             sheetContent = {
-                Column(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 12.dp,
-                                topEnd = 12.dp
-                            )
-                        )
-                        .fillMaxWidth()
-                        .height(82.dp)
-                        .background(Color.White)
-                ) {
-                    BPMSpacer(height = 8.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .align(CenterHorizontally)
-                            .clip(RoundedCornerShape(30.dp))
-                            .background(GrayColor4)
-                            .width(56.dp)
-                            .height(4.dp)
-                    )
-
-                    BPMSpacer(height = 16.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .align(CenterStart),
-                            text = "신고하기",
-                            fontWeight = Medium,
-                            fontSize = 14.sp,
-                            letterSpacing = 0.sp
+                BPMBottomSheet {
+                    bottomSheetButtonList.forEach { bottomSheetButton ->
+                        BottomSheetButtonComposable(
+                            button = bottomSheetButton,
+                            onClick = {
+                                when (bottomSheetButton) {
+                                    BottomSheetButton.DELETE_POST -> CommunityDetailContract.Event.OnClickDeleteCommunity
+                                    BottomSheetButton.REPORT_POST -> CommunityDetailContract.Event.OnClickReportCommunity
+                                    BottomSheetButton.DELETE_COMMENT -> CommunityDetailContract.Event.OnClickDeleteComment
+                                    BottomSheetButton.REPORT_COMMENT -> CommunityDetailContract.Event.OnClickReportComment
+                                    else -> null
+                                }?.let {
+                                    event.invoke(
+                                        it
+                                    )
+                                }
+                            }
                         )
                     }
                 }
@@ -175,7 +170,7 @@ private fun CommunityDetailActivityContent(
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
                 ) {
-                    ScreenHeader(header = "커뮤니티")
+                    ScreenHeader(header = "질문")
 
                     Column(modifier = Modifier.height(56.dp)) {
                         Row(
@@ -218,6 +213,7 @@ private fun CommunityDetailActivityContent(
                                 BPMSpacer(width = 8.dp)
 
                                 Icon(
+                                    modifier = Modifier.clickableWithoutRipple { event.invoke(CommunityDetailContract.Event.OnClickCommunityActionButton) },
                                     painter = painterResource(id = R.drawable.ic_edit),
                                     contentDescription = "editIcon",
                                     tint = GrayColor4
@@ -333,42 +329,51 @@ private fun CommunityDetailActivityContent(
                         color = GrayColor10
                     )
 
-                    commentList?.let {
-                        Column(
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 16.dp,
-                                    vertical = 20.dp
+                    Column(
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                                vertical = 20.dp
+                            )
+                    ) {
+                        val redirectCommentScrollPosition = remember { mutableStateOf(0) }
+
+                        if (isCommentListLoading) {
+                            LoadingBlock()
+                        } else {
+                            commentList.forEach { comment ->
+                                CommentComposable(
+                                    modifier = Modifier
+                                        .onGloballyPositioned {
+                                            if (redirectCommentId == comment.id) {
+                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
+                                            }
+                                        }
+                                        .background(color = if (selectedCommentId == comment.id) HighlightColor else Color.White),
+                                    comment = comment,
+                                    onClickLike = { comment.id?.let { commentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentLike(commentId)) } },
+                                    onClickActionButton = {
+                                        comment.id?.let { commentId ->
+                                            comment.author?.id?.let { authorId ->
+                                                event.invoke(
+                                                    CommunityDetailContract.Event.OnClickCommentActionButton(
+                                                        commentId = commentId,
+                                                        authorId = authorId,
+                                                        parentCommentId = comment.parentId ?: commentId
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
                                 )
-                        ) {
-                            val redirectCommentScrollPosition = remember { mutableStateOf(0) }
 
-//                            it.forEach { comment ->
-//                                CommentComposable(
-//                                    modifier = Modifier
-//                                        .onGloballyPositioned {
-//                                            if (redirectCommentId == comment.id) {
-//                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-//                                            }
-//                                        }
-//                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
-//                                    comment = comment,
-//                                    onClickLike = { commentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentLike(commentId)) },
-//                                    onClickActionButton = { commentId ->
-//                                        focusManager.clearFocus()
-//                                        if (comment.parentId == null) {
-//                                            event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(commentId))
-//                                        } else {
-//                                            comment.parentId?.let { parentCommentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(parentCommentId)) }
-//                                        }
-//                                    }
-//                                )
+                                BPMSpacer(height = 22.dp)
 
-//                                BPMSpacer(height = 22.dp)
-//                            }
+                                LaunchedEffect(Unit) {
+                                    scrollState.animateScrollTo(redirectCommentScrollPosition.value)
+                                }
+                            }
                         }
-                    } ?: run {
-                        LoadingBlock()
                     }
                 }
 
@@ -418,6 +423,31 @@ private fun CommunityDetailActivityContent(
 
                 if (isLoading) {
                     LoadingScreen()
+                }
+
+                if (isReportDialogShowing) {
+                    reportType?.let { reportType ->
+                        TextFieldDialog(
+                            title = "신고 사유를 작성해주세요",
+                            onClickCancel = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
+                            onClickConfirm = { reason ->
+                                event.invoke(
+                                    when (reportType) {
+                                        ReportType.POST -> CommunityDetailContract.Event.OnClickSendCommunityReport(reason)
+                                        ReportType.COMMENT -> CommunityDetailContract.Event.OnClickSendCommentReport(reason)
+                                    }
+                                )
+                            }
+                        )
+                    }
+                }
+
+                if (isNoticeDialogShowing) {
+                    NoticeDialog(
+                        title = null,
+                        content = noticeDialogContent,
+                        onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
+                    )
                 }
             }
         }

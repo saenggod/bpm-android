@@ -11,6 +11,6 @@ data class Community(
     val author: User?,
     val createdAt: String?,
     val updatedAt: String?,
-    val liked: Boolean?,
-    val likeCount: Int?
+    val favorite: Boolean?,
+    val favoriteCount: Int?
 ) : BaseModel

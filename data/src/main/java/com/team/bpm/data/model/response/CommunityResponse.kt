@@ -21,10 +21,10 @@ data class CommunityResponse(
     val createdAt: String?,
     @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName("liked")
-    val liked: Boolean?,
-    @SerializedName("likeCount")
-    val likeCount: Int?
+    @SerializedName("favorite")
+    val favorited: Boolean?,
+    @SerializedName("favoriteCount")
+    val favoriteCount: Int?
 ) : BaseResponse {
     companion object : DataMapper<CommunityResponse, Community> {
         override fun CommunityResponse.toDataModel(): Community {
@@ -35,8 +35,8 @@ data class CommunityResponse(
                 author = author?.toDataModel(),
                 createdAt = createdAt,
                 updatedAt = updatedAt,
-                liked = liked,
-                likeCount = likeCount
+                favorite = favorited,
+                favoriteCount = favoriteCount
             )
         }
     }
