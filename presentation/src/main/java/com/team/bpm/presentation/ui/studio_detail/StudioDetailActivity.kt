@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -60,14 +61,12 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
 import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
-import com.team.bpm.presentation.util.clickableWithoutRipple
-import com.team.bpm.presentation.util.clip
-import com.team.bpm.presentation.util.dateOnly
-import com.team.bpm.presentation.util.showToast
+import com.team.bpm.presentation.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import net.daum.mf.map.api.MapPoint
@@ -103,9 +102,13 @@ private fun StudioDetailActivityContent(
     val heightFromTopToInfo = remember { mutableStateOf(0) }
     val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)
     val scrollPosition = remember { mutableStateOf(0) }
-    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val bottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { false }
+    )
 
     LaunchedEffect(Unit) {
+        event.invoke(StudioDetailContract.Event.GetUserId)
         event.invoke(StudioDetailContract.Event.GetStudioDetail)
     }
 
@@ -181,6 +184,10 @@ private fun StudioDetailActivityContent(
                     bottomSheetState.show()
                 }
 
+                is StudioDetailContract.Effect.CollapseBottomSheet -> {
+                    bottomSheetState.hide()
+                }
+
                 is StudioDetailContract.Effect.RefreshReviewList -> {
                     event.invoke(StudioDetailContract.Event.GetReviewList)
                 }
@@ -207,46 +214,25 @@ private fun StudioDetailActivityContent(
         }
 
         ModalBottomSheetLayout(
+            modifier = Modifier
+                .imePadding()
+                .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical)),
             sheetState = bottomSheetState,
+            sheetBackgroundColor = Transparent,
             sheetContent = {
-                Column(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 12.dp,
-                                topEnd = 12.dp
-                            )
-                        )
-                        .fillMaxWidth()
-                        .height(82.dp)
-                        .background(Color.White)
-                ) {
-                    BPMSpacer(height = 8.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .align(CenterHorizontally)
-                            .clip(RoundedCornerShape(30.dp))
-                            .background(GrayColor4)
-                            .width(56.dp)
-                            .height(4.dp)
-                    )
-
-                    BPMSpacer(height = 16.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .align(Alignment.CenterStart),
-                            text = "삭제하기",
-                            fontWeight = Medium,
-                            fontSize = 14.sp,
-                            letterSpacing = 0.sp
+                BPMBottomSheet {
+                    bottomSheetButton?.let { bottomSheetButton ->
+                        BottomSheetButtonComposable(
+                            button = bottomSheetButton,
+                            onClick = {
+                                when (bottomSheetButton) {
+                                    BottomSheetButton.DELETE_POST -> StudioDetailContract.Event.OnClickDeleteReview
+                                    BottomSheetButton.REPORT_POST -> StudioDetailContract.Event.OnClickReportReview
+                                    else -> null
+                                }?.let {
+                                    event.invoke(it)
+                                }
+                            }
                         )
                     }
                 }
@@ -734,7 +720,7 @@ private fun StudioDetailActivityContent(
                         onClickWriteReview = { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
                     )
 
-                    if (isReviewLoading) {
+                    if (isReviewListLoading) {
                         LoadingBlock()
                     } else {
                         LaunchedEffect(Unit) {
@@ -912,12 +898,30 @@ private fun StudioDetailActivityContent(
                     LoadingScreen()
                 }
 
-                if (isErrorDialogShowing) {
-                    NoticeDialog(
-                        title = null,
-                        content = "스튜디오 정보를 불러 올 수 없습니다.",
-                        onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickQuit) }
+                if (isReportDialogShowing) {
+                    TextFieldDialog(
+                        title = "신고 사유를 작성해주세요",
+                        onClickCancel = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
+                        onClickConfirm = { reason -> event.invoke(StudioDetailContract.Event.OnClickSendReviewReport(reason)) }
                     )
+                }
+
+                if (isNoticeDialogShowing) {
+                    noticeDialogContent?.let { noticeDialogContent ->
+                        NoticeDialog(
+                            title = null,
+                            content = noticeDialogContent,
+                            onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickQuit) }
+                        )
+                    }
+                }
+
+                BackHandler {
+                    if (isBottomSheetShowing) {
+                        event.invoke(StudioDetailContract.Event.OnClickBackButton)
+                    } else {
+                        context.finish()
+                    }
                 }
             }
         }

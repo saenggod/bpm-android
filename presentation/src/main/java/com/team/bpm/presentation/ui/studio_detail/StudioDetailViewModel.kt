@@ -4,15 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
-import com.team.bpm.domain.usecase.review.DeleteReviewUseCase
-import com.team.bpm.domain.usecase.review.GetReviewListUseCase
-import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
-import com.team.bpm.domain.usecase.review.LikeReviewUseCase
+import com.team.bpm.domain.usecase.review.*
+import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
+import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.studio.ScrapUseCase
-import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -30,6 +29,8 @@ class StudioDetailViewModel @Inject constructor(
     private val scrapUseCase: ScrapUseCase,
     private val scrapCancelUseCase: ScrapCancelUseCase,
     private val deleteReviewUseCase: DeleteReviewUseCase,
+    private val reportReviewUseCase: ReportReviewUseCase,
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), StudioDetailContract {
 
@@ -40,6 +41,10 @@ class StudioDetailViewModel @Inject constructor(
     override val effect: SharedFlow<StudioDetailContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: StudioDetailContract.Event) = when (event) {
+        is StudioDetailContract.Event.GetUserId -> {
+            getUserId()
+        }
+
         is StudioDetailContract.Event.GetStudioDetail -> {
             getStudioDetail()
         }
@@ -136,8 +141,28 @@ class StudioDetailViewModel @Inject constructor(
             onClickReviewActionButton(event.review)
         }
 
+        is StudioDetailContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
+        }
+
+        is StudioDetailContract.Event.OnClickDismissNoticeDialog -> {
+            onClickDismissNoticeDialog()
+        }
+
         is StudioDetailContract.Event.OnClickDeleteReview -> {
             onClickDeleteReview()
+        }
+
+        is StudioDetailContract.Event.OnClickReportReview -> {
+            onClickReportReview()
+        }
+
+        is StudioDetailContract.Event.OnClickSendReviewReport -> {
+            onClickSendReviewReport(event.reason)
+        }
+
+        is StudioDetailContract.Event.OnClickBackButton -> {
+            onClickBackButton()
         }
     }
 
@@ -148,7 +173,22 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun getStudioId(): Int? {
-        return savedStateHandle.get<Int>(StudioDetailActivity.KEY_STUDIO_ID)
+//        return savedStateHandle.get<Int>(StudioDetailActivity.KEY_STUDIO_ID)
+        return 1
+    }
+
+    private fun getUserId() {
+        viewModelScope.launch(ioDispatcher) {
+            getKakaoIdUseCase().onEach { result ->
+                result?.let { userId ->
+                    withContext(mainImmediateDispatcher) {
+                        _state.update {
+                            it.copy(userId = userId)
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
     }
 
     private fun getStudioDetail() {
@@ -178,14 +218,14 @@ class StudioDetailViewModel @Inject constructor(
         getStudioId()?.let { studioId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isReviewLoading = true)
+                    it.copy(isReviewListLoading = true)
                 }
 
                 reviewListUseCase(studioId).onEach { result ->
                     withContext(ioDispatcher) {
                         _state.update {
                             it.copy(
-                                isReviewLoading = false,
+                                isReviewListLoading = false,
                                 originalReviewList = result.reviews ?: emptyList(),
                                 reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
                             )
@@ -199,7 +239,10 @@ class StudioDetailViewModel @Inject constructor(
     private fun showErrorDialog() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isErrorDialogShowing = true)
+                it.copy(
+                    isNoticeDialogShowing = true,
+                    noticeDialogContent = "스튜디오 정보를 불러 올 수 없습니다."
+                )
             }
         }
     }
@@ -207,7 +250,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickQuit() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isErrorDialogShowing = false)
+                it.copy(isNoticeDialogShowing = false)
             }
 
             _effect.emit(StudioDetailContract.Effect.Quit)
@@ -362,9 +405,9 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun onClickReviewLikeButton(reviewId: Int) {
-        state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
+        state.value.reviewList.find { review -> review.id == reviewId }?.let { review ->
             viewModelScope.launch(ioDispatcher) {
-                when (selectedReview.liked) {
+                when (review.liked) {
                     true -> {
                         state.value.studio?.id?.let { studioId ->
                             dislikeReviewUseCase(studioId, reviewId).onEach {
@@ -466,13 +509,32 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun onClickReviewActionButton(review: Review) {
+        println(review)
         viewModelScope.launch {
             _state.update {
-                it.copy(selectedReview = review)
+                it.copy(
+                    bottomSheetButton = if (review.author?.id == state.value.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
+                    isBottomSheetShowing = true,
+                    selectedReview = review
+                )
             }
 
-            review.author?.id?.let { authorId ->
-//                _effect.emit(StudioDetailContract.Effect.ExpandBottomSheet(authorId == )) // TODO : will be added which comparing with user id
+            _effect.emit(StudioDetailContract.Effect.ExpandBottomSheet)
+        }
+    }
+
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isReportDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isNoticeDialogShowing = false)
             }
         }
     }
@@ -504,8 +566,56 @@ class StudioDetailViewModel @Inject constructor(
                     _effect.emit(StudioDetailContract.Effect.ShowToast("리뷰를 삭제할 수 없습니다."))
                 }
             }
-        } ?: run {
-            // TODO : Error Handling
+        }
+    }
+
+    private fun onClickReportReview() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isReportDialogShowing = true)
+            }
+
+            _effect.emit(StudioDetailContract.Effect.CollapseBottomSheet)
+        }
+    }
+
+    private fun onClickSendReviewReport(reason: String) {
+        getStudioId()?.let { studioId ->
+            state.value.selectedReview?.id?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            isReviewListLoading = true,
+                            isReportDialogShowing = false
+                        )
+                    }
+
+                    withContext(ioDispatcher) {
+                        reportReviewUseCase(studioId, reviewId, reason).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(isReviewListLoading = false)
+                                }
+
+                                _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickBackButton() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isBottomSheetShowing = false,
+                    selectedReview = null
+                )
+            }
+
+            _effect.emit(StudioDetailContract.Effect.CollapseBottomSheet)
         }
     }
 }
