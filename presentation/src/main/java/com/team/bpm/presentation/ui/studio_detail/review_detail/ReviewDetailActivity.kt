@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.studio_detail.review_detail
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,10 +24,10 @@ import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -50,6 +51,7 @@ import kotlinx.coroutines.flow.collectLatest
 class ReviewDetailActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         ReviewDetailActivityContent()
     }
 
@@ -111,8 +113,8 @@ private fun ReviewDetailActivityContent(
         )
 
         LaunchedEffect(isBottomSheetShowing) {
-            state.isBottomSheetShowing?.let { isBottomSheetShowing ->
-                if (isBottomSheetShowing) {
+            isBottomSheetShowing?.let {
+                if (bottomSheetState.isVisible) {
                     bottomSheetState.hide()
                 } else {
                     bottomSheetState.show()
@@ -255,7 +257,7 @@ private fun ReviewDetailActivityContent(
                                                 .fillMaxWidth()
                                                 .aspectRatio(0.85f),
                                             model = images[index],
-                                            contentDescription = "studioImage",
+                                            contentDescription = "reviewImage",
                                             contentScale = Crop
                                         )
                                     }
@@ -332,11 +334,30 @@ private fun ReviewDetailActivityContent(
             if (isLoading) {
                 LoadingScreen()
             }
+
+            if (isNoticeDialogShowing) {
+                NoticeDialog(
+                    title = null,
+                    content = noticeDialogContent,
+                    onClickConfirm = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) }
+                )
+            }
+
+            if (isReportDialogShowing) {
+                TextFieldDialog(
+                    title = "신고 사유를 작성해주세요",
+                    onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
+                    onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
+                )
+            }
+
+            BackHandler {
+                if (bottomSheetState.isVisible) {
+                    event.invoke(ReviewDetailContract.Event.OnClickBackButton)
+                } else {
+                    context.finish()
+                }
+            }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun Preview() {
 }

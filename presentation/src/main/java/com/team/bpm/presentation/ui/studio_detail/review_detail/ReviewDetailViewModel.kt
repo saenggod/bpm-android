@@ -9,7 +9,6 @@ import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.model.BottomSheetButton
-import com.team.bpm.presentation.ui.studio_detail.StudioDetailContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -61,6 +60,18 @@ class ReviewDetailViewModel @Inject constructor(
 
         is ReviewDetailContract.Event.OnClickSendReviewReport -> {
             onClickSendReviewReport(event.reason)
+        }
+
+        is ReviewDetailContract.Event.OnClickDismissNoticeDialog -> {
+            onClickDismissNoticeDialog()
+        }
+
+        is ReviewDetailContract.Event.OnClickBackButton -> {
+            onClickBackButton()
+        }
+
+        is ReviewDetailContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
         }
     }
 
@@ -223,6 +234,51 @@ class ReviewDetailViewModel @Inject constructor(
     }
 
     private fun onClickSendReviewReport(reason: String) {
+        reviewInfo.first?.let { studioId ->
+            reviewInfo.second?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            isLoading = true,
+                            isReportDialogShowing = false
+                        )
+                    }
 
+                    withContext(ioDispatcher) {
+                        reportReviewUseCase(studioId, reviewId, reason).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update { it.copy(isReportDialogShowing = false) }
+        }
+    }
+
+    private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isNoticeDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickBackButton() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isBottomSheetShowing = false)
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
         val isBottomSheetShowing: Boolean? = null,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
         val isNoticeDialogShowing: Boolean = false,
+        val noticeDialogContent: String = "",
         val isReportDialogShowing: Boolean = false
     )
 
@@ -31,6 +32,12 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
         object OnClickReportReview : Event
 
         data class OnClickSendReviewReport(val reason: String) : Event
+
+        object OnClickDismissNoticeDialog : Event
+
+        object OnClickDismissReportDialog : Event
+
+        object OnClickBackButton : Event
     }
 
     sealed interface Effect {
