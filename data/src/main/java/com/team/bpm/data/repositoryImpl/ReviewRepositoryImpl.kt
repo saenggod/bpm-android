@@ -28,7 +28,7 @@ class ReviewRepositoryImpl @Inject constructor(private val mainApi: MainApi) : R
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendReview(
-                    studioId = 1,
+                    studioId = studioId,
                     files = imageByteArrays.map { imageByteArray ->
                         createImageMultipartBody(
                             key = "file",
