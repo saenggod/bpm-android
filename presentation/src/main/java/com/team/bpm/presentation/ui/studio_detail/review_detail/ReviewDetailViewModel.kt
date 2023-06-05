@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
-import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
-import com.team.bpm.domain.usecase.review.LikeReviewUseCase
+import com.team.bpm.domain.usecase.review.*
+import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.model.BottomSheetButton
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -18,9 +18,12 @@ import javax.inject.Inject
 class ReviewDetailViewModel @Inject constructor(
     @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val getReviewDetailUseCase: GetReviewDetailUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
     private val dislikeReviewUseCase: DislikeReviewUseCase,
+    private val deleteReviewUseCase: DeleteReviewUseCase,
+    private val reportReviewUseCase: ReportReviewUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), ReviewDetailContract {
 
@@ -31,12 +34,44 @@ class ReviewDetailViewModel @Inject constructor(
     override val effect: SharedFlow<ReviewDetailContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: ReviewDetailContract.Event) = when (event) {
+        is ReviewDetailContract.Event.GetUserId -> {
+            getUserId()
+        }
+
         is ReviewDetailContract.Event.GetReviewDetail -> {
             getReviewDetail()
         }
 
         is ReviewDetailContract.Event.OnClickLike -> {
             onClickLike()
+        }
+
+        is ReviewDetailContract.Event.OnClickReviewActionButton -> {
+            onClickReviewActionButton()
+        }
+
+        is ReviewDetailContract.Event.OnClickDeleteReview -> {
+            onClickDeleteReview()
+        }
+
+        is ReviewDetailContract.Event.OnClickReportReview -> {
+            onClickReportReview()
+        }
+
+        is ReviewDetailContract.Event.OnClickSendReviewReport -> {
+            onClickSendReviewReport(event.reason)
+        }
+
+        is ReviewDetailContract.Event.OnClickDismissNoticeDialog -> {
+            onClickDismissNoticeDialog()
+        }
+
+        is ReviewDetailContract.Event.OnClickBackButton -> {
+            onClickBackButton()
+        }
+
+        is ReviewDetailContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
         }
     }
 
@@ -52,9 +87,23 @@ class ReviewDetailViewModel @Inject constructor(
 
     private val reviewInfo: Pair<Int?, Int?> by lazy {
         Pair(
-            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID),
-            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID)
+            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID) ?: 1,
+            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID) ?: 66
         )
+    }
+
+    private fun getUserId() {
+        viewModelScope.launch(ioDispatcher) {
+            getKakaoIdUseCase().onEach { result ->
+                result?.let { userId ->
+                    withContext(mainImmediateDispatcher) {
+                        _state.update {
+                            it.copy(userId = userId)
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
+        }
     }
 
     private fun getReviewDetail() {
@@ -80,11 +129,7 @@ class ReviewDetailViewModel @Inject constructor(
                         }.launchIn(viewModelScope + exceptionHandler)
                     }
                 }
-            } ?: run {
-                // TODO : Error Handling
             }
-        } ?: run {
-            // TODO : Error Handling
         }
     }
 
@@ -132,11 +177,108 @@ class ReviewDetailViewModel @Inject constructor(
                         }
                     }
                 }
-            } ?: {
-                // TODO : Error Handling
             }
-        } ?: run {
-            // TODO : Error Handling
+        }
+    }
+
+    private fun onClickReviewActionButton() {
+        state.value.review?.author?.id?.let { reviewAuthorId ->
+            viewModelScope.launch {
+                _state.update {
+                    val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
+                        if (reviewAuthorId == state.value.userId) {
+                            add(BottomSheetButton.DELETE_POST)
+                        } else {
+                            add(BottomSheetButton.REPORT_POST)
+                        }
+                    }
+
+                    it.copy(
+                        bottomSheetButtonList = bottomSheetButtonList,
+                        isBottomSheetShowing = true
+                    )
+                }
+            }
+        }
+    }
+
+    private fun onClickDeleteReview() {
+        reviewInfo.first?.let { studioId ->
+            reviewInfo.second?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
+
+                    withContext(ioDispatcher) {
+                        deleteReviewUseCase(studioId, reviewId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(ReviewDetailContract.Effect.GoBack)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickReportReview() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isBottomSheetShowing = false,
+                    isReportDialogShowing = true
+                )
+            }
+        }
+    }
+
+    private fun onClickSendReviewReport(reason: String) {
+        reviewInfo.first?.let { studioId ->
+            reviewInfo.second?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            isLoading = true,
+                            isReportDialogShowing = false
+                        )
+                    }
+
+                    withContext(ioDispatcher) {
+                        reportReviewUseCase(studioId, reviewId, reason).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update { it.copy(isReportDialogShowing = false) }
+        }
+    }
+
+    private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isNoticeDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickBackButton() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isBottomSheetShowing = false)
+            }
         }
     }
 }

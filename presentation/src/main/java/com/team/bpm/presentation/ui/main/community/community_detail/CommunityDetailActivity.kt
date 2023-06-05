@@ -156,10 +156,7 @@ private fun CommunityDetailActivityContent(
                                     BottomSheetButton.DELETE_COMMENT -> CommunityDetailContract.Event.OnClickDeleteComment
                                     BottomSheetButton.REPORT_COMMENT -> CommunityDetailContract.Event.OnClickReportComment
                                     else -> null
-                                }?.let {
-                                    event.invoke(
-                                        it
-                                    )
+                                }?.let { event.invoke(it)
                                 }
                             }
                         )

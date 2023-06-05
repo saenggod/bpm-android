@@ -3,25 +3,33 @@ package com.team.bpm.presentation.ui.studio_detail
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.base.BaseContract
+import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 
 
 interface StudioDetailContract : BaseContract<StudioDetailContract.State, StudioDetailContract.Event, StudioDetailContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
-        val isReviewLoading: Boolean = false,
+        val isReviewListLoading: Boolean = false,
         val studio: Studio? = null,
+        val userId: Long? = null,
         val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
-        val isErrorDialogShowing: Boolean = false,
         val focusedTab: StudioDetailTabType = StudioDetailTabType.INFO,
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,
         val isTopRecommendListExpanded: Boolean = false,
-        val selectedReview: Review? = null
+        val selectedReview: Review? = null,
+        val bottomSheetButton: BottomSheetButton? = null,
+        val isBottomSheetShowing: Boolean = false,
+        val isReportDialogShowing: Boolean = false,
+        val isNoticeDialogShowing: Boolean = false,
+        val noticeDialogContent: String? = null
     )
 
     sealed interface Event {
+        object GetUserId : Event
+
         object GetStudioDetail : Event
 
         object GetReviewList : Event
@@ -70,7 +78,17 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
 
         data class OnClickReviewActionButton(val review: Review) : Event
 
+        object OnClickDismissReportDialog : Event
+
+        object OnClickDismissNoticeDialog : Event
+
         object OnClickDeleteReview : Event
+
+        object OnClickReportReview : Event
+
+        data class OnClickSendReviewReport(val reason: String) : Event
+
+        object OnClickBackButton : Event
     }
 
     sealed interface Effect {
@@ -96,7 +114,9 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
 
         data class GoToReviewList(val studioId: Int) : Effect
 
-        data class ExpandBottomSheet(val isMyReview: Boolean) : Effect
+        object ExpandBottomSheet : Effect
+
+        object CollapseBottomSheet : Effect
 
         object RefreshReviewList : Effect
     }
