@@ -237,7 +237,6 @@ class QuestionDetailViewModel @Inject constructor(
                     deleteQuestionUseCase(questionId).onEach {
                         withContext(mainImmediateDispatcher) {
                             _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
-                            _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }

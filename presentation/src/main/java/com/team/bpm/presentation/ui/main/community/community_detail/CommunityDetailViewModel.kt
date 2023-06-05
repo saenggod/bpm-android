@@ -232,7 +232,6 @@ class CommunityDetailViewModel @Inject constructor(
                     deleteCommunityUseCase(communityId).onEach {
                         withContext(mainImmediateDispatcher) {
                             _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
-                            _effect.emit(CommunityDetailContract.Effect.CollapseBottomSheet)
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }

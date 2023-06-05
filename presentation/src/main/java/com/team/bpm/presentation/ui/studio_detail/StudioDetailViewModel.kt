@@ -173,8 +173,7 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun getStudioId(): Int? {
-//        return savedStateHandle.get<Int>(StudioDetailActivity.KEY_STUDIO_ID)
-        return 1
+        return savedStateHandle.get<Int>(StudioDetailActivity.KEY_STUDIO_ID)
     }
 
     private fun getUserId() {
@@ -509,7 +508,6 @@ class StudioDetailViewModel @Inject constructor(
     }
 
     private fun onClickReviewActionButton(review: Review) {
-        println(review)
         viewModelScope.launch {
             _state.update {
                 it.copy(

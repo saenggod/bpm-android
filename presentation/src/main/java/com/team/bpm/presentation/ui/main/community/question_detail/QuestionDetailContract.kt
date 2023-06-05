@@ -70,7 +70,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         data class OnClickSendCommentReport(val reason: String) : Event
 
-        object OnClickBackButton : QuestionDetailContract.Event
+        object OnClickBackButton : Event
     }
 
     sealed interface Effect {
