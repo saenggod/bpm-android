@@ -2,22 +2,21 @@ package com.team.bpm.presentation.ui.studio_detail.review_detail
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.review.*
 import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ReviewDetailViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val getReviewDetailUseCase: GetReviewDetailUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
@@ -25,7 +24,7 @@ class ReviewDetailViewModel @Inject constructor(
     private val deleteReviewUseCase: DeleteReviewUseCase,
     private val reportReviewUseCase: ReportReviewUseCase,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel(), ReviewDetailContract {
+) : BaseViewModelV2(), ReviewDetailContract {
 
     private val _state = MutableStateFlow(ReviewDetailContract.State())
     override val state: StateFlow<ReviewDetailContract.State> = _state.asStateFlow()
