@@ -29,6 +29,7 @@ class WritingReviewViewModel @Inject constructor(
 
     private val _effect = MutableSharedFlow<WritingReviewContract.Effect>()
     override val effect: SharedFlow<WritingReviewContract.Effect> = _effect.asSharedFlow()
+
     override fun event(event: WritingReviewContract.Event) = when (event) {
         is WritingReviewContract.Event.GetStudio -> {
             getStudio()
