@@ -3,26 +3,25 @@ package com.team.bpm.presentation.ui.sign_up
 import android.os.Bundle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.domain.usecase.splash.SetUserTokenUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val signUpUseCase: SignUpUseCase,
     private val setUserTokenUseCase: SetUserTokenUseCase,
     private val savedStateHandle: SavedStateHandle,
-) : ViewModel(), SignUpContract {
+) : BaseViewModelV2(), SignUpContract {
     private val _state = MutableStateFlow(SignUpContract.State())
     override val state: StateFlow<SignUpContract.State> = _state.asStateFlow()
 

@@ -1,28 +1,27 @@
 package com.team.bpm.presentation.ui.studio_detail.review_list
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
 import com.team.bpm.domain.usecase.review.GetReviewListUseCase
 import com.team.bpm.domain.usecase.review.LikeReviewUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ReviewListViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val reviewListUseCase: GetReviewListUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
     private val dislikeReviewUseCase: DislikeReviewUseCase,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel(), ReviewListContract {
+) : BaseViewModelV2(), ReviewListContract {
 
     private val _state = MutableStateFlow(ReviewListContract.State())
     override val state: StateFlow<ReviewListContract.State> = _state.asStateFlow()

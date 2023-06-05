@@ -1,24 +1,23 @@
 package com.team.bpm.presentation.ui.main.community.question_detail
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.usecase.question.*
 import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class QuestionDetailViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
     private val getQuestionCommentListUseCase: GetQuestionCommentListUseCase,
     private val deleteQuestionUseCase: DeleteQuestionUseCase,
@@ -32,7 +31,7 @@ class QuestionDetailViewModel @Inject constructor(
     private val dislikeQuestionCommentUseCase: DislikeQuestionCommentUseCase,
     private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel(), QuestionDetailContract {
+) : BaseViewModelV2(), QuestionDetailContract {
 
     private val _state = MutableStateFlow(QuestionDetailContract.State())
     override val state: StateFlow<QuestionDetailContract.State> = _state.asStateFlow()

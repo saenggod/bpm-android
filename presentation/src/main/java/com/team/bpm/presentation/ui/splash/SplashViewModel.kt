@@ -1,26 +1,25 @@
 package com.team.bpm.presentation.ui.splash
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.splash.*
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val setKakaoIdUseCase: SetKakaoIdUseCase,
     private val getUserTokenUseCase: GetUserTokenUseCase,
     private val setUserTokenUseCase: SetUserTokenUseCase,
     private val sendKakaoIdVerificationUseCase: SendKakaoIdVerificationUseCase
-) : ViewModel(), SplashContract {
+) : BaseViewModelV2(), SplashContract {
 
     private var kakaoIdForSignUp by Delegates.notNull<Long>()
     private lateinit var kakaoNicknameForSignUp: String

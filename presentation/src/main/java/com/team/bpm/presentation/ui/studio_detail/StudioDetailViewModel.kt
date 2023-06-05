@@ -1,7 +1,6 @@
 package com.team.bpm.presentation.ui.studio_detail
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.*
@@ -9,8 +8,7 @@ import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.studio.ScrapUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +18,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StudioDetailViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getStudioDetailUseCase: GetStudioDetailUseCase,
     private val reviewListUseCase: GetReviewListUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
@@ -32,7 +28,7 @@ class StudioDetailViewModel @Inject constructor(
     private val reportReviewUseCase: ReportReviewUseCase,
     private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel(), StudioDetailContract {
+) : BaseViewModelV2(), StudioDetailContract {
 
     private val _state = MutableStateFlow(StudioDetailContract.State())
     override val state: StateFlow<StudioDetailContract.State> = _state.asStateFlow()

@@ -1,30 +1,21 @@
 package com.team.bpm.presentation.ui.schedule
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
-import com.team.bpm.presentation.di.IoDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getScheduleUseCase: GetScheduleUseCase,
     private val saveScheduleUseCase: GetScheduleUseCase
-) : ViewModel(), ScheduleContract {
+) : BaseViewModelV2(), ScheduleContract {
     private val _state = MutableStateFlow(ScheduleContract.State())
     override val state: StateFlow<ScheduleContract.State> = _state.asStateFlow()
 

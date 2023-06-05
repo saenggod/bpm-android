@@ -1,24 +1,23 @@
 package com.team.bpm.presentation.ui.main.community.community_detail
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class CommunityDetailViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val getCommunityDetailUseCase: GetCommunityDetailUseCase,
     private val getCommunityCommentListUseCase: GetCommunityCommentListUseCase,
     private val deleteCommunityUseCase: DeleteCommunityUseCase,
@@ -32,7 +31,7 @@ class CommunityDetailViewModel @Inject constructor(
     private val dislikeCommunityCommentUseCase: DislikeCommunityCommentUseCase,
     private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel(), CommunityDetailContract {
+) : BaseViewModelV2(), CommunityDetailContract {
 
     private val _state = MutableStateFlow(CommunityDetailContract.State())
     override val state: StateFlow<CommunityDetailContract.State> = _state.asStateFlow()
@@ -128,9 +127,7 @@ class CommunityDetailViewModel @Inject constructor(
             getKakaoIdUseCase().onEach { result ->
                 result?.let { userId ->
                     withContext(mainImmediateDispatcher) {
-                        _state.update {
-                            it.copy(userId = userId)
-                        }
+
                     }
                 }
             }.launchIn(viewModelScope + exceptionHandler)

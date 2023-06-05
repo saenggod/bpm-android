@@ -3,27 +3,26 @@ package com.team.bpm.presentation.ui.studio_detail.writing_review
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.review.WriteReviewUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class WritingReviewViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val writeReviewUseCase: WriteReviewUseCase,
     private val getStudioDetailUseCase: GetStudioDetailUseCase,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel(), WritingReviewContract {
+) : BaseViewModelV2(), WritingReviewContract {
 
     private val _state = MutableStateFlow(WritingReviewContract.State())
     override val state: StateFlow<WritingReviewContract.State> = _state.asStateFlow()

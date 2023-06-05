@@ -2,36 +2,21 @@ package com.team.bpm.presentation.ui.main.community.eye_body_posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
-import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
+import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
-import java.util.LinkedList
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class EyeBodyPostingViewModel @Inject constructor(
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val writeEyeBodyUseCase: WriteEyeBodyUseCase
-) : ViewModel(), EyeBodyPostingContract {
+class EyeBodyPostingViewModel @Inject constructor(private val writeEyeBodyUseCase: WriteEyeBodyUseCase) : BaseViewModelV2(), EyeBodyPostingContract {
     private val _state = MutableStateFlow(EyeBodyPostingContract.State())
     override val state: StateFlow<EyeBodyPostingContract.State> = _state.asStateFlow()
 
