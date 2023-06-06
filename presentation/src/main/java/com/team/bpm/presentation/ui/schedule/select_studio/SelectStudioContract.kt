@@ -18,6 +18,6 @@ interface SelectStudioContract : BaseContract<SelectStudioContract.State, Select
     }
 
     sealed interface Effect {
-        data class Finish(val studio: Studio) : Effect
+        data class Finish(val studioName: String) : Effect
     }
 }

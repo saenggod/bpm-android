@@ -73,11 +73,13 @@ interface MainApi {
         @Body schedule: ScheduleRequest
     ): Response<BPMResponseV2<UserScheduleResponse>>
 
-    @GET("api/users/schedule")
-    suspend fun fetchSchedule(): Response<BPMResponseV2<UserScheduleResponse>> // 중복
+    @GET("api/users/schedule/{scheduleId}")
+    suspend fun fetchSchedule(
+        @Path("scheduleId") scheduleId: Int
+    ): Response<BPMResponseV2<UserScheduleResponse>>
 
     @GET("api/users/schedule")
-    suspend fun getUserSchedule(): Response<UserScheduleResponse> // 중복
+    suspend fun getUserSchedule(): Response<UserScheduleResponse>
 
     /*
     리뷰

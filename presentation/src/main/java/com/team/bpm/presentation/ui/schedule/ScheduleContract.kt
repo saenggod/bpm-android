@@ -1,6 +1,5 @@
 package com.team.bpm.presentation.ui.schedule
 
-import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.base.BaseContract
 import java.time.LocalDate
 
@@ -8,24 +7,34 @@ interface ScheduleContract : BaseContract<ScheduleContract.State, ScheduleContra
     data class State(
         val isLoading: Boolean = false,
         val isEditing: Boolean = false,
+        val fetchedScheduleName: String? = null,
         val selectedDate: LocalDate? = null,
         val selectedTime: String? = null,
-        val selectedStudio: Studio? = null
+        val selectedStudioName: String? = null,
+        val fetchedMemo: String? = null
     )
 
     sealed interface Event {
+        object GetSchedule : Event
+
         object OnClickEdit : Event
 
         object OnClickSearchStudio : Event
 
-        data class SetStudio(val studio: Studio) : Event
+        data class SetStudio(val studioName: String) : Event
 
         data class OnClickDate(val date: LocalDate) : Event
 
         data class OnClickSetTime(val time: String) : Event
+
+        data class OnClickSubmit(
+            val scheduleName: String,
+            val memo: String
+        ) : Event
     }
 
     sealed interface Effect {
+
         object GoToSelectStudio : Effect
     }
 }

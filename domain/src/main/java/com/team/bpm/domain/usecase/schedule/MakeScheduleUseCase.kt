@@ -7,12 +7,14 @@ import javax.inject.Inject
 
 class MakeScheduleUseCase @Inject constructor(private val scheduleRepository: ScheduleRepository) {
     suspend operator fun invoke(
-        studioName: String,
+        scheduleName: String,
+        studioName: String?,
         date: String,
-        time: String,
-        memo: String
+        time: String?,
+        memo: String?
     ): Flow<UserSchedule> {
         return scheduleRepository.sendSchedule(
+            scheduleName = scheduleName,
             studioName = studioName,
             date = date,
             time = time,

@@ -1,20 +1,25 @@
 package com.team.bpm.presentation.ui.schedule
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
+import com.team.bpm.domain.usecase.schedule.MakeScheduleUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val getScheduleUseCase: GetScheduleUseCase,
-    private val saveScheduleUseCase: GetScheduleUseCase
+    private val makeScheduleUseCase: MakeScheduleUseCase,
+    private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(), ScheduleContract {
     private val _state = MutableStateFlow(ScheduleContract.State())
     override val state: StateFlow<ScheduleContract.State> = _state.asStateFlow()
@@ -23,6 +28,10 @@ class ScheduleViewModel @Inject constructor(
     override val effect: SharedFlow<ScheduleContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: ScheduleContract.Event) = when (event) {
+        is ScheduleContract.Event.GetSchedule -> {
+            getSchedule()
+        }
+
         is ScheduleContract.Event.OnClickEdit -> {
             onClickEdit()
         }
@@ -32,7 +41,7 @@ class ScheduleViewModel @Inject constructor(
         }
 
         is ScheduleContract.Event.SetStudio -> {
-            setStudio(event.studio)
+            setStudio(event.studioName)
         }
 
         is ScheduleContract.Event.OnClickDate -> {
@@ -42,6 +51,10 @@ class ScheduleViewModel @Inject constructor(
         is ScheduleContract.Event.OnClickSetTime -> {
             onClickSetTime(event.time)
         }
+
+        is ScheduleContract.Event.OnClickSubmit -> {
+            onClickSubmit(event.scheduleName, event.memo)
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -50,10 +63,41 @@ class ScheduleViewModel @Inject constructor(
         }
     }
 
-    private fun setStudio(studio: Studio) {
+    private fun getScheduleId(): Int? {
+        return savedStateHandle.get<Int>(ScheduleActivity.KEY_SCHEDULE_ID)
+    }
+
+    private fun getSchedule() {
+        getScheduleId()?.let { scheduleId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    getScheduleUseCase(scheduleId).onEach { schedule ->
+                        withContext(mainImmediateDispatcher) {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    fetchedScheduleName = schedule.scheduleName,
+                                    selectedDate = LocalDate.parse(schedule.date, DateTimeFormatter.ISO_LOCAL_DATE),
+                                    selectedTime = schedule.time.toString(),
+                                    selectedStudioName = schedule.studioName,
+                                    fetchedMemo = schedule.memo
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
+    private fun setStudio(studioName: String) {
         viewModelScope.launch {
             _state.update {
-                it.copy(selectedStudio = studio)
+                it.copy(selectedStudioName = studioName)
             }
         }
     }
@@ -87,83 +131,39 @@ class ScheduleViewModel @Inject constructor(
             }
         }
     }
-}
 
-//@HiltViewModel
-//class ScheduleViewModel @Inject constructor(
-//    private val getScheduleUseCase: GetScheduleUseCase,
-//    private val saveScheduleUseCase: SaveScheduleUseCase,
-//    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-//    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-//) : BaseViewModel() {
-//    private val _event = MutableSharedFlow<ScheduleViewEvent>()
-//    val event: SharedFlow<ScheduleViewEvent>
-//        get() = _event
-//
-//    private val _state = MutableStateFlow<ScheduleState>(ScheduleState.Init)
-//    val state: StateFlow<ScheduleState>
-//        get() = _state
-//
-//    private val exceptionHandler: CoroutineExceptionHandler by lazy {
-//        CoroutineExceptionHandler { coroutineContext, throwable ->
-//
-//        }
-//    }
-//
-//    init {
-//        getSchedule()
-//    }
-//
-//    fun onClickSave() {
-//        viewModelScope.launch(mainDispatcher) {
-//            _event.emit(ScheduleViewEvent.Save)
-//        }
-//    }
-//
-//    private fun getSchedule() {
-//        viewModelScope.launch(mainDispatcher) {
-//            _state.emit(ScheduleState.Loading)
-//        }
-//
-//        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-//            getScheduleUseCase().onEach { state ->
-//                when (state) {
-//                    is ResponseState.Success -> _state.emit(ScheduleState.GetSuccess(state.data))
-//                    is ResponseState.Error -> _state.emit(ScheduleState.Error)
-//                }
-//            }.launchIn(viewModelScope)
-//        }
-//    }
-//
-//    fun saveSchedule(
-//        studioName: String,
-//        date: String,
-//        time: String,
-//        memo: String
-//    ) {
-//        viewModelScope.launch(mainDispatcher) {
-//            _state.emit(ScheduleState.Loading)
-//        }
-//
-//        viewModelScope.launch(ioDispatcher + exceptionHandler) {
-//            saveScheduleUseCase(
-//                studioName = studioName,
-//                date = date,
-//                time = modifyTimeToFormat(time),
-//                memo = memo
-//            ).onEach { state ->
-//                when (state) {
-//                    is ResponseState.Success -> _state.emit(ScheduleState.SaveSuccess(state.data))
-//                    is ResponseState.Error -> _state.emit(ScheduleState.Error)
-//                }
-//            }.launchIn(viewModelScope)
-//        }
-//    }
-//
-//    private fun modifyTimeToFormat(
-//        time: String
-//    ): String {
-//        val timeInList = time.dropLast(5).split(":")
-//        return "${if (time.contains("오후")) timeInList[0].toInt() + 12 else timeInList[0]}:${timeInList[1]}:00"
-//    }
-//}
+    private fun onClickSubmit(
+        scheduleName: String,
+        memo: String
+    ) {
+        state.value.selectedDate?.let { selectedDate ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    makeScheduleUseCase(
+                        scheduleName = scheduleName,
+                        studioName = state.value.selectedStudioName ?: "",
+                        date = selectedDate.toString(),
+                        time = state.value.selectedTime,
+                        memo = memo
+                    ).onEach { schedule ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                isEditing = false,
+                                fetchedScheduleName = schedule.scheduleName,
+                                selectedDate = selectedDate,
+                                selectedTime = schedule.time.toString(),
+                                selectedStudioName = schedule.studioName,
+                                fetchedMemo = schedule.memo
+                            )
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+}
