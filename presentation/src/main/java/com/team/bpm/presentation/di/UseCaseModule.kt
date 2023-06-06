@@ -1,40 +1,13 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
-import com.team.bpm.domain.usecase.community.DeleteCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DeleteCommunityUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityUseCase
-import com.team.bpm.domain.usecase.community.ReportCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.ReportCommunityUseCase
-import com.team.bpm.domain.usecase.community.WriteCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.WriteCommunityUseCase
+import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
-import com.team.bpm.domain.usecase.question.DeleteQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
-import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
-import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
-import com.team.bpm.domain.usecase.question.ReportQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
-import com.team.bpm.domain.usecase.question.WriteQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.WriteQuestionUseCase
+import com.team.bpm.domain.usecase.question.*
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
-import com.team.bpm.domain.usecase.review.DeleteReviewUseCase
-import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
-import com.team.bpm.domain.usecase.review.GetReviewDetailUseCase
-import com.team.bpm.domain.usecase.review.GetReviewListUseCase
-import com.team.bpm.domain.usecase.review.LikeReviewUseCase
-import com.team.bpm.domain.usecase.review.ReportReviewUseCase
-import com.team.bpm.domain.usecase.review.WriteReviewUseCase
+import com.team.bpm.domain.usecase.review.*
+import com.team.bpm.domain.usecase.schedule.EditScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.MakeScheduleUseCase
 import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
@@ -122,8 +95,14 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideSaveScheduleUseCase(scheduleRepository: ScheduleRepository): MakeScheduleUseCase {
+    fun provideMakeScheduleUseCase(scheduleRepository: ScheduleRepository): MakeScheduleUseCase {
         return MakeScheduleUseCase(scheduleRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideEditScheduleUseCase(scheduleRepository: ScheduleRepository): EditScheduleUseCase {
+        return EditScheduleUseCase(scheduleRepository)
     }
 
     @Provides

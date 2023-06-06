@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.schedule
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.schedule.EditScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.MakeScheduleUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class ScheduleViewModel @Inject constructor(
     private val getScheduleUseCase: GetScheduleUseCase,
     private val makeScheduleUseCase: MakeScheduleUseCase,
+    private val editScheduleUseCase: EditScheduleUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(), ScheduleContract {
     private val _state = MutableStateFlow(ScheduleContract.State())
@@ -71,7 +73,10 @@ class ScheduleViewModel @Inject constructor(
         getScheduleId()?.let { scheduleId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isLoading = true)
+                    it.copy(
+                        isLoading = true,
+                        scheduleId = scheduleId
+                    )
                 }
 
                 withContext(ioDispatcher) {
@@ -89,6 +94,12 @@ class ScheduleViewModel @Inject constructor(
                             }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        } ?: run {
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isEditing = true)
                 }
             }
         }
@@ -143,16 +154,28 @@ class ScheduleViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    makeScheduleUseCase(
-                        scheduleName = scheduleName,
-                        studioName = state.value.selectedStudioName ?: "",
-                        date = selectedDate.toString(),
-                        time = state.value.selectedTime,
-                        memo = memo
-                    ).onEach { schedule ->
+                    if (state.value.scheduleId == null) {
+                        makeScheduleUseCase(
+                            scheduleName = scheduleName,
+                            studioName = state.value.selectedStudioName ?: "",
+                            date = selectedDate.toString(),
+                            time = state.value.selectedTime,
+                            memo = memo
+                        )
+                    } else {
+                        editScheduleUseCase(
+                            scheduleId = state.value.scheduleId!!,
+                            scheduleName = scheduleName,
+                            studioName = state.value.selectedStudioName ?: "",
+                            date = selectedDate.toString(),
+                            time = state.value.selectedTime,
+                            memo = memo
+                        )
+                    }.onEach { schedule ->
                         _state.update {
                             it.copy(
                                 isLoading = false,
+                                scheduleId = schedule.id,
                                 isEditing = false,
                                 fetchedScheduleName = schedule.scheduleName,
                                 selectedDate = selectedDate,

@@ -73,6 +73,12 @@ interface MainApi {
         @Body schedule: ScheduleRequest
     ): Response<BPMResponseV2<UserScheduleResponse>>
 
+    @PUT("api/users/schedule/{scheduleId}")
+    suspend fun sendEditedSchedule(
+        @Path("scheduleId") scheduleId: Int,
+        @Body scheduleRequest: ScheduleRequest
+    ): Response<BPMResponseV2<UserScheduleResponse>>
+
     @GET("api/users/schedule/{scheduleId}")
     suspend fun fetchSchedule(
         @Path("scheduleId") scheduleId: Int

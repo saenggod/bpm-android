@@ -70,7 +70,10 @@ class ScheduleActivity : BaseComponentActivityV2() {
         const val KEY_SCHEDULE_ID = "schedule_id"
         const val KEY_STUDIO_NAME = "studio_name"
 
-        fun newIntent(context: Context, scheduleId: Int): Intent {
+        fun newIntent(
+            context: Context,
+            scheduleId: Int?
+        ): Intent {
             return Intent(context, ScheduleActivity::class.java).putExtra(
                 KEY_SCHEDULE_ID, scheduleId
             )
@@ -116,9 +119,6 @@ private fun ScheduleActivityContent(
         val scrollState = rememberScrollState()
         val scheduleNameState = remember { mutableStateOf("") }
         val memoState = remember { mutableStateOf("") }
-
-        scheduleNameState.value = fetchedScheduleName ?: ""
-        memoState.value = fetchedMemo ?: ""
 
         Column(
             modifier = Modifier

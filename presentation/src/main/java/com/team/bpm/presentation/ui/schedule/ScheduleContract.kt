@@ -6,6 +6,7 @@ import java.time.LocalDate
 interface ScheduleContract : BaseContract<ScheduleContract.State, ScheduleContract.Event, ScheduleContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
+        val scheduleId: Int? = null,
         val isEditing: Boolean = false,
         val fetchedScheduleName: String? = null,
         val selectedDate: LocalDate? = null,

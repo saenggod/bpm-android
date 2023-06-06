@@ -13,5 +13,14 @@ interface ScheduleRepository {
         memo: String?
     ): Flow<UserSchedule>
 
+    suspend fun sendEditedSchedule(
+        scheduleId: Int,
+        scheduleName: String,
+        studioName: String?,
+        date: String,
+        time: String?,
+        memo: String?
+    ): Flow<UserSchedule>
+
     suspend fun fetchSchedule(scheduleId: Int): Flow<UserSchedule>
 }
