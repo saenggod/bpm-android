@@ -350,7 +350,6 @@ private fun QuestionDetailActivityContent(
                                         }
                                         .background(color = if (selectedCommentId == comment.id) HighlightColor else Color.White),
                                     comment = comment,
-<<<<<<< main:presentation/src/main/java/com/team/bpm/presentation/ui/main/community/question_detail/QuestionDetailActivity.kt
                                     onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
                                     onClickActionButton = {
                                         comment.id?.let { commentId ->
@@ -363,27 +362,6 @@ private fun QuestionDetailActivityContent(
                                                     )
                                                 )
                                             }
-=======
-                                    onClickLike = { commentId -> event.invoke(
-                                        QuestionDetailContract.Event.OnClickCommentLike(
-                                            commentId
-                                        )
-                                    ) },
-                                    onClickActionButton = { commentId ->
-                                        focusManager.clearFocus()
-                                        if (comment.parentId == null) {
-                                            event.invoke(
-                                                QuestionDetailContract.Event.OnClickCommentActionButton(
-                                                    commentId
-                                                )
-                                            )
-                                        } else {
-                                            comment.parentId?.let { parentCommentId -> event.invoke(
-                                                QuestionDetailContract.Event.OnClickCommentActionButton(
-                                                    parentCommentId
-                                                )
-                                            ) }
->>>>>>> [BPM-141] 메인 탭 패키지 정리, API 연결:presentation/src/main/java/com/team/bpm/presentation/ui/main/lounge/question/detail/QuestionDetailActivity.kt
                                         }
                                     }
                                 )
