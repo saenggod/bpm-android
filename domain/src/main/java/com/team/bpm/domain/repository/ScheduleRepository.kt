@@ -6,11 +6,21 @@ import kotlinx.coroutines.flow.Flow
 interface ScheduleRepository {
 
     suspend fun sendSchedule(
-        studioName: String,
+        scheduleName: String,
+        studioName: String?,
         date: String,
-        time: String,
-        memo: String
+        time: String?,
+        memo: String?
     ): Flow<UserSchedule>
 
-    suspend fun fetchSchedule(): Flow<UserSchedule>
+    suspend fun sendEditedSchedule(
+        scheduleId: Int,
+        scheduleName: String,
+        studioName: String?,
+        date: String,
+        time: String?,
+        memo: String?
+    ): Flow<UserSchedule>
+
+    suspend fun fetchSchedule(scheduleId: Int): Flow<UserSchedule>
 }

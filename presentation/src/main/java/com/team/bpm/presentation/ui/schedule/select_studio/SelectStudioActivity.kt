@@ -78,7 +78,7 @@ private fun SelectStudioActivityContent(
         effect.collectLatest { effect ->
             when (effect) {
                 is SelectStudioContract.Effect.Finish -> {
-                    context.setResult(RESULT_OK, Intent().putExtra(ScheduleActivity.KEY_STUDIO, effect.studio))
+                    context.setResult(RESULT_OK, Intent().putExtra(ScheduleActivity.KEY_STUDIO_NAME, effect.studioName))
                     context.finish()
                 }
             }

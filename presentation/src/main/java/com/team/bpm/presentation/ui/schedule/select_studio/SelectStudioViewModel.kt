@@ -74,9 +74,9 @@ class SelectStudioViewModel @Inject constructor(private val searchStudioUseCase:
     }
 
     private fun onClickComplete() {
-        state.value.selectedStudio?.let { studio ->
+        state.value.selectedStudio?.name?.let { studioName ->
             viewModelScope.launch {
-                _effect.emit(SelectStudioContract.Effect.Finish(studio))
+                _effect.emit(SelectStudioContract.Effect.Finish(studioName))
             }
         }
     }

@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.schedule
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -31,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
@@ -43,13 +41,12 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
-import com.team.bpm.presentation.ui.schedule.ScheduleActivity.Companion.KEY_STUDIO
+import com.team.bpm.presentation.ui.schedule.ScheduleActivity.Companion.KEY_STUDIO_NAME
 import com.team.bpm.presentation.ui.schedule.select_studio.SelectStudioActivity
 import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.clickableWithoutRipple
@@ -70,10 +67,16 @@ class ScheduleActivity : BaseComponentActivityV2() {
     }
 
     companion object {
-        const val KEY_STUDIO = "studio"
+        const val KEY_SCHEDULE_ID = "schedule_id"
+        const val KEY_STUDIO_NAME = "studio_name"
 
-        fun newIntent(context: Context): Intent {
-            return Intent(context, ScheduleActivity::class.java)
+        fun newIntent(
+            context: Context,
+            scheduleId: Int?
+        ): Intent {
+            return Intent(context, ScheduleActivity::class.java).putExtra(
+                KEY_SCHEDULE_ID, scheduleId
+            )
         }
     }
 }
@@ -85,22 +88,21 @@ private fun ScheduleActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
+    val hoursLazyListState = rememberLazyListState()
+    val minutesLazyListState = rememberLazyListState()
+    val timeZonesLazyListState = rememberLazyListState()
     val selectStudioLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == SelectStudioActivity.RESULT_OK) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                result.data?.getParcelableExtra(KEY_STUDIO, Studio::class.java)?.let { studio ->
-                    context.repeatCallDefaultOnResume {
-                        event.invoke(ScheduleContract.Event.SetStudio(studio))
-                    }
-                }
-            } else {
-                result.data?.getParcelableExtra<Studio>(KEY_STUDIO)?.let { studio ->
-                    context.repeatCallDefaultOnResume {
-                        event.invoke(ScheduleContract.Event.SetStudio(studio))
-                    }
+            result.data?.getStringExtra(KEY_STUDIO_NAME)?.let { studioName ->
+                context.repeatCallDefaultOnResume {
+                    event.invoke(ScheduleContract.Event.SetStudio(studioName))
                 }
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        event.invoke(ScheduleContract.Event.GetSchedule)
     }
 
     LaunchedEffect(effect) {
@@ -115,6 +117,9 @@ private fun ScheduleActivityContent(
 
     with(state) {
         val scrollState = rememberScrollState()
+        val scheduleNameState = remember { mutableStateOf("") }
+        val memoState = remember { mutableStateOf("") }
+
         Column(
             modifier = Modifier
                 .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
@@ -158,17 +163,15 @@ private fun ScheduleActivityContent(
                     }
                 )
 
-                val titleValueState = remember { mutableStateOf("") }
-
                 ScheduleItemLayout(
                     isEditing = isEditing,
                     isEssential = true,
                     label = "무엇을 위한 바디프로필인가요?",
-                    value = titleValueState.value.ifEmpty { "일정 이름" },
+                    value = scheduleNameState.value.ifEmpty { fetchedScheduleName ?: "일정 이름" },
                     extraContentHeight = 60.dp
                 ) {
                     BPMTextField(
-                        textState = titleValueState,
+                        textState = scheduleNameState,
                         label = null,
                         limit = null,
                         singleLine = true,
@@ -400,18 +403,16 @@ private fun ScheduleActivityContent(
 
                 Divider(color = GrayColor8)
 
-                val memoValueState = remember { mutableStateOf("") }
-
                 ScheduleItemLayout(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "메모를 남겨주세요",
-                    value = memoValueState.value.ifEmpty { "메모" },
+                    value = memoState.value.ifEmpty { fetchedMemo ?: "메모" },
                     extraContentHeight = 130.dp
                 ) {
                     BPMTextField(
                         minHeight = 110.dp,
-                        textState = memoValueState,
+                        textState = memoState,
                         label = null,
                         limit = null,
                         singleLine = false,
@@ -430,7 +431,7 @@ private fun ScheduleActivityContent(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "예약한 촬영 스튜디오가 있으신가요?",
-                    value = selectedStudio?.name ?: "스튜디오 이름",
+                    value = selectedStudioName ?: "스튜디오 이름",
                     extraContentHeight = 60.dp
                 ) {
                     Box(
@@ -479,16 +480,21 @@ private fun ScheduleActivityContent(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "예약 시간을 입력해주세요.",
-                    value = if (selectedTime != null) "$selectedTime" else "시간",
+                    value = selectedTime ?: "시간",
                     extraContentHeight = 212.dp
                 ) {
-                    val hoursLazyListState = rememberLazyListState()
-                    val minutesLazyListState = rememberLazyListState()
-                    val timeZonesLazyListState = rememberLazyListState()
                     val hours = (0..13).toList()
                     val minutes = (-1..60).toList()
                     val timeZones = listOf("", "오후", "오전", "")
                     val scope = rememberCoroutineScope()
+
+                    LaunchedEffect(Unit) {
+                        selectedTime?.let { selectedTime ->
+                            hoursLazyListState.scrollToItem(selectedTime.substring(0, 2).toInt().minus(1))
+                            minutesLazyListState.scrollToItem(selectedTime.substring(3, 5).toInt())
+                            timeZonesLazyListState.scrollToItem(if (selectedTime.substring(7,9) == "오후") 0 else 1)
+                        }
+                    }
 
                     Box(
                         modifier = Modifier
@@ -669,7 +675,7 @@ private fun ScheduleActivityContent(
                     enabled = isEditing,
                     textColor = MainBlackColor,
                     buttonColor = MainGreenColor,
-                    onClick = {}
+                    onClick = { event.invoke(ScheduleContract.Event.OnClickSubmit(scheduleNameState.value, memoState.value)) }
                 )
             }
         }

@@ -5,8 +5,10 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class UserSchedule(
+    val id: Int? = 0,
+    val scheduleName: String? = "",
     val studioName: String? = "",
     val date: String? = "",
     val time: String? = "",
-    val memo: String? = "끝까지 화이팅!",
+    val memo: String? = "",
 ) : BaseModel

@@ -97,7 +97,7 @@ class StudioHomeFragment :
     }
 
     private fun goToSchedule() {
-        scheduleResultLauncher.launch(ScheduleActivity.newIntent(requireContext()))
+//        scheduleResultLauncher.launch(ScheduleActivity.newIntent(requireContext())) // TODO : 스케쥴 아이디를 받도록 수정되었습니다!
     }
 
     companion object {

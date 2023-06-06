@@ -15,15 +15,17 @@ import javax.inject.Inject
 class ScheduleRepositoryImpl @Inject constructor(private val mainApi: MainApi) : ScheduleRepository {
 
     override suspend fun sendSchedule(
-        studioName: String,
+        scheduleName: String,
+        studioName: String?,
         date: String,
-        time: String,
-        memo: String
+        time: String?,
+        memo: String?
     ): Flow<UserSchedule> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendSchedule(
                     ScheduleRequest(
+                        scheduleName = scheduleName,
                         studioName = studioName,
                         date = date,
                         time = time,
@@ -36,10 +38,36 @@ class ScheduleRepositoryImpl @Inject constructor(private val mainApi: MainApi) :
         }
     }
 
-    override suspend fun fetchSchedule(): Flow<UserSchedule> {
+    override suspend fun sendEditedSchedule(
+        scheduleId: Int,
+        scheduleName: String,
+        studioName: String?,
+        date: String,
+        time: String?,
+        memo: String?
+    ): Flow<UserSchedule> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.fetchSchedule()
+                mainApi.sendEditedSchedule(
+                    scheduleId = scheduleId,
+                    scheduleRequest = ScheduleRequest(
+                        scheduleName = scheduleName,
+                        studioName = studioName,
+                        date = date,
+                        time = time,
+                        memo = memo
+                    )
+                )
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun fetchSchedule(scheduleId: Int): Flow<UserSchedule> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchSchedule(scheduleId)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()

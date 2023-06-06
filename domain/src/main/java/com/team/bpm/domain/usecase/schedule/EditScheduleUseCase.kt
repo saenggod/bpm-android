@@ -5,15 +5,17 @@ import com.team.bpm.domain.repository.ScheduleRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class MakeScheduleUseCase @Inject constructor(private val scheduleRepository: ScheduleRepository) {
+class EditScheduleUseCase @Inject constructor(private val scheduleRepository: ScheduleRepository) {
     suspend operator fun invoke(
+        scheduleId: Int,
         scheduleName: String,
         studioName: String?,
         date: String,
         time: String?,
         memo: String?
     ): Flow<UserSchedule> {
-        return scheduleRepository.sendSchedule(
+        return scheduleRepository.sendEditedSchedule(
+            scheduleId = scheduleId,
             scheduleName = scheduleName,
             studioName = studioName,
             date = date,
