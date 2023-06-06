@@ -5,7 +5,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import com.team.bpm.presentation.base.BaseFragment
 import com.team.bpm.presentation.databinding.FragmentHomeRecommendBinding
-import com.team.bpm.presentation.model.MainTabType
+import com.team.bpm.presentation.model.StudioMainTabType
 import com.team.bpm.presentation.ui.main.studio.recommend.list.StudioHomeRecommendAdapter
 import com.team.bpm.presentation.ui.studio_detail.StudioDetailActivity
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
@@ -63,7 +63,7 @@ class StudioHomeRecommendFragment :
     companion object {
         const val KEY_TYPE = "KEY_TYPE"
 
-        fun newInstance(type: MainTabType): StudioHomeRecommendFragment {
+        fun newInstance(type: StudioMainTabType): StudioHomeRecommendFragment {
             return StudioHomeRecommendFragment().apply {
                 arguments = bundleOf(
                     KEY_TYPE to type

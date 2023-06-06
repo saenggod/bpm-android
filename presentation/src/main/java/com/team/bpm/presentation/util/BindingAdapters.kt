@@ -2,6 +2,7 @@ package com.team.bpm.presentation.util
 
 import android.view.View
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.ListAdapter
@@ -33,6 +34,11 @@ fun View.bindVisibleOrGone(text: String?) {
     }
 }
 
+@BindingAdapter("bind:selected")
+fun View.bindIsSelected(isSelected: Boolean?) {
+    this.isSelected = isSelected ?: false
+}
+
 @BindingAdapter("bind:list_item")
 fun RecyclerView.bindListItems(list: List<Any>?) {
     if (adapter != null) {
@@ -62,6 +68,15 @@ fun ImageView.bindImageUrl(url: String?) {
         .centerCrop()
         .thumbnail(0.1f)
         .transition(DrawableTransitionOptions.withCrossFade())
+        .into(this)
+}
+
+
+@BindingAdapter("bind:image_src")
+fun ImageView.bindImageSrc(@DrawableRes src: Int?) {
+    Glide.with(this.context)
+        .load(src)
+        .centerCrop()
         .into(this)
 }
 

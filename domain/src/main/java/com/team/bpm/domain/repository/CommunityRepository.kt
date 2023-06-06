@@ -3,9 +3,12 @@ package com.team.bpm.domain.repository
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
 import com.team.bpm.domain.model.Community
+import com.team.bpm.domain.model.CommunityList
 import kotlinx.coroutines.flow.Flow
 
 interface CommunityRepository {
+    suspend fun fetchCommunityList(page: Int, size: Int): Flow<CommunityList>
+
     suspend fun sendCommunity(
         content: String,
         imageByteArrays: List<ByteArray>

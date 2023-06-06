@@ -26,39 +26,36 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <include
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/content_eyebody"
-            layout="@layout/layout_mypage_content_disable"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider"
-            app:onItemClick="@{vm.clickDisable}"
-            bind:content="@{@string/main_add_eyebody}" />
+            android:onClick="@{() -> vm.clickDisable()}"
+            android:text="@{@string/main_add_eyebody}" />
 
-        <include
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/content_share"
-            layout="@layout/layout_mypage_content_disable"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/content_eyebody"
-            app:onItemClick="@{vm.clickDisable}"
-            bind:content="@{@string/mypage_content_history_bf}" />
+            android:onClick="@{() -> vm.clickDisable()}"
+            android:text="@{@string/mypage_content_history_bf}" />
 
-        <include
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/content_ask"
-            layout="@layout/layout_mypage_content_disable"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/content_share"
-            app:onItemClick="@{vm.clickDisable}"
-            bind:content="@{@string/mypage_content_history_bf}" />
+            android:onClick="@{() -> vm.clickDisable()}"
+            android:text="@{@string/mypage_content_history_bf}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -4,6 +4,7 @@ import com.team.bpm.data.model.request.CommentRequest
 import com.team.bpm.data.model.request.ReportRequest
 import com.team.bpm.data.model.response.CommentListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
+import com.team.bpm.data.model.response.CommunityListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommunityResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
@@ -12,6 +13,7 @@ import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
 import com.team.bpm.domain.model.Community
+import com.team.bpm.domain.model.CommunityList
 import com.team.bpm.domain.repository.CommunityRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -20,6 +22,19 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 class CommunityRepositoryImpl @Inject constructor(private val mainApi: MainApi) : CommunityRepository {
+
+    override suspend fun fetchCommunityList(page: Int, size: Int): Flow<CommunityList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchCommunityList(
+                    page = page,
+                    size = size,
+                    sort = COMMUNITY_LIST_SORT_TYPE)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
 
     override suspend fun sendCommunity(
         content: String,
@@ -170,5 +185,10 @@ class CommunityRepositoryImpl @Inject constructor(private val mainApi: MainApi) 
                 emit(Unit)
             }
         }
+    }
+
+    companion object {
+        private const val COMMUNITY_LIST_SORT_TYPE = "createdDate"
+
     }
 }

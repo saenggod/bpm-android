@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/bind"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.team.bpm.presentation.ui.main.mypage.myquestion.MyQuestionViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/action_bar"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Font.Pretendard.Semibold.18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mypage_content_history_post"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="액션바" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/back"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginStart="4dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/more"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginVertical="17dp"
+                android:layout_marginEnd="14dp"
+                android:src="@drawable/ic_action_bar_more"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/gray_09"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/container_delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/action_bar">
+
+            <androidx.appcompat.widget.AppCompatCheckedTextView
+                android:id="@+id/all"
+                style="@style/Font.Pretendard.Medium.14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="21dp"
+                android:layout_marginStart="18dp"
+                android:drawableStart="@drawable/bg_checkbox_black"
+                android:drawablePadding="8dp"
+                android:text="전체 선택"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/delete"
+                style="@style/Font.Pretendard.Medium.14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="21dp"
+                android:layout_marginEnd="16dp"
+                android:foregroundTint="@drawable/bg_mypage_my_question_delete"
+                android:text="삭제"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/container_delete"
+            bind:list_item="@{vm.state.questionList}"
+            tools:listitem="@layout/item_lounge_question" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -4,6 +4,7 @@ import com.team.bpm.data.model.request.CommentRequest
 import com.team.bpm.data.model.request.ReportRequest
 import com.team.bpm.data.model.response.CommentListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.CommentResponse.Companion.toDataModel
+import com.team.bpm.data.model.response.QuestionListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.QuestionResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
@@ -12,6 +13,7 @@ import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
 import com.team.bpm.domain.model.Question
+import com.team.bpm.domain.model.QuestionList
 import com.team.bpm.domain.repository.QuestionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -19,7 +21,19 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class QuestionRepositoryImpl @Inject constructor(private val mainApi: MainApi) : QuestionRepository {
+class QuestionRepositoryImpl @Inject constructor(
+    private val mainApi: MainApi
+) : QuestionRepository {
+    override suspend fun fetchQuestionList(limit: Int, offset: Int, slug: String?): Flow<QuestionList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchQuestionList(limit, offset, slug)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
     override suspend fun sendQuestion(
         title: String,
         content: String,
