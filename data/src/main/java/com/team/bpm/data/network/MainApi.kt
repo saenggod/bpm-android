@@ -9,9 +9,7 @@ import retrofit2.http.*
 
 interface MainApi {
 
-    /*
-    계정
-     */
+    /* 계정 */
 
     @Headers("shouldBeAuthorized: false")
     @Multipart
@@ -29,9 +27,7 @@ interface MainApi {
         @Body kakaoIdReq: UserVerificationRequest
     ): Response<BPMResponseV2<SignUpResponse>>
 
-    /*
-    스튜디오
-     */
+    /* 스튜디오 */
 
     @POST("api/studio")
     suspend fun sendStudio(
@@ -64,9 +60,7 @@ interface MainApi {
         @Path("studioId") studioId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
-    /*
-    일정
-     */
+    /* 일정 */
 
     @POST("api/users/schedule")
     suspend fun sendSchedule(
@@ -87,9 +81,7 @@ interface MainApi {
     @GET("api/users/schedule")
     suspend fun getUserSchedule(): Response<UserScheduleResponse>
 
-    /*
-    리뷰
-     */
+    /* 리뷰 */
 
     @Multipart
     @POST("api/studio/{studioId}/review")
@@ -137,9 +129,14 @@ interface MainApi {
         @Path("reviewId") reviewId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
-    /*
-    커뮤니티
-     */
+    /* 커뮤니티 */
+
+    @GET("api/lounge/community")
+    suspend fun fetchCommunityList(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("sort") sort: String
+    ): Response<BPMResponseV2<CommunityListResponse>>
 
     @Multipart
     @POST("api/lounge/community")
@@ -174,9 +171,7 @@ interface MainApi {
         @Path("communityId") communityId: Int,
     ): Response<BPMResponseV2<ResponseBody>>
 
-    /*
-    커뮤니티 댓글
-     */
+    /*  커뮤니티 댓글 */
 
     @POST("api/lounge/community/{communityId}/comments")
     suspend fun sendCommunityComment(
@@ -214,9 +209,14 @@ interface MainApi {
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
-    /*
-    질문
-     */
+    /* 질문 */
+
+    @GET("api/lounge/question-board")
+    suspend fun fetchQuestionList(
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("slug") slug: String?
+    ): Response<BPMResponseV2<QuestionListResponse>>
 
     @Multipart
     @POST("api/lounge/question-board")
@@ -252,9 +252,7 @@ interface MainApi {
         @Path("questionBoardArticleId") questionId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
-    /*
-    질문 댓글
-     */
+    /* 질문 댓글 */
 
     @POST("api/lounge/question-board/{questionBoardArticleId}/comments")
     suspend fun sendQuestionComment(
@@ -292,9 +290,7 @@ interface MainApi {
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
-    /*
-    눈바디
-     */
+    /* 눈바디 */
 
     @Multipart
     @POST("api/community/body-shape")

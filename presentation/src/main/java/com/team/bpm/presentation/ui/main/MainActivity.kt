@@ -9,7 +9,7 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.databinding.ActivityMainBinding
 import com.team.bpm.presentation.base.BaseActivity
 import com.team.bpm.presentation.ui.main.add.MainAddBottomSheet
-import com.team.bpm.presentation.ui.main.community.LoungeFragment
+import com.team.bpm.presentation.ui.main.lounge.LoungeFragment
 import com.team.bpm.presentation.ui.main.studio.StudioHomeFragment
 import com.team.bpm.presentation.ui.main.mypage.MyPageFragment
 import com.team.bpm.presentation.ui.main.notification.EyebodyFragment
@@ -33,8 +33,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             lifecycleOwner = this@MainActivity
         }
 
-        setUpNavigation()
-
         onBackPressedDispatcher.addCallback(onBackPressedCallBack)
     }
 
@@ -45,7 +43,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             viewModel.state.collect { state ->
                 when (state) {
                     MainState.Init -> {
-                        // TODO : get info for any data
+                        viewModel.getMainTabIndex()
+                    }
+
+                    is MainState.Tab -> {
+                        setUpNavigation(state.startIndex)
                     }
                 }
             }
@@ -63,10 +65,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     }
 
 
-    private fun setUpNavigation() {
+    private fun setUpNavigation(startTabIndex: Int = -1) {
         bind {
-            if (supportFragmentManager.primaryNavigationFragment == null) {
-                changeFragment()
+            if (supportFragmentManager.primaryNavigationFragment == null && startTabIndex != -1) {
+                changeFragment(findFragmentId(startTabIndex))
             }
 
             mainTab.setOnItemSelectedListener {
@@ -76,8 +78,28 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         }
     }
 
-    private fun showAddBottomSheet(){
+    private fun showAddBottomSheet() {
         MainAddBottomSheet().show(supportFragmentManager, MainAddBottomSheet::class.simpleName)
+    }
+
+    private fun findFragmentId(startTabIndex: Int): Int {
+        return when (startTabIndex) {
+            0 -> {
+                R.id.nav_studio
+            }
+
+            1 -> {
+                R.id.nav_lounge
+            }
+
+            2 -> {
+                R.id.nav_eyebody
+            }
+
+            else -> {
+                R.id.nav_studio
+            }
+        }
     }
 
     private fun changeFragment(fragmentId: Int? = null) {
@@ -99,7 +121,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             }
 
             else -> {
-                binding.mainTab.selectedItemId = R.id.nav_studio
                 StudioHomeFragment.newInstance()
             }
         }

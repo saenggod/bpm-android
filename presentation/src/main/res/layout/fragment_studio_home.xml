@@ -66,6 +66,7 @@
                     app:tabIndicatorColor="@color/green"
                     app:tabIndicatorHeight="3dp"
                     app:tabMode="fixed"
+                    app:tabGravity="start"
                     app:tabInlineLabel="false"
                     app:tabRippleColor="@android:color/transparent"
                     app:tabTextAppearance="@style/TabTextAppearance" />

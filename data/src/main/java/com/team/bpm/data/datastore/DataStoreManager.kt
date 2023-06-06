@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -42,10 +43,24 @@ class DataStoreManager @Inject constructor(private val context: Context) {
         return getUserToken()
     }
 
+    fun getStartTabIndex(): Flow<Int?> {
+        return context.instance.data.map { preferences ->
+            preferences[intPreferencesKey(KEY_START_TAB)]
+        }
+    }
+
+    suspend fun setStartTabIndex(index: Int): Flow<Int?> {
+        context.instance.edit { preferences ->
+            preferences[intPreferencesKey(KEY_START_TAB)] = index
+        }
+
+        return getStartTabIndex()
+    }
 
     companion object {
         private const val KEY_DATASTORE = "bpm"
         private const val KEY_KAKAO_USER_ID = "kakao_user_id"
         private const val KEY_USER_TOKEN = "user_token"
+        private const val KEY_START_TAB = "start_tab"
     }
 }

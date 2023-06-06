@@ -161,4 +161,10 @@
         <item name="fontFamily">@font/pretendard_semi_bold</item>
     </style>
 
+    <style name="LoungeTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">15dp</item>
+        <item name="fontFamily">@font/pretendard_semi_bold</item>
+    </style>
+
+
 </resources>

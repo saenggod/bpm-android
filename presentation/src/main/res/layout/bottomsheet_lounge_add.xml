@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.team.bpm.presentation.ui.main.lounge.add.LoungeAddViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="56dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/gray_05"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/content_community"
+            style="@style/Font.Pretendard.Semibold.14"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="@{() -> vm.onClickAddCommunityPost()}"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="18dp"
+            android:text="@{@string/lounge_add_community_post}"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/content_question"
+            style="@style/Font.Pretendard.Semibold.14"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="@{() -> vm.onClickAddQuestionPost()}"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="18dp"
+            android:text="@{@string/lounge_add_question_post}"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content_community" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -3,9 +3,12 @@ package com.team.bpm.domain.repository
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
 import com.team.bpm.domain.model.Question
+import com.team.bpm.domain.model.QuestionList
 import kotlinx.coroutines.flow.Flow
 
 interface QuestionRepository {
+    suspend fun fetchQuestionList(limit: Int, offset: Int, slug: String?): Flow<QuestionList>
+
     suspend fun sendQuestion(
         title: String,
         content: String,

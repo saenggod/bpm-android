@@ -10,9 +10,10 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseFragment
 import com.team.bpm.presentation.databinding.FragmentStudioHomeBinding
-import com.team.bpm.presentation.model.MainTabType
+import com.team.bpm.presentation.model.StudioMainTabType
 import com.team.bpm.presentation.ui.main.studio.recommend.StudioHomeRecommendFragment
 import com.team.bpm.presentation.ui.schedule.ScheduleActivity
+import com.team.bpm.presentation.util.BasePagerAdapter
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,9 +29,9 @@ class StudioHomeFragment :
 
     private val fragmentList: List<Fragment> by lazy {
         listOf(
-            StudioHomeRecommendFragment.newInstance(MainTabType.HOT),
-            StudioHomeRecommendFragment.newInstance(MainTabType.REVIEW),
-            StudioHomeRecommendFragment.newInstance(MainTabType.OPEN)
+            StudioHomeRecommendFragment.newInstance(StudioMainTabType.HOT),
+            StudioHomeRecommendFragment.newInstance(StudioMainTabType.REVIEW),
+            StudioHomeRecommendFragment.newInstance(StudioMainTabType.OPEN)
         )
     }
 
@@ -79,7 +80,7 @@ class StudioHomeFragment :
 
     private fun setupPager() {
         bind {
-            pager.adapter = StudioHomePagerAdapter(requireActivity(), fragmentList)
+            pager.adapter = BasePagerAdapter(requireActivity(), fragmentList)
 
             TabLayoutMediator(tab, pager, false, true) { tab: TabLayout.Tab?, position: Int ->
                 val resId: Int = when (position) {

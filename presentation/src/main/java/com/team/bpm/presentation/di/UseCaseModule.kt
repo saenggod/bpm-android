@@ -1,9 +1,35 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
-import com.team.bpm.domain.usecase.community.*
+import com.team.bpm.domain.usecase.community.DeleteCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.DeleteCommunityUseCase
+import com.team.bpm.domain.usecase.community.DislikeCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.DislikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
+import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
+import com.team.bpm.domain.usecase.community.GetCommunityListUseCase
+import com.team.bpm.domain.usecase.community.LikeCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.LikeCommunityUseCase
+import com.team.bpm.domain.usecase.community.ReportCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.ReportCommunityUseCase
+import com.team.bpm.domain.usecase.community.WriteCommunityCommentUseCase
+import com.team.bpm.domain.usecase.community.WriteCommunityUseCase
 import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
-import com.team.bpm.domain.usecase.question.*
+import com.team.bpm.domain.usecase.mypage.GetMainTabIndexUseCase
+import com.team.bpm.domain.usecase.mypage.SetMainTabIndexUseCase
+import com.team.bpm.domain.usecase.question.DeleteQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
+import com.team.bpm.domain.usecase.question.GetQuestionListUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
+import com.team.bpm.domain.usecase.question.WriteQuestionCommentUseCase
+import com.team.bpm.domain.usecase.question.WriteQuestionUseCase
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.*
@@ -27,9 +53,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @InstallIn(ViewModelComponent::class)
 object UseCaseModule {
 
-    /*
-    계정
-     */
+    /* 계정 */
 
     @Provides
     @ViewModelScoped
@@ -49,9 +73,7 @@ object UseCaseModule {
         return SignUpUseCase(signUpRepository)
     }
 
-    /*
-    스튜디오
-     */
+    /* 스튜디오 */
 
     @Provides
     @ViewModelScoped
@@ -89,9 +111,7 @@ object UseCaseModule {
         return ScrapCancelUseCase(studioRepository)
     }
 
-    /*
-    일정
-     */
+    /* 일정 */
 
     @Provides
     @ViewModelScoped
@@ -111,9 +131,7 @@ object UseCaseModule {
         return GetScheduleUseCase(scheduleRepository)
     }
 
-    /*
-    리뷰
-     */
+    /* 리뷰 */
 
     @Provides
     @ViewModelScoped
@@ -157,9 +175,13 @@ object UseCaseModule {
         return DislikeReviewUseCase(reviewRepository)
     }
 
-    /*
-    커뮤니티
-    */
+    /* 커뮤니티 */
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetCommunityListUseCase(communityRepository: CommunityRepository): GetCommunityListUseCase {
+        return GetCommunityListUseCase(communityRepository)
+    }
 
     @Provides
     @ViewModelScoped
@@ -233,9 +255,13 @@ object UseCaseModule {
         return DislikeCommunityCommentUseCase(communityRepository)
     }
 
-    /*
-    질문
-     */
+    /* 질문 */
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetQuestionListUseCase(questionRepository: QuestionRepository): GetQuestionListUseCase {
+        return GetQuestionListUseCase(questionRepository)
+    }
 
     @Provides
     @ViewModelScoped
@@ -309,13 +335,25 @@ object UseCaseModule {
         return DislikeQuestionCommentUseCase(questionRepository)
     }
 
-    /*
-    눈바디
-     */
+    /* 눈바디 */
 
     @Provides
     @ViewModelScoped
     fun provideWriteEyeBodyUseCase(eyeBodyRepository: EyeBodyRepository): WriteEyeBodyUseCase {
         return WriteEyeBodyUseCase(eyeBodyRepository)
+    }
+
+    /* 마이페이지 */
+
+    @Provides
+    @ViewModelScoped
+    fun provideSetMainTabIndexUseCase(myPageRepository: MyPageRepository): SetMainTabIndexUseCase {
+        return SetMainTabIndexUseCase(myPageRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetMainTabIndexUseCase(myPageRepository: MyPageRepository): GetMainTabIndexUseCase {
+        return GetMainTabIndexUseCase(myPageRepository)
     }
 }

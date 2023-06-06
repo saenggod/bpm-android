@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/bind">
+    xmlns:bind="http://schemas.android.com/bind"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -9,20 +10,55 @@
             name="vm"
             type="com.team.bpm.presentation.ui.main.mypage.MyPageViewModel" />
 
+        <import type="com.team.bpm.presentation.ui.main.mypage.MyPageContract.Event" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/action_bar"
-            layout="@layout/layout_action_bar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            bind:backEnable="@{false}"
-            bind:titleText="@{@string/nav_mypage}" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Font.Pretendard.Semibold.18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_mypage"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="액션바" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/icon_noti"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginVertical="15dp"
+                android:layout_marginEnd="18dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> vm.onClickNotification()}"
+                android:src="@drawable/ic_noti_new"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/gray_09"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="0dp"
@@ -174,84 +210,89 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/divider_profile_post_scarp" />
 
-                <include
-                    android:id="@+id/book_info"
-                    layout="@layout/layout_mypage_book"
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/content_profile_edit"
+                    style="@style/Font.Pretendard.Medium.15"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="14dp"
-                    android:clickable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:onClick="@{() -> vm.onClickProfile()}"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="20.5dp"
+                    android:text="@string/mypage_content_profile_edit"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/divider_profile" />
 
-                <include
-                    android:id="@+id/content_history_bf"
-                    layout="@layout/layout_mypage_content_disable"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/book_info"
-                    app:onItemClick="@{vm.clickDisable}"
-                    bind:content="@{@string/mypage_content_history_bf}" />
-
-                <include
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/content_history_post"
-                    layout="@layout/layout_mypage_content_disable"
+                    style="@style/Font.Pretendard.Medium.15"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:onClick="@{() -> vm.onClickPointHistory()}"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="20.5dp"
+                    android:text="@string/mypage_content_history_post"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/content_history_bf"
-                    app:onItemClick="@{vm.clickDisable}"
-                    bind:content="@{@string/mypage_content_history_post}" />
+                    app:layout_constraintTop_toBottomOf="@id/content_profile_edit" />
 
                 <View
-                    android:id="@+id/divider_book_info"
+                    android:id="@+id/divider_history_post"
                     android:layout_width="0dp"
                     android:layout_height="8dp"
-                    android:layout_marginTop="8dp"
                     android:background="@color/gray_12"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/content_history_post" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/content_profile_edit"
+                    android:id="@+id/content_edit_start_tab"
                     style="@style/Font.Pretendard.Medium.15"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="wrap_content"
+                    android:foreground="?android:attr/selectableItemBackground"
                     android:gravity="center_vertical"
+                    android:onClick="@{() -> vm.onClickSetStartTab()}"
                     android:paddingHorizontal="20dp"
-                    android:text="@string/mypage_content_profile_edit"
+                    android:paddingVertical="20.5dp"
+                    android:text="@string/mypage_content_edit_start_tab"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/divider_book_info" />
+                    app:layout_constraintTop_toBottomOf="@id/divider_history_post" />
 
-                <include
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/content_notice"
-                    layout="@layout/layout_mypage_content_disable"
+                    style="@style/Font.Pretendard.Medium.15"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:onClick="@{() -> vm.onClickNotice()}"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="20.5dp"
+                    android:text="@string/mypage_content_notice"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/content_profile_edit"
-                    app:onItemClick="@{vm.clickDisable}"
-                    bind:content="@{@string/mypage_content_notice}" />
+                    app:layout_constraintTop_toBottomOf="@id/content_edit_start_tab" />
 
-                <include
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/content_version"
-                    layout="@layout/layout_mypage_content_disable"
+                    style="@style/Font.Pretendard.Medium.15"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:onClick="@{() -> vm.onClickVersion()}"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="20.5dp"
+                    android:text="@string/mypage_content_version_info"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/content_notice"
-                    app:onItemClick="@{vm.clickDisable}"
-                    bind:content="@{@string/mypage_content_version_info}" />
+                    app:layout_constraintTop_toBottomOf="@id/content_notice" />
 
                 <View
                     android:layout_width="0dp"
@@ -264,5 +305,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
