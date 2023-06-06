@@ -367,7 +367,6 @@ private fun CommunityDetailActivityContent(
                                         }
                                     }
                                 )
-<<<<<<< f53ba35f303f340a2fe554a61e035c1c102e0cc9:presentation/src/main/java/com/team/bpm/presentation/ui/main/community/community_detail/CommunityDetailActivity.kt
 
                                 BPMSpacer(height = 22.dp)
 
@@ -375,70 +374,6 @@ private fun CommunityDetailActivityContent(
                                     scrollState.animateScrollTo(redirectCommentScrollPosition.value)
                                 }
                             }
-=======
-                        ) {
-                            val redirectCommentScrollPosition = remember { mutableStateOf(0) }
-
-<<<<<<< main:presentation/src/main/java/com/team/bpm/presentation/ui/main/community/community_detail/CommunityDetailActivity.kt
-//                            it.forEach { comment ->
-//                                CommentComposable(
-//                                    modifier = Modifier
-//                                        .onGloballyPositioned {
-//                                            if (redirectCommentId == comment.id) {
-//                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-//                                            }
-//                                        }
-//                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
-//                                    comment = comment,
-//                                    onClickLike = { commentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentLike(commentId)) },
-//                                    onClickActionButton = { commentId ->
-//                                        focusManager.clearFocus()
-//                                        if (comment.parentId == null) {
-//                                            event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(commentId))
-//                                        } else {
-//                                            comment.parentId?.let { parentCommentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentActionButton(parentCommentId)) }
-//                                        }
-//                                    }
-//                                )
-
-//                                BPMSpacer(height = 22.dp)
-//                            }
-=======
-                            it.forEach { comment ->
-                                CommentComposable(
-                                    modifier = Modifier
-                                        .onGloballyPositioned {
-                                            if (redirectCommentId == comment.id) {
-                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-                                            }
-                                        }
-                                        .background(color = if (parentCommentId == comment.id) HighlightColor else Color.White),
-                                    comment = comment,
-                                    onClickLike = { commentId -> event.invoke(
-                                        CommunityDetailContract.Event.OnClickCommentLike(commentId)
-                                    ) },
-                                    onClickActionButton = { commentId ->
-                                        focusManager.clearFocus()
-                                        if (comment.parentId == null) {
-                                            event.invoke(
-                                                CommunityDetailContract.Event.OnClickCommentActionButton(
-                                                    commentId
-                                                )
-                                            )
-                                        } else {
-                                            comment.parentId?.let { parentCommentId -> event.invoke(
-                                                CommunityDetailContract.Event.OnClickCommentActionButton(
-                                                    parentCommentId
-                                                )
-                                            ) }
-                                        }
-                                    }
-                                )
-
-                                BPMSpacer(height = 22.dp)
-                            }
->>>>>>> [BPM-141] 메인 탭 패키지 정리, API 연결:presentation/src/main/java/com/team/bpm/presentation/ui/main/lounge/community/detail/CommunityDetailActivity.kt
->>>>>>> [BPM-141] 메인 탭 패키지 정리, API 연결:presentation/src/main/java/com/team/bpm/presentation/ui/main/lounge/community/detail/CommunityDetailActivity.kt
                         }
                     }
                 }
@@ -475,11 +410,7 @@ private fun CommunityDetailActivityContent(
                                     .align(TopEnd)
                                     .clickableWithoutRipple {
                                         if (commentTextFieldState.value.isNotEmpty()) {
-                                            event.invoke(
-                                                CommunityDetailContract.Event.OnClickSendComment(
-                                                    comment = commentTextFieldState.value
-                                                )
-                                            )
+                                            event.invoke(CommunityDetailContract.Event.OnClickSendComment(comment = commentTextFieldState.value))
                                         }
                                     },
                                 painter = painterResource(id = R.drawable.ic_send_comment),
