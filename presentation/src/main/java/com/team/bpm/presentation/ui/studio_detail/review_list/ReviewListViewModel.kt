@@ -3,10 +3,10 @@ package com.team.bpm.presentation.ui.studio_detail.review_list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
-import com.team.bpm.domain.usecase.review.DislikeReviewUseCase
-import com.team.bpm.domain.usecase.review.GetReviewListUseCase
-import com.team.bpm.domain.usecase.review.LikeReviewUseCase
+import com.team.bpm.domain.usecase.review.*
+import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
+import com.team.bpm.presentation.model.BottomSheetButton
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -17,9 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReviewListViewModel @Inject constructor(
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val reviewListUseCase: GetReviewListUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
     private val dislikeReviewUseCase: DislikeReviewUseCase,
+    private val deleteReviewUseCase: DeleteReviewUseCase,
+    private val reportReviewUseCase: ReportReviewUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(), ReviewListContract {
 
@@ -30,6 +33,10 @@ class ReviewListViewModel @Inject constructor(
     override val effect: SharedFlow<ReviewListContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: ReviewListContract.Event) = when (event) {
+        is ReviewListContract.Event.GetUserId -> {
+            getUserId()
+        }
+
         is ReviewListContract.Event.GetReviewList -> {
             getReviewList()
         }
@@ -57,11 +64,51 @@ class ReviewListViewModel @Inject constructor(
         is ReviewListContract.Event.OnClickReviewLikeButton -> {
             onClickReviewLikeButton(event.reviewId)
         }
+
+        is ReviewListContract.Event.OnClickReportReview -> {
+            onClickReportReview()
+        }
+
+        is ReviewListContract.Event.OnClickReviewActionButton -> {
+            onClickReviewActionButton(event.review)
+        }
+
+        is ReviewListContract.Event.OnClickDeleteReview -> {
+            onClickDeleteReview()
+        }
+
+        is ReviewListContract.Event.OnClickSendReviewReport -> {
+            onClickSendReviewReport(event.reason)
+        }
+
+        is ReviewListContract.Event.OnClickBackButton -> {
+            onClickBackButton()
+        }
+
+        is ReviewListContract.Event.OnClickDismissNoticeDialog -> {
+            onClickDismissNoticeDialog()
+        }
+
+        is ReviewListContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
 
+        }
+    }
+
+    private fun getUserId() {
+        viewModelScope.launch(ioDispatcher) {
+            getKakaoIdUseCase().onEach { userId ->
+                withContext(mainImmediateDispatcher) {
+                    _state.update {
+                        it.copy(userId = userId)
+                    }
+                }
+            }.launchIn(viewModelScope + exceptionHandler)
         }
     }
 
@@ -204,6 +251,105 @@ class ReviewListViewModel @Inject constructor(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private fun onClickReviewActionButton(review: Review) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    selectedReview = review,
+                    bottomSheetButton = if (review.author?.id == state.value.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
+                    isBottomSheetShowing = true
+                )
+            }
+        }
+    }
+
+    private fun onClickDeleteReview() {
+        getStudioId()?.let { studioId ->
+            state.value.selectedReview?.id?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
+
+                    withContext(ioDispatcher) {
+                        deleteReviewUseCase(studioId, reviewId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(ReviewListContract.Effect.RefreshReviewList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickReportReview() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
+                )
+            }
+        }
+    }
+
+    private fun onClickSendReviewReport(reason: String) {
+        getStudioId()?.let { studioId ->
+            state.value.selectedReview?.id?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            isLoading = true,
+                            isReportDialogShowing = false
+                        )
+                    }
+
+                    withContext(ioDispatcher) {
+                        reportReviewUseCase(studioId, reviewId, reason).onEach {
+                            _state.update {
+                                it.copy(isLoading = false)
+                            }
+
+                            _effect.emit(ReviewListContract.Effect.RefreshReviewList)
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickBackButton() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isBottomSheetShowing = false,
+                    selectedReview = null
+                )
+            }
+        }
+    }
+
+    private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isNoticeDialogShowing = false
+                )
+            }
+        }
+    }
+
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isReportDialogShowing = false
+                )
             }
         }
     }
