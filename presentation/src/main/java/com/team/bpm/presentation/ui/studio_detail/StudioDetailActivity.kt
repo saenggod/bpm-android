@@ -129,10 +129,6 @@ private fun StudioDetailActivityContent(
                     context.showToast(effect.text)
                 }
 
-                is StudioDetailContract.Effect.LoadFailed -> {
-                    event.invoke(StudioDetailContract.Event.OnErrorOccurred)
-                }
-
                 is StudioDetailContract.Effect.Quit -> {
                     context.finish()
                 }
@@ -168,24 +164,12 @@ private fun StudioDetailActivityContent(
                     context.startActivity(navigationIntent)
                 }
 
-                is StudioDetailContract.Effect.GoToRegisterStudio -> {
-                    context.startActivity(RegisterStudioActivity.newIntent(context))
-                }
-
                 is StudioDetailContract.Effect.GoToWriteReview -> {
                     context.startActivity(WritingReviewActivity.newIntent(context, effect.studioId))
                 }
 
                 is StudioDetailContract.Effect.GoToReviewList -> {
                     context.startActivity(ReviewListActivity.newIntent(context, effect.studioId))
-                }
-
-                is StudioDetailContract.Effect.ExpandBottomSheet -> {
-                    bottomSheetState.show()
-                }
-
-                is StudioDetailContract.Effect.CollapseBottomSheet -> {
-                    bottomSheetState.hide()
                 }
 
                 is StudioDetailContract.Effect.RefreshReviewList -> {
@@ -209,6 +193,16 @@ private fun StudioDetailActivityContent(
 
                 StudioDetailTabType.REVIEW -> {
                     event.invoke(StudioDetailContract.Event.OnScrolledAtReviewArea)
+                }
+            }
+        }
+
+        LaunchedEffect(isBottomSheetShowing) {
+            isBottomSheetShowing?.let {
+                if (bottomSheetState.isVisible) {
+                    bottomSheetState.hide()
+                } else {
+                    bottomSheetState.show()
                 }
             }
         }
@@ -424,15 +418,6 @@ private fun StudioDetailActivityContent(
                                 fontWeight = SemiBold,
                                 fontSize = 16.sp,
                                 letterSpacing = 0.sp
-                            )
-
-                            Text(
-                                modifier = Modifier.clickableWithoutRipple { event.invoke(StudioDetailContract.Event.OnClickEditInfoSuggestion) },
-                                text = "정보 수정 제안",
-                                fontWeight = Medium,
-                                fontSize = 14.sp,
-                                letterSpacing = 0.sp,
-                                color = GrayColor4
                             )
                         }
 
@@ -911,13 +896,13 @@ private fun StudioDetailActivityContent(
                         NoticeDialog(
                             title = null,
                             content = noticeDialogContent,
-                            onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickQuit) }
+                            onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
                         )
                     }
                 }
 
                 BackHandler {
-                    if (isBottomSheetShowing) {
+                    if (isBottomSheetShowing == true) {
                         event.invoke(StudioDetailContract.Event.OnClickBackButton)
                     } else {
                         context.finish()

@@ -151,7 +151,7 @@ private fun ReviewListActivityContent(
                         ReviewComposable(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             review = review,
-                            onClickLike = { reviewId -> event.invoke(ReviewListContract.Event.OnClickReviewLikeButton(reviewId)) },
+                            onClickLike = { reviewId -> event.invoke(ReviewListContract.Event.OnClickReviewLike(reviewId)) },
                             onClickActionButton = { event.invoke(ReviewListContract.Event.OnClickReviewActionButton(review)) }
                         )
                     }

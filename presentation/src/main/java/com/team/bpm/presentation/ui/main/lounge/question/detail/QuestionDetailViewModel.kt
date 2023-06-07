@@ -18,18 +18,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuestionDetailViewModel @Inject constructor(
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
-    private val getQuestionCommentListUseCase: GetQuestionCommentListUseCase,
     private val deleteQuestionUseCase: DeleteQuestionUseCase,
     private val reportQuestionUseCase: ReportQuestionUseCase,
-    private val writeQuestionCommentUseCase: WriteQuestionCommentUseCase,
     private val likeQuestionUseCase: LikeQuestionUseCase,
     private val dislikeQuestionUseCase: DislikeQuestionUseCase,
+    private val writeQuestionCommentUseCase: WriteQuestionCommentUseCase,
+    private val getQuestionCommentListUseCase: GetQuestionCommentListUseCase,
     private val deleteQuestionCommentUseCase: DeleteQuestionCommentUseCase,
     private val reportQuestionCommentUseCase: ReportQuestionCommentUseCase,
     private val likeQuestionCommentUseCase: LikeQuestionCommentUseCase,
     private val dislikeQuestionCommentUseCase: DislikeQuestionCommentUseCase,
-    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(), QuestionDetailContract {
 
@@ -48,10 +48,6 @@ class QuestionDetailViewModel @Inject constructor(
             getQuestionDetail()
         }
 
-        is QuestionDetailContract.Event.GetCommentList -> {
-            getCommentList()
-        }
-
         is QuestionDetailContract.Event.OnClickQuestionActionButton -> {
             onClickQuestionActionButton()
         }
@@ -68,14 +64,21 @@ class QuestionDetailViewModel @Inject constructor(
             onClickSendQuestionReport(event.reason)
         }
 
+        is QuestionDetailContract.Event.OnClickLike -> {
+            onClickLike()
+        }
+
         is QuestionDetailContract.Event.OnClickSendComment -> {
             onClickSendComment(parentId = event.parentId, comment = event.comment)
         }
 
+        is QuestionDetailContract.Event.GetCommentList -> {
+            getCommentList()
+        }
+
         is QuestionDetailContract.Event.OnClickCommentActionButton -> {
             onClickCommentActionButton(
-                selectedCommentId = event.commentId,
-                selectedCommentAuthorId = event.authorId,
+                selectedComment = event.comment,
                 parentCommentId = event.parentCommentId
             )
         }
@@ -104,10 +107,6 @@ class QuestionDetailViewModel @Inject constructor(
             onClickSendCommentReport(event.reason)
         }
 
-        is QuestionDetailContract.Event.OnClickLike -> {
-            onClickLike()
-        }
-
         is QuestionDetailContract.Event.OnClickCommentLike -> {
             onClickCommentLike(event.commentId)
         }
@@ -123,10 +122,6 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
-    private fun getQuestionId(): Int? {
-        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
-    }
-
     private fun getUserId() {
         viewModelScope.launch(ioDispatcher) {
             getKakaoIdUseCase().onEach { result ->
@@ -139,6 +134,10 @@ class QuestionDetailViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope + exceptionHandler)
         }
+    }
+
+    private fun getQuestionId(): Int? {
+        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
     }
 
     private fun getQuestionDetail() {
@@ -166,42 +165,6 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
-    private fun getCommentList() {
-        getQuestionId()?.let { questionId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isCommentListLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    getQuestionCommentListUseCase(questionId).onEach { result ->
-                        withContext(mainImmediateDispatcher) {
-                            val commentList = mutableListOf<Comment>().apply {
-                                result.comments?.forEach { comment ->
-                                    add(comment)
-
-                                    comment.children?.let { childrenCommentList ->
-                                        childrenCommentList.forEach { childComment ->
-                                            add(childComment)
-                                        }
-                                    }
-                                }
-                            }
-
-                            _state.update {
-                                it.copy(
-                                    isCommentListLoading = false,
-                                    commentList = commentList,
-                                    commentsCount = result.commentsCount ?: result.comments?.size
-                                )
-                            }
-                        }
-                    }.launchIn(viewModelScope + exceptionHandler)
-                }
-            }
-        }
-    }
-
     private fun onClickQuestionActionButton() {
         state.value.question?.author?.id?.let { questionAuthorId ->
             viewModelScope.launch {
@@ -219,8 +182,6 @@ class QuestionDetailViewModel @Inject constructor(
                         isBottomSheetShowing = true
                     )
                 }
-
-                _effect.emit(QuestionDetailContract.Effect.ExpandBottomSheet)
             }
         }
     }
@@ -251,8 +212,6 @@ class QuestionDetailViewModel @Inject constructor(
                     isReportDialogShowing = true
                 )
             }
-
-            _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
         }
     }
 
@@ -278,146 +237,6 @@ class QuestionDetailViewModel @Inject constructor(
                             }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
-                }
-            }
-        }
-    }
-
-    private fun onClickSendComment(parentId: Int?, comment: String) {
-        getQuestionId()?.let { questionId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    writeQuestionCommentUseCase(questionId = questionId, parentId = parentId, comment = comment).onEach { result ->
-                        withContext(mainImmediateDispatcher) {
-                            _state.update {
-                                it.copy(
-                                    isLoading = false,
-                                    redirectCommentId = result.id,
-                                    selectedCommentId = null,
-                                    selectedCommentAuthorId = null,
-                                    parentCommentId = null
-                                )
-                            }
-
-                            _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
-                        }
-                    }.launchIn(viewModelScope + exceptionHandler)
-                }
-            }
-        }
-    }
-
-    private fun onClickCommentActionButton(
-        selectedCommentId: Int,
-        selectedCommentAuthorId: Long,
-        parentCommentId: Int?
-    ) {
-        viewModelScope.launch {
-            _state.update {
-                val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
-                    add(BottomSheetButton.REPLY_COMMENT)
-                    if (selectedCommentAuthorId == state.value.userId) {
-                        add(BottomSheetButton.DELETE_COMMENT)
-                    } else {
-                        add(BottomSheetButton.REPORT_COMMENT)
-                    }
-                }
-
-                it.copy(
-                    selectedCommentId = selectedCommentId,
-                    selectedCommentAuthorId = selectedCommentAuthorId,
-                    parentCommentId = parentCommentId,
-                    bottomSheetButtonList = bottomSheetButtonList,
-                    isBottomSheetShowing = true
-                )
-            }
-
-            _effect.emit(QuestionDetailContract.Effect.ExpandBottomSheet)
-        }
-    }
-
-    private fun onClickReplyComment() {
-        viewModelScope.launch {
-            _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
-        }
-    }
-
-    private fun onClickDeleteComment() {
-        getQuestionId()?.let { questionId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
-                viewModelScope.launch {
-                    _state.update {
-                        it.copy(isCommentListLoading = true)
-                    }
-
-                    withContext(ioDispatcher) {
-                        deleteQuestionCommentUseCase(questionId, selectedCommentId).onEach {
-                            withContext(mainImmediateDispatcher) {
-                                _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
-                                _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
-                            }
-                        }.launchIn(viewModelScope + exceptionHandler)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun onClickReportComment() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    reportType = ReportType.COMMENT,
-                    isReportDialogShowing = true
-                )
-            }
-
-            _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
-        }
-    }
-
-    private fun onClickDismissReportDialog() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isReportDialogShowing = false)
-            }
-        }
-    }
-
-    private fun onClickDismissNoticeDialog() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isNoticeDialogShowing = false)
-            }
-        }
-    }
-
-    private fun onClickSendCommentReport(reason: String) {
-        getQuestionId()?.let { questionId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
-                viewModelScope.launch {
-                    _state.update {
-                        it.copy(
-                            isCommentListLoading = true,
-                            isReportDialogShowing = false
-                        )
-                    }
-
-                    withContext(ioDispatcher) {
-                        reportQuestionCommentUseCase(questionId, selectedCommentId, reason).onEach {
-                            withContext(mainImmediateDispatcher) {
-                                _state.update {
-                                    it.copy(isCommentListLoading = false)
-                                }
-
-                                _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
-                            }
-                        }.launchIn(viewModelScope + exceptionHandler)
-                    }
                 }
             }
         }
@@ -465,6 +284,164 @@ class QuestionDetailViewModel @Inject constructor(
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickSendComment(parentId: Int?, comment: String) {
+        getQuestionId()?.let { questionId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    writeQuestionCommentUseCase(questionId = questionId, parentId = parentId, comment = comment).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    redirectCommentId = result.id,
+                                    selectedCommentId = null,
+                                    selectedCommentAuthorId = null,
+                                    parentCommentId = null
+                                )
+                            }
+
+                            _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
+    private fun getCommentList() {
+        getQuestionId()?.let { questionId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isCommentListLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    getQuestionCommentListUseCase(questionId).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            val commentList = mutableListOf<Comment>().apply {
+                                result.comments?.forEach { comment ->
+                                    add(comment)
+
+                                    comment.children?.let { childrenCommentList ->
+                                        childrenCommentList.forEach { childComment ->
+                                            add(childComment)
+                                        }
+                                    }
+                                }
+                            }
+
+                            _state.update {
+                                it.copy(
+                                    isCommentListLoading = false,
+                                    commentList = commentList,
+                                    commentsCount = result.commentsCount ?: result.comments?.size
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
+    private fun onClickCommentActionButton(
+        selectedComment: Comment,
+        parentCommentId: Int?
+    ) {
+        selectedComment.id?.let { commentId ->
+            selectedComment.author?.id?.let { authorId ->
+                viewModelScope.launch {
+                    _state.update {
+                        val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
+                            add(BottomSheetButton.REPLY_COMMENT)
+                            if (authorId == state.value.userId) {
+                                add(BottomSheetButton.DELETE_COMMENT)
+                            } else {
+                                add(BottomSheetButton.REPORT_COMMENT)
+                            }
+                        }
+
+                        it.copy(
+                            selectedCommentId = commentId,
+                            selectedCommentAuthorId = authorId,
+                            parentCommentId = parentCommentId,
+                            bottomSheetButtonList = bottomSheetButtonList,
+                            isBottomSheetShowing = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickReplyComment() {
+        viewModelScope.launch {
+            _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
+        }
+    }
+
+    private fun onClickDeleteComment() {
+        getQuestionId()?.let { questionId ->
+            state.value.selectedCommentId?.let { selectedCommentId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isCommentListLoading = true)
+                    }
+
+                    withContext(ioDispatcher) {
+                        deleteQuestionCommentUseCase(questionId, selectedCommentId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickReportComment() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reportType = ReportType.COMMENT,
+                    isReportDialogShowing = true
+                )
+            }
+        }
+    }
+
+    private fun onClickSendCommentReport(reason: String) {
+        getQuestionId()?.let { questionId ->
+            state.value.selectedCommentId?.let { selectedCommentId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            isCommentListLoading = true,
+                            isReportDialogShowing = false
+                        )
+                    }
+
+                    withContext(ioDispatcher) {
+                        reportQuestionCommentUseCase(questionId, selectedCommentId, reason).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(isCommentListLoading = false)
+                                }
+
+                                _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
                     }
                 }
             }
@@ -519,6 +496,22 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isReportDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isNoticeDialogShowing = false)
+            }
+        }
+    }
+
     private fun onClickBackButton() {
         viewModelScope.launch {
             _state.update {
@@ -529,8 +522,6 @@ class QuestionDetailViewModel @Inject constructor(
                     parentCommentId = null
                 )
             }
-
-            _effect.emit(QuestionDetailContract.Effect.CollapseBottomSheet)
         }
     }
 }

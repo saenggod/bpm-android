@@ -6,22 +6,34 @@ import com.team.bpm.presentation.model.BottomSheetButton
 
 interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewListContract.Event, ReviewListContract.Effect> {
     data class State(
-        val isLoading: Boolean = false,
         val userId: Long? = null,
+        val isLoading: Boolean = false,
         val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,
         val selectedReview: Review? = null,
         val isBottomSheetShowing: Boolean? = null,
-        val isNoticeDialogShowing: Boolean = false,
+        val bottomSheetButton: BottomSheetButton? = null,
         val isReportDialogShowing: Boolean = false,
+        val isNoticeDialogShowing: Boolean = false,
         val noticeDialogContent: String? = null,
-        val bottomSheetButton: BottomSheetButton? = null
     )
 
     sealed interface Event {
         object GetUserId : Event
+
+        data class OnClickReviewActionButton(val review: Review) : Event
+
+        object OnClickWriteReview : Event
+
+        object OnClickDeleteReview : Event
+
+        object OnClickReportReview : Event
+
+        data class OnClickSendReviewReport(val reason: String) : Event
+
+        data class OnClickReviewLike(val reviewId: Int) : Event
 
         object GetReviewList : Event
 
@@ -33,21 +45,9 @@ interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewList
 
         object OnClickSortByDate : Event
 
-        object OnClickWriteReview : Event
-
-        data class OnClickReviewLikeButton(val reviewId: Int) : Event
-
-        data class OnClickReviewActionButton(val review: Review) : Event
-
-        object OnClickDeleteReview : Event
-
-        object OnClickReportReview : Event
-
-        data class OnClickSendReviewReport(val reason: String) : Event
+        object OnClickDismissReportDialog : Event
 
         object OnClickDismissNoticeDialog : Event
-
-        object OnClickDismissReportDialog : Event
 
         object OnClickBackButton : Event
     }

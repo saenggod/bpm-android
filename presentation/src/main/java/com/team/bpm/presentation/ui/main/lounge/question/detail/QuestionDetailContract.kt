@@ -8,22 +8,22 @@ import com.team.bpm.presentation.model.ReportType
 
 interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, QuestionDetailContract.Event, QuestionDetailContract.Effect> {
     data class State(
-        val isLoading: Boolean = false,
-        val isCommentListLoading: Boolean = false,
         val userId: Long? = null,
-        val isBottomSheetShowing: Boolean = false,
+        val isLoading: Boolean = false,
         val question: Question? = null,
+        val liked: Boolean? = null,
+        val likeCount: Int? = null,
+        val isCommentListLoading: Boolean = false,
         val commentList: List<Comment> = emptyList(),
         val commentsCount: Int? = 0,
         val redirectCommentId: Int? = null,
         val selectedCommentId: Int? = null,
         val selectedCommentAuthorId: Long? = null,
         val parentCommentId: Int? = null,
-        val liked: Boolean? = null,
-        val likeCount: Int? = null,
+        val isBottomSheetShowing: Boolean? = null,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
-        val reportType: ReportType? = null,
         val isReportDialogShowing: Boolean = false,
+        val reportType: ReportType? = null,
         val isNoticeDialogShowing: Boolean = false,
         val noticeDialogContent: String = ""
     )
@@ -33,8 +33,6 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         object GetQuestionDetail : Event
 
-        object GetCommentList : Event
-
         object OnClickQuestionActionButton : Event
 
         object OnClickDeleteQuestion : Event
@@ -43,14 +41,17 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         data class OnClickSendQuestionReport(val reason: String) : Event
 
+        object OnClickLike : Event
+
         data class OnClickSendComment(
             val parentId: Int?,
             val comment: String
         ) : Event
 
+        object GetCommentList : Event
+
         data class OnClickCommentActionButton(
-            val commentId: Int,
-            val authorId: Long,
+            val comment: Comment,
             val parentCommentId: Int?
         ) : Event
 
@@ -60,15 +61,13 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         object OnClickReportComment : Event
 
-        object OnClickDismissReportDialog : Event
-
-        object OnClickDismissNoticeDialog : Event
-
-        object OnClickLike : Event
+        data class OnClickSendCommentReport(val reason: String) : Event
 
         data class OnClickCommentLike(val commentId: Int) : Event
 
-        data class OnClickSendCommentReport(val reason: String) : Event
+        object OnClickDismissReportDialog : Event
+
+        object OnClickDismissNoticeDialog : Event
 
         object OnClickBackButton : Event
     }
@@ -77,10 +76,6 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         data class ShowToast(val text: String) : Effect
 
         object RefreshCommentList : Effect
-
-        object ExpandBottomSheet : Effect
-
-        object CollapseBottomSheet : Effect
 
         object ShowKeyboard : Effect
 

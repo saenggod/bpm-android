@@ -18,11 +18,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ReviewDetailViewModel @Inject constructor(
     private val getKakaoIdUseCase: GetKakaoIdUseCase,
-    private val getReviewDetailUseCase: GetReviewDetailUseCase,
-    private val likeReviewUseCase: LikeReviewUseCase,
-    private val dislikeReviewUseCase: DislikeReviewUseCase,
     private val deleteReviewUseCase: DeleteReviewUseCase,
     private val reportReviewUseCase: ReportReviewUseCase,
+    private val likeReviewUseCase: LikeReviewUseCase,
+    private val dislikeReviewUseCase: DislikeReviewUseCase,
+    private val getReviewDetailUseCase: GetReviewDetailUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(), ReviewDetailContract {
 
@@ -35,10 +35,6 @@ class ReviewDetailViewModel @Inject constructor(
     override fun event(event: ReviewDetailContract.Event) = when (event) {
         is ReviewDetailContract.Event.GetUserId -> {
             getUserId()
-        }
-
-        is ReviewDetailContract.Event.GetReviewDetail -> {
-            getReviewDetail()
         }
 
         is ReviewDetailContract.Event.OnClickLike -> {
@@ -61,6 +57,14 @@ class ReviewDetailViewModel @Inject constructor(
             onClickSendReviewReport(event.reason)
         }
 
+        is ReviewDetailContract.Event.GetReviewDetail -> {
+            getReviewDetail()
+        }
+
+        is ReviewDetailContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
+        }
+
         is ReviewDetailContract.Event.OnClickDismissNoticeDialog -> {
             onClickDismissNoticeDialog()
         }
@@ -68,27 +72,12 @@ class ReviewDetailViewModel @Inject constructor(
         is ReviewDetailContract.Event.OnClickBackButton -> {
             onClickBackButton()
         }
-
-        is ReviewDetailContract.Event.OnClickDismissReportDialog -> {
-            onClickDismissReportDialog()
-        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
 
         }
-    }
-
-    private fun getBundle(): Bundle? {
-        return savedStateHandle.get<Bundle>(ReviewDetailActivity.KEY_BUNDLE)
-    }
-
-    private val reviewInfo: Pair<Int?, Int?> by lazy {
-        Pair(
-            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID) ?: 1,
-            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID) ?: 66
-        )
     }
 
     private fun getUserId() {
@@ -105,79 +94,15 @@ class ReviewDetailViewModel @Inject constructor(
         }
     }
 
-    private fun getReviewDetail() {
-        reviewInfo.first?.let { studioId ->
-            reviewInfo.second?.let { reviewId ->
-                viewModelScope.launch {
-                    _state.update {
-                        it.copy(isLoading = true)
-                    }
-
-                    withContext(ioDispatcher) {
-                        getReviewDetailUseCase(studioId, reviewId).onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                _state.update {
-                                    it.copy(
-                                        isLoading = false,
-                                        review = result,
-                                        liked = result.liked,
-                                        likeCount = result.likeCount
-                                    )
-                                }
-                            }
-                        }.launchIn(viewModelScope + exceptionHandler)
-                    }
-                }
-            }
-        }
+    private fun getBundle(): Bundle? {
+        return savedStateHandle.get<Bundle>(ReviewDetailActivity.KEY_BUNDLE)
     }
 
-    private fun onClickLike() {
-        reviewInfo.first?.let { studioId ->
-            reviewInfo.second?.let { reviewId ->
-                viewModelScope.launch {
-                    _state.update { it.copy(isLoading = true) }
-
-                    withContext(ioDispatcher) {
-                        state.value.liked?.let {
-                            when (it) {
-                                true -> {
-                                    dislikeReviewUseCase(studioId, reviewId).onEach { result ->
-                                        withContext(mainImmediateDispatcher) {
-                                            _state.update { state ->
-                                                state.copy(
-                                                    isLoading = false,
-                                                    liked = false,
-                                                    likeCount = state.likeCount?.minus(1)
-                                                )
-                                            }
-
-                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰 추천을 취소하였습니다."))
-                                        }
-                                    }.launchIn(viewModelScope + exceptionHandler)
-                                }
-
-                                false -> {
-                                    likeReviewUseCase(studioId, reviewId).onEach { result ->
-                                        withContext(mainImmediateDispatcher) {
-                                            _state.update { state ->
-                                                state.copy(
-                                                    isLoading = false,
-                                                    liked = true,
-                                                    likeCount = state.likeCount?.plus(1)
-                                                )
-                                            }
-
-                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰를 추천하였습니다."))
-                                        }
-                                    }.launchIn(viewModelScope + exceptionHandler)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    private val reviewInfo: Pair<Int?, Int?> by lazy {
+        Pair(
+            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID) ?: 1,
+            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID) ?: 66
+        )
     }
 
     private fun onClickReviewActionButton() {
@@ -249,6 +174,81 @@ class ReviewDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(
 
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onClickLike() {
+        reviewInfo.first?.let { studioId ->
+            reviewInfo.second?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update { it.copy(isLoading = true) }
+
+                    withContext(ioDispatcher) {
+                        state.value.liked?.let {
+                            when (it) {
+                                true -> {
+                                    dislikeReviewUseCase(studioId, reviewId).onEach { result ->
+                                        withContext(mainImmediateDispatcher) {
+                                            _state.update { state ->
+                                                state.copy(
+                                                    isLoading = false,
+                                                    liked = false,
+                                                    likeCount = state.likeCount?.minus(1)
+                                                )
+                                            }
+
+                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰 추천을 취소하였습니다."))
+                                        }
+                                    }.launchIn(viewModelScope + exceptionHandler)
+                                }
+
+                                false -> {
+                                    likeReviewUseCase(studioId, reviewId).onEach { result ->
+                                        withContext(mainImmediateDispatcher) {
+                                            _state.update { state ->
+                                                state.copy(
+                                                    isLoading = false,
+                                                    liked = true,
+                                                    likeCount = state.likeCount?.plus(1)
+                                                )
+                                            }
+
+                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰를 추천하였습니다."))
+                                        }
+                                    }.launchIn(viewModelScope + exceptionHandler)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getReviewDetail() {
+        reviewInfo.first?.let { studioId ->
+            reviewInfo.second?.let { reviewId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
+
+                    withContext(ioDispatcher) {
+                        getReviewDetailUseCase(studioId, reviewId).onEach { result ->
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        review = result,
+                                        liked = result.liked,
+                                        likeCount = result.likeCount
                                     )
                                 }
                             }

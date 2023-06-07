@@ -37,6 +37,30 @@ class ReviewListViewModel @Inject constructor(
             getUserId()
         }
 
+        is ReviewListContract.Event.OnClickWriteReview -> {
+            onClickWriteReview()
+        }
+
+        is ReviewListContract.Event.OnClickReviewActionButton -> {
+            onClickReviewActionButton(event.review)
+        }
+
+        is ReviewListContract.Event.OnClickDeleteReview -> {
+            onClickDeleteReview()
+        }
+
+        is ReviewListContract.Event.OnClickReportReview -> {
+            onClickReportReview()
+        }
+
+        is ReviewListContract.Event.OnClickSendReviewReport -> {
+            onClickSendReviewReport(event.reason)
+        }
+
+        is ReviewListContract.Event.OnClickReviewLike -> {
+            onClickReviewLike(event.reviewId)
+        }
+
         is ReviewListContract.Event.GetReviewList -> {
             getReviewList()
         }
@@ -57,40 +81,16 @@ class ReviewListViewModel @Inject constructor(
             onClickSortByDate()
         }
 
-        is ReviewListContract.Event.OnClickWriteReview -> {
-            onClickWriteReview()
-        }
-
-        is ReviewListContract.Event.OnClickReviewLikeButton -> {
-            onClickReviewLikeButton(event.reviewId)
-        }
-
-        is ReviewListContract.Event.OnClickReportReview -> {
-            onClickReportReview()
-        }
-
-        is ReviewListContract.Event.OnClickReviewActionButton -> {
-            onClickReviewActionButton(event.review)
-        }
-
-        is ReviewListContract.Event.OnClickDeleteReview -> {
-            onClickDeleteReview()
-        }
-
-        is ReviewListContract.Event.OnClickSendReviewReport -> {
-            onClickSendReviewReport(event.reason)
-        }
-
-        is ReviewListContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is ReviewListContract.Event.OnClickDismissReportDialog -> {
+            onClickDismissReportDialog()
         }
 
         is ReviewListContract.Event.OnClickDismissNoticeDialog -> {
             onClickDismissNoticeDialog()
         }
 
-        is ReviewListContract.Event.OnClickDismissReportDialog -> {
-            onClickDismissReportDialog()
+        is ReviewListContract.Event.OnClickBackButton -> {
+            onClickBackButton()
         }
     }
 
@@ -116,141 +116,10 @@ class ReviewListViewModel @Inject constructor(
         return savedStateHandle.get<Int>(ReviewListActivity.KEY_STUDIO_ID)
     }
 
-    private fun getReviewList() {
-        getStudioId()?.let { studioId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    reviewListUseCase(studioId).onEach { result ->
-                        withContext(mainImmediateDispatcher) {
-                            _state.update {
-                                it.copy(
-                                    isLoading = false,
-                                    originalReviewList = result.reviews ?: emptyList(),
-                                    reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
-                                )
-                            }
-                        }
-                    }.launchIn(viewModelScope + exceptionHandler)
-                }
-            }
-        }
-    }
-
-    private fun onClickShowImageReviewsOnly() {
-        viewModelScope.launch {
-            _state.update {
-                val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = true,
-                    reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-                    else filteredList.sortedByDescending { review -> review.createdAt })
-            }
-        }
-    }
-
-    private fun onClickShowNotOnlyImageReviews() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = false,
-                    reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
-                    else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
-            }
-        }
-    }
-
-    private fun onClickSortByLike() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
-                    isReviewListSortedByLike = true
-                )
-            }
-        }
-    }
-
-    private fun onClickSortByDate() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
-                    isReviewListSortedByLike = false
-                )
-            }
-        }
-    }
-
     private fun onClickWriteReview() {
         getStudioId()?.let { studioId ->
             viewModelScope.launch {
                 _effect.emit(ReviewListContract.Effect.GoToWriteReview(studioId))
-            }
-        }
-    }
-
-    private fun sortRefreshedReviewList(list: List<Review>): List<Review> {
-        val filteredList = if (state.value.isReviewListShowingImageReviewsOnly) {
-            list.filter { it.filesPath?.isNotEmpty() == true }
-        } else {
-            list
-        }
-
-        return if (state.value.isReviewListSortedByLike) {
-            filteredList.sortedByDescending { it.likeCount }
-        } else {
-            filteredList.sortedByDescending { it.createdAt }
-        }
-    }
-
-    private fun onClickReviewLikeButton(reviewId: Int) {
-        getStudioId()?.let { studioId ->
-            state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
-                viewModelScope.launch(ioDispatcher) {
-                    when (selectedReview.liked) {
-                        true -> {
-                            dislikeReviewUseCase(studioId, reviewId).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
-                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                            this[targetIndex] = this[targetIndex].copy(
-                                                liked = false,
-                                                likeCount = this[targetIndex].likeCount?.minus(1)
-                                            )
-                                        }))
-                                    }
-                                }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
-
-                        false -> {
-                            likeReviewUseCase(studioId, reviewId).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
-                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
-                                            this[targetIndex] = this[targetIndex].copy(
-                                                liked = true,
-                                                likeCount = this[targetIndex].likeCount?.plus(1)
-                                            )
-                                        }))
-                                    }
-                                }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
-
-                        null -> {
-                            withContext(mainImmediateDispatcher) {
-                                _effect.emit(ReviewListContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -323,12 +192,144 @@ class ReviewListViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onClickReviewLike(reviewId: Int) {
+        getStudioId()?.let { studioId ->
+            state.value.reviewList.find { review -> review.id == reviewId }?.let { selectedReview ->
+                viewModelScope.launch(ioDispatcher) {
+                    when (selectedReview.liked) {
+                        true -> {
+                            dislikeReviewUseCase(studioId, reviewId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                            this[targetIndex] = this[targetIndex].copy(
+                                                liked = false,
+                                                likeCount = this[targetIndex].likeCount?.minus(1)
+                                            )
+                                        }))
+                                    }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
+
+                        false -> {
+                            likeReviewUseCase(studioId, reviewId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                            val targetIndex = indexOf(find { review -> review.id == reviewId })
+                                            this[targetIndex] = this[targetIndex].copy(
+                                                liked = true,
+                                                likeCount = this[targetIndex].likeCount?.plus(1)
+                                            )
+                                        }))
+                                    }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
+
+                        null -> {
+                            withContext(mainImmediateDispatcher) {
+                                _effect.emit(ReviewListContract.Effect.ShowToast("좋아요 기능을 사용할 수 없습니다."))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getReviewList() {
+        getStudioId()?.let { studioId ->
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
+
+                withContext(ioDispatcher) {
+                    reviewListUseCase(studioId).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    originalReviewList = result.reviews ?: emptyList(),
+                                    reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            }
+        }
+    }
+
+    private fun onClickShowImageReviewsOnly() {
+        viewModelScope.launch {
+            _state.update {
+                val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
+                it.copy(
+                    isReviewListShowingImageReviewsOnly = true,
+                    reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
+                    else filteredList.sortedByDescending { review -> review.createdAt }
+                )
+            }
+        }
+    }
+
+    private fun onClickShowNotOnlyImageReviews() {
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    isBottomSheetShowing = false,
-                    selectedReview = null
+                    isReviewListShowingImageReviewsOnly = false,
+                    reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
+                    else state.value.originalReviewList.sortedByDescending { review -> review.createdAt }
+                )
+            }
+        }
+    }
+
+    private fun onClickSortByLike() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
+                    isReviewListSortedByLike = true
+                )
+            }
+        }
+    }
+
+    private fun onClickSortByDate() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
+                    isReviewListSortedByLike = false
+                )
+            }
+        }
+    }
+
+    private fun sortRefreshedReviewList(list: List<Review>): List<Review> {
+        val filteredList = if (state.value.isReviewListShowingImageReviewsOnly) {
+            list.filter { it.filesPath?.isNotEmpty() == true }
+        } else {
+            list
+        }
+
+        return if (state.value.isReviewListSortedByLike) {
+            filteredList.sortedByDescending { it.likeCount }
+        } else {
+            filteredList.sortedByDescending { it.createdAt }
+        }
+    }
+
+    private fun onClickDismissReportDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isReportDialogShowing = false
                 )
             }
         }
@@ -344,11 +345,12 @@ class ReviewListViewModel @Inject constructor(
         }
     }
 
-    private fun onClickDismissReportDialog() {
+    private fun onClickBackButton() {
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    isReportDialogShowing = false
+                    isBottomSheetShowing = false,
+                    selectedReview = null
                 )
             }
         }
