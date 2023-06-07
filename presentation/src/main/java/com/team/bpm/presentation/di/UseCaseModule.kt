@@ -1,35 +1,11 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
-import com.team.bpm.domain.usecase.community.DeleteCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DeleteCommunityUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.DislikeCommunityUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityCommentListUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityDetailUseCase
-import com.team.bpm.domain.usecase.community.GetCommunityListUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.LikeCommunityUseCase
-import com.team.bpm.domain.usecase.community.ReportCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.ReportCommunityUseCase
-import com.team.bpm.domain.usecase.community.WriteCommunityCommentUseCase
-import com.team.bpm.domain.usecase.community.WriteCommunityUseCase
+import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
 import com.team.bpm.domain.usecase.mypage.GetMainTabIndexUseCase
 import com.team.bpm.domain.usecase.mypage.SetMainTabIndexUseCase
-import com.team.bpm.domain.usecase.question.DeleteQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
-import com.team.bpm.domain.usecase.question.DislikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.DislikeQuestionUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionCommentListUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionDetailUseCase
-import com.team.bpm.domain.usecase.question.GetQuestionListUseCase
-import com.team.bpm.domain.usecase.question.LikeQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.LikeQuestionUseCase
-import com.team.bpm.domain.usecase.question.ReportQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.ReportQuestionUseCase
-import com.team.bpm.domain.usecase.question.WriteQuestionCommentUseCase
-import com.team.bpm.domain.usecase.question.WriteQuestionUseCase
+import com.team.bpm.domain.usecase.question.*
 import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.domain.usecase.register_studio.register_location.GetAddressNameUseCase
 import com.team.bpm.domain.usecase.review.*
@@ -40,6 +16,7 @@ import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.domain.usecase.splash.SetKakaoIdUseCase
+import com.team.bpm.domain.usecase.studio.GetMyScrapListUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.studio.ScrapUseCase
@@ -109,6 +86,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideScrapCancelUseCase(studioRepository: StudioRepository): ScrapCancelUseCase {
         return ScrapCancelUseCase(studioRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetMyScrapListUseCase(studioRepository: StudioRepository): GetMyScrapListUseCase {
+        return GetMyScrapListUseCase(studioRepository)
     }
 
     /* 일정 */
