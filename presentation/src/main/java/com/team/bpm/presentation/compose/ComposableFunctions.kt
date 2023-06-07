@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
@@ -63,12 +62,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.Review
+import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.clip
 import com.team.bpm.presentation.util.convertUriToBitmap
 import com.team.bpm.presentation.util.dateOnly
 
@@ -103,7 +104,7 @@ fun ScreenHeader(
             Text(
                 modifier = Modifier.align(Center),
                 text = header,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = SemiBold,
                 fontSize = 18.sp,
                 letterSpacing = 0.sp
             )
@@ -170,7 +171,7 @@ inline fun RoundedCornerButton(
             modifier = Modifier.align(Center),
             text = text,
             color = if (enabled == true) textColor else GrayColor7,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = SemiBold,
             fontSize = 16.sp,
             letterSpacing = 0.sp
         )
@@ -201,10 +202,173 @@ inline fun OutLinedRoundedCornerButton(
             modifier = Modifier.align(Center),
             text = text,
             color = textColor,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = SemiBold,
             fontSize = 16.sp,
             letterSpacing = 0.sp
         )
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun StudioComposable(
+    studio: Studio,
+    onClickStudio: (Int) -> Unit,
+    onClickScrapButton: (Int) -> Unit
+) {
+    with(studio) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickableWithoutRipple { studio.id?.let { onClickStudio(it) } }
+        ) {
+            BPMSpacer(height = 18.dp)
+
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = SpaceBetween,
+                    verticalAlignment = CenterVertically
+                ) {
+                    Text(
+                        text = name ?: "",
+                        fontWeight = SemiBold,
+                        fontSize = 15.sp,
+                        letterSpacing = 0.sp
+                    )
+
+                    Image(
+                        modifier = Modifier.clickableWithoutRipple { studio.id?.let { onClickScrapButton(it) } },
+                        painter = painterResource(id = R.drawable.ic_scrap_active),
+                        contentDescription = "scrapIcon",
+                    )
+                }
+
+                BPMSpacer(height = 2.dp)
+
+                Text(
+                    text = content ?: "",
+                    fontWeight = Medium,
+                    fontSize = 12.sp,
+                    letterSpacing = 0.sp,
+                    color = GrayColor4
+                )
+
+                BPMSpacer(height = 2.dp)
+
+                Row(verticalAlignment = CenterVertically) {
+                    Icon(
+                        modifier = Modifier.size(12.dp),
+                        painter = painterResource(id = R.drawable.ic_star_small_filled),
+                        contentDescription = "starIcon",
+                        tint = MainGreenColor
+                    )
+
+                    BPMSpacer(width = 4.dp)
+
+                    Text(
+                        text = rating?.clip()!!,
+                        fontWeight = Medium,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor4
+                    )
+
+                    BPMSpacer(width = 12.dp)
+
+                    Text(
+                        text = "리뷰 ",
+                        fontWeight = Medium,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor4
+                    )
+
+                    Text(
+                        text = "${reviewCount ?: 0}",
+                        fontWeight = Medium,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor1
+                    )
+
+                    BPMSpacer(width = 12.dp)
+
+                    Text(
+                        text = "스크랩 수 ",
+                        fontWeight = Medium,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor4
+                    )
+
+                    Text(
+                        text = "${scrapCount ?: 0}",
+                        fontWeight = Medium,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.sp,
+                        color = GrayColor1
+                    )
+                }
+
+                BPMSpacer(height = 8.dp)
+            }
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                studio.topRecommends?.map { it.first }?.let { keywords ->
+                    items(keywords) { keyword ->
+                        Box(
+                            modifier = Modifier
+                                .border(
+                                    width = 1.dp,
+                                    color = GrayColor8,
+                                    shape = RoundedCornerShape(60.dp)
+                                )
+                                .height(26.dp)
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .align(Center),
+                                text = keyword,
+                                fontWeight = Normal,
+                                fontSize = 10.sp,
+                                letterSpacing = 0.sp,
+                                color = GrayColor1
+                            )
+                        }
+                    }
+                }
+            }
+
+            BPMSpacer(height = 10.dp)
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Absolute.spacedBy(4.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(filesPath!!) { image ->
+                    GlideImage(
+                        modifier = Modifier
+                            .clip(shape = RoundedCornerShape(10.dp))
+                            .width(120.dp)
+                            .height(150.dp),
+                        model = image,
+                        contentDescription = "studioImage",
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+
+            BPMSpacer(height = 22.dp)
+
+            Divider(color = GrayColor10)
+        }
     }
 }
 
@@ -408,7 +572,7 @@ fun ReviewComposable(
 
                     Text(
                         text = author?.nickname ?: "",
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = SemiBold,
                         fontSize = 14.sp,
                         letterSpacing = 0.sp
                     )
@@ -523,7 +687,6 @@ fun ReviewComposable(
 
         Divider(color = GrayColor13)
     }
-
 }
 
 @Composable
@@ -571,7 +734,7 @@ inline fun LikeButton(
 
             Text(
                 text = "$likeCount",
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = SemiBold,
                 fontSize = 12.sp,
                 letterSpacing = 0.sp,
                 color = if (liked) MainGreenColor else MainBlackColor
@@ -654,7 +817,7 @@ inline fun ReviewListHeader(
         ) {
             Text(
                 text = "업체 리뷰",
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = SemiBold,
                 fontSize = 16.sp,
                 letterSpacing = 0.sp
             )
@@ -748,7 +911,7 @@ inline fun ImagePlaceHolder(
         Box(modifier = Modifier
             .size(100.dp)
             .background(color = GrayColor10)
-            .align(Alignment.BottomStart)
+            .align(BottomStart)
             .clickableWithoutRipple {
                 onClick()
                 focusManager.clearFocus()

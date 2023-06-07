@@ -60,6 +60,13 @@ interface MainApi {
         @Path("studioId") studioId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
+    @GET("api/users/scrap")
+    suspend fun fetchMyScrapList(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = Int.MAX_VALUE,
+        @Query("sort") sort: String = ""
+    ): Response<BPMResponseV2<StudioListResponse>>
+
     /* 일정 */
 
     @POST("api/users/schedule")

@@ -117,11 +117,15 @@
             android:name=".ui.main.lounge.community.eye_body_posting.EyeBodyPostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" 
-            android:theme="@style/Theme.Bpm.NoActionBar" />
-            
+            android:theme="@style/Theme.Bpm.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.main.mypage.starttab.MyPageStartTabActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Bpm.NoActionBar" />
+        <activity
+            android:name=".ui.main.mypage.myscrap.MyScrapActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
