@@ -112,14 +112,6 @@ private fun QuestionDetailActivityContent(
                     event.invoke(QuestionDetailContract.Event.GetCommentList)
                 }
 
-                is QuestionDetailContract.Effect.ExpandBottomSheet -> {
-                    bottomSheetState.show()
-                }
-
-                is QuestionDetailContract.Effect.CollapseBottomSheet -> {
-                    bottomSheetState.hide()
-                }
-
                 is QuestionDetailContract.Effect.ShowKeyboard -> {
                     bottomSheetState.hide()
                     focusRequester.requestFocus()
@@ -134,6 +126,16 @@ private fun QuestionDetailActivityContent(
     }
 
     with(state) {
+        LaunchedEffect(isBottomSheetShowing) {
+            isBottomSheetShowing?.let {
+                if (bottomSheetState.isVisible) {
+                    bottomSheetState.hide()
+                } else {
+                    bottomSheetState.show()
+                }
+            }
+        }
+
         ModalBottomSheetLayout(
             modifier = Modifier
                 .imePadding()
@@ -356,8 +358,7 @@ private fun QuestionDetailActivityContent(
                                             comment.author?.id?.let { authorId ->
                                                 event.invoke(
                                                     QuestionDetailContract.Event.OnClickCommentActionButton(
-                                                        commentId = commentId,
-                                                        authorId = authorId,
+                                                        comment = comment,
                                                         parentCommentId = comment.parentId ?: commentId
                                                     )
                                                 )
@@ -455,7 +456,7 @@ private fun QuestionDetailActivityContent(
                 }
 
                 BackHandler {
-                    if (isBottomSheetShowing) {
+                    if (isBottomSheetShowing == true) {
                         event.invoke(QuestionDetailContract.Event.OnClickBackButton)
                     } else {
                         context.finish()

@@ -115,14 +115,6 @@ private fun CommunityDetailActivityContent(
                     event.invoke(CommunityDetailContract.Event.GetCommentList)
                 }
 
-                is CommunityDetailContract.Effect.ExpandBottomSheet -> {
-                    bottomSheetState.show()
-                }
-
-                is CommunityDetailContract.Effect.CollapseBottomSheet -> {
-                    bottomSheetState.hide()
-                }
-
                 is CommunityDetailContract.Effect.ShowKeyboard -> {
                     bottomSheetState.hide()
                     focusRequester.requestFocus()
@@ -137,6 +129,16 @@ private fun CommunityDetailActivityContent(
     }
 
     with(state) {
+        LaunchedEffect(isBottomSheetShowing) {
+            isBottomSheetShowing?.let {
+                if (bottomSheetState.isVisible) {
+                    bottomSheetState.hide()
+                } else {
+                    bottomSheetState.show()
+                }
+            }
+        }
+
         ModalBottomSheetLayout(
             modifier = Modifier
                 .imePadding()
@@ -156,7 +158,8 @@ private fun CommunityDetailActivityContent(
                                     BottomSheetButton.DELETE_COMMENT -> CommunityDetailContract.Event.OnClickDeleteComment
                                     BottomSheetButton.REPORT_COMMENT -> CommunityDetailContract.Event.OnClickReportComment
                                     else -> null
-                                }?.let { event.invoke(it)
+                                }?.let {
+                                    event.invoke(it)
                                 }
                             }
                         )
@@ -357,11 +360,7 @@ private fun CommunityDetailActivityContent(
                                         comment.id?.let { commentId ->
                                             comment.author?.id?.let { authorId ->
                                                 event.invoke(
-                                                    CommunityDetailContract.Event.OnClickCommentActionButton(
-                                                        commentId = commentId,
-                                                        authorId = authorId,
-                                                        parentCommentId = comment.parentId ?: commentId
-                                                    )
+                                                    CommunityDetailContract.Event.OnClickCommentActionButton(comment = comment)
                                                 )
                                             }
                                         }
@@ -452,7 +451,7 @@ private fun CommunityDetailActivityContent(
                 }
 
                 BackHandler {
-                    if (isBottomSheetShowing) {
+                    if (isBottomSheetShowing == true) {
                         event.invoke(CommunityDetailContract.Event.OnClickBackButton)
                     } else {
                         context.finish()
