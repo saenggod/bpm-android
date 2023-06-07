@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class ScrapCancelUseCase @Inject constructor(private val studioRepository: StudioRepository) {
     suspend operator fun invoke(studioId: Int): Flow<Unit> {
-        return studioRepository.sendStudioScrap(studioId)
+        return studioRepository.deleteStudioScrap(studioId)
     }
 }
