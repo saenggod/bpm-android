@@ -39,7 +39,7 @@ interface MainApi {
         @Query("q") query: String
     ): Response<BPMResponseV2<StudioListResponse>>
 
-    @GET("api/studio/list")
+    @GET("api/studio")
     suspend fun getStudioList(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
