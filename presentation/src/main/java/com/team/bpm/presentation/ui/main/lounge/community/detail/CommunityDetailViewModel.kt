@@ -181,7 +181,10 @@ class CommunityDetailViewModel @Inject constructor(
         getCommunityId()?.let { communityId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isLoading = true)
+                    it.copy(
+                        isLoading = true,
+                        isBottomSheetShowing = false
+                    )
                 }
 
                 withContext(ioDispatcher) {
@@ -200,7 +203,8 @@ class CommunityDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     reportType = ReportType.POST,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
                 )
             }
         }
@@ -390,7 +394,8 @@ class CommunityDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     reportType = ReportType.COMMENT,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
                 )
             }
         }

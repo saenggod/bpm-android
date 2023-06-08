@@ -141,7 +141,10 @@ class ReviewListViewModel @Inject constructor(
             state.value.selectedReview?.id?.let { reviewId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isLoading = true)
+                        it.copy(
+                            isLoading = true,
+                            isBottomSheetShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {

@@ -131,7 +131,10 @@ class ReviewDetailViewModel @Inject constructor(
             reviewInfo.second?.let { reviewId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isLoading = true)
+                        it.copy(
+                            isLoading = true,
+                            isBottomSheetShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {

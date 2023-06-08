@@ -435,7 +435,10 @@ class StudioDetailViewModel @Inject constructor(
         getStudioId()?.let { studioId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isLoading = true)
+                    it.copy(
+                        isLoading = true,
+                        isBottomSheetShowing = false
+                    )
                 }
 
                 state.value.selectedReview?.id?.let { reviewId ->
@@ -464,7 +467,10 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickReportReview() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isReportDialogShowing = true)
+                it.copy(
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
+                )
             }
         }
     }

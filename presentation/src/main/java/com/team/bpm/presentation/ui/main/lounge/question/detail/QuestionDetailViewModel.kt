@@ -190,7 +190,10 @@ class QuestionDetailViewModel @Inject constructor(
         getQuestionId()?.let { questionId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isLoading = true)
+                    it.copy(
+                        isLoading = true,
+                        isBottomSheetShowing = false
+                    )
                 }
 
                 withContext(ioDispatcher) {
@@ -209,7 +212,8 @@ class QuestionDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     reportType = ReportType.POST,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
                 )
             }
         }
@@ -411,7 +415,8 @@ class QuestionDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     reportType = ReportType.COMMENT,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
                 )
             }
         }
