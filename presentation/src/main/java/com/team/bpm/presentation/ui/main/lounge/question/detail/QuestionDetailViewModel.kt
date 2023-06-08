@@ -306,7 +306,8 @@ class QuestionDetailViewModel @Inject constructor(
                                     redirectCommentId = result.id,
                                     selectedCommentId = null,
                                     selectedCommentAuthorId = null,
-                                    parentCommentId = null
+                                    parentCommentId = null,
+                                    isReplying = false
                                 )
                             }
 
@@ -387,7 +388,10 @@ class QuestionDetailViewModel @Inject constructor(
     private fun onClickReplyComment() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isBottomSheetShowing = false)
+                it.copy(
+                    isBottomSheetShowing = false,
+                    isReplying = true
+                )
             }
 
             _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
@@ -524,7 +528,7 @@ class QuestionDetailViewModel @Inject constructor(
                     isBottomSheetShowing = false,
                     selectedCommentId = null,
                     selectedCommentAuthorId = null,
-                    parentCommentId = null
+                    parentCommentId = if (it.isReplying) it.parentCommentId else null
                 )
             }
         }

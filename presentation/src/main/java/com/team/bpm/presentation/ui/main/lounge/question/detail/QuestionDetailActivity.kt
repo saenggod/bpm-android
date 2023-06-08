@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.main.lounge.question.detail
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
