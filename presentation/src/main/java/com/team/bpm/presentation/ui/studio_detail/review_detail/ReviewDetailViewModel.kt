@@ -203,8 +203,6 @@ class ReviewDetailViewModel @Inject constructor(
                                                     likeCount = state.likeCount?.minus(1)
                                                 )
                                             }
-
-                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰 추천을 취소하였습니다."))
                                         }
                                     }.launchIn(viewModelScope + exceptionHandler)
                                 }
@@ -219,8 +217,6 @@ class ReviewDetailViewModel @Inject constructor(
                                                     likeCount = state.likeCount?.plus(1)
                                                 )
                                             }
-
-                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰를 추천하였습니다."))
                                         }
                                     }.launchIn(viewModelScope + exceptionHandler)
                                 }

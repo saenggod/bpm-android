@@ -253,8 +253,6 @@ class CommunityDetailViewModel @Inject constructor(
                                                 likeCount = state.value.likeCount?.minus(1)
                                             )
                                         }
-
-                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("질문 추천을 취소하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
@@ -269,8 +267,6 @@ class CommunityDetailViewModel @Inject constructor(
                                                 likeCount = state.value.likeCount?.plus(1)
                                             )
                                         }
-
-                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("질문을 추천하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }

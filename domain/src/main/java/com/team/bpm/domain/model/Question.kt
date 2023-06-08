@@ -12,7 +12,7 @@ data class Question(
     val author: User?,
     val createdAt: String?,
     val updatedAt: String?,
-    val favorited: Boolean?,
-    val favoritesCount: Int?,
+    val liked: Boolean?,
+    val likeCount: Int?,
     val commentsCount: Int?
 ) : BaseModel
