@@ -145,8 +145,8 @@ class CommunityDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     community = result,
-                                    liked = result.favorite,
-                                    likeCount = result.favoriteCount
+                                    liked = result.liked,
+                                    likeCount = result.likeCount
                                 )
                             }
                         }
