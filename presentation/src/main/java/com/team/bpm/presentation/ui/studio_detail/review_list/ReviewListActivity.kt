@@ -164,6 +164,7 @@ private fun ReviewListActivityContent(
                 if (isReportDialogShowing) {
                     TextFieldDialog(
                         title = "신고 사유를 작성해주세요",
+                        onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissReportDialog) },
                         onClickCancel = { event.invoke(ReviewListContract.Event.OnClickDismissReportDialog) },
                         onClickConfirm = { reason -> event.invoke(ReviewListContract.Event.OnClickSendReviewReport(reason)) }
                     )
@@ -174,6 +175,7 @@ private fun ReviewListActivityContent(
                         NoticeDialog(
                             title = null,
                             content = noticeDialogContent,
+                            onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) },
                             onClickConfirm = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
                         )
                     }

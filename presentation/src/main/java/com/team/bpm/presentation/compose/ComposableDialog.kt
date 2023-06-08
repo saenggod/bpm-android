@@ -28,9 +28,12 @@ import com.team.bpm.presentation.compose.theme.MainBlackColor
 import com.team.bpm.presentation.util.clickableWithoutRipple
 
 @Composable
-inline fun BaseComposableDialog(crossinline block: @Composable () -> Unit) {
+inline fun BaseComposableDialog(
+    crossinline onDismissRequest: () -> Unit,
+    crossinline block: @Composable () -> Unit
+) {
     Dialog(
-        onDismissRequest = {},
+        onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(
             dismissOnBackPress = true,
             dismissOnClickOutside = true
@@ -46,9 +49,14 @@ fun NoticeDialog(
     title: String?,
     content: String,
     confirmButtonText: String = "확인",
+    onDismissRequest: () -> Unit,
     onClickConfirm: (() -> Unit)?
 ) {
-    BaseComposableDialog {
+    BaseComposableDialog(
+        onDismissRequest = {
+            onDismissRequest()
+        }
+    ) {
         Box(
             modifier = Modifier
                 .shadow(elevation = 12.dp, shape = RoundedCornerShape(12.dp))
@@ -116,10 +124,15 @@ inline fun TextFieldDialog(
     hint: String = "내용을 입력해주세요.",
     cancelButtonText: String = "취소",
     confirmButtonText: String = "확인",
+    crossinline onDismissRequest: () -> Unit,
     crossinline onClickCancel: () -> Unit,
     crossinline onClickConfirm: (String) -> Unit
 ) {
-    BaseComposableDialog {
+    BaseComposableDialog(
+        onDismissRequest = {
+            onDismissRequest()
+        }
+    ) {
         Box(
             modifier = Modifier
                 .shadow(elevation = 12.dp, shape = RoundedCornerShape(12.dp))

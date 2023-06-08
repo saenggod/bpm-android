@@ -334,19 +334,21 @@ private fun ReviewDetailActivityContent(
                 LoadingScreen()
             }
 
+            if (isReportDialogShowing) {
+                TextFieldDialog(
+                    title = "신고 사유를 작성해주세요",
+                    onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
+                    onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
+                    onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
+                )
+            }
+
             if (isNoticeDialogShowing) {
                 NoticeDialog(
                     title = null,
                     content = noticeDialogContent,
+                    onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) },
                     onClickConfirm = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) }
-                )
-            }
-
-            if (isReportDialogShowing) {
-                TextFieldDialog(
-                    title = "신고 사유를 작성해주세요",
-                    onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
-                    onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
                 )
             }
         }

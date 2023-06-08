@@ -888,6 +888,7 @@ private fun StudioDetailActivityContent(
                 if (isReportDialogShowing) {
                     TextFieldDialog(
                         title = "신고 사유를 작성해주세요",
+                        onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                         onClickCancel = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                         onClickConfirm = { reason -> event.invoke(StudioDetailContract.Event.OnClickSendReviewReport(reason)) }
                     )
@@ -898,6 +899,7 @@ private fun StudioDetailActivityContent(
                         NoticeDialog(
                             title = null,
                             content = noticeDialogContent,
+                            onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                             onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
                         )
                     }

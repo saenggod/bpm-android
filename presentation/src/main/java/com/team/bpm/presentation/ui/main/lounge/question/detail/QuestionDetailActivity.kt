@@ -436,6 +436,7 @@ private fun QuestionDetailActivityContent(
                     reportType?.let { reportType ->
                         TextFieldDialog(
                             title = "신고 사유를 작성해주세요",
+                            onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
                             onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
                             onClickConfirm = { reason ->
                                 event.invoke(
@@ -453,6 +454,7 @@ private fun QuestionDetailActivityContent(
                     NoticeDialog(
                         title = null,
                         content = noticeDialogContent,
+                        onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) },
                         onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
                 }

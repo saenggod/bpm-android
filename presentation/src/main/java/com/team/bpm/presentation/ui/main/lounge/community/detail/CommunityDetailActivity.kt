@@ -428,6 +428,7 @@ private fun CommunityDetailActivityContent(
                     reportType?.let { reportType ->
                         TextFieldDialog(
                             title = "신고 사유를 작성해주세요",
+                            onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickCancel = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickConfirm = { reason ->
                                 event.invoke(
@@ -445,6 +446,8 @@ private fun CommunityDetailActivityContent(
                     NoticeDialog(
                         title = null,
                         content = noticeDialogContent,
+
+                        onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) },
                         onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
                 }
