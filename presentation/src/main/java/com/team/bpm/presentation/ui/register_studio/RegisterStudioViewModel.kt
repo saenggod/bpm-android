@@ -84,7 +84,7 @@ class RegisterStudioViewModel @Inject constructor(
                 if (recommendKeywordMap[keyword] == true) {
                     _state.update {
                         it.copy(
-                            recommendKeywordMap = state.value.recommendKeywordMap.toMutableMap().apply {
+                            recommendKeywordMap = it.recommendKeywordMap.toMutableMap().apply {
                                 this[keyword] = false
                             } as HashMap<String, Boolean>,
                             recommendKeywordCount = recommendKeywordCount - 1
@@ -96,7 +96,7 @@ class RegisterStudioViewModel @Inject constructor(
                     } else {
                         _state.update {
                             it.copy(
-                                recommendKeywordMap = state.value.recommendKeywordMap.toMutableMap().apply {
+                                recommendKeywordMap = it.recommendKeywordMap.toMutableMap().apply {
                                     this[keyword] = true
                                 } as HashMap<String, Boolean>,
                                 recommendKeywordCount = recommendKeywordCount + 1

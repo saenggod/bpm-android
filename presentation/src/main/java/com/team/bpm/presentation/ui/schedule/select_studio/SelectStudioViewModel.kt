@@ -68,7 +68,7 @@ class SelectStudioViewModel @Inject constructor(private val searchStudioUseCase:
     private fun onClickStudio(studio: Studio) {
         viewModelScope.launch {
             _state.update {
-                it.copy(selectedStudio = if (state.value.selectedStudio != studio) studio else null)
+                it.copy(selectedStudio = if (it.selectedStudio != studio) studio else null)
             }
         }
     }

@@ -110,7 +110,7 @@ class ReviewDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _state.update {
                     val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
-                        if (reviewAuthorId == state.value.userId) {
+                        if (reviewAuthorId == it.userId) {
                             add(BottomSheetButton.DELETE_POST)
                         } else {
                             add(BottomSheetButton.REPORT_POST)

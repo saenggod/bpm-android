@@ -362,7 +362,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         viewModelScope.launch {
             _state.update {
-                val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
+                val filteredList = it.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
                 it.copy(
                     isReviewListShowingImageReviewsOnly = true,
                     reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
@@ -386,7 +386,7 @@ class StudioDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
+                    reviewList = it.reviewList.sortedByDescending { review -> review.likeCount },
                     isReviewListSortedByLike = true
                 )
             }
@@ -397,7 +397,7 @@ class StudioDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
+                    reviewList = it.reviewList.sortedByDescending { review -> review.createdAt },
                     isReviewListSortedByLike = false
                 )
             }
@@ -423,7 +423,7 @@ class StudioDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    bottomSheetButton = if (review.author?.id == state.value.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
+                    bottomSheetButton = if (review.author?.id == it.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
                     isBottomSheetShowing = true,
                     selectedReview = review
                 )

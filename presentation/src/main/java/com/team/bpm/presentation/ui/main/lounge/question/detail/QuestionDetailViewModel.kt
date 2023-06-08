@@ -170,7 +170,7 @@ class QuestionDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _state.update {
                     val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
-                        if (questionAuthorId == state.value.userId) {
+                        if (questionAuthorId == it.userId) {
                             add(BottomSheetButton.DELETE_POST)
                         } else {
                             add(BottomSheetButton.REPORT_POST)
@@ -263,7 +263,7 @@ class QuestionDetailViewModel @Inject constructor(
                                             it.copy(
                                                 isLoading = false,
                                                 liked = false,
-                                                likeCount = state.value.likeCount?.minus(1)
+                                                likeCount = it.likeCount?.minus(1)
                                             )
                                         }
                                     }
@@ -277,7 +277,7 @@ class QuestionDetailViewModel @Inject constructor(
                                             it.copy(
                                                 isLoading = false,
                                                 liked = true,
-                                                likeCount = state.value.likeCount?.plus(1)
+                                                likeCount = it.likeCount?.plus(1)
                                             )
                                         }
                                     }
@@ -298,7 +298,7 @@ class QuestionDetailViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    writeQuestionCommentUseCase(questionId = questionId, parentId = parentId, comment = comment).onEach { result ->
+                    writeQuestionCommentUseCase(questionId, parentId, comment).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
                                 it.copy(
@@ -365,7 +365,7 @@ class QuestionDetailViewModel @Inject constructor(
                     _state.update {
                         val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
                             add(BottomSheetButton.REPLY_COMMENT)
-                            if (authorId == state.value.userId) {
+                            if (authorId == it.userId) {
                                 add(BottomSheetButton.DELETE_COMMENT)
                             } else {
                                 add(BottomSheetButton.REPORT_COMMENT)
@@ -467,7 +467,7 @@ class QuestionDetailViewModel @Inject constructor(
                         dislikeQuestionCommentUseCase(questionId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
+                                    it.copy(commentList = it.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = false,
@@ -483,7 +483,7 @@ class QuestionDetailViewModel @Inject constructor(
                         likeQuestionCommentUseCase(questionId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
+                                    it.copy(commentList = it.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = true,
