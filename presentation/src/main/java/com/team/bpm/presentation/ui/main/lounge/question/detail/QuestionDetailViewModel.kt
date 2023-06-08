@@ -111,8 +111,8 @@ class QuestionDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
-        is QuestionDetailContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is QuestionDetailContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
         }
     }
 
@@ -386,6 +386,10 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickReplyComment() {
         viewModelScope.launch {
+            _state.update {
+                it.copy(isBottomSheetShowing = false)
+            }
+
             _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
         }
     }
@@ -513,7 +517,7 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(

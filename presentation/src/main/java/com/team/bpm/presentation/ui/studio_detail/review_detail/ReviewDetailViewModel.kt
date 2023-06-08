@@ -69,8 +69,8 @@ class ReviewDetailViewModel @Inject constructor(
             onClickDismissNoticeDialog()
         }
 
-        is ReviewDetailContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is ReviewDetailContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
         }
     }
 
@@ -272,7 +272,7 @@ class ReviewDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(isBottomSheetShowing = false)

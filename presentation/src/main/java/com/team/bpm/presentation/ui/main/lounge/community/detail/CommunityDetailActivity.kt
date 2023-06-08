@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.main.lounge.community.detail
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -88,10 +87,7 @@ private fun CommunityDetailActivityContent(
     val context = getLocalContext()
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
-    val bottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { false }
-    )
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val commentTextFieldState = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -116,7 +112,6 @@ private fun CommunityDetailActivityContent(
                 }
 
                 is CommunityDetailContract.Effect.ShowKeyboard -> {
-                    bottomSheetState.hide()
                     focusRequester.requestFocus()
                     keyboardController?.show()
                 }
@@ -130,12 +125,16 @@ private fun CommunityDetailActivityContent(
 
     with(state) {
         LaunchedEffect(isBottomSheetShowing) {
-            isBottomSheetShowing?.let {
-                if (bottomSheetState.isVisible) {
-                    bottomSheetState.hide()
-                } else {
-                    bottomSheetState.show()
-                }
+            if (isBottomSheetShowing) {
+                bottomSheetState.show()
+            } else {
+                bottomSheetState.hide()
+            }
+        }
+
+        LaunchedEffect(bottomSheetState.isVisible) {
+            if (!bottomSheetState.isVisible) {
+                event.invoke(CommunityDetailContract.Event.OnBottomSheetHide)
             }
         }
 
@@ -448,14 +447,6 @@ private fun CommunityDetailActivityContent(
                         content = noticeDialogContent,
                         onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
-                }
-
-                BackHandler {
-                    if (isBottomSheetShowing == true) {
-                        event.invoke(CommunityDetailContract.Event.OnClickBackButton)
-                    } else {
-                        context.finish()
-                    }
                 }
             }
         }

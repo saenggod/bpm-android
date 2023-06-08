@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.studio_detail.review_detail
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -85,6 +84,8 @@ private fun ReviewDetailActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
+    val scrollState = rememberScrollState()
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     LaunchedEffect(Unit) {
         event.invoke(ReviewDetailContract.Event.GetUserId)
@@ -106,19 +107,17 @@ private fun ReviewDetailActivityContent(
     }
 
     with(state) {
-        val scrollState = rememberScrollState()
-        val bottomSheetState = rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            confirmStateChange = { false }
-        )
-
         LaunchedEffect(isBottomSheetShowing) {
-            isBottomSheetShowing?.let {
-                if (bottomSheetState.isVisible) {
-                    bottomSheetState.hide()
-                } else {
-                    bottomSheetState.show()
-                }
+            if (isBottomSheetShowing) {
+                bottomSheetState.show()
+            }
+        }
+
+        LaunchedEffect(bottomSheetState.isVisible) {
+            if (!bottomSheetState.isVisible) {
+                event.invoke(ReviewDetailContract.Event.OnBottomSheetHide)
+            } else {
+                bottomSheetState.hide()
             }
         }
 
@@ -349,14 +348,6 @@ private fun ReviewDetailActivityContent(
                     onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
                     onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
                 )
-            }
-
-            BackHandler {
-                if (bottomSheetState.isVisible) {
-                    event.invoke(ReviewDetailContract.Event.OnClickBackButton)
-                } else {
-                    context.finish()
-                }
             }
         }
     }

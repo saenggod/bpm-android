@@ -19,7 +19,7 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
         val redirectCommentId: Int? = null,
         val selectedCommentId: Int? = null,
         val selectedCommentAuthorId: Long? = null,
-        val isBottomSheetShowing: Boolean? = null,
+        val isBottomSheetShowing: Boolean = false,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
         val isReportDialogShowing: Boolean = false,
         val reportType: ReportType? = null,
@@ -60,7 +60,7 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
 
         object OnClickDismissNoticeDialog : Event
 
-        object OnClickBackButton : Event
+        object OnBottomSheetHide : Event
     }
 
     sealed interface Effect {

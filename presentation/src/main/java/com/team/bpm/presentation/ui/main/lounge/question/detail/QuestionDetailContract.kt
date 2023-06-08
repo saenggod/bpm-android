@@ -20,7 +20,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val selectedCommentId: Int? = null,
         val selectedCommentAuthorId: Long? = null,
         val parentCommentId: Int? = null,
-        val isBottomSheetShowing: Boolean? = null,
+        val isBottomSheetShowing: Boolean = false,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
         val isReportDialogShowing: Boolean = false,
         val reportType: ReportType? = null,
@@ -69,7 +69,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         object OnClickDismissNoticeDialog : Event
 
-        object OnClickBackButton : Event
+        object OnBottomSheetHide : Event
     }
 
     sealed interface Effect {

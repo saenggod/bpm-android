@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -63,10 +62,12 @@ import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
-import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
 import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
-import com.team.bpm.presentation.util.*
+import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.clip
+import com.team.bpm.presentation.util.dateOnly
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import net.daum.mf.map.api.MapPoint
@@ -102,10 +103,7 @@ private fun StudioDetailActivityContent(
     val heightFromTopToInfo = remember { mutableStateOf(0) }
     val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)
     val scrollPosition = remember { mutableStateOf(0) }
-    val bottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { false }
-    )
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     LaunchedEffect(Unit) {
         event.invoke(StudioDetailContract.Event.GetUserId)
@@ -198,12 +196,16 @@ private fun StudioDetailActivityContent(
         }
 
         LaunchedEffect(isBottomSheetShowing) {
-            isBottomSheetShowing?.let {
-                if (bottomSheetState.isVisible) {
-                    bottomSheetState.hide()
-                } else {
-                    bottomSheetState.show()
-                }
+            if (isBottomSheetShowing) {
+                bottomSheetState.show()
+            }
+        }
+
+        LaunchedEffect(bottomSheetState.isVisible) {
+            if (!bottomSheetState.isVisible) {
+                event.invoke(StudioDetailContract.Event.OnBottomSheetHide)
+            } else {
+                bottomSheetState.hide()
             }
         }
 
@@ -898,14 +900,6 @@ private fun StudioDetailActivityContent(
                             content = noticeDialogContent,
                             onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
                         )
-                    }
-                }
-
-                BackHandler {
-                    if (isBottomSheetShowing == true) {
-                        event.invoke(StudioDetailContract.Event.OnClickBackButton)
-                    } else {
-                        context.finish()
                     }
                 }
             }

@@ -104,8 +104,8 @@ class CommunityDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
-        is CommunityDetailContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is CommunityDetailContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
         }
     }
 
@@ -492,7 +492,7 @@ class CommunityDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(

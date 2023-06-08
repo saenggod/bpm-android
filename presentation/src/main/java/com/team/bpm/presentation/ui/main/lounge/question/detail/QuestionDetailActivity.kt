@@ -88,7 +88,7 @@ private fun QuestionDetailActivityContent(
     val context = getLocalContext()
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
-    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden, confirmStateChange = { false })
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val commentTextFieldState = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -113,7 +113,6 @@ private fun QuestionDetailActivityContent(
                 }
 
                 is QuestionDetailContract.Effect.ShowKeyboard -> {
-                    bottomSheetState.hide()
                     focusRequester.requestFocus()
                     keyboardController?.show()
                 }
@@ -127,12 +126,16 @@ private fun QuestionDetailActivityContent(
 
     with(state) {
         LaunchedEffect(isBottomSheetShowing) {
-            isBottomSheetShowing?.let {
-                if (bottomSheetState.isVisible) {
-                    bottomSheetState.hide()
-                } else {
-                    bottomSheetState.show()
-                }
+            if (isBottomSheetShowing) {
+                bottomSheetState.show()
+            } else {
+                bottomSheetState.hide()
+            }
+        }
+
+        LaunchedEffect(bottomSheetState.isVisible) {
+            if (!bottomSheetState.isVisible) {
+                event.invoke(QuestionDetailContract.Event.OnBottomSheetHide)
             }
         }
 
@@ -453,14 +456,6 @@ private fun QuestionDetailActivityContent(
                         content = noticeDialogContent,
                         onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
-                }
-
-                BackHandler {
-                    if (isBottomSheetShowing == true) {
-                        event.invoke(QuestionDetailContract.Event.OnClickBackButton)
-                    } else {
-                        context.finish()
-                    }
                 }
             }
         }

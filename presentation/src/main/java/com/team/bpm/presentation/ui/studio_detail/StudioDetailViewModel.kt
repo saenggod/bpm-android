@@ -145,8 +145,8 @@ class StudioDetailViewModel @Inject constructor(
             onClickDismissNoticeDialog()
         }
 
-        is StudioDetailContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is StudioDetailContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
         }
     }
 
@@ -569,7 +569,7 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(

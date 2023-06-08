@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.studio_detail.review_list
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,10 +55,7 @@ private fun ReviewListActivityContent(
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val lifecycleEvent = rememberLifecycleEvent()
-    val bottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { false }
-    )
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         LaunchedEffect(lifecycleEvent) {
@@ -87,12 +83,16 @@ private fun ReviewListActivityContent(
 
     with(state) {
         LaunchedEffect(isBottomSheetShowing) {
-            isBottomSheetShowing?.let {
-                if (bottomSheetState.isVisible) {
-                    bottomSheetState.hide()
-                } else {
-                    bottomSheetState.show()
-                }
+            if (isBottomSheetShowing) {
+                bottomSheetState.show()
+            } else {
+                bottomSheetState.hide()
+            }
+        }
+
+        LaunchedEffect(bottomSheetState.isVisible) {
+            if (!bottomSheetState.isVisible) {
+                event.invoke(ReviewListContract.Event.OnBottomSheetHide)
             }
         }
 
@@ -176,14 +176,6 @@ private fun ReviewListActivityContent(
                             content = noticeDialogContent,
                             onClickConfirm = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
                         )
-                    }
-                }
-
-                BackHandler {
-                    if (isBottomSheetShowing == true) {
-                        event.invoke(ReviewListContract.Event.OnClickBackButton)
-                    } else {
-                        context.finish()
                     }
                 }
             }

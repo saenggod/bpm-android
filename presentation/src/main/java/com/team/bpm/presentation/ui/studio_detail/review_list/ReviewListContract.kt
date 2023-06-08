@@ -13,7 +13,7 @@ interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewList
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,
         val selectedReview: Review? = null,
-        val isBottomSheetShowing: Boolean? = null,
+        val isBottomSheetShowing: Boolean = false,
         val bottomSheetButton: BottomSheetButton? = null,
         val isReportDialogShowing: Boolean = false,
         val isNoticeDialogShowing: Boolean = false,
@@ -49,7 +49,7 @@ interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewList
 
         object OnClickDismissNoticeDialog : Event
 
-        object OnClickBackButton : Event
+        object OnBottomSheetHide : Event
     }
 
     sealed interface Effect {
