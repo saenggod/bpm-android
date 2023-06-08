@@ -25,19 +25,15 @@ import androidx.compose.ui.window.DialogWindowProvider
 import com.team.bpm.presentation.compose.theme.GrayColor16
 import com.team.bpm.presentation.compose.theme.GrayColor5
 import com.team.bpm.presentation.compose.theme.MainBlackColor
-import com.team.bpm.presentation.model.ReportType
 import com.team.bpm.presentation.util.clickableWithoutRipple
 
 @Composable
-inline fun BaseComposableDialog(
-    isCancelable: Boolean,
-    crossinline block: @Composable () -> Unit,
-) {
+inline fun BaseComposableDialog(crossinline block: @Composable () -> Unit) {
     Dialog(
         onDismissRequest = {},
         properties = DialogProperties(
-            dismissOnBackPress = isCancelable,
-            dismissOnClickOutside = isCancelable
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
         )
     ) {
         (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f)
@@ -52,9 +48,7 @@ fun NoticeDialog(
     confirmButtonText: String = "확인",
     onClickConfirm: (() -> Unit)?
 ) {
-    BaseComposableDialog(
-        isCancelable = false,
-    ) {
+    BaseComposableDialog {
         Box(
             modifier = Modifier
                 .shadow(elevation = 12.dp, shape = RoundedCornerShape(12.dp))
@@ -125,9 +119,7 @@ inline fun TextFieldDialog(
     crossinline onClickCancel: () -> Unit,
     crossinline onClickConfirm: (String) -> Unit
 ) {
-    BaseComposableDialog(
-        isCancelable = false,
-    ) {
+    BaseComposableDialog {
         Box(
             modifier = Modifier
                 .shadow(elevation = 12.dp, shape = RoundedCornerShape(12.dp))
