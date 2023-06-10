@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -12,13 +13,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterStart
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,7 +28,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -53,7 +54,9 @@ import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
@@ -78,7 +81,7 @@ class QuestionDetailActivity : BaseComponentActivityV2() {
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun QuestionDetailActivityContent(
     viewModel: QuestionDetailViewModel = hiltViewModel()
@@ -91,6 +94,9 @@ private fun QuestionDetailActivityContent(
     val commentTextFieldState = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val commentScrollPosition = remember { mutableStateOf(0) }
+    val textFieldPosition = remember { mutableStateOf(0) }
+    val commentHeight = remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         event.invoke(QuestionDetailContract.Event.GetUserId)
@@ -111,9 +117,15 @@ private fun QuestionDetailActivityContent(
                     event.invoke(QuestionDetailContract.Event.GetCommentList)
                 }
 
-                is QuestionDetailContract.Effect.ShowKeyboard -> {
+                is QuestionDetailContract.Effect.SetUpToReply -> {
                     focusRequester.requestFocus()
                     keyboardController?.show()
+                    delay(600L)
+                    scrollState.animateScrollTo((commentScrollPosition.value - textFieldPosition.value) + (commentHeight.value * 2))
+                }
+
+                is QuestionDetailContract.Effect.StopReplying -> {
+                    focusManager.clearFocus()
                 }
 
                 is QuestionDetailContract.Effect.GoToQuestionList -> {
@@ -181,10 +193,10 @@ private fun QuestionDetailActivityContent(
                                 .padding(horizontal = 16.dp)
                                 .fillMaxWidth()
                                 .height(55.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            horizontalArrangement = SpaceBetween,
+                            verticalAlignment = CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(verticalAlignment = CenterVertically) {
                                 GlideImage(
                                     modifier = Modifier
                                         .clip(CircleShape)
@@ -204,7 +216,7 @@ private fun QuestionDetailActivityContent(
                                 )
                             }
 
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(verticalAlignment = CenterVertically) {
                                 Text(
                                     text = question?.createdAt?.dateOnly() ?: "",
                                     fontWeight = Medium,
@@ -332,131 +344,170 @@ private fun QuestionDetailActivityContent(
                         color = GrayColor10
                     )
 
-                    Column(
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = 20.dp
-                            )
-                    ) {
-                        val redirectCommentScrollPosition = remember { mutableStateOf(0) }
+                    BPMSpacer(height = 20.dp)
 
-                        if (isCommentListLoading) {
-                            LoadingBlock()
-                        } else {
-                            commentList.forEach { comment ->
-                                CommentComposable(
-                                    modifier = Modifier
-                                        .onGloballyPositioned {
-                                            if (redirectCommentId == comment.id) {
-                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-                                            }
-                                        }
-                                        .background(color = if (selectedCommentId == comment.id) HighlightColor else Color.White),
-                                    comment = comment,
-                                    onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
-                                    onClickActionButton = {
-                                        comment.id?.let { commentId ->
-                                            comment.author?.id?.let { authorId ->
-                                                event.invoke(
-                                                    QuestionDetailContract.Event.OnClickCommentActionButton(
-                                                        comment = comment,
-                                                        parentCommentId = comment.parentId ?: commentId
-                                                    )
-                                                )
-                                            }
+                    if (isCommentListLoading) {
+                        LoadingBlock()
+                    } else {
+                        commentList.forEach { comment ->
+                            CommentComposable(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .onGloballyPositioned {
+                                        if (commentIdToScroll == comment.id) {
+                                            commentScrollPosition.value = it.positionInParent().y.roundToInt()
+                                            commentHeight.value = it.size.height
                                         }
                                     }
-                                )
-
-                                BPMSpacer(height = 22.dp)
-
-                                LaunchedEffect(Unit) {
-                                    scrollState.animateScrollTo(redirectCommentScrollPosition.value)
+                                    .background(color = if (selectedComment?.id == comment.id) HighlightColor else Color.White),
+                                comment = comment,
+                                onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
+                                onClickActionButton = {
+                                    comment.id?.let { commentId ->
+                                        comment.author?.id?.let { authorId ->
+                                            event.invoke(
+                                                QuestionDetailContract.Event.OnClickCommentActionButton(
+                                                    comment = comment,
+                                                    parentCommentId = comment.parentId ?: commentId
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
+                            )
+
+                            BPMSpacer(height = 22.dp)
+
+                            LaunchedEffect(Unit) {
+                                scrollState.animateScrollTo(commentScrollPosition.value - commentHeight.value * 3)
                             }
                         }
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .align(BottomCenter)
-                        .fillMaxWidth()
-                        .heightIn(min = 54.dp)
-                        .background(color = Color.White)
-                ) {
-                    BPMTextField(
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = 10.dp
-                            )
-                            .focusRequester(focusRequester),
-                        textState = commentTextFieldState,
-                        label = null,
-                        limit = null,
-                        radius = 8.dp,
-                        minHeight = 34.dp,
-                        singleLine = true,
-                        hint = "댓글을 입력해보세요",
-                        icon = { hasFocus ->
-                            Icon(
+                val scope = rememberCoroutineScope()
+
+                Column(modifier = Modifier.align(BottomCenter)) {
+                    if (isReplying) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(35.dp)
+                                .background(color = GrayColor11)
+                                .clickableWithoutRipple { event.invoke(QuestionDetailContract.Event.OnClickCancelReplying) }
+                        ) {
+                            Row(
                                 modifier = Modifier
-                                    .padding(
-                                        top = 12.dp,
-                                        end = 16.dp
-                                    )
-                                    .size(20.dp)
-                                    .align(TopEnd)
-                                    .clickableWithoutRipple {
-                                        if (commentTextFieldState.value.isNotEmpty()) {
-                                            event.invoke(
-                                                QuestionDetailContract.Event.OnClickSendComment(
-                                                    parentId = parentCommentId,
-                                                    comment = commentTextFieldState.value
-                                                )
-                                            )
-                                        }
-                                    },
-                                painter = painterResource(id = R.drawable.ic_send_comment),
-                                contentDescription = "sendIconButton",
-                                tint = if (hasFocus) GrayColor2 else GrayColor5
-                            )
-                        },
-                        iconPadding = 20.dp
-                    )
-                }
+                                    .fillMaxWidth()
+                                    .align(Center),
+                                horizontalArrangement = SpaceBetween,
+                                verticalAlignment = CenterVertically
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(start = 19.dp),
+                                    text = "${selectedComment?.author?.nickname} 에게 댓글 작성 중 ...",
+                                    fontWeight = SemiBold,
+                                    fontSize = 10.sp,
+                                    letterSpacing = 0.sp,
+                                    color = GrayColor3
+                                )
 
-                if (isLoading) {
-                    LoadingScreen()
-                }
-
-                if (isReportDialogShowing) {
-                    reportType?.let { reportType ->
-                        TextFieldDialog(
-                            title = "신고 사유를 작성해주세요",
-                            onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
-                            onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
-                            onClickConfirm = { reason ->
-                                event.invoke(
-                                    when (reportType) {
-                                        ReportType.POST -> QuestionDetailContract.Event.OnClickSendQuestionReport(reason)
-                                        ReportType.COMMENT -> QuestionDetailContract.Event.OnClickSendCommentReport(reason)
-                                    }
+                                Text(
+                                    modifier = Modifier.padding(end = 17.dp),
+                                    text = "작성 취소",
+                                    fontWeight = SemiBold,
+                                    fontSize = 10.sp,
+                                    letterSpacing = 0.sp,
+                                    color = GrayColor3
                                 )
                             }
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 54.dp)
+                            .background(color = Color.White)
+                    ) {
+                        BPMTextField(
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = 16.dp,
+                                    vertical = 10.dp
+                                )
+                                .focusRequester(focusRequester)
+                                .onGloballyPositioned { coordinates ->
+                                    scope.launch {
+                                        delay(400L)
+                                        textFieldPosition.value = coordinates.positionInWindow().y.roundToInt()
+                                    }
+                                },
+                            textState = commentTextFieldState,
+                            label = null,
+                            limit = null,
+                            radius = 8.dp,
+                            minHeight = 34.dp,
+                            singleLine = true,
+                            hint = "댓글을 입력해보세요",
+                            icon = { hasFocus ->
+                                Icon(
+                                    modifier = Modifier
+                                        .padding(
+                                            top = 12.dp,
+                                            end = 16.dp
+                                        )
+                                        .size(20.dp)
+                                        .align(TopEnd)
+                                        .clickableWithoutRipple {
+                                            if (commentTextFieldState.value.isNotEmpty()) {
+                                                event.invoke(
+                                                    QuestionDetailContract.Event.OnClickSendComment(
+                                                        parentId = parentCommentId,
+                                                        comment = commentTextFieldState.value
+                                                    )
+                                                )
+                                            }
+                                        },
+                                    painter = painterResource(id = R.drawable.ic_send_comment),
+                                    contentDescription = "sendIconButton",
+                                    tint = if (hasFocus) GrayColor2 else GrayColor5
+                                )
+                            },
+                            iconPadding = 20.dp
                         )
                     }
-                }
 
-                if (isNoticeDialogShowing) {
-                    NoticeDialog(
-                        title = null,
-                        content = noticeDialogContent,
-                        onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) },
-                        onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
-                    )
+                    if (isLoading) {
+                        LoadingScreen()
+                    }
+
+                    if (isReportDialogShowing) {
+                        reportType?.let { reportType ->
+                            TextFieldDialog(
+                                title = "신고 사유를 작성해주세요",
+                                onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
+                                onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
+                                onClickConfirm = { reason ->
+                                    event.invoke(
+                                        when (reportType) {
+                                            ReportType.POST -> QuestionDetailContract.Event.OnClickSendQuestionReport(reason)
+                                            ReportType.COMMENT -> QuestionDetailContract.Event.OnClickSendCommentReport(reason)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    if (isNoticeDialogShowing) {
+                        NoticeDialog(
+                            title = null,
+                            content = noticeDialogContent,
+                            onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) },
+                            onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
+                        )
+                    }
                 }
             }
         }

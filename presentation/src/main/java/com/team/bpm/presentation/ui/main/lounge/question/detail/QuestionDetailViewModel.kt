@@ -114,6 +114,10 @@ class QuestionDetailViewModel @Inject constructor(
         is QuestionDetailContract.Event.OnBottomSheetHide -> {
             onBottomSheetHide()
         }
+
+        is QuestionDetailContract.Event.OnClickCancelReplying -> {
+            onClickCancelReplying()
+        }
     }
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
@@ -137,7 +141,8 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun getQuestionId(): Int? {
-        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
+//        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
+        return 41
     }
 
     private fun getQuestionDetail() {
@@ -215,6 +220,10 @@ class QuestionDetailViewModel @Inject constructor(
                     isReportDialogShowing = true,
                     isBottomSheetShowing = false
                 )
+            }
+
+            if (state.value.isReplying) {
+                _effect.emit(QuestionDetailContract.Effect.StopReplying)
             }
         }
     }
@@ -303,9 +312,8 @@ class QuestionDetailViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    redirectCommentId = result.id,
-                                    selectedCommentId = null,
-                                    selectedCommentAuthorId = null,
+                                    commentIdToScroll = result.id,
+                                    selectedComment = null,
                                     parentCommentId = null,
                                     isReplying = false
                                 )
@@ -373,8 +381,8 @@ class QuestionDetailViewModel @Inject constructor(
                         }
 
                         it.copy(
-                            selectedCommentId = commentId,
-                            selectedCommentAuthorId = authorId,
+                            selectedComment = selectedComment,
+                            commentIdToScroll = commentId,
                             parentCommentId = parentCommentId,
                             bottomSheetButtonList = bottomSheetButtonList,
                             isBottomSheetShowing = true
@@ -394,13 +402,13 @@ class QuestionDetailViewModel @Inject constructor(
                 )
             }
 
-            _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
+            _effect.emit(QuestionDetailContract.Effect.SetUpToReply)
         }
     }
 
     private fun onClickDeleteComment() {
         getQuestionId()?.let { questionId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
+            state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
                         it.copy(isCommentListLoading = true)
@@ -432,7 +440,7 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickSendCommentReport(reason: String) {
         getQuestionId()?.let { questionId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
+            state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
                         it.copy(
@@ -526,11 +534,24 @@ class QuestionDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isBottomSheetShowing = false,
-                    selectedCommentId = null,
-                    selectedCommentAuthorId = null,
+                    selectedComment = if (it.isReplying) it.selectedComment else null,
                     parentCommentId = if (it.isReplying) it.parentCommentId else null
                 )
             }
+        }
+    }
+
+    private fun onClickCancelReplying() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isReplying = false,
+                    selectedComment = null,
+                    parentCommentId = null
+                )
+            }
+
+            _effect.emit(QuestionDetailContract.Effect.StopReplying)
         }
     }
 }

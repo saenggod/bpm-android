@@ -16,9 +16,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val isCommentListLoading: Boolean = false,
         val commentList: List<Comment> = emptyList(),
         val commentsCount: Int? = 0,
-        val redirectCommentId: Int? = null,
-        val selectedCommentId: Int? = null,
-        val selectedCommentAuthorId: Long? = null,
+        val commentIdToScroll: Int? = null,
+        val selectedComment: Comment? = null,
         val parentCommentId: Int? = null,
         val isReplying: Boolean = false,
         val isBottomSheetShowing: Boolean = false,
@@ -71,6 +70,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         object OnClickDismissNoticeDialog : Event
 
         object OnBottomSheetHide : Event
+
+        object OnClickCancelReplying : Event
     }
 
     sealed interface Effect {
@@ -78,7 +79,9 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         object RefreshCommentList : Effect
 
-        object ShowKeyboard : Effect
+        object SetUpToReply : Effect
+
+        object StopReplying : Effect
 
         object GoToQuestionList : Effect
     }
