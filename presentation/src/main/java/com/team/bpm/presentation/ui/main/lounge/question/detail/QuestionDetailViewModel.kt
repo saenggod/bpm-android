@@ -226,7 +226,8 @@ class QuestionDetailViewModel @Inject constructor(
                     reportType = ReportType.POST,
                     isReportDialogShowing = true,
                     isBottomSheetShowing = false,
-                    isReplying = false
+                    isReplying = false,
+                    isReporting = true
                 )
             }
         }
@@ -249,7 +250,8 @@ class QuestionDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     isNoticeDialogShowing = true,
-                                    noticeDialogContent = "신고가 완료되었습니다"
+                                    noticeDialogContent = "신고가 완료되었습니다",
+                                    isReporting = false
                                 )
                             }
                         }
@@ -441,7 +443,8 @@ class QuestionDetailViewModel @Inject constructor(
                     reportType = ReportType.COMMENT,
                     isReportDialogShowing = true,
                     isBottomSheetShowing = false,
-                    isReplying = false
+                    isReplying = false,
+                    isReporting = true
                 )
             }
         }
@@ -454,7 +457,8 @@ class QuestionDetailViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isCommentListLoading = true,
-                            isReportDialogShowing = false
+                            isReportDialogShowing = false,
+                            isReporting = false
                         )
                     }
 
@@ -525,7 +529,10 @@ class QuestionDetailViewModel @Inject constructor(
     private fun onClickDismissReportDialog() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isReportDialogShowing = false)
+                it.copy(
+                    isReportDialogShowing = false,
+                    isReporting = false
+                )
             }
         }
     }
@@ -543,7 +550,7 @@ class QuestionDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isBottomSheetShowing = false,
-                    selectedComment = if (it.isReplying) it.selectedComment else null,
+                    selectedComment = if (it.isReplying || it.isReporting) it.selectedComment else null,
                     parentCommentId = if (it.isReplying) it.parentCommentId else null
                 )
             }

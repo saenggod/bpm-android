@@ -20,6 +20,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val selectedComment: Comment? = null,
         val parentCommentId: Int? = null,
         val isReplying: Boolean = false,
+        val isReporting: Boolean = false,
         val isBottomSheetShowing: Boolean = false,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
         val isReportDialogShowing: Boolean = false,
