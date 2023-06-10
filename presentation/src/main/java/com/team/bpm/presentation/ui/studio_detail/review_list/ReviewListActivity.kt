@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -58,6 +59,7 @@ private fun ReviewListActivityContent(
     val context = getLocalContext()
     val lifecycleEvent = rememberLifecycleEvent()
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val focusManager = LocalFocusManager.current
 
     if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         LaunchedEffect(lifecycleEvent) {
@@ -175,6 +177,7 @@ private fun ReviewListActivityContent(
                     )
 
                     LaunchedEffect(Unit) {
+                        focusManager.clearFocus()
                         dialogFocusRequester.requestFocus()
                     }
                 }

@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -105,6 +106,7 @@ private fun StudioDetailActivityContent(
     val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)
     val scrollPosition = remember { mutableStateOf(0) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         event.invoke(StudioDetailContract.Event.GetUserId)
@@ -898,6 +900,7 @@ private fun StudioDetailActivityContent(
                     )
 
                     LaunchedEffect(Unit) {
+                        focusManager.clearFocus()
                         dialogFocusRequester.requestFocus()
                     }
                 }

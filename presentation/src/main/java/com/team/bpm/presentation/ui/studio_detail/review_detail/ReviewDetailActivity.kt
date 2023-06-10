@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
@@ -88,6 +89,7 @@ private fun ReviewDetailActivityContent(
     val context = getLocalContext()
     val scrollState = rememberScrollState()
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         event.invoke(ReviewDetailContract.Event.GetUserId)
@@ -348,6 +350,7 @@ private fun ReviewDetailActivityContent(
                 )
 
                 LaunchedEffect(Unit) {
+                    focusManager.clearFocus()
                     dialogFocusRequester.requestFocus()
                 }
             }

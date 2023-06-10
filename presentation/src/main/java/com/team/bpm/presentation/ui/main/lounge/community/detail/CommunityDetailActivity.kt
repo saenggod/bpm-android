@@ -445,6 +445,7 @@ private fun CommunityDetailActivityContent(
                     }
 
                     LaunchedEffect(Unit) {
+                        focusManager.clearFocus()
                         dialogFocusRequester.requestFocus()
                     }
                 }
