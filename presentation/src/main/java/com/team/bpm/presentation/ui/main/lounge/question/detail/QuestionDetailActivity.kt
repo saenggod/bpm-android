@@ -81,7 +81,7 @@ class QuestionDetailActivity : BaseComponentActivityV2() {
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun QuestionDetailActivityContent(
     viewModel: QuestionDetailViewModel = hiltViewModel()
@@ -92,7 +92,7 @@ private fun QuestionDetailActivityContent(
     val scrollState = rememberScrollState()
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val commentTextFieldState = remember { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
+    val commentFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val commentScrollPosition = remember { mutableStateOf(0) }
     val textFieldPosition = remember { mutableStateOf(0) }
@@ -118,7 +118,7 @@ private fun QuestionDetailActivityContent(
                 }
 
                 is QuestionDetailContract.Effect.SetUpToReply -> {
-                    focusRequester.requestFocus()
+                    commentFocusRequester.requestFocus()
                     keyboardController?.show()
                     delay(600L)
                     scrollState.animateScrollTo((commentScrollPosition.value - textFieldPosition.value) + (commentHeight.value * 2))
@@ -281,7 +281,7 @@ private fun QuestionDetailActivityContent(
                                         .align(Alignment.BottomStart)
                                 ) {
                                     Text(
-                                        modifier = Modifier.align(Alignment.Center),
+                                        modifier = Modifier.align(Center),
                                         text = "${images.size}/${horizontalPagerState.currentPage + 1}",
                                         fontWeight = Normal,
                                         fontSize = 12.sp,
@@ -364,7 +364,7 @@ private fun QuestionDetailActivityContent(
                                 onClickLike = { comment.id?.let { commentId -> event.invoke(QuestionDetailContract.Event.OnClickCommentLike(commentId)) } },
                                 onClickActionButton = {
                                     comment.id?.let { commentId ->
-                                        comment.author?.id?.let { authorId ->
+                                        comment.author?.id?.let {
                                             event.invoke(
                                                 QuestionDetailContract.Event.OnClickCommentActionButton(
                                                     comment = comment,
@@ -436,7 +436,7 @@ private fun QuestionDetailActivityContent(
                                     horizontal = 16.dp,
                                     vertical = 10.dp
                                 )
-                                .focusRequester(focusRequester)
+                                .focusRequester(commentFocusRequester)
                                 .onGloballyPositioned { coordinates ->
                                     scope.launch {
                                         delay(400L)
@@ -483,9 +483,12 @@ private fun QuestionDetailActivityContent(
                     }
 
                     if (isReportDialogShowing) {
+                        val dialogFocusRequester = remember { FocusRequester() }
+
                         reportType?.let { reportType ->
                             TextFieldDialog(
                                 title = "신고 사유를 작성해주세요",
+                                focusRequester = dialogFocusRequester,
                                 onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
                                 onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
                                 onClickConfirm = { reason ->
@@ -497,6 +500,10 @@ private fun QuestionDetailActivityContent(
                                     )
                                 }
                             )
+                        }
+
+                        LaunchedEffect(Unit) {
+                            dialogFocusRequester.requestFocus()
                         }
                     }
 

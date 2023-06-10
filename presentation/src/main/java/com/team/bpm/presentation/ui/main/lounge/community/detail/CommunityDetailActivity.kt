@@ -425,9 +425,12 @@ private fun CommunityDetailActivityContent(
                 }
 
                 if (isReportDialogShowing) {
+                    val dialogFocusRequester = remember { FocusRequester() }
+
                     reportType?.let { reportType ->
                         TextFieldDialog(
                             title = "신고 사유를 작성해주세요",
+                            focusRequester = focusRequester,
                             onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickCancel = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickConfirm = { reason ->
@@ -439,6 +442,10 @@ private fun CommunityDetailActivityContent(
                                 )
                             }
                         )
+                    }
+
+                    LaunchedEffect(Unit) {
+                        dialogFocusRequester.requestFocus()
                     }
                 }
 

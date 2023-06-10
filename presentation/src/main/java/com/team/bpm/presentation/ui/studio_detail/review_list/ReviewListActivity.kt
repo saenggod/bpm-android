@@ -12,7 +12,9 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -162,12 +164,19 @@ private fun ReviewListActivityContent(
                 }
 
                 if (isReportDialogShowing) {
+                    val dialogFocusRequester = remember { FocusRequester() }
+
                     TextFieldDialog(
                         title = "신고 사유를 작성해주세요",
+                        focusRequester = dialogFocusRequester,
                         onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissReportDialog) },
                         onClickCancel = { event.invoke(ReviewListContract.Event.OnClickDismissReportDialog) },
                         onClickConfirm = { reason -> event.invoke(ReviewListContract.Event.OnClickSendReviewReport(reason)) }
                     )
+
+                    LaunchedEffect(Unit) {
+                        dialogFocusRequester.requestFocus()
+                    }
                 }
 
                 if (isNoticeDialogShowing) {

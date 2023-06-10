@@ -13,11 +13,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.res.painterResource
@@ -335,12 +337,19 @@ private fun ReviewDetailActivityContent(
             }
 
             if (isReportDialogShowing) {
+                val dialogFocusRequester = remember { FocusRequester() }
+
                 TextFieldDialog(
                     title = "신고 사유를 작성해주세요",
+                    focusRequester = dialogFocusRequester,
                     onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
                     onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
                     onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
                 )
+
+                LaunchedEffect(Unit) {
+                    dialogFocusRequester.requestFocus()
+                }
             }
 
             if (isNoticeDialogShowing) {

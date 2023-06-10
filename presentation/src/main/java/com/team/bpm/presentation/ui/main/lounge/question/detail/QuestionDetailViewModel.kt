@@ -69,7 +69,10 @@ class QuestionDetailViewModel @Inject constructor(
         }
 
         is QuestionDetailContract.Event.OnClickSendComment -> {
-            onClickSendComment(parentId = event.parentId, comment = event.comment)
+            onClickSendComment(
+                parentId = event.parentId,
+                comment = event.comment
+            )
         }
 
         is QuestionDetailContract.Event.GetCommentList -> {
@@ -214,16 +217,17 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickReportQuestion() {
         viewModelScope.launch {
+            if (state.value.isReplying) {
+                _effect.emit(QuestionDetailContract.Effect.StopReplying)
+            }
+
             _state.update {
                 it.copy(
                     reportType = ReportType.POST,
                     isReportDialogShowing = true,
-                    isBottomSheetShowing = false
+                    isBottomSheetShowing = false,
+                    isReplying = false
                 )
-            }
-
-            if (state.value.isReplying) {
-                _effect.emit(QuestionDetailContract.Effect.StopReplying)
             }
         }
     }
@@ -428,11 +432,16 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickReportComment() {
         viewModelScope.launch {
+            if (state.value.isReplying) {
+                _effect.emit(QuestionDetailContract.Effect.StopReplying)
+            }
+
             _state.update {
                 it.copy(
                     reportType = ReportType.COMMENT,
                     isReportDialogShowing = true,
-                    isBottomSheetShowing = false
+                    isBottomSheetShowing = false,
+                    isReplying = false
                 )
             }
         }

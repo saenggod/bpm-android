@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -886,12 +887,19 @@ private fun StudioDetailActivityContent(
                 }
 
                 if (isReportDialogShowing) {
+                    val dialogFocusRequester = remember { FocusRequester() }
+
                     TextFieldDialog(
                         title = "신고 사유를 작성해주세요",
+                        focusRequester = dialogFocusRequester,
                         onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                         onClickCancel = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                         onClickConfirm = { reason -> event.invoke(StudioDetailContract.Event.OnClickSendReviewReport(reason)) }
                     )
+
+                    LaunchedEffect(Unit) {
+                        dialogFocusRequester.requestFocus()
+                    }
                 }
 
                 if (isNoticeDialogShowing) {
