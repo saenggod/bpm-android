@@ -65,9 +65,7 @@ class StudioHomeRecommendFragment :
 
         fun newInstance(type: StudioMainTabType): StudioHomeRecommendFragment {
             return StudioHomeRecommendFragment().apply {
-                arguments = bundleOf(
-                    KEY_TYPE to type
-                )
+                arguments = bundleOf(KEY_TYPE to type)
             }
         }
     }

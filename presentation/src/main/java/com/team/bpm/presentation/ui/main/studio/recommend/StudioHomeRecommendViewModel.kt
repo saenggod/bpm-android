@@ -6,7 +6,7 @@ import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.main.GetStudioListUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainDispatcher
+import com.team.bpm.presentation.model.StudioMainTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -23,7 +23,6 @@ import javax.inject.Inject
 @HiltViewModel
 class StudioHomeRecommendViewModel @Inject constructor(
     private val getStudioListUseCase: GetStudioListUseCase,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
@@ -40,9 +39,10 @@ class StudioHomeRecommendViewModel @Inject constructor(
     val list: StateFlow<List<Studio>>
         get() = _list
 
-    val type: String by lazy {
-        savedStateHandle.get<String>(StudioHomeRecommendFragment.KEY_TYPE) ?: ""
-    }
+    val type: StudioMainTabType
+        get() = savedStateHandle.get<StudioMainTabType>(StudioHomeRecommendFragment.KEY_TYPE)
+            ?: StudioMainTabType.POPULAR
+
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -50,23 +50,16 @@ class StudioHomeRecommendViewModel @Inject constructor(
         }
     }
 
-    // TODO : Type에 따른 스튜디오 분기 필요
     fun getStudioList() {
         viewModelScope.launch(ioDispatcher) {
-            getStudioListUseCase(limit = 10, offset = 0).onEach { state ->
+            getStudioListUseCase(
+                limit = LIST_MAX,
+                offset = 0,
+                type = type.name.lowercase()
+            ).onEach { state ->
                 state.studios?.let { _list.emit(it) }
                 _list.emit(state.studios ?: emptyList())
                 _state.emit(StudioHomeRecommendState.List)
-//                when (state) {
-//                    is ResponseState.Success -> {
-//                        _list.emit(state.data.studos)
-//                        _list.emit(state.data.studios ?: emptyList())
-//                        _state.emit(StudioHomeRecommendState.List)
-//                    }
-//                    is ResponseState.Error -> {
-//                        _state.emit(StudioHomeRecommendState.Error)
-//                    }
-//                }
             }.launchIn(viewModelScope + exceptionHandler)
         }
     }
@@ -75,5 +68,11 @@ class StudioHomeRecommendViewModel @Inject constructor(
         viewModelScope.launch {
             _event.emit(StudioHomeRecommendViewEvent.ClickDetail(studioId))
         }
+    }
+
+    companion object {
+        // 첫 페이지에서의 무한정 데이터는 앱을 느리게해요..
+        const val LIST_MAX = 5
+
     }
 }

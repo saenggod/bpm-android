@@ -5,14 +5,14 @@ import com.team.bpm.domain.model.StudioList
 import com.team.bpm.domain.model.UserSchedule
 import kotlinx.coroutines.flow.Flow
 
-interface MainRepository {
+interface HomeRepository {
 
-    // TODO : Move to HomeRepository
-    suspend fun getStudioList(
+    suspend fun fetchStudioList(
         limit: Int,
-        offset: Int
+        offset: Int,
+        type : String
     ): Flow<StudioList>
 
-    suspend fun getUserSchedule(): Flow<ResponseState<UserSchedule>>
+    suspend fun fetchUserSchedule(): Flow<ResponseState<UserSchedule>>
 
 }

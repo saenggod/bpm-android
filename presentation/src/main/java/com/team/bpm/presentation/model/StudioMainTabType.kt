@@ -5,5 +5,5 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 enum class StudioMainTabType : Parcelable {
-    HOT, REVIEW, OPEN
+    POPULAR, REVIEW, NEW
 }

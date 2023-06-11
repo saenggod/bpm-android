@@ -40,9 +40,10 @@ interface MainApi {
     ): Response<BPMResponseV2<StudioListResponse>>
 
     @GET("api/studio")
-    suspend fun getStudioList(
+    suspend fun fetchStudioList(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
+        @Query("condition") type: String
     ): Response<BPMResponseV2<StudioListResponse>>
 
     @GET("api/studio/{studioId}")
