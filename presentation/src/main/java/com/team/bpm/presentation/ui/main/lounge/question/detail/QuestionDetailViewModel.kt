@@ -69,7 +69,10 @@ class QuestionDetailViewModel @Inject constructor(
         }
 
         is QuestionDetailContract.Event.OnClickSendComment -> {
-            onClickSendComment(parentId = event.parentId, comment = event.comment)
+            onClickSendComment(
+                parentId = event.parentId,
+                comment = event.comment
+            )
         }
 
         is QuestionDetailContract.Event.GetCommentList -> {
@@ -111,8 +114,12 @@ class QuestionDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
-        is QuestionDetailContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is QuestionDetailContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
+        }
+
+        is QuestionDetailContract.Event.OnClickCancelReplying -> {
+            onClickCancelReplying()
         }
     }
 
@@ -137,7 +144,8 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun getQuestionId(): Int? {
-        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
+//        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
+        return 41
     }
 
     private fun getQuestionDetail() {
@@ -154,8 +162,8 @@ class QuestionDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     question = result,
-                                    liked = result.favorited,
-                                    likeCount = result.favoritesCount
+                                    liked = result.liked,
+                                    likeCount = result.likeCount
                                 )
                             }
                         }
@@ -170,7 +178,7 @@ class QuestionDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _state.update {
                     val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
-                        if (questionAuthorId == state.value.userId) {
+                        if (questionAuthorId == it.userId) {
                             add(BottomSheetButton.DELETE_POST)
                         } else {
                             add(BottomSheetButton.REPORT_POST)
@@ -190,7 +198,10 @@ class QuestionDetailViewModel @Inject constructor(
         getQuestionId()?.let { questionId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isLoading = true)
+                    it.copy(
+                        isLoading = true,
+                        isBottomSheetShowing = false
+                    )
                 }
 
                 withContext(ioDispatcher) {
@@ -206,10 +217,17 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickReportQuestion() {
         viewModelScope.launch {
+            if (state.value.isReplying) {
+                _effect.emit(QuestionDetailContract.Effect.StopReplying)
+            }
+
             _state.update {
                 it.copy(
                     reportType = ReportType.POST,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false,
+                    isReplying = false,
+                    isReporting = true
                 )
             }
         }
@@ -232,7 +250,8 @@ class QuestionDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     isNoticeDialogShowing = true,
-                                    noticeDialogContent = "신고가 완료되었습니다"
+                                    noticeDialogContent = "신고가 완료되었습니다",
+                                    isReporting = false
                                 )
                             }
                         }
@@ -259,11 +278,9 @@ class QuestionDetailViewModel @Inject constructor(
                                             it.copy(
                                                 isLoading = false,
                                                 liked = false,
-                                                likeCount = state.value.likeCount?.minus(1)
+                                                likeCount = it.likeCount?.minus(1)
                                             )
                                         }
-
-                                        _effect.emit(QuestionDetailContract.Effect.ShowToast("질문 추천을 취소하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
@@ -275,11 +292,9 @@ class QuestionDetailViewModel @Inject constructor(
                                             it.copy(
                                                 isLoading = false,
                                                 liked = true,
-                                                likeCount = state.value.likeCount?.plus(1)
+                                                likeCount = it.likeCount?.plus(1)
                                             )
                                         }
-
-                                        _effect.emit(QuestionDetailContract.Effect.ShowToast("질문을 추천하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
@@ -298,15 +313,15 @@ class QuestionDetailViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    writeQuestionCommentUseCase(questionId = questionId, parentId = parentId, comment = comment).onEach { result ->
+                    writeQuestionCommentUseCase(questionId, parentId, comment).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    redirectCommentId = result.id,
-                                    selectedCommentId = null,
-                                    selectedCommentAuthorId = null,
-                                    parentCommentId = null
+                                    commentIdToScroll = result.id,
+                                    selectedComment = null,
+                                    parentCommentId = null,
+                                    isReplying = false
                                 )
                             }
 
@@ -364,7 +379,7 @@ class QuestionDetailViewModel @Inject constructor(
                     _state.update {
                         val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
                             add(BottomSheetButton.REPLY_COMMENT)
-                            if (authorId == state.value.userId) {
+                            if (authorId == it.userId) {
                                 add(BottomSheetButton.DELETE_COMMENT)
                             } else {
                                 add(BottomSheetButton.REPORT_COMMENT)
@@ -372,8 +387,8 @@ class QuestionDetailViewModel @Inject constructor(
                         }
 
                         it.copy(
-                            selectedCommentId = commentId,
-                            selectedCommentAuthorId = authorId,
+                            selectedComment = selectedComment,
+                            commentIdToScroll = commentId,
                             parentCommentId = parentCommentId,
                             bottomSheetButtonList = bottomSheetButtonList,
                             isBottomSheetShowing = true
@@ -386,13 +401,20 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickReplyComment() {
         viewModelScope.launch {
-            _effect.emit(QuestionDetailContract.Effect.ShowKeyboard)
+            _state.update {
+                it.copy(
+                    isBottomSheetShowing = false,
+                    isReplying = true
+                )
+            }
+
+            _effect.emit(QuestionDetailContract.Effect.SetUpToReply)
         }
     }
 
     private fun onClickDeleteComment() {
         getQuestionId()?.let { questionId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
+            state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
                         it.copy(isCommentListLoading = true)
@@ -412,10 +434,17 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickReportComment() {
         viewModelScope.launch {
+            if (state.value.isReplying) {
+                _effect.emit(QuestionDetailContract.Effect.StopReplying)
+            }
+
             _state.update {
                 it.copy(
                     reportType = ReportType.COMMENT,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false,
+                    isReplying = false,
+                    isReporting = true
                 )
             }
         }
@@ -423,12 +452,13 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickSendCommentReport(reason: String) {
         getQuestionId()?.let { questionId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
+            state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
                         it.copy(
                             isCommentListLoading = true,
-                            isReportDialogShowing = false
+                            isReportDialogShowing = false,
+                            isReporting = false
                         )
                     }
 
@@ -458,7 +488,7 @@ class QuestionDetailViewModel @Inject constructor(
                         dislikeQuestionCommentUseCase(questionId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
+                                    it.copy(commentList = it.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = false,
@@ -474,7 +504,7 @@ class QuestionDetailViewModel @Inject constructor(
                         likeQuestionCommentUseCase(questionId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
+                                    it.copy(commentList = it.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = true,
@@ -499,7 +529,10 @@ class QuestionDetailViewModel @Inject constructor(
     private fun onClickDismissReportDialog() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isReportDialogShowing = false)
+                it.copy(
+                    isReportDialogShowing = false,
+                    isReporting = false
+                )
             }
         }
     }
@@ -512,16 +545,29 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(
                     isBottomSheetShowing = false,
-                    selectedCommentId = null,
-                    selectedCommentAuthorId = null,
+                    selectedComment = if (it.isReplying || it.isReporting) it.selectedComment else null,
+                    parentCommentId = if (it.isReplying) it.parentCommentId else null
+                )
+            }
+        }
+    }
+
+    private fun onClickCancelReplying() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isReplying = false,
+                    selectedComment = null,
                     parentCommentId = null
                 )
             }
+
+            _effect.emit(QuestionDetailContract.Effect.StopReplying)
         }
     }
 }

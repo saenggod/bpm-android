@@ -69,8 +69,8 @@ class ReviewDetailViewModel @Inject constructor(
             onClickDismissNoticeDialog()
         }
 
-        is ReviewDetailContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is ReviewDetailContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
         }
     }
 
@@ -110,7 +110,7 @@ class ReviewDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _state.update {
                     val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
-                        if (reviewAuthorId == state.value.userId) {
+                        if (reviewAuthorId == it.userId) {
                             add(BottomSheetButton.DELETE_POST)
                         } else {
                             add(BottomSheetButton.REPORT_POST)
@@ -131,7 +131,10 @@ class ReviewDetailViewModel @Inject constructor(
             reviewInfo.second?.let { reviewId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isLoading = true)
+                        it.copy(
+                            isLoading = true,
+                            isBottomSheetShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {
@@ -203,8 +206,6 @@ class ReviewDetailViewModel @Inject constructor(
                                                     likeCount = state.likeCount?.minus(1)
                                                 )
                                             }
-
-                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰 추천을 취소하였습니다."))
                                         }
                                     }.launchIn(viewModelScope + exceptionHandler)
                                 }
@@ -219,8 +220,6 @@ class ReviewDetailViewModel @Inject constructor(
                                                     likeCount = state.likeCount?.plus(1)
                                                 )
                                             }
-
-                                            _effect.emit(ReviewDetailContract.Effect.ShowToast("리뷰를 추천하였습니다."))
                                         }
                                     }.launchIn(viewModelScope + exceptionHandler)
                                 }
@@ -273,7 +272,7 @@ class ReviewDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(isBottomSheetShowing = false)

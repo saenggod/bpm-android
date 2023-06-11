@@ -2,7 +2,6 @@ package com.team.bpm.presentation.ui.studio_detail.review_detail
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,13 +13,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
@@ -85,6 +87,9 @@ private fun ReviewDetailActivityContent(
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
+    val scrollState = rememberScrollState()
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         event.invoke(ReviewDetailContract.Event.GetUserId)
@@ -106,19 +111,17 @@ private fun ReviewDetailActivityContent(
     }
 
     with(state) {
-        val scrollState = rememberScrollState()
-        val bottomSheetState = rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            confirmStateChange = { false }
-        )
-
         LaunchedEffect(isBottomSheetShowing) {
-            isBottomSheetShowing?.let {
-                if (bottomSheetState.isVisible) {
-                    bottomSheetState.hide()
-                } else {
-                    bottomSheetState.show()
-                }
+            if (isBottomSheetShowing) {
+                bottomSheetState.show()
+            }
+        }
+
+        LaunchedEffect(bottomSheetState.isVisible) {
+            if (!bottomSheetState.isVisible) {
+                event.invoke(ReviewDetailContract.Event.OnBottomSheetHide)
+            } else {
+                bottomSheetState.hide()
             }
         }
 
@@ -335,28 +338,30 @@ private fun ReviewDetailActivityContent(
                 LoadingScreen()
             }
 
+            if (isReportDialogShowing) {
+                val dialogFocusRequester = remember { FocusRequester() }
+
+                TextFieldDialog(
+                    title = "신고 사유를 작성해주세요",
+                    focusRequester = dialogFocusRequester,
+                    onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
+                    onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
+                    onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
+                )
+
+                LaunchedEffect(Unit) {
+                    focusManager.clearFocus()
+                    dialogFocusRequester.requestFocus()
+                }
+            }
+
             if (isNoticeDialogShowing) {
                 NoticeDialog(
                     title = null,
                     content = noticeDialogContent,
+                    onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) },
                     onClickConfirm = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) }
                 )
-            }
-
-            if (isReportDialogShowing) {
-                TextFieldDialog(
-                    title = "신고 사유를 작성해주세요",
-                    onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
-                    onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
-                )
-            }
-
-            BackHandler {
-                if (bottomSheetState.isVisible) {
-                    event.invoke(ReviewDetailContract.Event.OnClickBackButton)
-                } else {
-                    context.finish()
-                }
             }
         }
     }

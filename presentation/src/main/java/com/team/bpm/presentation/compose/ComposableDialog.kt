@@ -7,13 +7,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
@@ -25,19 +26,18 @@ import androidx.compose.ui.window.DialogWindowProvider
 import com.team.bpm.presentation.compose.theme.GrayColor16
 import com.team.bpm.presentation.compose.theme.GrayColor5
 import com.team.bpm.presentation.compose.theme.MainBlackColor
-import com.team.bpm.presentation.model.ReportType
 import com.team.bpm.presentation.util.clickableWithoutRipple
 
 @Composable
 inline fun BaseComposableDialog(
-    isCancelable: Boolean,
-    crossinline block: @Composable () -> Unit,
+    crossinline onDismissRequest: () -> Unit,
+    crossinline block: @Composable () -> Unit
 ) {
     Dialog(
-        onDismissRequest = {},
+        onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(
-            dismissOnBackPress = isCancelable,
-            dismissOnClickOutside = isCancelable
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
         )
     ) {
         (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f)
@@ -50,10 +50,13 @@ fun NoticeDialog(
     title: String?,
     content: String,
     confirmButtonText: String = "확인",
+    onDismissRequest: () -> Unit,
     onClickConfirm: (() -> Unit)?
 ) {
     BaseComposableDialog(
-        isCancelable = false,
+        onDismissRequest = {
+            onDismissRequest()
+        }
     ) {
         Box(
             modifier = Modifier
@@ -98,7 +101,7 @@ fun NoticeDialog(
                 BPMSpacer(height = 8.dp)
 
                 Box(modifier = Modifier
-                    .align(Alignment.End)
+                    .align(End)
                     .width(41.dp)
                     .height(34.dp)
                     .clickableWithoutRipple { onClickConfirm?.invoke() }
@@ -122,11 +125,15 @@ inline fun TextFieldDialog(
     hint: String = "내용을 입력해주세요.",
     cancelButtonText: String = "취소",
     confirmButtonText: String = "확인",
+    focusRequester: FocusRequester,
+    crossinline onDismissRequest: () -> Unit,
     crossinline onClickCancel: () -> Unit,
     crossinline onClickConfirm: (String) -> Unit
 ) {
     BaseComposableDialog(
-        isCancelable = false,
+        onDismissRequest = {
+            onDismissRequest()
+        }
     ) {
         Box(
             modifier = Modifier
@@ -159,6 +166,7 @@ inline fun TextFieldDialog(
                 val contentTextState = remember { mutableStateOf("") }
 
                 BPMTextField(
+                    modifier = Modifier.focusRequester(focusRequester),
                     textState = contentTextState,
                     minHeight = 140.dp,
                     label = null,

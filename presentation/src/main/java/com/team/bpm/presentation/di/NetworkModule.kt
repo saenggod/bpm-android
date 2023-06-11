@@ -17,7 +17,7 @@ import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiNiIsImlhdCI6MTY4NTA3MDQ0NCwiZXhwIjoxNjg4MDcwNDQ0fQ.QhzaeQj8kCLOOaMawbUNXKv849g4M9QItIfKZfSEcio" // forTest
+const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiNiIsImlhdCI6MTY4NjE0ODAyMSwiZXhwIjoxNjg5MTQ4MDIxfQ.qZmBC3OyHR4yVYbGFzDXzq8uwC3Zz71aeoA1rLkYCCo" // forTest
 
 @Module
 @InstallIn(SingletonComponent::class)

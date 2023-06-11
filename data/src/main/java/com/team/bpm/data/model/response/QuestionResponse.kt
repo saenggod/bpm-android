@@ -23,10 +23,10 @@ data class QuestionResponse(
     val createdAt: String?,
     @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName("favorited")
-    val favorited: Boolean?,
-    @SerializedName("favoritesCount")
-    val favoritesCount: Int?,
+    @SerializedName("favorite")
+    val liked: Boolean?,
+    @SerializedName("favoriteCount")
+    val likeCount: Int?,
     @SerializedName("commentsCount")
     val commentsCount: Int?
 ) : BaseResponse {
@@ -40,8 +40,8 @@ data class QuestionResponse(
                 author = author?.toDataModel(),
                 createdAt = createdAt,
                 updatedAt = updatedAt,
-                favorited = favorited,
-                favoritesCount = favoritesCount,
+                liked = liked,
+                likeCount = likeCount,
                 commentsCount = commentsCount
             )
         }

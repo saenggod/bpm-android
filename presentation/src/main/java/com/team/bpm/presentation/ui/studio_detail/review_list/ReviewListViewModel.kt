@@ -89,8 +89,8 @@ class ReviewListViewModel @Inject constructor(
             onClickDismissNoticeDialog()
         }
 
-        is ReviewListContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is ReviewListContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
         }
     }
 
@@ -129,7 +129,7 @@ class ReviewListViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     selectedReview = review,
-                    bottomSheetButton = if (review.author?.id == state.value.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
+                    bottomSheetButton = if (review.author?.id == it.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
                     isBottomSheetShowing = true
                 )
             }
@@ -141,7 +141,10 @@ class ReviewListViewModel @Inject constructor(
             state.value.selectedReview?.id?.let { reviewId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isLoading = true)
+                        it.copy(
+                            isLoading = true,
+                            isBottomSheetShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {
@@ -201,7 +204,7 @@ class ReviewListViewModel @Inject constructor(
                             dislikeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                        it.copy(reviewList = sortRefreshedReviewList(it.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
                                             this[targetIndex] = this[targetIndex].copy(
                                                 liked = false,
@@ -267,7 +270,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         viewModelScope.launch {
             _state.update {
-                val filteredList = state.value.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
+                val filteredList = it.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
                 it.copy(
                     isReviewListShowingImageReviewsOnly = true,
                     reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
@@ -293,7 +296,7 @@ class ReviewListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    reviewList = state.value.reviewList.sortedByDescending { review -> review.likeCount },
+                    reviewList = it.reviewList.sortedByDescending { review -> review.likeCount },
                     isReviewListSortedByLike = true
                 )
             }
@@ -304,7 +307,7 @@ class ReviewListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    reviewList = state.value.reviewList.sortedByDescending { review -> review.createdAt },
+                    reviewList = it.reviewList.sortedByDescending { review -> review.createdAt },
                     isReviewListSortedByLike = false
                 )
             }
@@ -345,7 +348,7 @@ class ReviewListViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(

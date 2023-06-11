@@ -104,8 +104,8 @@ class CommunityDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
-        is CommunityDetailContract.Event.OnClickBackButton -> {
-            onClickBackButton()
+        is CommunityDetailContract.Event.OnBottomSheetHide -> {
+            onBottomSheetHide()
         }
     }
 
@@ -145,8 +145,8 @@ class CommunityDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     community = result,
-                                    liked = result.favorite,
-                                    likeCount = result.favoriteCount
+                                    liked = result.liked,
+                                    likeCount = result.likeCount
                                 )
                             }
                         }
@@ -161,7 +161,7 @@ class CommunityDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _state.update {
                     val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
-                        if (communityAuthorId == state.value.userId) {
+                        if (communityAuthorId == it.userId) {
                             add(BottomSheetButton.DELETE_POST)
                         } else {
                             add(BottomSheetButton.REPORT_POST)
@@ -181,7 +181,10 @@ class CommunityDetailViewModel @Inject constructor(
         getCommunityId()?.let { communityId ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isLoading = true)
+                    it.copy(
+                        isLoading = true,
+                        isBottomSheetShowing = false
+                    )
                 }
 
                 withContext(ioDispatcher) {
@@ -200,7 +203,8 @@ class CommunityDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     reportType = ReportType.POST,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
                 )
             }
         }
@@ -250,11 +254,9 @@ class CommunityDetailViewModel @Inject constructor(
                                             it.copy(
                                                 isLoading = false,
                                                 liked = false,
-                                                likeCount = state.value.likeCount?.minus(1)
+                                                likeCount = it.likeCount?.minus(1)
                                             )
                                         }
-
-                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("질문 추천을 취소하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
@@ -266,11 +268,9 @@ class CommunityDetailViewModel @Inject constructor(
                                             it.copy(
                                                 isLoading = false,
                                                 liked = true,
-                                                likeCount = state.value.likeCount?.plus(1)
+                                                likeCount = it.likeCount?.plus(1)
                                             )
                                         }
-
-                                        _effect.emit(CommunityDetailContract.Effect.ShowToast("질문을 추천하였습니다."))
                                     }
                                 }.launchIn(viewModelScope + exceptionHandler)
                             }
@@ -350,7 +350,7 @@ class CommunityDetailViewModel @Inject constructor(
                 viewModelScope.launch {
                     _state.update {
                         val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
-                            if (authorId == state.value.userId) {
+                            if (authorId == it.userId) {
                                 add(BottomSheetButton.DELETE_COMMENT)
                             } else {
                                 add(BottomSheetButton.REPORT_COMMENT)
@@ -394,7 +394,8 @@ class CommunityDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     reportType = ReportType.COMMENT,
-                    isReportDialogShowing = true
+                    isReportDialogShowing = true,
+                    isBottomSheetShowing = false
                 )
             }
         }
@@ -437,7 +438,7 @@ class CommunityDetailViewModel @Inject constructor(
                         dislikeCommunityCommentUseCase(communityId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
+                                    it.copy(commentList = it.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = false,
@@ -453,7 +454,7 @@ class CommunityDetailViewModel @Inject constructor(
                         likeCommunityCommentUseCase(communityId, commentId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(commentList = state.value.commentList.toMutableList().apply {
+                                    it.copy(commentList = it.commentList.toMutableList().apply {
                                         val targetIndex = indexOf(comment)
                                         this[targetIndex] = this[targetIndex].copy(
                                             liked = true,
@@ -491,7 +492,7 @@ class CommunityDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickBackButton() {
+    private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
                 it.copy(

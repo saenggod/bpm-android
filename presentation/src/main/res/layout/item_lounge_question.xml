@@ -70,7 +70,7 @@
             android:drawableStart="@drawable/ic_lounge_question_like"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
-            android:text="@{item.favoritesCount.toString()}"
+            android:text="@{item.likeCount.toString()}"
             android:textColor="@color/gray_05"
             app:layout_constraintStart_toEndOf="@id/count_comment"
             app:layout_constraintTop_toTopOf="@id/count_comment"

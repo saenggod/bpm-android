@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -28,12 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -63,10 +64,12 @@ import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
-import com.team.bpm.presentation.ui.register_studio.RegisterStudioActivity
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
 import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
-import com.team.bpm.presentation.util.*
+import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.clip
+import com.team.bpm.presentation.util.dateOnly
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import net.daum.mf.map.api.MapPoint
@@ -102,10 +105,8 @@ private fun StudioDetailActivityContent(
     val heightFromTopToInfo = remember { mutableStateOf(0) }
     val callPermissionLauncher = rememberPermissionState(Manifest.permission.CALL_PHONE)
     val scrollPosition = remember { mutableStateOf(0) }
-    val bottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { false }
-    )
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         event.invoke(StudioDetailContract.Event.GetUserId)
@@ -198,12 +199,16 @@ private fun StudioDetailActivityContent(
         }
 
         LaunchedEffect(isBottomSheetShowing) {
-            isBottomSheetShowing?.let {
-                if (bottomSheetState.isVisible) {
-                    bottomSheetState.hide()
-                } else {
-                    bottomSheetState.show()
-                }
+            if (isBottomSheetShowing) {
+                bottomSheetState.show()
+            }
+        }
+
+        LaunchedEffect(bottomSheetState.isVisible) {
+            if (!bottomSheetState.isVisible) {
+                event.invoke(StudioDetailContract.Event.OnBottomSheetHide)
+            } else {
+                bottomSheetState.hide()
             }
         }
 
@@ -884,11 +889,20 @@ private fun StudioDetailActivityContent(
                 }
 
                 if (isReportDialogShowing) {
+                    val dialogFocusRequester = remember { FocusRequester() }
+
                     TextFieldDialog(
                         title = "신고 사유를 작성해주세요",
+                        focusRequester = dialogFocusRequester,
+                        onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                         onClickCancel = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                         onClickConfirm = { reason -> event.invoke(StudioDetailContract.Event.OnClickSendReviewReport(reason)) }
                     )
+
+                    LaunchedEffect(Unit) {
+                        focusManager.clearFocus()
+                        dialogFocusRequester.requestFocus()
+                    }
                 }
 
                 if (isNoticeDialogShowing) {
@@ -896,16 +910,9 @@ private fun StudioDetailActivityContent(
                         NoticeDialog(
                             title = null,
                             content = noticeDialogContent,
+                            onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
                             onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
                         )
-                    }
-                }
-
-                BackHandler {
-                    if (isBottomSheetShowing == true) {
-                        event.invoke(StudioDetailContract.Event.OnClickBackButton)
-                    } else {
-                        context.finish()
                     }
                 }
             }
