@@ -5,6 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CommunityList(
-    val stories: List<Community>?,
-    val storyCount: Int?,
+    val communities: List<Community>?,
+    val communityCount: Int?,
 ) : BaseModel
