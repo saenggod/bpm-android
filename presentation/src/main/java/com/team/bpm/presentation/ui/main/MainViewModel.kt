@@ -5,19 +5,18 @@ import com.team.bpm.domain.usecase.mypage.GetMainTabIndexUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainDispatcher
-import com.team.bpm.presentation.model.MainTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -28,15 +27,20 @@ class MainViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<MainViewEvent>()
     val event: SharedFlow<MainViewEvent>
-        get() = _event
+        get() = _event.asSharedFlow()
 
     private val _state = MutableStateFlow<MainState>(MainState.Init)
     val state: StateFlow<MainState>
-        get() = _state
+        get() = _state.asStateFlow()
 
     private val _startTabIndex = MutableSharedFlow<Int>()
     val startTabIndex: SharedFlow<Int>
-        get() = _startTabIndex
+        get() = _startTabIndex.asSharedFlow()
+
+    private val _tabIndex = MutableSharedFlow<Int>()
+    val tabIndex: SharedFlow<Int>
+        get() = _tabIndex.asSharedFlow()
+
 
     fun onClickAdd() {
         viewModelScope.launch(mainDispatcher) {
@@ -53,4 +57,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun moveToOtherTab(index: Int) {
+        viewModelScope.launch {
+            _event.emit(MainViewEvent.MoveTab(index))
+        }
+    }
 }

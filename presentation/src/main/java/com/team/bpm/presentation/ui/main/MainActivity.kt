@@ -6,13 +6,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.fragment.app.commitNow
 import com.team.bpm.presentation.R
-import com.team.bpm.presentation.databinding.ActivityMainBinding
 import com.team.bpm.presentation.base.BaseActivity
+import com.team.bpm.presentation.databinding.ActivityMainBinding
 import com.team.bpm.presentation.ui.main.add.MainAddBottomSheet
 import com.team.bpm.presentation.ui.main.lounge.LoungeFragment
-import com.team.bpm.presentation.ui.main.studio.StudioHomeFragment
 import com.team.bpm.presentation.ui.main.mypage.MyPageFragment
 import com.team.bpm.presentation.ui.main.notification.EyebodyFragment
+import com.team.bpm.presentation.ui.main.studio.StudioHomeFragment
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -37,8 +37,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     }
 
     override fun setupCollect() {
-        // TODO : collect any SharedFlows, StateFlows
-
         repeatCallDefaultOnStarted {
             viewModel.state.collect { state ->
                 when (state) {
@@ -59,11 +57,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
                     MainViewEvent.Add -> {
                         showAddBottomSheet()
                     }
+                    is MainViewEvent.MoveTab -> {
+                        changeFragment(findFragmentId(event.tabIndex))
+                    }
                 }
             }
         }
     }
-
 
     private fun setUpNavigation(startTabIndex: Int = -1) {
         bind {
@@ -84,18 +84,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
     private fun findFragmentId(startTabIndex: Int): Int {
         return when (startTabIndex) {
-            0 -> {
+            TAB_STUDIO -> {
                 R.id.nav_studio
             }
-
-            1 -> {
+            TAB_LOUNGE -> {
                 R.id.nav_lounge
             }
-
-            2 -> {
+            TAB_EYEBODY -> {
                 R.id.nav_eyebody
             }
-
+            TAB_MYPAGE -> {
+                R.id.nav_mypage
+            }
             else -> {
                 R.id.nav_studio
             }
@@ -116,7 +116,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             R.id.nav_mypage -> {
                 MyPageFragment.newInstance()
             }
-
             else -> {
                 StudioHomeFragment.newInstance()
             }
@@ -143,6 +142,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     }
 
     companion object {
+
+        const val TAB_STUDIO = 0
+        const val TAB_LOUNGE = 1
+        const val TAB_EYEBODY = 2
+        const val TAB_MYPAGE = 3
 
         fun newIntent(context: Context): Intent {
             return Intent(context, MainActivity::class.java)
