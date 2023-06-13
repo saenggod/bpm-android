@@ -3,6 +3,7 @@ package com.team.bpm.presentation.di
 import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
+import com.team.bpm.domain.usecase.review.GetKeywordListUseCase
 import com.team.bpm.domain.usecase.mypage.GetMainTabIndexUseCase
 import com.team.bpm.domain.usecase.mypage.SetMainTabIndexUseCase
 import com.team.bpm.domain.usecase.question.*
@@ -115,6 +116,12 @@ object UseCaseModule {
     }
 
     /* 리뷰 */
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetKeywordUseCase(reviewRepository: ReviewRepository): GetKeywordListUseCase {
+        return GetKeywordListUseCase(reviewRepository)
+    }
 
     @Provides
     @ViewModelScoped

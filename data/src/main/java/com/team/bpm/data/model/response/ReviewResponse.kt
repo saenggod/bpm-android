@@ -1,11 +1,11 @@
 package com.team.bpm.data.model.response
 
+import com.google.gson.annotations.SerializedName
 import com.team.bpm.data.base.BaseResponse
 import com.team.bpm.data.mapper.DataMapper
 import com.team.bpm.data.model.response.StudioResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.UserResponse.Companion.toDataModel
 import com.team.bpm.domain.model.Review
-import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -31,7 +31,9 @@ data class ReviewResponse(
     @SerializedName("updatedAt")
     val updatedAt: String?,
     @SerializedName("liked")
-    val liked: Boolean?
+    val liked: Boolean?,
+    @SerializedName("reported")
+    val reported: Boolean?
 ) : BaseResponse {
     companion object : DataMapper<ReviewResponse, Review> {
         override fun ReviewResponse.toDataModel(): Review {
@@ -46,7 +48,8 @@ data class ReviewResponse(
                 likeCount = likeCount,
                 createdAt = createdAt,
                 updatedAt = updatedAt,
-                liked = liked
+                liked = liked,
+                reported = reported
             )
         }
     }

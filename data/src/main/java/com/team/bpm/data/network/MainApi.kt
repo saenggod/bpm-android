@@ -96,9 +96,9 @@ interface MainApi {
         @Path("studioId") studioId: Int,
         @Part files: List<MultipartBody.Part>,
         @Part("rating") rating: Double,
-        @Part("recommends") recommends: List<String>,
+        @Part("recommends") recommends: List<Int>,
         @Part("content") content: String
-    ): Response<BPMResponseV2<ResponseBody>>
+    ): Response<BPMResponseV2<ReviewResponse>>
 
     @DELETE("api/studio/{studioId}/review/{reviewId}")
     suspend fun deleteReview(
@@ -135,6 +135,9 @@ interface MainApi {
         @Path("studioId") studioId: Int,
         @Path("reviewId") reviewId: Int
     ): Response<BPMResponseV2<ResponseBody>>
+
+    @GET("api/keywords")
+    suspend fun fetchKeywordList(): Response<BPMResponseV2<KeywordListResponse>>
 
     /* 커뮤니티 */
 

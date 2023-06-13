@@ -230,7 +230,7 @@ private fun ReviewDetailActivityContent(
                                 crossAxisSpacing = 6.dp
                             ) {
                                 recommends.forEach { keyword ->
-                                    ReviewKeywordChip(text = keyword)
+                                    ReadOnlyKeywordChip(text = keyword)
                                 }
                             }
 

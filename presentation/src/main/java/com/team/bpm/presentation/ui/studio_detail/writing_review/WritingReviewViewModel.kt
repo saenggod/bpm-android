@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.model.Keyword
+import com.team.bpm.domain.usecase.review.GetKeywordListUseCase
 import com.team.bpm.domain.usecase.review.WriteReviewUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
@@ -21,6 +23,7 @@ import javax.inject.Inject
 class WritingReviewViewModel @Inject constructor(
     private val writeReviewUseCase: WriteReviewUseCase,
     private val getStudioDetailUseCase: GetStudioDetailUseCase,
+    private val getKeywordListUseCase: GetKeywordListUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(), WritingReviewContract {
 
@@ -33,6 +36,10 @@ class WritingReviewViewModel @Inject constructor(
     override fun event(event: WritingReviewContract.Event) = when (event) {
         is WritingReviewContract.Event.GetStudio -> {
             getStudio()
+        }
+
+        is WritingReviewContract.Event.GetKeywordList -> {
+            getKeywordList()
         }
 
         is WritingReviewContract.Event.OnClickImagePlaceHolder -> {
@@ -89,6 +96,33 @@ class WritingReviewViewModel @Inject constructor(
         }
     }
 
+    private fun getKeywordList() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+
+            withContext(ioDispatcher) {
+                getKeywordListUseCase().onEach { result ->
+                    val recommendKeywordMap = HashMap<Keyword, Boolean>()
+                    withContext(mainImmediateDispatcher) {
+                        result.keywords?.forEach { keyword ->
+                            recommendKeywordMap[keyword] = false
+                        }
+
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                recommendKeywordMap = recommendKeywordMap
+                            )
+                        }
+                    }
+                }.launchIn(viewModelScope)
+            }
+        }
+    }
+
+
     private fun onClickImagePlaceHolder() {
         viewModelScope.launch {
             _effect.emit(WritingReviewContract.Effect.AddImages)
@@ -123,7 +157,7 @@ class WritingReviewViewModel @Inject constructor(
         }
     }
 
-    private fun onClickKeywordChip(keyword: String) {
+    private fun onClickKeywordChip(keyword: Keyword) {
         viewModelScope.launch {
             with(state.value) {
                 if (recommendKeywordMap[keyword] == true) {
@@ -131,7 +165,7 @@ class WritingReviewViewModel @Inject constructor(
                         it.copy(
                             recommendKeywordMap = it.recommendKeywordMap.toMutableMap().apply {
                                 this[keyword] = false
-                            } as HashMap<String, Boolean>,
+                            } as HashMap<Keyword, Boolean>,
                             recommendKeywordCount = recommendKeywordCount - 1
                         )
                     }
@@ -143,7 +177,7 @@ class WritingReviewViewModel @Inject constructor(
                             it.copy(
                                 recommendKeywordMap = it.recommendKeywordMap.toMutableMap().apply {
                                     this[keyword] = true
-                                } as HashMap<String, Boolean>,
+                                } as HashMap<Keyword, Boolean>,
                                 recommendKeywordCount = recommendKeywordCount + 1
                             )
                         }
@@ -168,15 +202,19 @@ class WritingReviewViewModel @Inject constructor(
                         studioId = studioId,
                         imageByteArrays = state.value.imageList.map { convertImageBitmapToByteArray(it.second) },
                         rating = rating,
-                        recommends = state.value.recommendKeywordMap.keys.toList(),
+                        recommends = state.value.recommendKeywordMap.filter { it.value }.keys.map { it.id ?: 0 },
                         content = content
-                    ).onEach {
+                    ).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
                                 it.copy(isLoading = false)
                             }
 
-                            _effect.emit(WritingReviewContract.Effect.ShowToast("리뷰를 작성하였습니다."))
+                            result.studio?.id?.let { studioId ->
+                                result.id?.let { reviewId ->
+                                    _effect.emit(WritingReviewContract.Effect.GoToReviewDetail(studioId, reviewId))
+                                }
+                            }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }

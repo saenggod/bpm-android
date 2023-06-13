@@ -1,6 +1,7 @@
 package com.team.bpm.data.repositoryImpl
 
 import com.team.bpm.data.model.request.ReportRequest
+import com.team.bpm.data.model.response.KeywordListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.ReviewListResponse.Companion.toDataModel
 import com.team.bpm.data.model.response.ReviewResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
@@ -9,6 +10,7 @@ import com.team.bpm.data.util.convertByteArrayToWebpFile
 import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.ReviewList
+import com.team.bpm.domain.model.request_wrapper.KeywordList
 import com.team.bpm.domain.repository.ReviewRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -22,9 +24,9 @@ class ReviewRepositoryImpl @Inject constructor(private val mainApi: MainApi) : R
         studioId: Int,
         imageByteArrays: List<ByteArray>,
         rating: Double,
-        recommends: List<String>,
+        recommends: List<Int>,
         content: String
-    ): Flow<Unit> {
+    ): Flow<Review> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendReview(
@@ -39,9 +41,9 @@ class ReviewRepositoryImpl @Inject constructor(private val mainApi: MainApi) : R
                     recommends = recommends,
                     content = content
                 )
-            }.collect {
-                emit(Unit)
-            }
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
         }
     }
 
@@ -120,6 +122,16 @@ class ReviewRepositoryImpl @Inject constructor(private val mainApi: MainApi) : R
             }.collect {
                 emit(Unit)
             }
+        }
+    }
+
+    override suspend fun fetchKeywordList(): Flow<KeywordList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchKeywordList()
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
         }
     }
 }
