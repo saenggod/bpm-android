@@ -24,13 +24,13 @@ data class ReviewResponse(
     val filesPath: List<String>?,
     @SerializedName("content")
     val content: String?,
-    @SerializedName("likeCount")
+    @SerializedName("favoriteCount")
     val likeCount: Int?,
     @SerializedName("createdAt")
     val createdAt: String?,
     @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName("liked")
+    @SerializedName("favorite")
     val liked: Boolean?,
     @SerializedName("reported")
     val reported: Boolean?
