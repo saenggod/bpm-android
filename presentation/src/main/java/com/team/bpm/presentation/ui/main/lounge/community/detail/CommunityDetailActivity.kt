@@ -437,12 +437,14 @@ private fun CommunityDetailActivityContent(
                             onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickCancel = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickConfirm = { reason ->
-                                event.invoke(
-                                    when (reportType) {
-                                        ReportType.POST -> CommunityDetailContract.Event.OnClickSendCommunityReport(reason)
-                                        ReportType.COMMENT -> CommunityDetailContract.Event.OnClickSendCommentReport(reason)
-                                    }
-                                )
+                                if (reason.isNotEmpty()) {
+                                    event.invoke(
+                                        when (reportType) {
+                                            ReportType.POST -> CommunityDetailContract.Event.OnClickSendCommunityReport(reason)
+                                            ReportType.COMMENT -> CommunityDetailContract.Event.OnClickSendCommentReport(reason)
+                                        }
+                                    )
+                                }
                             }
                         )
                     }
