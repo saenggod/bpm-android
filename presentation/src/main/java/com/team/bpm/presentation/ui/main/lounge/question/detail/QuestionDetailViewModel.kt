@@ -144,8 +144,7 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun getQuestionId(): Int? {
-//        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
-        return 41
+        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
     }
 
     private fun getQuestionDetail() {

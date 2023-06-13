@@ -201,14 +201,14 @@ private fun StudioDetailActivityContent(
         LaunchedEffect(isBottomSheetShowing) {
             if (isBottomSheetShowing) {
                 bottomSheetState.show()
+            } else {
+                bottomSheetState.hide()
             }
         }
 
         LaunchedEffect(bottomSheetState.isVisible) {
             if (!bottomSheetState.isVisible) {
                 event.invoke(StudioDetailContract.Event.OnBottomSheetHide)
-            } else {
-                bottomSheetState.hide()
             }
         }
 

@@ -114,14 +114,14 @@ private fun ReviewDetailActivityContent(
         LaunchedEffect(isBottomSheetShowing) {
             if (isBottomSheetShowing) {
                 bottomSheetState.show()
+            } else {
+                bottomSheetState.hide()
             }
         }
 
         LaunchedEffect(bottomSheetState.isVisible) {
             if (!bottomSheetState.isVisible) {
                 event.invoke(ReviewDetailContract.Event.OnBottomSheetHide)
-            } else {
-                bottomSheetState.hide()
             }
         }
 
