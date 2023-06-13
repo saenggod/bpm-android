@@ -83,24 +83,30 @@ class CommunityPostingViewModel @Inject constructor(private val writeCommunityUs
 
     private fun onClickSubmit(content: String) {
         viewModelScope.launch {
-            if (content.isNotEmpty()) {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
+            if (state.value.imageList.isNotEmpty()) {
+                if (content.isNotEmpty()) {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
 
-                withContext(ioDispatcher) {
-                    writeCommunityUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
-                        withContext(mainImmediateDispatcher) {
-                            result.id?.let { communityId -> _effect.emit(
-                                CommunityPostingContract.Effect.RedirectToCommunity(
-                                    communityId
-                                )
-                            ) }
-                        }
-                    }.launchIn(viewModelScope + exceptionHandler)
+                    withContext(ioDispatcher) {
+                        writeCommunityUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                            withContext(mainImmediateDispatcher) {
+                                result.id?.let { communityId ->
+                                    _effect.emit(
+                                        CommunityPostingContract.Effect.RedirectToCommunity(
+                                            communityId
+                                        )
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                } else {
+                    _effect.emit(CommunityPostingContract.Effect.ShowToast("내용을 입력해주세요."))
                 }
             } else {
-                _effect.emit(CommunityPostingContract.Effect.ShowToast("내용을 입력해주세요."))
+                _effect.emit(CommunityPostingContract.Effect.ShowToast("사진을 추가해주세요."))
             }
         }
     }

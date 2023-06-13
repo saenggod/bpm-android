@@ -3,15 +3,9 @@ package com.team.bpm.presentation.ui.main.lounge.community.posting
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
@@ -23,13 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.ImagePlaceHolder
-import com.team.bpm.presentation.compose.LoadingScreen
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.getLocalContext
-import com.team.bpm.presentation.compose.initImageLauncher
+import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.MainBlackColor
 import com.team.bpm.presentation.compose.theme.MainGreenColor
 import com.team.bpm.presentation.ui.main.lounge.community.detail.CommunityDetailActivity
@@ -118,11 +106,13 @@ private fun CommunityPostingActivityContent(
                             ImagePlaceHolder(
                                 image = pair.second,
                                 onClick = {},
-                                onClickRemove = { event.invoke(
-                                    CommunityPostingContract.Event.OnClickRemoveImage(
-                                        index
+                                onClickRemove = {
+                                    event.invoke(
+                                        CommunityPostingContract.Event.OnClickRemoveImage(
+                                            index
+                                        )
                                     )
-                                ) }
+                                }
                             )
                         }
                     }
@@ -151,11 +141,7 @@ private fun CommunityPostingActivityContent(
                     text = "저장하기",
                     textColor = MainBlackColor,
                     buttonColor = MainGreenColor,
-                    onClick = { event.invoke(
-                        CommunityPostingContract.Event.OnClickSubmit(
-                            contentTextState.value
-                        )
-                    ) }
+                    onClick = { event.invoke(CommunityPostingContract.Event.OnClickSubmit(contentTextState.value)) }
                 )
             }
 
