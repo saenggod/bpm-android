@@ -66,9 +66,9 @@ import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
 import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
+import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
-import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -544,7 +544,7 @@ private fun StudioDetailActivityContent(
                             )
 
                             Text(
-                                text = "마지막 업데이트 : ${studio?.updatedAt?.dateOnly() ?: ""}",
+                                text = "마지막 업데이트 : ${studio?.updatedAt?.calculatedFromNow() ?: ""}",
                                 fontWeight = Medium,
                                 fontSize = 14.sp,
                                 letterSpacing = 0.sp,

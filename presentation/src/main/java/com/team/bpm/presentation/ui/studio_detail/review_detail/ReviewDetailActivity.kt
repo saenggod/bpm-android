@@ -43,8 +43,8 @@ import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
+import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
-import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -198,7 +198,7 @@ private fun ReviewDetailActivityContent(
 
                                 Row(modifier = Modifier.align(CenterVertically)) {
                                     Text(
-                                        text = review?.createdAt?.dateOnly() ?: "",
+                                        text = review?.createdAt?.calculatedFromNow() ?: "",
                                         fontWeight = SemiBold,
                                         fontSize = 12.sp,
                                         letterSpacing = 0.sp,

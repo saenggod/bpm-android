@@ -48,8 +48,8 @@ import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.ReportType
 import com.team.bpm.presentation.util.addFocusCleaner
+import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
-import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -204,7 +204,7 @@ private fun CommunityDetailActivityContent(
 
                             Row(verticalAlignment = CenterVertically) {
                                 Text(
-                                    text = community?.createdAt?.dateOnly() ?: "",
+                                    text = community?.createdAt?.calculatedFromNow() ?: "",
                                     fontWeight = Medium,
                                     fontSize = 13.sp,
                                     letterSpacing = 0.sp,
