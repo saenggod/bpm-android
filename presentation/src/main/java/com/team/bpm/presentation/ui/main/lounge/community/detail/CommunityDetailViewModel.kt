@@ -247,41 +247,34 @@ class CommunityDetailViewModel @Inject constructor(
 
     private fun onClickLike() {
         getCommunityId()?.let { communityId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    state.value.liked?.let {
-                        when (it) {
-                            true -> {
-                                dislikeCommunityUseCase(communityId).onEach {
-                                    withContext(mainImmediateDispatcher) {
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                liked = false,
-                                                likeCount = it.likeCount?.minus(1)
-                                            )
-                                        }
+            viewModelScope.launch(ioDispatcher) {
+                state.value.liked?.let {
+                    when (it) {
+                        true -> {
+                            dislikeCommunityUseCase(communityId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(
+                                            liked = false,
+                                            likeCount = it.likeCount?.minus(1)
+                                        )
                                     }
-                                }.launchIn(viewModelScope + exceptionHandler)
-                            }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
 
-                            false -> {
-                                likeCommunityUseCase(communityId).onEach {
-                                    withContext(mainImmediateDispatcher) {
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                liked = true,
-                                                likeCount = it.likeCount?.plus(1)
-                                            )
-                                        }
+                        false -> {
+                            likeCommunityUseCase(communityId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(
+                                            isLoading = false,
+                                            liked = true,
+                                            likeCount = it.likeCount?.plus(1)
+                                        )
                                     }
-                                }.launchIn(viewModelScope + exceptionHandler)
-                            }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
                     }
                 }

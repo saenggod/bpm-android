@@ -12,8 +12,11 @@ import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -198,8 +201,6 @@ class StudioDetailViewModel @Inject constructor(
     }
 
 
-
-
     private fun onClickInfoTab() {
         viewModelScope.launch {
             _effect.emit(StudioDetailContract.Effect.ScrollToInfoTab)
@@ -262,52 +263,40 @@ class StudioDetailViewModel @Inject constructor(
 
     private fun onClickScrap() {
         state.value.studio?.id?.let { studioId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    when (state.value.studio?.scrapped) {
-                        true -> {
-                            scrapCancelUseCase(studioId).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(
-                                            isLoading = false,
-                                            studio = it.studio?.copy(
-                                                scrapCount = it.studio.scrapCount?.minus(1),
-                                                scrapped = false
-                                            )
+            viewModelScope.launch(ioDispatcher) {
+                when (state.value.studio?.scrapped) {
+                    true -> {
+                        scrapCancelUseCase(studioId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        studio = it.studio?.copy(
+                                            scrapCount = it.studio.scrapCount?.minus(1),
+                                            scrapped = false
                                         )
-                                    }
+                                    )
                                 }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
-
-                        false -> {
-                            scrapUseCase(studioId).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(
-                                            isLoading = false,
-                                            studio = it.studio?.copy(
-                                                scrapCount = it.studio.scrapCount?.plus(1),
-                                                scrapped = true
-                                            )
-                                        )
-                                    }
-                                }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
-
-                        null -> {
-                            _state.update {
-                                it.copy(isLoading = false)
                             }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
 
-                            _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 기능을 사용할 수 없습니다."))
-                        }
+                    false -> {
+                        scrapUseCase(studioId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        studio = it.studio?.copy(
+                                            scrapCount = it.studio.scrapCount?.plus(1),
+                                            scrapped = true
+                                        )
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+
+                    null -> {
+                        _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 기능을 사용할 수 없습니다."))
                     }
                 }
             }

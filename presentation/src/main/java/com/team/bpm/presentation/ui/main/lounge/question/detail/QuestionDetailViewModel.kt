@@ -266,41 +266,33 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickLike() {
         getQuestionId()?.let { questionId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    state.value.liked?.let {
-                        when (it) {
-                            true -> {
-                                dislikeQuestionUseCase(questionId).onEach {
-                                    withContext(mainImmediateDispatcher) {
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                liked = false,
-                                                likeCount = it.likeCount?.minus(1)
-                                            )
-                                        }
+            viewModelScope.launch(ioDispatcher) {
+                state.value.liked?.let {
+                    when (it) {
+                        true -> {
+                            dislikeQuestionUseCase(questionId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(
+                                            liked = false,
+                                            likeCount = it.likeCount?.minus(1)
+                                        )
                                     }
-                                }.launchIn(viewModelScope + exceptionHandler)
-                            }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
 
-                            false -> {
-                                likeQuestionUseCase(questionId).onEach {
-                                    withContext(mainImmediateDispatcher) {
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                liked = true,
-                                                likeCount = it.likeCount?.plus(1)
-                                            )
-                                        }
+                        false -> {
+                            likeQuestionUseCase(questionId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(
+                                            liked = true,
+                                            likeCount = it.likeCount?.plus(1)
+                                        )
                                     }
-                                }.launchIn(viewModelScope + exceptionHandler)
-                            }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
                     }
                 }
