@@ -18,18 +18,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CommunityDetailViewModel @Inject constructor(
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val getCommunityDetailUseCase: GetCommunityDetailUseCase,
-    private val getCommunityCommentListUseCase: GetCommunityCommentListUseCase,
     private val deleteCommunityUseCase: DeleteCommunityUseCase,
     private val reportCommunityUseCase: ReportCommunityUseCase,
-    private val writeCommunityCommentUseCase: WriteCommunityCommentUseCase,
     private val likeCommunityUseCase: LikeCommunityUseCase,
     private val dislikeCommunityUseCase: DislikeCommunityUseCase,
+    private val writeCommunityCommentUseCase: WriteCommunityCommentUseCase,
+    private val getCommunityCommentListUseCase: GetCommunityCommentListUseCase,
     private val deleteCommunityCommentUseCase: DeleteCommunityCommentUseCase,
     private val reportCommunityCommentUseCase: ReportCommunityCommentUseCase,
     private val likeCommunityCommentUseCase: LikeCommunityCommentUseCase,
     private val dislikeCommunityCommentUseCase: DislikeCommunityCommentUseCase,
-    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(), CommunityDetailContract {
 
@@ -48,10 +48,6 @@ class CommunityDetailViewModel @Inject constructor(
             getCommunityDetail()
         }
 
-        is CommunityDetailContract.Event.GetCommentList -> {
-            getCommentList()
-        }
-
         is CommunityDetailContract.Event.OnClickCommunityActionButton -> {
             onClickCommunityActionButton()
         }
@@ -68,8 +64,16 @@ class CommunityDetailViewModel @Inject constructor(
             onClickSendCommunityReport(event.reason)
         }
 
+        is CommunityDetailContract.Event.OnClickLike -> {
+            onClickLike()
+        }
+
         is CommunityDetailContract.Event.OnClickSendComment -> {
             onClickSendComment(comment = event.comment)
+        }
+
+        is CommunityDetailContract.Event.GetCommentList -> {
+            getCommentList()
         }
 
         is CommunityDetailContract.Event.OnClickCommentActionButton -> {
@@ -96,10 +100,6 @@ class CommunityDetailViewModel @Inject constructor(
             onClickSendCommentReport(event.reason)
         }
 
-        is CommunityDetailContract.Event.OnClickLike -> {
-            onClickLike()
-        }
-
         is CommunityDetailContract.Event.OnClickCommentLike -> {
             onClickCommentLike(event.commentId)
         }
@@ -120,7 +120,9 @@ class CommunityDetailViewModel @Inject constructor(
             getKakaoIdUseCase().onEach { result ->
                 result?.let { userId ->
                     withContext(mainImmediateDispatcher) {
-
+                        _state.update {
+                            it.copy(userId = userId)
+                        }
                     }
                 }
             }.launchIn(viewModelScope + exceptionHandler)
@@ -128,7 +130,7 @@ class CommunityDetailViewModel @Inject constructor(
     }
 
     private fun getCommunityId(): Int? {
-        return savedStateHandle.get<Int>(CommunityDetailActivity.KEY_QUESTION_ID)
+        return savedStateHandle.get<Int>(CommunityDetailActivity.KEY_COMMUNITY_ID)
     }
 
     private fun getCommunityDetail() {
@@ -204,7 +206,8 @@ class CommunityDetailViewModel @Inject constructor(
                 it.copy(
                     reportType = ReportType.POST,
                     isReportDialogShowing = true,
-                    isBottomSheetShowing = false
+                    isBottomSheetShowing = false,
+                    isReporting = true
                 )
             }
         }
@@ -227,7 +230,8 @@ class CommunityDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     isNoticeDialogShowing = true,
-                                    noticeDialogContent = "신고가 완료되었습니다"
+                                    noticeDialogContent = "신고가 완료되었습니다",
+                                    isReporting = false
                                 )
                             }
                         }
@@ -289,14 +293,13 @@ class CommunityDetailViewModel @Inject constructor(
                 }
 
                 withContext(ioDispatcher) {
-                    writeCommunityCommentUseCase(communityId = communityId, parentId = null, comment = comment).onEach { result ->
+                    writeCommunityCommentUseCase(communityId, comment).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    redirectCommentId = result.id,
-                                    selectedCommentId = null,
-                                    selectedCommentAuthorId = null
+                                    commentIdToScroll = result.id,
+                                    selectedComment = null
                                 )
                             }
 
@@ -358,8 +361,8 @@ class CommunityDetailViewModel @Inject constructor(
                         }
 
                         it.copy(
-                            selectedCommentId = commentId,
-                            selectedCommentAuthorId = authorId,
+                            selectedComment = selectedComment,
+                            commentIdToScroll = commentId,
                             bottomSheetButtonList = bottomSheetButtonList,
                             isBottomSheetShowing = true
                         )
@@ -371,7 +374,7 @@ class CommunityDetailViewModel @Inject constructor(
 
     private fun onClickDeleteComment() {
         getCommunityId()?.let { communityId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
+            state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
                         it.copy(isCommentListLoading = true)
@@ -395,7 +398,8 @@ class CommunityDetailViewModel @Inject constructor(
                 it.copy(
                     reportType = ReportType.COMMENT,
                     isReportDialogShowing = true,
-                    isBottomSheetShowing = false
+                    isBottomSheetShowing = false,
+                    isReporting = true
                 )
             }
         }
@@ -403,12 +407,13 @@ class CommunityDetailViewModel @Inject constructor(
 
     private fun onClickSendCommentReport(reason: String) {
         getCommunityId()?.let { communityId ->
-            state.value.selectedCommentId?.let { selectedCommentId ->
+            state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
                         it.copy(
                             isCommentListLoading = true,
-                            isReportDialogShowing = false
+                            isReportDialogShowing = false,
+                            isReporting = false
                         )
                     }
 
@@ -479,7 +484,10 @@ class CommunityDetailViewModel @Inject constructor(
     private fun onClickDismissReportDialog() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isReportDialogShowing = false)
+                it.copy(
+                    isReportDialogShowing = false,
+                    isReporting = false
+                )
             }
         }
     }
@@ -497,8 +505,7 @@ class CommunityDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isBottomSheetShowing = false,
-                    selectedCommentId = null,
-                    selectedCommentAuthorId = null
+                    selectedComment = if (it.isReporting) it.selectedComment else null
                 )
             }
         }

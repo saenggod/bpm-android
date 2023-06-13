@@ -112,12 +112,11 @@ class CommunityRepositoryImpl @Inject constructor(private val mainApi: MainApi) 
 
     override suspend fun sendCommunityComment(
         communityId: Int,
-        parentId: Int?,
         comment: String
     ): Flow<Comment> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.sendCommunityComment(communityId, CommentRequest(parentId, comment))
+                mainApi.sendCommunityComment(communityId, CommentRequest(parentId = null, comment))
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
