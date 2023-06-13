@@ -8,7 +8,6 @@ interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewList
     data class State(
         val userId: Long? = null,
         val isLoading: Boolean = false,
-        val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,

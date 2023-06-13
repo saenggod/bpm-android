@@ -721,7 +721,25 @@ private fun StudioDetailActivityContent(
                             if (reviewList.isNotEmpty()) {
                                 Box {
                                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                        reviewList.forEachIndexed { index, review ->
+                                        reviewList.filter {
+                                            if (isReviewListShowingImageReviewsOnly) {
+                                                it.filesPath?.isNotEmpty() == true
+                                            } else {
+                                                true
+                                            }
+                                        }.sortedByDescending {
+                                            if (isReviewListSortedByLike) {
+                                                it.likeCount
+                                            } else {
+                                                null
+                                            }
+                                        }.sortedByDescending {
+                                            if (!isReviewListSortedByLike) {
+                                                it.createdAt
+                                            } else {
+                                                null
+                                            }
+                                        }.forEachIndexed { index, review ->
                                             if (index < 5) {
                                                 ReviewComposable(
                                                     review = review,

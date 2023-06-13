@@ -151,7 +151,27 @@ private fun ReviewListActivityContent(
                         )
                     }
 
-                    items(reviewList) { review ->
+                    items(
+                        reviewList.filter {
+                            if (isReviewListShowingImageReviewsOnly) {
+                                it.filesPath?.isNotEmpty() == true
+                            } else {
+                                true
+                            }
+                        }.sortedByDescending {
+                            if (isReviewListSortedByLike) {
+                                it.likeCount
+                            } else {
+                                null
+                            }
+                        }.sortedByDescending {
+                            if (!isReviewListSortedByLike) {
+                                it.createdAt
+                            } else {
+                                null
+                            }
+                        }
+                    ) { review ->
                         ReviewComposable(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             review = review,

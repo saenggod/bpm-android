@@ -15,7 +15,6 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         val isLoading: Boolean = false,
         val studio: Studio? = null,
         val isReviewListLoading: Boolean = false,
-        val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,

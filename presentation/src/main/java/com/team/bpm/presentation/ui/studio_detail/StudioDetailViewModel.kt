@@ -340,8 +340,7 @@ class StudioDetailViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isReviewListLoading = false,
-                                originalReviewList = result.reviews ?: emptyList(),
-                                reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
+                                reviewList = result.reviews ?: emptyList()
                             )
                         }
                     }
@@ -362,11 +361,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         viewModelScope.launch {
             _state.update {
-                val filteredList = it.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = true,
-                    reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-                    else filteredList.sortedByDescending { review -> review.createdAt })
+                it.copy(isReviewListShowingImageReviewsOnly = true)
             }
         }
     }
@@ -374,10 +369,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickShowNotOnlyImageReviews() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = false,
-                    reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
-                    else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
+                it.copy(isReviewListShowingImageReviewsOnly = false)
             }
         }
     }
@@ -385,10 +377,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickSortByLike() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    reviewList = it.reviewList.sortedByDescending { review -> review.likeCount },
-                    isReviewListSortedByLike = true
-                )
+                it.copy(isReviewListSortedByLike = true)
             }
         }
     }
@@ -396,10 +385,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickSortByDate() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    reviewList = it.reviewList.sortedByDescending { review -> review.createdAt },
-                    isReviewListSortedByLike = false
-                )
+                it.copy(isReviewListSortedByLike = false)
             }
         }
     }
@@ -511,7 +497,7 @@ class StudioDetailViewModel @Inject constructor(
                             dislikeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                        it.copy(reviewList = sortRefreshedReviewList(it.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
                                             this[targetIndex] = this[targetIndex].copy(
                                                 liked = false,
@@ -529,7 +515,7 @@ class StudioDetailViewModel @Inject constructor(
                             likeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                        it.copy(reviewList = sortRefreshedReviewList(it.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
                                             this[targetIndex] = this[targetIndex].copy(
                                                 liked = true,
