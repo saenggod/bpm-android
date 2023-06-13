@@ -33,7 +33,7 @@ class ReviewRepositoryImpl @Inject constructor(private val mainApi: MainApi) : R
                     studioId = studioId,
                     files = imageByteArrays.map { imageByteArray ->
                         createImageMultipartBody(
-                            key = "file",
+                            key = "files",
                             file = convertByteArrayToWebpFile(imageByteArray)
                         )
                     },
