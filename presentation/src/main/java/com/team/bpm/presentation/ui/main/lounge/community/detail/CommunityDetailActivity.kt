@@ -457,7 +457,7 @@ private fun CommunityDetailActivityContent(
                         title = null,
                         content = noticeDialogContent,
                         onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) },
-                        onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
+                        onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickConfirmNoticeDialog) }
                     )
                 }
             }

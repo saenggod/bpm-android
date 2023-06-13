@@ -104,6 +104,10 @@ class CommunityDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
+        is CommunityDetailContract.Event.OnClickConfirmNoticeDialog -> {
+            onClickConfirmNoticeDialog()
+        }
+
         is CommunityDetailContract.Event.OnBottomSheetHide -> {
             onBottomSheetHide()
         }
@@ -322,7 +326,7 @@ class CommunityDetailViewModel @Inject constructor(
                     getCommunityCommentListUseCase(communityId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             val commentList = mutableListOf<Comment>().apply {
-                                result.comments?.forEach { comment ->
+                                result.comments?.filter { it.reported != true }?.forEach { comment ->
                                     add(comment)
 
                                     comment.children?.let { childrenCommentList ->
@@ -497,6 +501,12 @@ class CommunityDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(isNoticeDialogShowing = false)
             }
+        }
+    }
+
+    private fun onClickConfirmNoticeDialog() {
+        viewModelScope.launch {
+            _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
         }
     }
 

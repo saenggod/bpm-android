@@ -63,6 +63,8 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
 
         object OnClickDismissNoticeDialog : Event
 
+        object OnClickConfirmNoticeDialog : Event
+
         object OnBottomSheetHide : Event
     }
 
