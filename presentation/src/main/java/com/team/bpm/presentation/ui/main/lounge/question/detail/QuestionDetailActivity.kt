@@ -512,7 +512,7 @@ private fun QuestionDetailActivityContent(
                             title = null,
                             content = noticeDialogContent,
                             onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) },
-                            onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
+                            onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickConfirmNoticeDialog) }
                         )
                     }
                 }

@@ -70,6 +70,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
 
         object OnClickDismissNoticeDialog : Event
 
+        object OnClickConfirmNoticeDialog : Event
+
         object OnBottomSheetHide : Event
 
         object OnClickCancelReplying : Event

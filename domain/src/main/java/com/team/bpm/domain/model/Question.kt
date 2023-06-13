@@ -14,5 +14,6 @@ data class Question(
     val updatedAt: String?,
     val liked: Boolean?,
     val likeCount: Int?,
-    val commentsCount: Int?
+    val commentsCount: Int?,
+    val reported: Boolean?
 ) : BaseModel

@@ -114,6 +114,10 @@ class QuestionDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
+        is QuestionDetailContract.Event.OnClickConfirmNoticeDialog -> {
+            onClickConfirmNoticeDialog()
+        }
+
         is QuestionDetailContract.Event.OnBottomSheetHide -> {
             onBottomSheetHide()
         }
@@ -343,11 +347,11 @@ class QuestionDetailViewModel @Inject constructor(
                     getQuestionCommentListUseCase(questionId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             val commentList = mutableListOf<Comment>().apply {
-                                result.comments?.forEach { comment ->
+                                result.comments?.filter { it.reported != true }?.forEach { comment ->
                                     add(comment)
 
                                     comment.children?.let { childrenCommentList ->
-                                        childrenCommentList.forEach { childComment ->
+                                        childrenCommentList.filter { it.reported != true }.forEach { childComment ->
                                             add(childComment)
                                         }
                                     }
@@ -541,6 +545,12 @@ class QuestionDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(isNoticeDialogShowing = false)
             }
+        }
+    }
+
+    private fun onClickConfirmNoticeDialog() {
+        viewModelScope.launch {
+            _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
         }
     }
 
