@@ -2,6 +2,7 @@ package com.team.bpm.domain.repository
 
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.ReviewList
+import com.team.bpm.domain.model.request_wrapper.KeywordList
 import kotlinx.coroutines.flow.Flow
 
 interface ReviewRepository {
@@ -9,9 +10,9 @@ interface ReviewRepository {
         studioId: Int,
         imageByteArrays: List<ByteArray>,
         rating: Double,
-        recommends: List<String>,
+        recommends: List<Int>,
         content: String
-    ): Flow<Unit>
+    ): Flow<Review>
 
     suspend fun deleteReview(
         studioId: Int,
@@ -40,4 +41,6 @@ interface ReviewRepository {
         studioId: Int,
         reviewId: Int
     ): Flow<Unit>
+
+    suspend fun fetchKeywordList(): Flow<KeywordList>
 }

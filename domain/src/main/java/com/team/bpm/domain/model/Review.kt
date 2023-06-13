@@ -15,5 +15,6 @@ data class Review(
     val likeCount: Int?,
     val createdAt: String?,
     val updatedAt: String?,
-    val liked: Boolean?
+    val liked: Boolean?,
+    val reported: Boolean?
 ) : BaseModel

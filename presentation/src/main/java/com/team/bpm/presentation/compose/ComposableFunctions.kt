@@ -61,6 +61,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.team.bpm.domain.model.Comment
+import com.team.bpm.domain.model.Keyword
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.R
@@ -612,11 +613,7 @@ fun ReviewComposable(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(it) { keyword ->
-                        KeywordChip(
-                            text = keyword,
-                            isChosen = false,
-                            onClick = { }
-                        )
+                        ReadOnlyKeywordChip(text = keyword)
                     }
                 }
             }
@@ -744,8 +741,8 @@ inline fun LikeButton(
 }
 
 @Composable
-inline fun KeywordChip(
-    text: String,
+inline fun ClickableKeywordChip(
+    keyword: Keyword,
     isChosen: Boolean,
     crossinline onClick: () -> Unit
 ) {
@@ -758,7 +755,7 @@ inline fun KeywordChip(
                 vertical = 8.dp
             )
             .clickableWithoutRipple { onClick() },
-        text = text,
+        text = keyword.keyword ?: "",
         fontWeight = Medium,
         fontSize = 12.sp,
         letterSpacing = 0.sp,
@@ -767,7 +764,7 @@ inline fun KeywordChip(
 }
 
 @Composable
-fun ReviewKeywordChip(
+fun ReadOnlyKeywordChip(
     text: String
 ) {
     Box(

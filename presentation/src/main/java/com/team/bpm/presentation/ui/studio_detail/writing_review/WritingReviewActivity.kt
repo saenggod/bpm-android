@@ -40,6 +40,7 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -87,6 +88,7 @@ private fun WritingReviewActivityContent(
 
     LaunchedEffect(Unit) {
         event.invoke(WritingReviewContract.Event.GetStudio)
+        event.invoke(WritingReviewContract.Event.GetKeywordList)
     }
 
     LaunchedEffect(effect) {
@@ -95,8 +97,14 @@ private fun WritingReviewActivityContent(
                 is WritingReviewContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
-                WritingReviewContract.Effect.AddImages -> {
+
+                is WritingReviewContract.Effect.AddImages -> {
                     imageLauncher.launch(PickVisualMediaRequest())
+                }
+
+                is WritingReviewContract.Effect.GoToReviewDetail -> {
+                    context.startActivity(ReviewDetailActivity.newIntent(context, effect.studioId, effect.reviewId))
+                    context.finish()
                 }
             }
         }
@@ -316,13 +324,13 @@ private fun WritingReviewActivityContent(
                     mainAxisSpacing = 8.dp,
                     crossAxisSpacing = 10.dp
                 ) {
-//                    dummyKeywordChipList.forEach { dummyKeyword ->
-//                        KeywordChip(
-//                            text = dummyKeyword,
-//                            isChosen = recommendKeywordMap[dummyKeyword] ?: false,
-//                            onClick = { event(WritingReviewContract.Event.OnClickKeywordChip(dummyKeyword))} //
-//                        )
-//                    }
+                    recommendKeywordMap.forEach { mapItem ->
+                        ClickableKeywordChip(
+                            keyword = mapItem.key,
+                            isChosen = mapItem.value,
+                            onClick = { event(WritingReviewContract.Event.OnClickKeywordChip(mapItem.key)) }
+                        )
+                    }
                 }
 
                 BPMSpacer(height = 20.dp)
@@ -409,6 +417,10 @@ private fun WritingReviewActivityContent(
                 )
 
                 BPMSpacer(height = 12.dp)
+            }
+
+            if (isLoading) {
+                LoadingScreen()
             }
         }
     }

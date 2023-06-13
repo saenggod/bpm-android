@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.studio_detail.writing_review
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
+import com.team.bpm.domain.model.Keyword
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.presentation.base.BaseContract
 
@@ -10,12 +11,14 @@ interface WritingReviewContract : BaseContract<WritingReviewContract.State, Writ
         val isLoading: Boolean = false,
         val studio: Studio? = null,
         val imageList: List<Pair<Uri, ImageBitmap>> = emptyList(),
-        val recommendKeywordMap: HashMap<String, Boolean> = HashMap(),
+        val recommendKeywordMap: HashMap<Keyword, Boolean> = HashMap(),
         val recommendKeywordCount: Int = 0
     )
 
     sealed interface Event {
         object GetStudio : Event
+
+        object GetKeywordList : Event
 
         object OnClickImagePlaceHolder : Event
 
@@ -23,7 +26,7 @@ interface WritingReviewContract : BaseContract<WritingReviewContract.State, Writ
 
         data class OnClickRemoveImage(val index: Int) : Event
 
-        data class OnClickKeywordChip(val keyword: String) : Event
+        data class OnClickKeywordChip(val keyword: Keyword) : Event
 
         data class OnClickSubmit(val rating: Double, val content: String) : Event
     }
@@ -32,5 +35,7 @@ interface WritingReviewContract : BaseContract<WritingReviewContract.State, Writ
         data class ShowToast(val text: String) : Effect
 
         object AddImages : Effect
+
+        data class GoToReviewDetail(val studioId: Int, val reviewId: Int) : Effect
     }
 }
