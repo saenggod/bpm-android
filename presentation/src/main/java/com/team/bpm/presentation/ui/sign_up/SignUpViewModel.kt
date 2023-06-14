@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
 import com.team.bpm.domain.usecase.splash.SetUserTokenUseCase
+import com.team.bpm.domain.usecase.user.SetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
     private val setUserTokenUseCase: SetUserTokenUseCase,
+    private val setUserIdUseCase: SetUserIdUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModelV2(), SignUpContract {
     private val _state = MutableStateFlow(SignUpContract.State())
@@ -118,9 +120,9 @@ class SignUpViewModel @Inject constructor(
                                 nickname = nickname,
                                 bio = bio
                             ).onEach { result ->
-                                withContext(mainImmediateDispatcher) {
-                                    result.token?.let { token ->
-                                        saveUserToken(token)
+                                result.id?.let { userId ->
+                                    result.token?.let { userToken ->
+                                        setUserInfo(userId, userToken)
                                     }
                                 }
                             }.launchIn(viewModelScope + exceptionHandler)
@@ -133,20 +135,20 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private fun saveUserToken(token: String) {
-        viewModelScope.launch(ioDispatcher) {
-            setUserTokenUseCase(token).onEach { tokenResult ->
-                withContext(mainImmediateDispatcher) {
-                    if (!tokenResult.isNullOrEmpty()) {
-                        _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
-                    } else {
-                        _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))
-                        _state.update {
-                            it.copy(isLoading = false)
-                        }
+    private suspend fun setUserInfo(userId: Long, token: String) {
+        setUserIdUseCase(userId).zip(setUserTokenUseCase(token)) { userId, userToken ->
+            Pair(userId, userToken)
+        }.collect { result ->
+            withContext(mainImmediateDispatcher) {
+                if (result.first != null && result.second != null) {
+                    _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
+                } else {
+                    _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))
+                    _state.update {
+                        it.copy(isLoading = false)
                     }
                 }
-            }.launchIn(viewModelScope + exceptionHandler)
+            }
         }
     }
 }

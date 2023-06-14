@@ -2,11 +2,7 @@ package com.team.bpm.data.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -43,6 +39,20 @@ class DataStoreManager @Inject constructor(private val context: Context) {
         return getUserToken()
     }
 
+    fun getUserId(): Flow<Long?> {
+        return context.instance.data.map { preferences ->
+            preferences[longPreferencesKey(KEY_USER_ID)]
+        }
+    }
+
+    suspend fun setUserId(userId: Long): Flow<Long?> {
+        context.instance.edit { preferences ->
+            preferences[longPreferencesKey(KEY_USER_ID)] = userId
+        }
+
+        return getUserId()
+    }
+
     fun getStartTabIndex(): Flow<Int?> {
         return context.instance.data.map { preferences ->
             preferences[intPreferencesKey(KEY_START_TAB)]
@@ -61,6 +71,7 @@ class DataStoreManager @Inject constructor(private val context: Context) {
         private const val KEY_DATASTORE = "bpm"
         private const val KEY_KAKAO_USER_ID = "kakao_user_id"
         private const val KEY_USER_TOKEN = "user_token"
+        private const val KEY_USER_ID = "user_id"
         private const val KEY_START_TAB = "start_tab"
     }
 }
