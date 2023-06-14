@@ -923,8 +923,7 @@ private fun StudioDetailActivityContent(
                     NoticeDialog(
                         title = null,
                         content = noticeDialogContent,
-                        onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
-                        onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
+                        onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
                     )
                 }
             }

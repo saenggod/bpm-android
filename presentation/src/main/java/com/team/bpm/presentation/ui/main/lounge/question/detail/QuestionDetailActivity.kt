@@ -511,8 +511,15 @@ private fun QuestionDetailActivityContent(
                         NoticeDialog(
                             title = null,
                             content = noticeDialogContent,
-                            onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) },
-                            onClickConfirm = { event.invoke(QuestionDetailContract.Event.OnClickConfirmNoticeDialog) }
+                            onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeDialog) }
+                        )
+                    }
+
+                    if (isNoticeToQuitDialogShowing) {
+                        NoticeDialog(
+                            title = null,
+                            content = noticeToQuitDialogContent,
+                            onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissNoticeToQuitDialog) }
                         )
                     }
                 }

@@ -17,7 +17,7 @@ interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewList
         val bottomSheetButton: BottomSheetButton? = null,
         val isReportDialogShowing: Boolean = false,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String = "신고가 완료되었습니다.",
+        val noticeDialogContent: String = "",
     )
 
     sealed interface Event {

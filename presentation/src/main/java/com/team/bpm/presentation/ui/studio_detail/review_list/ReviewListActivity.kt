@@ -219,8 +219,7 @@ private fun ReviewListActivityContent(
                     NoticeDialog(
                         title = null,
                         content = noticeDialogContent,
-                        onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) },
-                        onClickConfirm = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
+                        onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
                     )
                 }
             }

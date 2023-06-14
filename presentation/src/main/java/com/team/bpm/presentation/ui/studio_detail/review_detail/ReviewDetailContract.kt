@@ -15,7 +15,9 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
         val isReportDialogShowing: Boolean = false,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String = "신고가 완료되었습니다."
+        val noticeDialogContent: String = "",
+        val isNoticeToQuitDialogShowing: Boolean = false,
+        val noticeToQuitDialogContent: String = ""
     )
 
     sealed interface Event {
@@ -33,9 +35,11 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
 
         object GetReviewDetail : Event
 
+        object OnClickDismissReportDialog : Event
+
         object OnClickDismissNoticeDialog : Event
 
-        object OnClickDismissReportDialog : Event
+        object OnClickDismissNoticeToQuitDialog : Event
 
         object OnBottomSheetHide : Event
     }

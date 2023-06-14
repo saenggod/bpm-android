@@ -151,6 +151,13 @@ class ReviewListViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         deleteReviewUseCase(studioId, reviewId).onEach {
                             withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "삭제가 완료되었습니다."
+                                    )
+                                }
+
                                 _effect.emit(ReviewListContract.Effect.RefreshReviewList)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
@@ -187,7 +194,8 @@ class ReviewListViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    isNoticeDialogShowing = true
+                                    isNoticeDialogShowing = true,
+                                    noticeDialogContent = "신고가 완료되었습니다."
                                 )
                             }
 

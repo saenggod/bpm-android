@@ -24,7 +24,9 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
         val isReportDialogShowing: Boolean = false,
         val reportType: ReportType? = null,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String = "신고가 완료되었습니다."
+        val noticeDialogContent: String = "",
+        val isNoticeToQuitDialogShowing: Boolean = false,
+        val noticeToQuitDialogContent: String = ""
     )
 
     sealed interface Event {
@@ -63,7 +65,7 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
 
         object OnClickDismissNoticeDialog : Event
 
-        object OnClickConfirmNoticeDialog : Event
+        object OnClickDismissNoticeToQuitDialog : Event
 
         object OnBottomSheetHide : Event
     }

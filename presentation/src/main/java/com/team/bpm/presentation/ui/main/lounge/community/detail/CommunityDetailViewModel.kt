@@ -8,6 +8,7 @@ import com.team.bpm.domain.usecase.user.GetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.ReportType
+import com.team.bpm.presentation.ui.main.lounge.question.detail.QuestionDetailContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -104,8 +105,8 @@ class CommunityDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
-        is CommunityDetailContract.Event.OnClickConfirmNoticeDialog -> {
-            onClickConfirmNoticeDialog()
+        is CommunityDetailContract.Event.OnClickDismissNoticeToQuitDialog -> {
+            onClickDismissNoticeToQuitDialog()
         }
 
         is CommunityDetailContract.Event.OnBottomSheetHide -> {
@@ -196,7 +197,13 @@ class CommunityDetailViewModel @Inject constructor(
                 withContext(ioDispatcher) {
                     deleteCommunityUseCase(communityId).onEach {
                         withContext(mainImmediateDispatcher) {
-                            _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isNoticeToQuitDialogShowing = true,
+                                    noticeToQuitDialogContent = "삭제가 완료되었습니다."
+                                )
+                            }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }
@@ -233,7 +240,8 @@ class CommunityDetailViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    isNoticeDialogShowing = true,
+                                    isNoticeToQuitDialogShowing = true,
+                                    noticeToQuitDialogContent = "신고가 완료되었습니다.",
                                     isReporting = false
                                 )
                             }
@@ -373,12 +381,23 @@ class CommunityDetailViewModel @Inject constructor(
             state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isCommentListLoading = true)
+                        it.copy(
+                            isCommentListLoading = true,
+                            isBottomSheetShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {
                         deleteCommunityCommentUseCase(communityId, selectedCommentId).onEach {
                             withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        isCommentListLoading = false,
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "삭제가 완료되었습니다."
+                                    )
+                                }
+
                                 _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
@@ -419,7 +438,8 @@ class CommunityDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(
                                         isCommentListLoading = false,
-                                        isNoticeDialogShowing = true
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "신고가 완료되었습니다.",
                                     )
                                 }
 
@@ -499,15 +519,9 @@ class CommunityDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickConfirmNoticeDialog() {
+    private fun onClickDismissNoticeToQuitDialog() {
         viewModelScope.launch {
-            if (state.value.reportType == ReportType.POST) {
-                _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
-            } else {
-                _state.update {
-                    it.copy(isNoticeDialogShowing = false)
-                }
-            }
+            _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
         }
     }
 

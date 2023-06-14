@@ -69,6 +69,10 @@ class ReviewDetailViewModel @Inject constructor(
             onClickDismissNoticeDialog()
         }
 
+        ReviewDetailContract.Event.OnClickDismissNoticeToQuitDialog -> {
+            onClickDismissNoticeToQuitDialog()
+        }
+
         is ReviewDetailContract.Event.OnBottomSheetHide -> {
             onBottomSheetHide()
         }
@@ -140,7 +144,13 @@ class ReviewDetailViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         deleteReviewUseCase(studioId, reviewId).onEach {
                             withContext(mainImmediateDispatcher) {
-                                _effect.emit(ReviewDetailContract.Effect.GoBack)
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        isNoticeToQuitDialogShowing = true,
+                                        noticeToQuitDialogContent = "삭제가 완료되었습니다."
+                                    )
+                                }
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
                     }
@@ -177,7 +187,8 @@ class ReviewDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(
                                         isLoading = false,
-                                        isNoticeDialogShowing = true
+                                        isNoticeToQuitDialogShowing = true,
+                                        noticeToQuitDialogContent = "신고가 완료되었습니다."
                                     )
                                 }
                             }
@@ -260,6 +271,14 @@ class ReviewDetailViewModel @Inject constructor(
     }
 
     private fun onClickDismissNoticeDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isNoticeDialogShowing = false)
+            }
+        }
+    }
+
+    private fun onClickDismissNoticeToQuitDialog() {
         viewModelScope.launch {
             _effect.emit(ReviewDetailContract.Effect.GoBack)
         }

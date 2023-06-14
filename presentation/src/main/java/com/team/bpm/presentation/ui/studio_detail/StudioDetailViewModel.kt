@@ -421,7 +421,11 @@ class StudioDetailViewModel @Inject constructor(
                         deleteReviewUseCase(studioId, reviewId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(isLoading = false)
+                                    it.copy(
+                                        isLoading = false,
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "삭제가 완료되었습니다."
+                                    )
                                 }
 
                                 _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
@@ -457,7 +461,9 @@ class StudioDetailViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isReviewListLoading = true,
-                            isReportDialogShowing = false
+                            isReportDialogShowing = false,
+                            isNoticeDialogShowing = true,
+                            noticeDialogContent = "신고가 완료되었습니다."
                         )
                     }
 
@@ -465,10 +471,7 @@ class StudioDetailViewModel @Inject constructor(
                         reportReviewUseCase(studioId, reviewId, reason).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(
-                                        isReviewListLoading = false,
-                                        isNoticeDialogShowing = true
-                                    )
+                                    it.copy(isReviewListLoading = false)
                                 }
 
                                 _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
@@ -540,7 +543,8 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickDismissNoticeDialog() {
+    private fun
+            onClickDismissNoticeDialog() {
         viewModelScope.launch {
             _state.update {
                 it.copy(isNoticeDialogShowing = false)

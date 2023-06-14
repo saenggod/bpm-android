@@ -456,8 +456,15 @@ private fun CommunityDetailActivityContent(
                     NoticeDialog(
                         title = null,
                         content = noticeDialogContent,
-                        onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) },
-                        onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickConfirmNoticeDialog) }
+                        onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
+                    )
+                }
+
+                if (isNoticeToQuitDialogShowing) {
+                    NoticeDialog(
+                        title = null,
+                        content = noticeToQuitDialogContent,
+                        onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeToQuitDialog) }
                     )
                 }
             }

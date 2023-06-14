@@ -36,8 +36,8 @@ inline fun BaseComposableDialog(
     Dialog(
         onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
         )
     ) {
         (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f)
@@ -50,8 +50,7 @@ fun NoticeDialog(
     title: String?,
     content: String,
     confirmButtonText: String = "확인",
-    onDismissRequest: () -> Unit,
-    onClickConfirm: (() -> Unit)?
+    onDismissRequest: () -> Unit
 ) {
     BaseComposableDialog(
         onDismissRequest = {
@@ -104,7 +103,7 @@ fun NoticeDialog(
                     .align(End)
                     .width(41.dp)
                     .height(34.dp)
-                    .clickableWithoutRipple { onClickConfirm?.invoke() }
+                    .clickableWithoutRipple { onDismissRequest() }
                 ) {
                     Text(
                         text = confirmButtonText,

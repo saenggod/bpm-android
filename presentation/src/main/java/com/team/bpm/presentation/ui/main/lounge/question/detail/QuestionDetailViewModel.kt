@@ -114,8 +114,8 @@ class QuestionDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
-        is QuestionDetailContract.Event.OnClickConfirmNoticeDialog -> {
-            onClickConfirmNoticeDialog()
+        is QuestionDetailContract.Event.OnClickDismissNoticeToQuitDialog -> {
+            onClickDismissNoticeToQuitDialog()
         }
 
         is QuestionDetailContract.Event.OnBottomSheetHide -> {
@@ -210,7 +210,13 @@ class QuestionDetailViewModel @Inject constructor(
                 withContext(ioDispatcher) {
                     deleteQuestionUseCase(questionId).onEach {
                         withContext(mainImmediateDispatcher) {
-                            _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isNoticeToQuitDialogShowing = true,
+                                    noticeToQuitDialogContent = "삭제가 완료되었습니다."
+                                )
+                            }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }
@@ -252,7 +258,8 @@ class QuestionDetailViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    isNoticeDialogShowing = true,
+                                    isNoticeToQuitDialogShowing = true,
+                                    noticeToQuitDialogContent = "신고가 완료되었습니다.",
                                     isReporting = false
                                 )
                             }
@@ -411,12 +418,23 @@ class QuestionDetailViewModel @Inject constructor(
             state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isCommentListLoading = true)
+                        it.copy(
+                            isCommentListLoading = true,
+                            isBottomSheetShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {
                         deleteQuestionCommentUseCase(questionId, selectedCommentId).onEach {
                             withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        isCommentListLoading = false,
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "삭제가 완료되었습니다."
+                                    )
+                                }
+
                                 _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
@@ -462,7 +480,8 @@ class QuestionDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(
                                         isCommentListLoading = false,
-                                        isNoticeDialogShowing = true
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "신고가 완료되었습니다.",
                                     )
                                 }
 
@@ -542,15 +561,9 @@ class QuestionDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickConfirmNoticeDialog() {
+    private fun onClickDismissNoticeToQuitDialog() {
         viewModelScope.launch {
-            if (state.value.reportType == ReportType.POST) {
-                _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
-            } else {
-                _state.update {
-                    it.copy(isNoticeDialogShowing = true)
-                }
-            }
+            _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
         }
     }
 

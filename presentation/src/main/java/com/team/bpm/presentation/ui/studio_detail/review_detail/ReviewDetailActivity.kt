@@ -359,8 +359,15 @@ private fun ReviewDetailActivityContent(
                 NoticeDialog(
                     title = null,
                     content = noticeDialogContent,
-                    onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) },
-                    onClickConfirm = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) }
+                    onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeDialog) }
+                )
+            }
+
+            if (isNoticeToQuitDialogShowing) {
+                NoticeDialog(
+                    title = null,
+                    content = noticeToQuitDialogContent,
+                    onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissNoticeToQuitDialog) }
                 )
             }
         }
