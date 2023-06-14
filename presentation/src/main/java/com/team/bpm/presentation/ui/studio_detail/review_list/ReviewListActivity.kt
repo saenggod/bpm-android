@@ -69,6 +69,10 @@ private fun ReviewListActivityContent(
         }
     }
 
+    LaunchedEffect(Unit) {
+        event.invoke(ReviewListContract.Event.GetUserId)
+    }
+
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
