@@ -713,10 +713,6 @@ private fun StudioDetailActivityContent(
                     if (isReviewListLoading) {
                         LoadingBlock()
                     } else {
-                        LaunchedEffect(Unit) {
-                            scrollState.animateScrollTo(scrollPosition.value)
-                        }
-
                         reviewList.let { reviewList ->
                             if (reviewList.isNotEmpty()) {
                                 Box {
