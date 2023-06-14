@@ -26,7 +26,7 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val isReportDialogShowing: Boolean = false,
         val reportType: ReportType? = null,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String = ""
+        val noticeDialogContent: String = "신고가 완료되었습니다."
     )
 
     sealed interface Event {

@@ -234,7 +234,6 @@ class CommunityDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     isNoticeDialogShowing = true,
-                                    noticeDialogContent = "신고가 완료되었습니다",
                                     isReporting = false
                                 )
                             }
@@ -410,7 +409,8 @@ class CommunityDetailViewModel @Inject constructor(
                         it.copy(
                             isCommentListLoading = true,
                             isReportDialogShowing = false,
-                            isReporting = false
+                            isReporting = false,
+                            isNoticeDialogShowing = true
                         )
                     }
 
@@ -499,7 +499,13 @@ class CommunityDetailViewModel @Inject constructor(
 
     private fun onClickConfirmNoticeDialog() {
         viewModelScope.launch {
-            _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
+            if (state.value.reportType == ReportType.POST) {
+                _effect.emit(CommunityDetailContract.Effect.GoToCommunityList)
+            } else {
+                _state.update {
+                    it.copy(isNoticeDialogShowing = false)
+                }
+            }
         }
     }
 

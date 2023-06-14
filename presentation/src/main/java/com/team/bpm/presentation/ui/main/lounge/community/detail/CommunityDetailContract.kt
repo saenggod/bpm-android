@@ -24,7 +24,7 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
         val isReportDialogShowing: Boolean = false,
         val reportType: ReportType? = null,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String = ""
+        val noticeDialogContent: String = "신고가 완료되었습니다."
     )
 
     sealed interface Event {

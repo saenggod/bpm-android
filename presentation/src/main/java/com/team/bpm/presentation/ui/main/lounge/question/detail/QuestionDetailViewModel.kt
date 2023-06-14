@@ -253,7 +253,6 @@ class QuestionDetailViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     isNoticeDialogShowing = true,
-                                    noticeDialogContent = "신고가 완료되었습니다",
                                     isReporting = false
                                 )
                             }
@@ -542,7 +541,13 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickConfirmNoticeDialog() {
         viewModelScope.launch {
-            _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
+            if (state.value.reportType == ReportType.POST) {
+                _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
+            } else {
+                _state.update {
+                    it.copy(isNoticeDialogShowing = true)
+                }
+            }
         }
     }
 
