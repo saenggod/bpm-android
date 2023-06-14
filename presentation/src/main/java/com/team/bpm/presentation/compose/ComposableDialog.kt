@@ -36,8 +36,8 @@ inline fun BaseComposableDialog(
     Dialog(
         onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = true
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
         )
     ) {
         (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f)
