@@ -42,7 +42,7 @@ class ReviewListViewModel @Inject constructor(
         }
 
         is ReviewListContract.Event.OnClickReviewActionButton -> {
-            onClickReviewActionButton(event.review)
+            onClickReviewActionButton(event.review, event.index)
         }
 
         is ReviewListContract.Event.OnClickDeleteReview -> {
@@ -124,11 +124,12 @@ class ReviewListViewModel @Inject constructor(
         }
     }
 
-    private fun onClickReviewActionButton(review: Review) {
+    private fun onClickReviewActionButton(review: Review, index: Int) {
         viewModelScope.launch {
             _state.update {
                 it.copy(
                     selectedReview = review,
+                    selectedReviewIndex = if (index == it.reviewList.size - 1) index - 1 else index,
                     bottomSheetButton = if (review.author?.id == it.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
                     isBottomSheetShowing = true
                 )
@@ -177,7 +178,8 @@ class ReviewListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = true,
-                            isReportDialogShowing = false
+                            isReportDialogShowing = false,
+                            isNoticeDialogShowing = true
                         )
                     }
 
@@ -256,7 +258,7 @@ class ReviewListViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    reviewList = result.reviews ?: emptyList(),
+                                    reviewList = result.reviews?.filter { it.reported == false } ?: emptyList(),
                                 )
                             }
                         }
@@ -335,10 +337,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    isBottomSheetShowing = false,
-                    selectedReview = null
-                )
+                it.copy(isBottomSheetShowing = false)
             }
         }
     }

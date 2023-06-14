@@ -318,7 +318,7 @@ class CommunityDetailViewModel @Inject constructor(
                     getCommunityCommentListUseCase(communityId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             val commentList = mutableListOf<Comment>().apply {
-                                result.comments?.filter { it.reported != true }?.forEach { comment ->
+                                result.comments?.filter { it.reported == false }?.forEach { comment ->
                                     add(comment)
 
                                     comment.children?.let { childrenCommentList ->

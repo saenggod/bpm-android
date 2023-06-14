@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -125,11 +127,18 @@ private fun ReviewListActivityContent(
                 }
             }
         ) {
+            val lazyListState = rememberLazyListState()
+
+            LaunchedEffect(reviewList) {
+                lazyListState.animateScrollToItem(selectedReviewIndex)
+            }
+
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color.White)
+                        .background(color = Color.White),
+                    state = lazyListState
                 ) {
                     item {
                         ScreenHeader(header = "리뷰 전체보기")
@@ -151,7 +160,7 @@ private fun ReviewListActivityContent(
                         )
                     }
 
-                    items(
+                    itemsIndexed(
                         reviewList.filter {
                             if (isReviewListShowingImageReviewsOnly) {
                                 it.filesPath?.isNotEmpty() == true
@@ -171,12 +180,12 @@ private fun ReviewListActivityContent(
                                 null
                             }
                         }
-                    ) { review ->
+                    ) { index, review ->
                         ReviewComposable(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             review = review,
                             onClickLike = { reviewId -> event.invoke(ReviewListContract.Event.OnClickReviewLike(reviewId)) },
-                            onClickActionButton = { event.invoke(ReviewListContract.Event.OnClickReviewActionButton(review)) }
+                            onClickActionButton = { event.invoke(ReviewListContract.Event.OnClickReviewActionButton(review, index)) }
                         )
                     }
                 }

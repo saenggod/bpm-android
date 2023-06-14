@@ -338,11 +338,11 @@ class QuestionDetailViewModel @Inject constructor(
                     getQuestionCommentListUseCase(questionId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             val commentList = mutableListOf<Comment>().apply {
-                                result.comments?.filter { it.reported != true }?.forEach { comment ->
+                                result.comments?.filter { it.reported == false }?.forEach { comment ->
                                     add(comment)
 
                                     comment.children?.let { childrenCommentList ->
-                                        childrenCommentList.filter { it.reported != true }.forEach { childComment ->
+                                        childrenCommentList.filter { it.reported == false }.forEach { childComment ->
                                             add(childComment)
                                         }
                                     }
