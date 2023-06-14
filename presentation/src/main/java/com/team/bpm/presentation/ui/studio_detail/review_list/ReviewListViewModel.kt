@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.*
-import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
+import com.team.bpm.domain.usecase.user.GetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReviewListViewModel @Inject constructor(
-    private val getKakaoIdUseCase: GetKakaoIdUseCase,
+    private val getUserIdUseCase: GetUserIdUseCase,
     private val reviewListUseCase: GetReviewListUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
     private val dislikeReviewUseCase: DislikeReviewUseCase,
@@ -42,7 +42,7 @@ class ReviewListViewModel @Inject constructor(
         }
 
         is ReviewListContract.Event.OnClickReviewActionButton -> {
-            onClickReviewActionButton(event.review)
+            onClickReviewActionButton(event.review, event.index)
         }
 
         is ReviewListContract.Event.OnClickDeleteReview -> {
@@ -102,7 +102,7 @@ class ReviewListViewModel @Inject constructor(
 
     private fun getUserId() {
         viewModelScope.launch(ioDispatcher) {
-            getKakaoIdUseCase().onEach { userId ->
+            getUserIdUseCase().onEach { userId ->
                 withContext(mainImmediateDispatcher) {
                     _state.update {
                         it.copy(userId = userId)
@@ -124,11 +124,12 @@ class ReviewListViewModel @Inject constructor(
         }
     }
 
-    private fun onClickReviewActionButton(review: Review) {
+    private fun onClickReviewActionButton(review: Review, index: Int) {
         viewModelScope.launch {
             _state.update {
                 it.copy(
                     selectedReview = review,
+                    selectedReviewIndex = if (index == it.reviewList.size - 1) index - 1 else index,
                     bottomSheetButton = if (review.author?.id == it.userId) BottomSheetButton.DELETE_POST else BottomSheetButton.REPORT_POST,
                     isBottomSheetShowing = true
                 )
@@ -150,6 +151,13 @@ class ReviewListViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         deleteReviewUseCase(studioId, reviewId).onEach {
                             withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "삭제가 완료되었습니다."
+                                    )
+                                }
+
                                 _effect.emit(ReviewListContract.Effect.RefreshReviewList)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
@@ -184,7 +192,11 @@ class ReviewListViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         reportReviewUseCase(studioId, reviewId, reason).onEach {
                             _state.update {
-                                it.copy(isLoading = false)
+                                it.copy(
+                                    isLoading = false,
+                                    isNoticeDialogShowing = true,
+                                    noticeDialogContent = "신고가 완료되었습니다."
+                                )
                             }
 
                             _effect.emit(ReviewListContract.Effect.RefreshReviewList)
@@ -220,7 +232,7 @@ class ReviewListViewModel @Inject constructor(
                             likeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                        it.copy(reviewList = sortRefreshedReviewList(it.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
                                             this[targetIndex] = this[targetIndex].copy(
                                                 liked = true,
@@ -256,8 +268,7 @@ class ReviewListViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    originalReviewList = result.reviews ?: emptyList(),
-                                    reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
+                                    reviewList = result.reviews?.filter { it.reported == false } ?: emptyList(),
                                 )
                             }
                         }
@@ -270,12 +281,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         viewModelScope.launch {
             _state.update {
-                val filteredList = it.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = true,
-                    reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-                    else filteredList.sortedByDescending { review -> review.createdAt }
-                )
+                it.copy(isReviewListShowingImageReviewsOnly = true)
             }
         }
     }
@@ -283,11 +289,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickShowNotOnlyImageReviews() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = false,
-                    reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
-                    else state.value.originalReviewList.sortedByDescending { review -> review.createdAt }
-                )
+                it.copy(isReviewListShowingImageReviewsOnly = false)
             }
         }
     }
@@ -295,10 +297,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickSortByLike() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    reviewList = it.reviewList.sortedByDescending { review -> review.likeCount },
-                    isReviewListSortedByLike = true
-                )
+                it.copy(isReviewListSortedByLike = true)
             }
         }
     }
@@ -306,10 +305,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickSortByDate() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    reviewList = it.reviewList.sortedByDescending { review -> review.createdAt },
-                    isReviewListSortedByLike = false
-                )
+                it.copy(isReviewListSortedByLike = false)
             }
         }
     }
@@ -351,10 +347,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    isBottomSheetShowing = false,
-                    selectedReview = null
-                )
+                it.copy(isBottomSheetShowing = false)
             }
         }
     }

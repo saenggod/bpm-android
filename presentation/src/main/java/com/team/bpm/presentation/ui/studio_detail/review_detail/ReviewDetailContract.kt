@@ -16,6 +16,8 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
         val isReportDialogShowing: Boolean = false,
         val isNoticeDialogShowing: Boolean = false,
         val noticeDialogContent: String = "",
+        val isNoticeToQuitDialogShowing: Boolean = false,
+        val noticeToQuitDialogContent: String = ""
     )
 
     sealed interface Event {
@@ -33,9 +35,11 @@ interface ReviewDetailContract : BaseContract<ReviewDetailContract.State, Review
 
         object GetReviewDetail : Event
 
+        object OnClickDismissReportDialog : Event
+
         object OnClickDismissNoticeDialog : Event
 
-        object OnClickDismissReportDialog : Event
+        object OnClickDismissNoticeToQuitDialog : Event
 
         object OnBottomSheetHide : Event
     }

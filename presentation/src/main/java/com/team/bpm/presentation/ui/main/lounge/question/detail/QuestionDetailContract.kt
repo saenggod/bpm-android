@@ -26,7 +26,9 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         val isReportDialogShowing: Boolean = false,
         val reportType: ReportType? = null,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String = ""
+        val noticeDialogContent: String = "",
+        val isNoticeToQuitDialogShowing: Boolean = false,
+        val noticeToQuitDialogContent: String = ""
     )
 
     sealed interface Event {
@@ -69,6 +71,8 @@ interface QuestionDetailContract : BaseContract<QuestionDetailContract.State, Qu
         object OnClickDismissReportDialog : Event
 
         object OnClickDismissNoticeDialog : Event
+
+        object OnClickDismissNoticeToQuitDialog : Event
 
         object OnBottomSheetHide : Event
 

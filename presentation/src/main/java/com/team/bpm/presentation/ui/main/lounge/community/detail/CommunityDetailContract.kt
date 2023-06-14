@@ -16,15 +16,17 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
         val isCommentListLoading: Boolean = false,
         val commentList: List<Comment> = emptyList(),
         val commentsCount: Int? = 0,
-        val redirectCommentId: Int? = null,
-        val selectedCommentId: Int? = null,
-        val selectedCommentAuthorId: Long? = null,
+        val commentIdToScroll: Int? = null,
+        val selectedComment: Comment? = null,
+        val isReporting: Boolean = false,
         val isBottomSheetShowing: Boolean = false,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
         val isReportDialogShowing: Boolean = false,
         val reportType: ReportType? = null,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String = ""
+        val noticeDialogContent: String = "",
+        val isNoticeToQuitDialogShowing: Boolean = false,
+        val noticeToQuitDialogContent: String = ""
     )
 
     sealed interface Event {
@@ -46,7 +48,10 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
 
         object GetCommentList : Event
 
-        data class OnClickCommentActionButton(val comment: Comment) : Event
+        data class OnClickCommentActionButton(
+            val comment: Comment,
+            val parentCommentId: Int?
+        ) : Event
 
         object OnClickDeleteComment : Event
 
@@ -60,6 +65,8 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
 
         object OnClickDismissNoticeDialog : Event
 
+        object OnClickDismissNoticeToQuitDialog : Event
+
         object OnBottomSheetHide : Event
     }
 
@@ -67,8 +74,6 @@ interface CommunityDetailContract : BaseContract<CommunityDetailContract.State, 
         data class ShowToast(val text: String) : Effect
 
         object RefreshCommentList : Effect
-
-        object ShowKeyboard : Effect
 
         object GoToCommunityList : Effect
     }

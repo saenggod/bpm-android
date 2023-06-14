@@ -1,7 +1,6 @@
 package com.team.bpm.presentation.ui.main.mypage.myscrap
 
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.domain.usecase.studio.GetMyScrapListUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
@@ -15,7 +14,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyScrapViewModel @Inject constructor(
-    private val getKakaoIdUseCase: GetKakaoIdUseCase,
     private val getMyScrapListUseCase: GetMyScrapListUseCase,
     private val scrapCancelUseCase: ScrapCancelUseCase
 ) : BaseViewModelV2(), MyScrapContract {

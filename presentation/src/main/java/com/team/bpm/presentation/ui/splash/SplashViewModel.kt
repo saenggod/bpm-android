@@ -2,7 +2,9 @@ package com.team.bpm.presentation.ui.splash
 
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.splash.*
+import com.team.bpm.domain.usecase.user.SetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
+import com.team.bpm.presentation.ui.sign_up.SignUpContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -18,6 +20,7 @@ class SplashViewModel @Inject constructor(
     private val setKakaoIdUseCase: SetKakaoIdUseCase,
     private val getUserTokenUseCase: GetUserTokenUseCase,
     private val setUserTokenUseCase: SetUserTokenUseCase,
+    private val setUserIdUseCase: SetUserIdUseCase,
     private val sendKakaoIdVerificationUseCase: SendKakaoIdVerificationUseCase
 ) : BaseViewModelV2(), SplashContract {
 
@@ -110,18 +113,24 @@ class SplashViewModel @Inject constructor(
 
     private suspend fun sendKakaoIdVerification(kakaoId: Long) {
         sendKakaoIdVerificationUseCase(kakaoId).collect { result ->
-            result.token?.let { userToken ->
-                saveUserToken(userToken)
-            } ?: run {
-                _effect.emit(SplashContract.Effect.GoToSignUpActivity(kakaoIdForSignUp, kakaoNicknameForSignUp))
+            result.id?.let { userId ->
+                result.token?.let { userToken ->
+                    setUserInfo(userId, userToken)
+                }
             }
         }
     }
 
-    private suspend fun saveUserToken(userToken: String) {
-        setUserTokenUseCase(userToken).collect {
+    private suspend fun setUserInfo(userId: Long, token: String) {
+        setUserIdUseCase(userId).zip(setUserTokenUseCase(token)) { userId, userToken ->
+            Pair(userId, userToken)
+        }.collect { result ->
             withContext(mainImmediateDispatcher) {
-                _effect.emit(SplashContract.Effect.GoToMainActivity)
+                if (result.first != null && result.second != null) {
+                    _effect.emit(SplashContract.Effect.GoToMainActivity)
+                } else {
+                    _effect.emit(SplashContract.Effect.ShowToast("로그인 할 수 없습니다."))
+                }
             }
         }
     }

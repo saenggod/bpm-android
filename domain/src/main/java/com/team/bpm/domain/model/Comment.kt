@@ -14,5 +14,6 @@ data class Comment(
     val reportCount: Int?,
     val children: List<Comment>?,
     val liked: Boolean?,
-    val likeCount: Int?
+    val likeCount: Int?,
+    val reported: Boolean?
 ) : BaseModel

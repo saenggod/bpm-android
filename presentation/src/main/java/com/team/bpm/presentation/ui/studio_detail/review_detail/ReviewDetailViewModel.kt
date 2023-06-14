@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.review.*
-import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
+import com.team.bpm.domain.usecase.user.GetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReviewDetailViewModel @Inject constructor(
-    private val getKakaoIdUseCase: GetKakaoIdUseCase,
+    private val getUserIdUseCase: GetUserIdUseCase,
     private val deleteReviewUseCase: DeleteReviewUseCase,
     private val reportReviewUseCase: ReportReviewUseCase,
     private val likeReviewUseCase: LikeReviewUseCase,
@@ -69,6 +69,10 @@ class ReviewDetailViewModel @Inject constructor(
             onClickDismissNoticeDialog()
         }
 
+        ReviewDetailContract.Event.OnClickDismissNoticeToQuitDialog -> {
+            onClickDismissNoticeToQuitDialog()
+        }
+
         is ReviewDetailContract.Event.OnBottomSheetHide -> {
             onBottomSheetHide()
         }
@@ -82,7 +86,7 @@ class ReviewDetailViewModel @Inject constructor(
 
     private fun getUserId() {
         viewModelScope.launch(ioDispatcher) {
-            getKakaoIdUseCase().onEach { result ->
+            getUserIdUseCase().onEach { result ->
                 result?.let { userId ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
@@ -140,7 +144,13 @@ class ReviewDetailViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         deleteReviewUseCase(studioId, reviewId).onEach {
                             withContext(mainImmediateDispatcher) {
-                                _effect.emit(ReviewDetailContract.Effect.GoBack)
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        isNoticeToQuitDialogShowing = true,
+                                        noticeToQuitDialogContent = "삭제가 완료되었습니다."
+                                    )
+                                }
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
                     }
@@ -176,7 +186,9 @@ class ReviewDetailViewModel @Inject constructor(
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
                                     it.copy(
-
+                                        isLoading = false,
+                                        isNoticeToQuitDialogShowing = true,
+                                        noticeToQuitDialogContent = "신고가 완료되었습니다."
                                     )
                                 }
                             }
@@ -190,39 +202,33 @@ class ReviewDetailViewModel @Inject constructor(
     private fun onClickLike() {
         reviewInfo.first?.let { studioId ->
             reviewInfo.second?.let { reviewId ->
-                viewModelScope.launch {
-                    _state.update { it.copy(isLoading = true) }
-
-                    withContext(ioDispatcher) {
-                        state.value.liked?.let {
-                            when (it) {
-                                true -> {
-                                    dislikeReviewUseCase(studioId, reviewId).onEach { result ->
-                                        withContext(mainImmediateDispatcher) {
-                                            _state.update { state ->
-                                                state.copy(
-                                                    isLoading = false,
-                                                    liked = false,
-                                                    likeCount = state.likeCount?.minus(1)
-                                                )
-                                            }
+                viewModelScope.launch(ioDispatcher) {
+                    state.value.liked?.let {
+                        when (it) {
+                            true -> {
+                                dislikeReviewUseCase(studioId, reviewId).onEach { result ->
+                                    withContext(mainImmediateDispatcher) {
+                                        _state.update { state ->
+                                            state.copy(
+                                                liked = false,
+                                                likeCount = state.likeCount?.minus(1)
+                                            )
                                         }
-                                    }.launchIn(viewModelScope + exceptionHandler)
-                                }
+                                    }
+                                }.launchIn(viewModelScope + exceptionHandler)
+                            }
 
-                                false -> {
-                                    likeReviewUseCase(studioId, reviewId).onEach { result ->
-                                        withContext(mainImmediateDispatcher) {
-                                            _state.update { state ->
-                                                state.copy(
-                                                    isLoading = false,
-                                                    liked = true,
-                                                    likeCount = state.likeCount?.plus(1)
-                                                )
-                                            }
+                            false -> {
+                                likeReviewUseCase(studioId, reviewId).onEach { result ->
+                                    withContext(mainImmediateDispatcher) {
+                                        _state.update { state ->
+                                            state.copy(
+                                                liked = true,
+                                                likeCount = state.likeCount?.plus(1)
+                                            )
                                         }
-                                    }.launchIn(viewModelScope + exceptionHandler)
-                                }
+                                    }
+                                }.launchIn(viewModelScope + exceptionHandler)
                             }
                         }
                     }
@@ -269,6 +275,12 @@ class ReviewDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(isNoticeDialogShowing = false)
             }
+        }
+    }
+
+    private fun onClickDismissNoticeToQuitDialog() {
+        viewModelScope.launch {
+            _effect.emit(ReviewDetailContract.Effect.GoBack)
         }
     }
 

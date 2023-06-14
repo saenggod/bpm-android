@@ -66,9 +66,9 @@ import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 import com.team.bpm.presentation.ui.studio_detail.review_list.ReviewListActivity
 import com.team.bpm.presentation.ui.studio_detail.writing_review.WritingReviewActivity
+import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
-import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -201,14 +201,14 @@ private fun StudioDetailActivityContent(
         LaunchedEffect(isBottomSheetShowing) {
             if (isBottomSheetShowing) {
                 bottomSheetState.show()
+            } else {
+                bottomSheetState.hide()
             }
         }
 
         LaunchedEffect(bottomSheetState.isVisible) {
             if (!bottomSheetState.isVisible) {
                 event.invoke(StudioDetailContract.Event.OnBottomSheetHide)
-            } else {
-                bottomSheetState.hide()
             }
         }
 
@@ -544,7 +544,7 @@ private fun StudioDetailActivityContent(
                             )
 
                             Text(
-                                text = "마지막 업데이트 : ${studio?.updatedAt?.dateOnly() ?: ""}",
+                                text = "마지막 업데이트 : ${studio?.updatedAt?.calculatedFromNow() ?: ""}",
                                 fontWeight = Medium,
                                 fontSize = 14.sp,
                                 letterSpacing = 0.sp,
@@ -713,15 +713,29 @@ private fun StudioDetailActivityContent(
                     if (isReviewListLoading) {
                         LoadingBlock()
                     } else {
-                        LaunchedEffect(Unit) {
-                            scrollState.animateScrollTo(scrollPosition.value)
-                        }
-
                         reviewList.let { reviewList ->
                             if (reviewList.isNotEmpty()) {
                                 Box {
                                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                        reviewList.forEachIndexed { index, review ->
+                                        reviewList.filter {
+                                            if (isReviewListShowingImageReviewsOnly) {
+                                                it.filesPath?.isNotEmpty() == true
+                                            } else {
+                                                true
+                                            }
+                                        }.sortedByDescending {
+                                            if (isReviewListSortedByLike) {
+                                                it.likeCount
+                                            } else {
+                                                null
+                                            }
+                                        }.sortedByDescending {
+                                            if (!isReviewListSortedByLike) {
+                                                it.createdAt
+                                            } else {
+                                                null
+                                            }
+                                        }.forEachIndexed { index, review ->
                                             if (index < 5) {
                                                 ReviewComposable(
                                                     review = review,
@@ -906,14 +920,11 @@ private fun StudioDetailActivityContent(
                 }
 
                 if (isNoticeDialogShowing) {
-                    noticeDialogContent?.let { noticeDialogContent ->
-                        NoticeDialog(
-                            title = null,
-                            content = noticeDialogContent,
-                            onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
-                            onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
-                        )
-                    }
+                    NoticeDialog(
+                        title = null,
+                        content = noticeDialogContent,
+                        onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
+                    )
                 }
             }
         }

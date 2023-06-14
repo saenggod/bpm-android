@@ -21,6 +21,8 @@ import com.team.bpm.domain.usecase.studio.GetMyScrapListUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.studio.ScrapUseCase
+import com.team.bpm.domain.usecase.user.GetUserIdUseCase
+import com.team.bpm.domain.usecase.user.SetUserIdUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,6 +51,18 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideSignUpUseCase(signUpRepository: SignUpRepository): SignUpUseCase {
         return SignUpUseCase(signUpRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetUserIdUseCase(userRepository: UserRepository): GetUserIdUseCase {
+        return GetUserIdUseCase(userRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSetUserIdUseCase(userRepository: UserRepository) : SetUserIdUseCase {
+        return SetUserIdUseCase(userRepository)
     }
 
     /* 스튜디오 */

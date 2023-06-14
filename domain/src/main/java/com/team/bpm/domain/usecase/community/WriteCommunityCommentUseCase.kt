@@ -8,9 +8,8 @@ import javax.inject.Inject
 class WriteCommunityCommentUseCase @Inject constructor(private val communityRepository: CommunityRepository) {
     suspend operator fun invoke(
         communityId: Int,
-        parentId: Int?,
         comment: String
     ): Flow<Comment> {
-        return communityRepository.sendCommunityComment(communityId, parentId, comment)
+        return communityRepository.sendCommunityComment(communityId, comment)
     }
 }

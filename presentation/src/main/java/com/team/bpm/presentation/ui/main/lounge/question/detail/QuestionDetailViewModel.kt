@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.usecase.question.*
-import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
+import com.team.bpm.domain.usecase.user.GetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.ReportType
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuestionDetailViewModel @Inject constructor(
-    private val getKakaoIdUseCase: GetKakaoIdUseCase,
+    private val getUserIdUseCase: GetUserIdUseCase,
     private val getQuestionDetailUseCase: GetQuestionDetailUseCase,
     private val deleteQuestionUseCase: DeleteQuestionUseCase,
     private val reportQuestionUseCase: ReportQuestionUseCase,
@@ -114,6 +114,10 @@ class QuestionDetailViewModel @Inject constructor(
             onClickCommentLike(event.commentId)
         }
 
+        is QuestionDetailContract.Event.OnClickDismissNoticeToQuitDialog -> {
+            onClickDismissNoticeToQuitDialog()
+        }
+
         is QuestionDetailContract.Event.OnBottomSheetHide -> {
             onBottomSheetHide()
         }
@@ -131,7 +135,7 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun getUserId() {
         viewModelScope.launch(ioDispatcher) {
-            getKakaoIdUseCase().onEach { result ->
+            getUserIdUseCase().onEach { result ->
                 result?.let { userId ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
@@ -144,8 +148,7 @@ class QuestionDetailViewModel @Inject constructor(
     }
 
     private fun getQuestionId(): Int? {
-//        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
-        return 41
+        return savedStateHandle.get<Int>(QuestionDetailActivity.KEY_QUESTION_ID)
     }
 
     private fun getQuestionDetail() {
@@ -207,7 +210,13 @@ class QuestionDetailViewModel @Inject constructor(
                 withContext(ioDispatcher) {
                     deleteQuestionUseCase(questionId).onEach {
                         withContext(mainImmediateDispatcher) {
-                            _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isNoticeToQuitDialogShowing = true,
+                                    noticeToQuitDialogContent = "삭제가 완료되었습니다."
+                                )
+                            }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }
@@ -249,8 +258,8 @@ class QuestionDetailViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    isNoticeDialogShowing = true,
-                                    noticeDialogContent = "신고가 완료되었습니다",
+                                    isNoticeToQuitDialogShowing = true,
+                                    noticeToQuitDialogContent = "신고가 완료되었습니다.",
                                     isReporting = false
                                 )
                             }
@@ -263,41 +272,33 @@ class QuestionDetailViewModel @Inject constructor(
 
     private fun onClickLike() {
         getQuestionId()?.let { questionId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    state.value.liked?.let {
-                        when (it) {
-                            true -> {
-                                dislikeQuestionUseCase(questionId).onEach {
-                                    withContext(mainImmediateDispatcher) {
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                liked = false,
-                                                likeCount = it.likeCount?.minus(1)
-                                            )
-                                        }
+            viewModelScope.launch(ioDispatcher) {
+                state.value.liked?.let {
+                    when (it) {
+                        true -> {
+                            dislikeQuestionUseCase(questionId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(
+                                            liked = false,
+                                            likeCount = it.likeCount?.minus(1)
+                                        )
                                     }
-                                }.launchIn(viewModelScope + exceptionHandler)
-                            }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
 
-                            false -> {
-                                likeQuestionUseCase(questionId).onEach {
-                                    withContext(mainImmediateDispatcher) {
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                liked = true,
-                                                likeCount = it.likeCount?.plus(1)
-                                            )
-                                        }
+                        false -> {
+                            likeQuestionUseCase(questionId).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(
+                                            liked = true,
+                                            likeCount = it.likeCount?.plus(1)
+                                        )
                                     }
-                                }.launchIn(viewModelScope + exceptionHandler)
-                            }
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
                         }
                     }
                 }
@@ -344,11 +345,11 @@ class QuestionDetailViewModel @Inject constructor(
                     getQuestionCommentListUseCase(questionId).onEach { result ->
                         withContext(mainImmediateDispatcher) {
                             val commentList = mutableListOf<Comment>().apply {
-                                result.comments?.forEach { comment ->
+                                result.comments?.filter { it.reported == false }?.forEach { comment ->
                                     add(comment)
 
                                     comment.children?.let { childrenCommentList ->
-                                        childrenCommentList.forEach { childComment ->
+                                        childrenCommentList.filter { it.reported == false }.forEach { childComment ->
                                             add(childComment)
                                         }
                                     }
@@ -417,12 +418,23 @@ class QuestionDetailViewModel @Inject constructor(
             state.value.selectedComment?.id?.let { selectedCommentId ->
                 viewModelScope.launch {
                     _state.update {
-                        it.copy(isCommentListLoading = true)
+                        it.copy(
+                            isCommentListLoading = true,
+                            isBottomSheetShowing = false
+                        )
                     }
 
                     withContext(ioDispatcher) {
                         deleteQuestionCommentUseCase(questionId, selectedCommentId).onEach {
                             withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        isCommentListLoading = false,
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "삭제가 완료되었습니다."
+                                    )
+                                }
+
                                 _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
@@ -466,7 +478,11 @@ class QuestionDetailViewModel @Inject constructor(
                         reportQuestionCommentUseCase(questionId, selectedCommentId, reason).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(isCommentListLoading = false)
+                                    it.copy(
+                                        isCommentListLoading = false,
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "신고가 완료되었습니다.",
+                                    )
                                 }
 
                                 _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)
@@ -542,6 +558,12 @@ class QuestionDetailViewModel @Inject constructor(
             _state.update {
                 it.copy(isNoticeDialogShowing = false)
             }
+        }
+    }
+
+    private fun onClickDismissNoticeToQuitDialog() {
+        viewModelScope.launch {
+            _effect.emit(QuestionDetailContract.Effect.GoToQuestionList)
         }
     }
 

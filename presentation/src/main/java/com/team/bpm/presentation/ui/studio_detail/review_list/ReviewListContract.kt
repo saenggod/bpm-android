@@ -8,22 +8,22 @@ interface ReviewListContract : BaseContract<ReviewListContract.State, ReviewList
     data class State(
         val userId: Long? = null,
         val isLoading: Boolean = false,
-        val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,
         val selectedReview: Review? = null,
+        val selectedReviewIndex: Int = 0,
         val isBottomSheetShowing: Boolean = false,
         val bottomSheetButton: BottomSheetButton? = null,
         val isReportDialogShowing: Boolean = false,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String? = null,
+        val noticeDialogContent: String = "",
     )
 
     sealed interface Event {
         object GetUserId : Event
 
-        data class OnClickReviewActionButton(val review: Review) : Event
+        data class OnClickReviewActionButton(val review: Review, val index: Int) : Event
 
         object OnClickWriteReview : Event
 

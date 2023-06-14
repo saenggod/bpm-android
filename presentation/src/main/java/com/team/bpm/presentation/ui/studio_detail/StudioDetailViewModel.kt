@@ -4,21 +4,24 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.usecase.review.*
-import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.studio.ScrapUseCase
+import com.team.bpm.domain.usecase.user.GetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.StudioDetailTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class StudioDetailViewModel @Inject constructor(
-    private val getKakaoIdUseCase: GetKakaoIdUseCase,
+    private val getUserIdUseCase: GetUserIdUseCase,
     private val getStudioDetailUseCase: GetStudioDetailUseCase,
     private val scrapUseCase: ScrapUseCase,
     private val scrapCancelUseCase: ScrapCancelUseCase,
@@ -158,7 +161,7 @@ class StudioDetailViewModel @Inject constructor(
 
     private fun getUserId() {
         viewModelScope.launch(ioDispatcher) {
-            getKakaoIdUseCase().onEach { result ->
+            getUserIdUseCase().onEach { result ->
                 result?.let { userId ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
@@ -196,8 +199,6 @@ class StudioDetailViewModel @Inject constructor(
             }
         }
     }
-
-
 
 
     private fun onClickInfoTab() {
@@ -262,52 +263,40 @@ class StudioDetailViewModel @Inject constructor(
 
     private fun onClickScrap() {
         state.value.studio?.id?.let { studioId ->
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
-
-                withContext(ioDispatcher) {
-                    when (state.value.studio?.scrapped) {
-                        true -> {
-                            scrapCancelUseCase(studioId).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(
-                                            isLoading = false,
-                                            studio = it.studio?.copy(
-                                                scrapCount = it.studio.scrapCount?.minus(1),
-                                                scrapped = false
-                                            )
+            viewModelScope.launch(ioDispatcher) {
+                when (state.value.studio?.scrapped) {
+                    true -> {
+                        scrapCancelUseCase(studioId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        studio = it.studio?.copy(
+                                            scrapCount = it.studio.scrapCount?.minus(1),
+                                            scrapped = false
                                         )
-                                    }
+                                    )
                                 }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
-
-                        false -> {
-                            scrapUseCase(studioId).onEach {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(
-                                            isLoading = false,
-                                            studio = it.studio?.copy(
-                                                scrapCount = it.studio.scrapCount?.plus(1),
-                                                scrapped = true
-                                            )
-                                        )
-                                    }
-                                }
-                            }.launchIn(viewModelScope + exceptionHandler)
-                        }
-
-                        null -> {
-                            _state.update {
-                                it.copy(isLoading = false)
                             }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
 
-                            _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 기능을 사용할 수 없습니다."))
-                        }
+                    false -> {
+                        scrapUseCase(studioId).onEach {
+                            withContext(mainImmediateDispatcher) {
+                                _state.update {
+                                    it.copy(
+                                        studio = it.studio?.copy(
+                                            scrapCount = it.studio.scrapCount?.plus(1),
+                                            scrapped = true
+                                        )
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+
+                    null -> {
+                        _effect.emit(StudioDetailContract.Effect.ShowToast("스크랩 기능을 사용할 수 없습니다."))
                     }
                 }
             }
@@ -340,8 +329,7 @@ class StudioDetailViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isReviewListLoading = false,
-                                originalReviewList = result.reviews ?: emptyList(),
-                                reviewList = result.reviews?.let { reviews -> sortRefreshedReviewList(reviews) } ?: emptyList()
+                                reviewList = result.reviews?.filter { it.reported == false } ?: emptyList()
                             )
                         }
                     }
@@ -362,11 +350,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         viewModelScope.launch {
             _state.update {
-                val filteredList = it.originalReviewList.filter { review -> review.filesPath?.isNotEmpty() == true }
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = true,
-                    reviewList = if (state.value.isReviewListSortedByLike) filteredList.sortedByDescending { review -> review.likeCount }
-                    else filteredList.sortedByDescending { review -> review.createdAt })
+                it.copy(isReviewListShowingImageReviewsOnly = true)
             }
         }
     }
@@ -374,10 +358,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickShowNotOnlyImageReviews() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    isReviewListShowingImageReviewsOnly = false,
-                    reviewList = if (state.value.isReviewListSortedByLike) state.value.originalReviewList.sortedByDescending { review -> review.likeCount }
-                    else state.value.originalReviewList.sortedByDescending { review -> review.createdAt })
+                it.copy(isReviewListShowingImageReviewsOnly = false)
             }
         }
     }
@@ -385,10 +366,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickSortByLike() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    reviewList = it.reviewList.sortedByDescending { review -> review.likeCount },
-                    isReviewListSortedByLike = true
-                )
+                it.copy(isReviewListSortedByLike = true)
             }
         }
     }
@@ -396,10 +374,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onClickSortByDate() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    reviewList = it.reviewList.sortedByDescending { review -> review.createdAt },
-                    isReviewListSortedByLike = false
-                )
+                it.copy(isReviewListSortedByLike = false)
             }
         }
     }
@@ -446,7 +421,11 @@ class StudioDetailViewModel @Inject constructor(
                         deleteReviewUseCase(studioId, reviewId).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(isLoading = false)
+                                    it.copy(
+                                        isLoading = false,
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "삭제가 완료되었습니다."
+                                    )
                                 }
 
                                 _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
@@ -482,7 +461,9 @@ class StudioDetailViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isReviewListLoading = true,
-                            isReportDialogShowing = false
+                            isReportDialogShowing = false,
+                            isNoticeDialogShowing = true,
+                            noticeDialogContent = "신고가 완료되었습니다."
                         )
                     }
 
@@ -494,6 +475,7 @@ class StudioDetailViewModel @Inject constructor(
                                 }
 
                                 _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
+                                _effect.emit(StudioDetailContract.Effect.ScrollToReviewTab)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
                     }
@@ -511,7 +493,7 @@ class StudioDetailViewModel @Inject constructor(
                             dislikeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                        it.copy(reviewList = sortRefreshedReviewList(it.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
                                             this[targetIndex] = this[targetIndex].copy(
                                                 liked = false,
@@ -529,7 +511,7 @@ class StudioDetailViewModel @Inject constructor(
                             likeReviewUseCase(studioId, reviewId).onEach {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
-                                        it.copy(reviewList = sortRefreshedReviewList(state.value.reviewList.toMutableList().apply {
+                                        it.copy(reviewList = sortRefreshedReviewList(it.reviewList.toMutableList().apply {
                                             val targetIndex = indexOf(find { review -> review.id == reviewId })
                                             this[targetIndex] = this[targetIndex].copy(
                                                 liked = true,
@@ -561,7 +543,8 @@ class StudioDetailViewModel @Inject constructor(
         }
     }
 
-    private fun onClickDismissNoticeDialog() {
+    private fun
+            onClickDismissNoticeDialog() {
         viewModelScope.launch {
             _state.update {
                 it.copy(isNoticeDialogShowing = false)
@@ -572,10 +555,7 @@ class StudioDetailViewModel @Inject constructor(
     private fun onBottomSheetHide() {
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    isBottomSheetShowing = false,
-                    selectedReview = null
-                )
+                it.copy(isBottomSheetShowing = false)
             }
         }
     }

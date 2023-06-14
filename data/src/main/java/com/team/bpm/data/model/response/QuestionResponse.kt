@@ -28,7 +28,9 @@ data class QuestionResponse(
     @SerializedName("favoriteCount")
     val likeCount: Int?,
     @SerializedName("commentsCount")
-    val commentsCount: Int?
+    val commentsCount: Int?,
+    @SerializedName("reported")
+    val reported: Boolean?
 ) : BaseResponse {
     companion object : DataMapper<QuestionResponse, Question> {
         override fun QuestionResponse.toDataModel(): Question {
@@ -42,7 +44,8 @@ data class QuestionResponse(
                 updatedAt = updatedAt,
                 liked = liked,
                 likeCount = likeCount,
-                commentsCount = commentsCount
+                commentsCount = commentsCount,
+                reported = reported
             )
         }
     }

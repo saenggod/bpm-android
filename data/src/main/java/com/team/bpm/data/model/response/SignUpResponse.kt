@@ -8,6 +8,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SignUpResponse(
+    @SerializedName("id")
+    val id: Long?,
     @SerializedName("nickname")
     val nickname: String?,
     @SerializedName("bio")
@@ -21,6 +23,7 @@ data class SignUpResponse(
     companion object : DataMapper<SignUpResponse, UserInfo> {
         override fun SignUpResponse.toDataModel(): UserInfo {
             return UserInfo(
+                id = id,
                 nickname = nickname,
                 bio = bio,
                 token = token,

@@ -29,7 +29,6 @@ interface CommunityRepository {
 
     suspend fun sendCommunityComment(
         communityId: Int,
-        parentId: Int?,
         comment: String
     ): Flow<Comment>
 

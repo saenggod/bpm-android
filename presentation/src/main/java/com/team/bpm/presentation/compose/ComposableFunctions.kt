@@ -69,10 +69,10 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
+import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip
 import com.team.bpm.presentation.util.convertUriToBitmap
-import com.team.bpm.presentation.util.dateOnly
 
 
 @Composable
@@ -580,7 +580,7 @@ fun ReviewComposable(
                 }
 
                 Text(
-                    text = createdAt?.dateOnly() ?: "",
+                    text = createdAt?.calculatedFromNow() ?: "",
                     fontWeight = Medium,
                     fontSize = 12.sp,
                     letterSpacing = 0.5.sp
@@ -1016,7 +1016,7 @@ inline fun CommentComposable(
                         BPMSpacer(width = 4.dp)
 
                         Text(
-                            text = createdAt?.dateOnly() ?: "",
+                            text = createdAt?.calculatedFromNow() ?: "",
                             fontWeight = SemiBold,
                             fontSize = 12.sp,
                             letterSpacing = 0.sp,

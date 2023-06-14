@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -12,15 +13,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterStart
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopEnd
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -28,9 +27,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
@@ -49,11 +48,13 @@ import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
 import com.team.bpm.presentation.model.ReportType
 import com.team.bpm.presentation.util.addFocusCleaner
+import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
-import com.team.bpm.presentation.util.dateOnly
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
@@ -65,20 +66,20 @@ class CommunityDetailActivity : BaseComponentActivityV2() {
     }
 
     companion object {
-        const val KEY_QUESTION_ID = "community_id"
+        const val KEY_COMMUNITY_ID = "community_id"
 
         fun newIntent(
             context: Context,
             communityId: Int
         ): Intent {
             return Intent(context, CommunityDetailActivity::class.java).apply {
-                putExtra(KEY_QUESTION_ID, communityId)
+                putExtra(KEY_COMMUNITY_ID, communityId)
             }
         }
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 private fun CommunityDetailActivityContent(
     viewModel: CommunityDetailViewModel = hiltViewModel()
@@ -89,8 +90,10 @@ private fun CommunityDetailActivityContent(
     val scrollState = rememberScrollState()
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val commentTextFieldState = remember { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val commentFocusRequester = remember { FocusRequester() }
+    val commentScrollPosition = remember { mutableStateOf(0) }
+    val textFieldPosition = remember { mutableStateOf(0) }
+    val commentHeight = remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         event.invoke(CommunityDetailContract.Event.GetUserId)
@@ -109,11 +112,6 @@ private fun CommunityDetailActivityContent(
                     commentTextFieldState.value = ""
                     focusManager.clearFocus()
                     event.invoke(CommunityDetailContract.Event.GetCommentList)
-                }
-
-                is CommunityDetailContract.Effect.ShowKeyboard -> {
-                    focusRequester.requestFocus()
-                    keyboardController?.show()
                 }
 
                 is CommunityDetailContract.Effect.GoToCommunityList -> {
@@ -181,10 +179,10 @@ private fun CommunityDetailActivityContent(
                                 .padding(horizontal = 16.dp)
                                 .fillMaxWidth()
                                 .height(55.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            horizontalArrangement = SpaceBetween,
+                            verticalAlignment = CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(verticalAlignment = CenterVertically) {
                                 GlideImage(
                                     modifier = Modifier
                                         .clip(CircleShape)
@@ -204,9 +202,9 @@ private fun CommunityDetailActivityContent(
                                 )
                             }
 
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(verticalAlignment = CenterVertically) {
                                 Text(
-                                    text = community?.createdAt?.dateOnly() ?: "",
+                                    text = community?.createdAt?.calculatedFromNow() ?: "",
                                     fontWeight = Medium,
                                     fontSize = 13.sp,
                                     letterSpacing = 0.sp,
@@ -269,7 +267,7 @@ private fun CommunityDetailActivityContent(
                                         .align(Alignment.BottomStart)
                                 ) {
                                     Text(
-                                        modifier = Modifier.align(Alignment.Center),
+                                        modifier = Modifier.align(Center),
                                         text = "${images.size}/${horizontalPagerState.currentPage + 1}",
                                         fontWeight = Normal,
                                         fontSize = 12.sp,
@@ -332,49 +330,48 @@ private fun CommunityDetailActivityContent(
                         color = GrayColor10
                     )
 
-                    Column(
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = 20.dp
-                            )
-                    ) {
-                        val redirectCommentScrollPosition = remember { mutableStateOf(0) }
+                    BPMSpacer(height = 20.dp)
 
-                        if (isCommentListLoading) {
-                            LoadingBlock()
-                        } else {
-                            commentList.forEach { comment ->
-                                CommentComposable(
-                                    modifier = Modifier
-                                        .onGloballyPositioned {
-                                            if (redirectCommentId == comment.id) {
-                                                redirectCommentScrollPosition.value = it.positionInRoot().y.roundToInt()
-                                            }
-                                        }
-                                        .background(color = if (selectedCommentId == comment.id) HighlightColor else Color.White),
-                                    comment = comment,
-                                    onClickLike = { comment.id?.let { commentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentLike(commentId)) } },
-                                    onClickActionButton = {
-                                        comment.id?.let { commentId ->
-                                            comment.author?.id?.let { authorId ->
-                                                event.invoke(
-                                                    CommunityDetailContract.Event.OnClickCommentActionButton(comment = comment)
-                                                )
-                                            }
+                    if (isCommentListLoading) {
+                        LoadingBlock()
+                    } else {
+                        commentList.forEach { comment ->
+                            CommentComposable(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .onGloballyPositioned {
+                                        if (commentIdToScroll == comment.id) {
+                                            commentScrollPosition.value = it.positionInParent().y.roundToInt()
+                                            commentHeight.value = it.size.height
                                         }
                                     }
-                                )
-
-                                BPMSpacer(height = 22.dp)
-
-                                LaunchedEffect(Unit) {
-                                    scrollState.animateScrollTo(redirectCommentScrollPosition.value)
+                                    .background(color = if (selectedComment?.id == comment.id) HighlightColor else Color.White),
+                                comment = comment,
+                                onClickLike = { comment.id?.let { commentId -> event.invoke(CommunityDetailContract.Event.OnClickCommentLike(commentId)) } },
+                                onClickActionButton = {
+                                    comment.id?.let { commentId ->
+                                        comment.author?.id?.let {
+                                            event.invoke(
+                                                CommunityDetailContract.Event.OnClickCommentActionButton(
+                                                    comment = comment,
+                                                    parentCommentId = comment.parentId ?: commentId
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
+                            )
+
+                            BPMSpacer(height = 22.dp)
+
+                            LaunchedEffect(Unit) {
+                                scrollState.animateScrollTo(commentScrollPosition.value - commentHeight.value * 3)
                             }
                         }
                     }
                 }
+
+                val scope = rememberCoroutineScope()
 
                 Box(
                     modifier = Modifier
@@ -389,7 +386,13 @@ private fun CommunityDetailActivityContent(
                                 horizontal = 16.dp,
                                 vertical = 10.dp
                             )
-                            .focusRequester(focusRequester),
+                            .focusRequester(commentFocusRequester)
+                            .onGloballyPositioned { coordinates ->
+                                scope.launch {
+                                    delay(400L)
+                                    textFieldPosition.value = coordinates.positionInWindow().y.roundToInt()
+                                }
+                            },
                         textState = commentTextFieldState,
                         label = null,
                         limit = null,
@@ -430,7 +433,7 @@ private fun CommunityDetailActivityContent(
                     reportType?.let { reportType ->
                         TextFieldDialog(
                             title = "신고 사유를 작성해주세요",
-                            focusRequester = focusRequester,
+                            focusRequester = dialogFocusRequester,
                             onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickCancel = { event.invoke(CommunityDetailContract.Event.OnClickDismissReportDialog) },
                             onClickConfirm = { reason ->
@@ -445,7 +448,6 @@ private fun CommunityDetailActivityContent(
                     }
 
                     LaunchedEffect(Unit) {
-                        focusManager.clearFocus()
                         dialogFocusRequester.requestFocus()
                     }
                 }
@@ -454,9 +456,15 @@ private fun CommunityDetailActivityContent(
                     NoticeDialog(
                         title = null,
                         content = noticeDialogContent,
+                        onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
+                    )
+                }
 
-                        onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) },
-                        onClickConfirm = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeDialog) }
+                if (isNoticeToQuitDialogShowing) {
+                    NoticeDialog(
+                        title = null,
+                        content = noticeToQuitDialogContent,
+                        onDismissRequest = { event.invoke(CommunityDetailContract.Event.OnClickDismissNoticeToQuitDialog) }
                     )
                 }
             }

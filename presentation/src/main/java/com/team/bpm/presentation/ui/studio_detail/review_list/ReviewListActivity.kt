@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -67,6 +69,10 @@ private fun ReviewListActivityContent(
         }
     }
 
+    LaunchedEffect(Unit) {
+        event.invoke(ReviewListContract.Event.GetUserId)
+    }
+
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
@@ -125,11 +131,18 @@ private fun ReviewListActivityContent(
                 }
             }
         ) {
+            val lazyListState = rememberLazyListState()
+
+            LaunchedEffect(reviewList) {
+                lazyListState.animateScrollToItem(selectedReviewIndex)
+            }
+
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color.White)
+                        .background(color = Color.White),
+                    state = lazyListState
                 ) {
                     item {
                         ScreenHeader(header = "리뷰 전체보기")
@@ -151,12 +164,32 @@ private fun ReviewListActivityContent(
                         )
                     }
 
-                    items(reviewList) { review ->
+                    itemsIndexed(
+                        reviewList.filter {
+                            if (isReviewListShowingImageReviewsOnly) {
+                                it.filesPath?.isNotEmpty() == true
+                            } else {
+                                true
+                            }
+                        }.sortedByDescending {
+                            if (isReviewListSortedByLike) {
+                                it.likeCount
+                            } else {
+                                null
+                            }
+                        }.sortedByDescending {
+                            if (!isReviewListSortedByLike) {
+                                it.createdAt
+                            } else {
+                                null
+                            }
+                        }
+                    ) { index, review ->
                         ReviewComposable(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             review = review,
                             onClickLike = { reviewId -> event.invoke(ReviewListContract.Event.OnClickReviewLike(reviewId)) },
-                            onClickActionButton = { event.invoke(ReviewListContract.Event.OnClickReviewActionButton(review)) }
+                            onClickActionButton = { event.invoke(ReviewListContract.Event.OnClickReviewActionButton(review, index)) }
                         )
                     }
                 }
@@ -183,14 +216,11 @@ private fun ReviewListActivityContent(
                 }
 
                 if (isNoticeDialogShowing) {
-                    noticeDialogContent?.let { noticeDialogContent ->
-                        NoticeDialog(
-                            title = null,
-                            content = noticeDialogContent,
-                            onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) },
-                            onClickConfirm = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
-                        )
-                    }
+                    NoticeDialog(
+                        title = null,
+                        content = noticeDialogContent,
+                        onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
+                    )
                 }
             }
         }

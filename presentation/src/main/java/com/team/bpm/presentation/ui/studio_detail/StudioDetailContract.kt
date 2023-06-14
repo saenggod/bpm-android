@@ -15,7 +15,6 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         val isLoading: Boolean = false,
         val studio: Studio? = null,
         val isReviewListLoading: Boolean = false,
-        val originalReviewList: List<Review> = emptyList(),
         val reviewList: List<Review> = emptyList(),
         val isReviewListShowingImageReviewsOnly: Boolean = false,
         val isReviewListSortedByLike: Boolean = true,
@@ -24,7 +23,7 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
         val bottomSheetButton: BottomSheetButton? = null,
         val isReportDialogShowing: Boolean = false,
         val isNoticeDialogShowing: Boolean = false,
-        val noticeDialogContent: String? = null
+        val noticeDialogContent: String = ""
     )
 
     sealed interface Event {

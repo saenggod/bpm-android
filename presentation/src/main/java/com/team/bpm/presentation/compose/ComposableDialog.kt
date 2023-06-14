@@ -50,8 +50,7 @@ fun NoticeDialog(
     title: String?,
     content: String,
     confirmButtonText: String = "확인",
-    onDismissRequest: () -> Unit,
-    onClickConfirm: (() -> Unit)?
+    onDismissRequest: () -> Unit
 ) {
     BaseComposableDialog(
         onDismissRequest = {
@@ -104,7 +103,7 @@ fun NoticeDialog(
                     .align(End)
                     .width(41.dp)
                     .height(34.dp)
-                    .clickableWithoutRipple { onClickConfirm?.invoke() }
+                    .clickableWithoutRipple { onDismissRequest() }
                 ) {
                     Text(
                         text = confirmButtonText,
@@ -203,7 +202,11 @@ inline fun TextFieldDialog(
                         modifier = Modifier
                             .width(41.dp)
                             .height(34.dp)
-                            .clickableWithoutRipple { onClickConfirm(contentTextState.value) }
+                            .clickableWithoutRipple {
+                                if (contentTextState.value.isNotEmpty()) {
+                                    onClickConfirm(contentTextState.value)
+                                }
+                            }
                     ) {
                         Text(
                             modifier = Modifier.align(Center),
