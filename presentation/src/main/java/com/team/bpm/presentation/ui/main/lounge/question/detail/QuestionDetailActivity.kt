@@ -492,14 +492,12 @@ private fun QuestionDetailActivityContent(
                                 onDismissRequest = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
                                 onClickCancel = { event.invoke(QuestionDetailContract.Event.OnClickDismissReportDialog) },
                                 onClickConfirm = { reason ->
-                                    if (reason.isNotEmpty()) {
-                                        event.invoke(
-                                            when (reportType) {
-                                                ReportType.POST -> QuestionDetailContract.Event.OnClickSendQuestionReport(reason)
-                                                ReportType.COMMENT -> QuestionDetailContract.Event.OnClickSendCommentReport(reason)
-                                            }
-                                        )
-                                    }
+                                    event.invoke(
+                                        when (reportType) {
+                                            ReportType.POST -> QuestionDetailContract.Event.OnClickSendQuestionReport(reason)
+                                            ReportType.COMMENT -> QuestionDetailContract.Event.OnClickSendCommentReport(reason)
+                                        }
+                                    )
                                 }
                             )
                         }

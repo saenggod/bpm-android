@@ -203,7 +203,11 @@ inline fun TextFieldDialog(
                         modifier = Modifier
                             .width(41.dp)
                             .height(34.dp)
-                            .clickableWithoutRipple { onClickConfirm(contentTextState.value) }
+                            .clickableWithoutRipple {
+                                if (contentTextState.value.isNotEmpty()) {
+                                    onClickConfirm(contentTextState.value)
+                                }
+                            }
                     ) {
                         Text(
                             modifier = Modifier.align(Center),

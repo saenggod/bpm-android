@@ -346,11 +346,7 @@ private fun ReviewDetailActivityContent(
                     focusRequester = dialogFocusRequester,
                     onDismissRequest = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
                     onClickCancel = { event.invoke(ReviewDetailContract.Event.OnClickDismissReportDialog) },
-                    onClickConfirm = { reason ->
-                        if (reason.isNotEmpty()) {
-                            event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason))
-                        }
-                    }
+                    onClickConfirm = { reason -> event.invoke(ReviewDetailContract.Event.OnClickSendReviewReport(reason)) }
                 )
 
                 LaunchedEffect(Unit) {
