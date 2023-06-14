@@ -460,7 +460,10 @@ class QuestionDetailViewModel @Inject constructor(
                         reportQuestionCommentUseCase(questionId, selectedCommentId, reason).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(isCommentListLoading = false)
+                                    it.copy(
+                                        isCommentListLoading = false,
+                                        isNoticeDialogShowing = true
+                                    )
                                 }
 
                                 _effect.emit(QuestionDetailContract.Effect.RefreshCommentList)

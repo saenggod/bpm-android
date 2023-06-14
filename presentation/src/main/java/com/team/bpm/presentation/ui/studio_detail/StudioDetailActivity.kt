@@ -920,14 +920,12 @@ private fun StudioDetailActivityContent(
                 }
 
                 if (isNoticeDialogShowing) {
-                    noticeDialogContent?.let { noticeDialogContent ->
-                        NoticeDialog(
-                            title = null,
-                            content = noticeDialogContent,
-                            onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
-                            onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
-                        )
-                    }
+                    NoticeDialog(
+                        title = null,
+                        content = noticeDialogContent,
+                        onDismissRequest = { event.invoke(StudioDetailContract.Event.OnClickDismissReportDialog) },
+                        onClickConfirm = { event.invoke(StudioDetailContract.Event.OnClickDismissNoticeDialog) }
+                    )
                 }
             }
         }

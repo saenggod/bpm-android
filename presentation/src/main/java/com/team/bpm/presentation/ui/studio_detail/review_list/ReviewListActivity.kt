@@ -203,14 +203,12 @@ private fun ReviewListActivityContent(
                 }
 
                 if (isNoticeDialogShowing) {
-                    noticeDialogContent?.let { noticeDialogContent ->
-                        NoticeDialog(
-                            title = null,
-                            content = noticeDialogContent,
-                            onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) },
-                            onClickConfirm = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
-                        )
-                    }
+                    NoticeDialog(
+                        title = null,
+                        content = noticeDialogContent,
+                        onDismissRequest = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) },
+                        onClickConfirm = { event.invoke(ReviewListContract.Event.OnClickDismissNoticeDialog) }
+                    )
                 }
             }
         }
