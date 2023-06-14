@@ -178,15 +178,17 @@ class ReviewListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = true,
-                            isReportDialogShowing = false,
-                            isNoticeDialogShowing = true
+                            isReportDialogShowing = false
                         )
                     }
 
                     withContext(ioDispatcher) {
                         reportReviewUseCase(studioId, reviewId, reason).onEach {
                             _state.update {
-                                it.copy(isLoading = false)
+                                it.copy(
+                                    isLoading = false,
+                                    isNoticeDialogShowing = true
+                                )
                             }
 
                             _effect.emit(ReviewListContract.Effect.RefreshReviewList)
@@ -271,7 +273,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickShowImageReviewsOnly() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isReviewListShowingImageReviewsOnly = true,)
+                it.copy(isReviewListShowingImageReviewsOnly = true)
             }
         }
     }
@@ -279,7 +281,7 @@ class ReviewListViewModel @Inject constructor(
     private fun onClickShowNotOnlyImageReviews() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isReviewListShowingImageReviewsOnly = false,)
+                it.copy(isReviewListShowingImageReviewsOnly = false)
             }
         }
     }

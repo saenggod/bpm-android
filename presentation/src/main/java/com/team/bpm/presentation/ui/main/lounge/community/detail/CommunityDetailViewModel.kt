@@ -409,8 +409,7 @@ class CommunityDetailViewModel @Inject constructor(
                         it.copy(
                             isCommentListLoading = true,
                             isReportDialogShowing = false,
-                            isReporting = false,
-                            isNoticeDialogShowing = true
+                            isReporting = false
                         )
                     }
 
@@ -418,7 +417,10 @@ class CommunityDetailViewModel @Inject constructor(
                         reportCommunityCommentUseCase(communityId, selectedCommentId, reason).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(isCommentListLoading = false)
+                                    it.copy(
+                                        isCommentListLoading = false,
+                                        isNoticeDialogShowing = true
+                                    )
                                 }
 
                                 _effect.emit(CommunityDetailContract.Effect.RefreshCommentList)

@@ -467,8 +467,7 @@ class StudioDetailViewModel @Inject constructor(
                                 _state.update {
                                     it.copy(
                                         isReviewListLoading = false,
-                                        isNoticeDialogShowing = true,
-                                        noticeDialogContent = "신고가 완료되었습니다."
+                                        isNoticeDialogShowing = true
                                     )
                                 }
 

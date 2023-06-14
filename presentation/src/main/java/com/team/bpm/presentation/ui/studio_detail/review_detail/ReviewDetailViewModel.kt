@@ -176,7 +176,8 @@ class ReviewDetailViewModel @Inject constructor(
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
                                     it.copy(
-
+                                        isLoading = false,
+                                        isNoticeDialogShowing = true
                                     )
                                 }
                             }
@@ -260,9 +261,7 @@ class ReviewDetailViewModel @Inject constructor(
 
     private fun onClickDismissNoticeDialog() {
         viewModelScope.launch {
-            _state.update {
-                it.copy(isNoticeDialogShowing = false)
-            }
+            _effect.emit(ReviewDetailContract.Effect.GoBack)
         }
     }
 
