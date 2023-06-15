@@ -428,6 +428,7 @@ class StudioDetailViewModel @Inject constructor(
                                     )
                                 }
 
+                                _effect.emit(StudioDetailContract.Effect.RefreshStudioDetail)
                                 _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
@@ -461,9 +462,7 @@ class StudioDetailViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isReviewListLoading = true,
-                            isReportDialogShowing = false,
-                            isNoticeDialogShowing = true,
-                            noticeDialogContent = "신고가 완료되었습니다."
+                            isReportDialogShowing = false
                         )
                     }
 
@@ -471,11 +470,15 @@ class StudioDetailViewModel @Inject constructor(
                         reportReviewUseCase(studioId, reviewId, reason).onEach {
                             withContext(mainImmediateDispatcher) {
                                 _state.update {
-                                    it.copy(isReviewListLoading = false)
+                                    it.copy(
+                                        isReviewListLoading = false,
+                                        isNoticeDialogShowing = true,
+                                        noticeDialogContent = "신고가 완료되었습니다."
+                                    )
                                 }
 
+                                _effect.emit(StudioDetailContract.Effect.RefreshStudioDetail)
                                 _effect.emit(StudioDetailContract.Effect.RefreshReviewList)
-                                _effect.emit(StudioDetailContract.Effect.ScrollToReviewTab)
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
                     }
