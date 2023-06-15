@@ -558,7 +558,9 @@ fun ReviewComposable(
             BPMSpacer(height = 16.dp)
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = SpaceBetween,
                 verticalAlignment = CenterVertically
             ) {
@@ -590,7 +592,7 @@ fun ReviewComposable(
             BPMSpacer(height = 12.dp)
 
             rating?.let {
-                Row {
+                Row(modifier = Modifier.padding(start = 16.dp)) {
                     for (i in 1..5) {
                         Image(
                             modifier = Modifier.size(15.dp),
@@ -611,6 +613,7 @@ fun ReviewComposable(
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
                     items(it) { keyword ->
                         ReadOnlyKeywordChip(text = keyword)
@@ -621,7 +624,10 @@ fun ReviewComposable(
             BPMSpacer(height = 14.dp)
 
             filesPath?.let {
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                ) {
                     repeat(it.size) { index ->
                         GlideImage(
                             modifier = Modifier
@@ -648,7 +654,9 @@ fun ReviewComposable(
             BPMSpacer(height = 10.dp)
 
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
                 text = content ?: "",
                 fontWeight = Normal,
                 fontSize = 13.sp,
@@ -661,7 +669,9 @@ fun ReviewComposable(
             BPMSpacer(height = 25.dp)
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
                 verticalAlignment = CenterVertically,
                 horizontalArrangement = SpaceBetween
             ) {

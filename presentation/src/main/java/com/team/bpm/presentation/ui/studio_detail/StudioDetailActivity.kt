@@ -110,13 +110,13 @@ private fun StudioDetailActivityContent(
 
     LaunchedEffect(Unit) {
         event.invoke(StudioDetailContract.Event.GetUserId)
-        event.invoke(StudioDetailContract.Event.GetStudioDetail)
     }
 
     val lifecycleEvent = rememberLifecycleEvent()
 
     if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         LaunchedEffect(lifecycleEvent) {
+            event.invoke(StudioDetailContract.Event.GetStudioDetail)
             event.invoke(StudioDetailContract.Event.GetReviewList)
         }
     } else if (lifecycleEvent == Lifecycle.Event.ON_PAUSE) {
@@ -696,7 +696,7 @@ private fun StudioDetailActivityContent(
                     }
 
                     ReviewListHeader(
-                        modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y > screenHeight.value / 2f) StudioDetailTabType.INFO else StudioDetailTabType.REVIEW },
+                        modifier = Modifier.onGloballyPositioned { tabByScrollState.value = if (it.positionInWindow().y - 300 > screenHeight.value / 2f) StudioDetailTabType.INFO else StudioDetailTabType.REVIEW },
                         isShowingImageReviewsOnly = isReviewListShowingImageReviewsOnly,
                         isSortedByLike = isReviewListSortedByLike,
                         onClickShowImageReviewsOnlyOrNot = {
@@ -710,13 +710,11 @@ private fun StudioDetailActivityContent(
                         onClickWriteReview = { event.invoke(StudioDetailContract.Event.OnClickWriteReview) }
                     )
 
-                    if (isReviewListLoading) {
-                        LoadingBlock()
-                    } else {
+                    Box {
                         reviewList.let { reviewList ->
                             if (reviewList.isNotEmpty()) {
                                 Box {
-                                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                    Column {
                                         reviewList.filter {
                                             if (isReviewListShowingImageReviewsOnly) {
                                                 it.filesPath?.isNotEmpty() == true
@@ -823,6 +821,10 @@ private fun StudioDetailActivityContent(
                                     }
                                 }
                             }
+                        }
+
+                        if (isReviewListLoading) {
+                            LoadingBlock()
                         }
                     }
                 }
