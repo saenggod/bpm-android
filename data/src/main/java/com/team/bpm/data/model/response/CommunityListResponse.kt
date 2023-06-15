@@ -9,16 +9,16 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CommunityListResponse(
-    @SerializedName("stories")
-    val stories: List<CommunityResponse>?,
-    @SerializedName("storyCount")
-    val storyCount: Int?,
+    @SerializedName("communities")
+    val communities: List<CommunityResponse>?,
+    @SerializedName("communityCount")
+    val communityCount: Int?,
 ) : BaseResponse {
     companion object : DataMapper<CommunityListResponse, CommunityList> {
         override fun CommunityListResponse.toDataModel(): CommunityList {
             return CommunityList(
-                stories = stories?.map { it.toDataModel() },
-                storyCount = storyCount
+                communities = communities?.map { it.toDataModel() },
+                communityCount = communityCount
             )
         }
     }

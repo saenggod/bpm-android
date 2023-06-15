@@ -73,7 +73,6 @@ class QuestionViewModel @Inject constructor(
                                 questionList = dataList.distinctBy { it.id }
                             )
                         }
-
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
         }

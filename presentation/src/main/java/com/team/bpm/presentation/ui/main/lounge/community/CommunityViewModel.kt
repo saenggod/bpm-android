@@ -1,6 +1,8 @@
 package com.team.bpm.presentation.ui.main.lounge.community
 
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.model.Community
+import com.team.bpm.domain.model.Question
 import com.team.bpm.domain.usecase.community.GetCommunityListUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
@@ -55,12 +57,13 @@ class CommunityViewModel @Inject constructor(
     fun getCommunityList(page: Int = 0) {
         viewModelScope.launch(ioDispatcher) {
             getCommunityListUseCase(page = page, size = 20).onEach { data ->
-                withContext(mainImmediateDispatcher) {
+                    val dataList = arrayListOf<Community>()
                     _state.update {
+                        dataList.addAll(data.communities ?: emptyList())
+                        dataList.addAll(it.communityList ?: emptyList())
                         it.copy(
-                            communityList = data.stories
+                            communityList = dataList.distinctBy { it.id }
                         )
-                    }
                 }
             }.launchIn(viewModelScope + exceptionHandler)
         }

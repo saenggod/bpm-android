@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
             name="vm"
             type="com.team.bpm.presentation.ui.main.studio.StudioHomeViewModel" />
+
+        <import type="com.team.bpm.presentation.model.MainBanner" />
 
     </data>
 
@@ -34,24 +37,28 @@
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="16dp"
-                    app:layout_constraintBottom_toTopOf="@id/container_banner_top"
+                    app:layout_constraintBottom_toTopOf="@id/banner_list"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:onSearchClick="@{vm.clickSearch}" />
 
                 <!-- 배너 광고 영역 -->
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/container_banner_top"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/banner_list"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@color/gray_06"
                     android:gravity="center"
+                    android:orientation="horizontal"
+                    android:overScrollMode="never"
                     android:text="배너 광고"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_header_search" />
+                    app:layout_constraintTop_toBottomOf="@id/container_header_search"
+                    tools:listitem="@layout/item_banner" />
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tab"
@@ -62,12 +69,12 @@
                     android:paddingTop="12dp"
                     app:layout_constraintEnd_toStartOf="@id/guide_tab"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_banner_top"
+                    app:layout_constraintTop_toBottomOf="@id/banner_list"
+                    app:tabGravity="start"
                     app:tabIndicatorColor="@color/green"
                     app:tabIndicatorHeight="3dp"
-                    app:tabMode="fixed"
-                    app:tabGravity="start"
                     app:tabInlineLabel="false"
+                    app:tabMode="fixed"
                     app:tabRippleColor="@android:color/transparent"
                     app:tabTextAppearance="@style/TabTextAppearance" />
 

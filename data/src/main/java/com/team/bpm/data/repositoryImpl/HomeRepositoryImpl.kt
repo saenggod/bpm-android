@@ -10,29 +10,30 @@ import com.team.bpm.data.network.MainApi
 import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.StudioList
 import com.team.bpm.domain.model.UserSchedule
-import com.team.bpm.domain.repository.MainRepository
+import com.team.bpm.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class MainRepositoryImpl @Inject constructor(private val mainApi: MainApi) : MainRepository {
+class HomeRepositoryImpl @Inject constructor(private val mainApi: MainApi) : HomeRepository {
 
-    override suspend fun getStudioList(
+    override suspend fun fetchStudioList(
         limit: Int,
-        offset: Int
+        offset: Int,
+        type: String
     ): Flow<StudioList> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.getStudioList(limit, offset)
+                mainApi.fetchStudioList(limit, offset, type)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
         }
     }
 
-    override suspend fun getUserSchedule(): Flow<ResponseState<UserSchedule>> {
+    override suspend fun fetchUserSchedule(): Flow<ResponseState<UserSchedule>> {
         return flow {
             BPMResponseHandler().handle {
                 mainApi.getUserSchedule()

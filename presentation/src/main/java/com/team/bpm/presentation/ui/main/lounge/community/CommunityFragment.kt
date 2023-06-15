@@ -16,15 +16,13 @@ class CommunityFragment :
 
     override fun initLayout() {
         bind {
-            lifecycleOwner = viewLifecycleOwner
             vm = this@CommunityFragment.viewModel
+            lifecycleOwner = viewLifecycleOwner
 
             list.adapter = CommunityAdapter {
                 viewModel.event(CommunityContract.Event.OnClickListItem(it))
             }
         }
-
-        viewModel.getCommunityList()
     }
 
     override fun setupCollect() {
@@ -41,6 +39,13 @@ class CommunityFragment :
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.getCommunityList()
+        binding.list.smoothScrollBy(0, 0)
     }
 
     private fun goToCommunityDetail(communityId: Int) {
