@@ -18,10 +18,7 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideUserRepository(dataStoreManager: DataStoreManager): UserRepository {
-        return UserRepositoryImpl(dataStoreManager)
-    }
-    fun provideMainRepository(mainApi: MainApi): HomeRepository {
+    fun provideHomeRepository(mainApi: MainApi): HomeRepository {
         return HomeRepositoryImpl(mainApi)
     }
 
