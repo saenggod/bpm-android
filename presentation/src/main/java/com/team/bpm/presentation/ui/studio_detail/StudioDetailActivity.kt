@@ -165,16 +165,20 @@ private fun StudioDetailActivityContent(
                     context.startActivity(navigationIntent)
                 }
 
+                is StudioDetailContract.Effect.RefreshStudioDetail -> {
+                    event.invoke(StudioDetailContract.Event.GetStudioDetail)
+                }
+
+                is StudioDetailContract.Effect.RefreshReviewList -> {
+                    event.invoke(StudioDetailContract.Event.GetReviewList)
+                }
+
                 is StudioDetailContract.Effect.GoToWriteReview -> {
                     context.startActivity(WritingReviewActivity.newIntent(context, effect.studioId))
                 }
 
                 is StudioDetailContract.Effect.GoToReviewList -> {
                     context.startActivity(ReviewListActivity.newIntent(context, effect.studioId))
-                }
-
-                is StudioDetailContract.Effect.RefreshReviewList -> {
-                    event.invoke(StudioDetailContract.Event.GetReviewList)
                 }
             }
         }

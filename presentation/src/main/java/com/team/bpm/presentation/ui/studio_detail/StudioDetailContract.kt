@@ -99,6 +99,8 @@ interface StudioDetailContract : BaseContract<StudioDetailContract.State, Studio
 
         data class LaunchNavigationApp(val address: String) : Effect
 
+        object RefreshStudioDetail : Effect
+
         object RefreshReviewList : Effect
 
         data class GoToWriteReview(val studioId: Int) : Effect
