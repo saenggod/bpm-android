@@ -1,8 +1,9 @@
 package com.team.bpm.presentation.ui.main.mypage
 
 import androidx.fragment.app.viewModels
-import com.team.bpm.presentation.databinding.FragmentMypageBinding
 import com.team.bpm.presentation.base.BaseFragment
+import com.team.bpm.presentation.databinding.FragmentMypageBinding
+import com.team.bpm.presentation.ui.main.mypage.myquestion.MyQuestionActivity
 import com.team.bpm.presentation.ui.main.mypage.starttab.MyPageStartTabActivity
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import com.team.bpm.presentation.util.showToast
@@ -33,6 +34,7 @@ class MyPageFragment : BaseFragment<FragmentMypageBinding>(FragmentMypageBinding
                     }
 
                     MyPageContract.Effect.GoHistoryPost -> {
+                        startActivity(MyQuestionActivity.newIntent(requireContext()))
                         // 질문 모아보기 (API 필요)
                     }
 

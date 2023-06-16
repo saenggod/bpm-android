@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.team.bpm.presentation.R
 
 abstract class BaseBottomSheetFragment<T : ViewDataBinding>(private val inflater: (LayoutInflater) -> T) :
     BottomSheetDialogFragment() {
@@ -13,6 +14,8 @@ abstract class BaseBottomSheetFragment<T : ViewDataBinding>(private val inflater
     lateinit var binding: T
 
     protected abstract val viewModel: BaseViewModel
+
+    override fun getTheme(): Int = R.style.BPMBottomSheetDialog
 
     override fun onCreateView(
         inflater: LayoutInflater,

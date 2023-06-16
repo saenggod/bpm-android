@@ -56,4 +56,8 @@ interface QuestionRepository {
         questionId: Int,
         commentId: Int
     ): Flow<Unit>
+
+    /* 마이페이지 내가 작성한 질문 */
+
+    suspend fun fetchMyQuestionList(page: Int, size: Int): Flow<QuestionList>
 }

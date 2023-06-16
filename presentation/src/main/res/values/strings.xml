@@ -35,6 +35,9 @@
     <string name="mypage_edit_start_tab_title">시작 위치 변경하기</string>
     <string name="mypage_edit_start_tab_description">원하는 화면을 시작 화면으로 설정할 수 있어요</string>
 
+    <string name="my_question_title">나의 질문</string>
+    <string name="my_question_more_delete">삭제하기</string>
+
     <string name="kakao_app_key">ced602989810575b0c1d032415db11c8</string>
 
 </resources>

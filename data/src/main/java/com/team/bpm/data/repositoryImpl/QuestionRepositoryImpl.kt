@@ -186,4 +186,17 @@ class QuestionRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun fetchMyQuestionList(
+        page: Int,
+        size: Int,
+    ): Flow<QuestionList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchMyQuestionList(page, size)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
 }

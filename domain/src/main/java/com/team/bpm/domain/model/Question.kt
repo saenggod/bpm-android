@@ -12,8 +12,11 @@ data class Question(
     val author: User?,
     val createdAt: String?,
     val updatedAt: String?,
+    val commentsCount: Int?,
     val liked: Boolean?,
     val likeCount: Int?,
-    val commentsCount: Int?,
-    val reported: Boolean?
-) : BaseModel
+    val reported: Boolean?,
+    val reportCount: Int?
+) : BaseModel {
+    var isSelected: Boolean = false
+}

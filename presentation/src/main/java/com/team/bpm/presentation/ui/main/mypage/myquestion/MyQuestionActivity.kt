@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import com.team.bpm.presentation.base.BaseActivity
 import com.team.bpm.presentation.databinding.ActivityMypageMyQuestionBinding
 import com.team.bpm.presentation.ui.main.lounge.question.detail.QuestionDetailActivity
+import com.team.bpm.presentation.ui.main.mypage.myquestion.more.MyQuestionMoreBottomSheet
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,11 +24,11 @@ class MyQuestionActivity :
         }
     }
 
-
     override fun initLayout() {
         bind {
             lifecycleOwner = this@MyQuestionActivity
             vm = this@MyQuestionActivity.viewModel
+
             list.adapter = MyQuestionAdapter {
                 viewModel.event(MyQuestionContract.Event.OnClickListItem(it))
             }
@@ -42,6 +43,10 @@ class MyQuestionActivity :
                 when (effect) {
                     is MyQuestionContract.Effect.ShowToast -> {
                         showToast(effect.text)
+                    }
+
+                    MyQuestionContract.Effect.ShowDeleteBottomSheet -> {
+                        showDeleteBottomSheet()
                     }
 
                     is MyQuestionContract.Effect.GoToQuestionDetail -> {
@@ -60,6 +65,11 @@ class MyQuestionActivity :
         super.onResume()
         viewModel.getQuestionList(viewModel.offset)
         binding.list.smoothScrollBy(0, 0)
+    }
+
+    private fun showDeleteBottomSheet() {
+        MyQuestionMoreBottomSheet.newInstance()
+            .show(supportFragmentManager, MyQuestionMoreBottomSheet::class.java.simpleName)
     }
 
     private fun goToQuestionDetail(questionId: Int) {

@@ -23,7 +23,7 @@ abstract class BaseActivity<T : ViewDataBinding>(private val inflater: (LayoutIn
         setupCollect()
 
         findViewById<ImageView>(R.id.back)?.setOnClickListener {
-            finish()
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 

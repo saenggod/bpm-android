@@ -19,7 +19,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/action_bar"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -28,12 +28,12 @@
                 style="@style/Font.Pretendard.Semibold.18"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/mypage_content_history_post"
+                android:layout_marginVertical="19dp"
+                android:text="@string/my_question_title"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="액션바" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/back"
@@ -52,6 +52,7 @@
                 android:layout_height="22dp"
                 android:layout_marginVertical="17dp"
                 android:layout_marginEnd="14dp"
+                android:onClick="@{() -> vm.onClickMore()}"
                 android:src="@drawable/ic_action_bar_more"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -67,54 +68,75 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/container_delete"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/action_bar">
 
-            <androidx.appcompat.widget.AppCompatCheckedTextView
-                android:id="@+id/all"
-                style="@style/Font.Pretendard.Medium.14"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="21dp"
-                android:layout_marginStart="18dp"
-                android:drawableStart="@drawable/bg_checkbox_black"
-                android:drawablePadding="8dp"
-                android:text="전체 선택"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/delete"
-                style="@style/Font.Pretendard.Medium.14"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="21dp"
-                android:layout_marginEnd="16dp"
-                android:foregroundTint="@drawable/bg_mypage_my_question_delete"
-                android:text="삭제"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container_delete"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    bind:visibility="@{vm.state.deleteMode}">
 
+                    <androidx.appcompat.widget.AppCompatCheckedTextView
+                        android:id="@+id/all"
+                        style="@style/Font.Pretendard.Medium.14"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{vm.state.isAllSelected}"
+                        android:drawableStart="@drawable/bg_checkbox_black"
+                        android:drawablePadding="8dp"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        android:onClick="@{() -> vm.onClickSelectAllItem()}"
+                        android:paddingVertical="21dp"
+                        android:paddingStart="18dp"
+                        android:text="전체 선택"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/delete"
+                        style="@style/Font.Pretendard.Medium.14"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        android:foregroundTint="@drawable/bg_mypage_my_question_delete"
+                        android:onClick="@{() -> vm.onClickDeleteItem()}"
+                        android:paddingVertical="21dp"
+                        android:paddingEnd="16dp"
+                        android:text="삭제"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/container_delete"
-            bind:list_item="@{vm.state.questionList}"
-            tools:listitem="@layout/item_lounge_question" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_delete"
+                    bind:list_item="@{vm.state.questionList}"
+                    tools:listitem="@layout/item_lounge_question" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
