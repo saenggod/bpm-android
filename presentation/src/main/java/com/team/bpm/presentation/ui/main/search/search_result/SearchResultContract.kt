@@ -7,7 +7,10 @@ interface SearchResultContract : BaseContract<SearchResultContract.State, Search
     data class State(
         val isLoading: Boolean = false,
         val studioList: List<Studio> = emptyList(),
-        val isFiltering: Boolean = false
+        val isFiltering: Boolean = false,
+        val isFiltered: Boolean = false,
+        val filteredRegion: String? = null,
+        val filteredKeywordList: List<String> = emptyList()
     )
 
     sealed interface Event {
