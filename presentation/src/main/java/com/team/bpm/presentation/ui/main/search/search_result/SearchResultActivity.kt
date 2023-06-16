@@ -94,7 +94,10 @@ private fun SearchResultActivityContent(viewModel: SearchResultViewModel = hiltV
                     val searchTextState = remember { mutableStateOf("") }
 
                     BPMTextField(
-                        modifier = Modifier.padding(horizontal = 14.dp),
+                        modifier = Modifier.padding(
+                            start = 17.dp,
+                            end = 12.dp
+                        ),
                         textState = searchTextState,
                         label = null,
                         limit = null,

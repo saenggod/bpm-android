@@ -33,7 +33,7 @@ class SearchViewModel @Inject constructor(
         }
 
         is SearchContract.Event.Search -> {
-            search(event.text)
+            search(event.text, event.shouldBeSaved)
         }
 
         is SearchContract.Event.OnClickDeleteRecentSearch -> {
@@ -74,28 +74,28 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun search(search: String) {
-        if (search.isNotEmpty()) {
-            viewModelScope.launch(ioDispatcher) {
-                setRecentSearchListUseCase(
-                    gson.toJson(
-                        mutableListOf<String>().apply {
-                            add(search)
-                            addAll(state.value.recentSearchList)
-                        })
-                ).onEach { result ->
-                    withContext(mainImmediateDispatcher) {
-                        result.let { recentSearchString ->
-                            _state.update {
-                                it.copy(recentSearchList = gson.fromJson(recentSearchString, object : TypeToken<List<String>>() {}.type))
+    private fun search(
+        search: String,
+        shouldBeSaved: Boolean
+    ) {
+        if (shouldBeSaved) {
+            if (search.isNotEmpty()) {
+                viewModelScope.launch(ioDispatcher) {
+                    setRecentSearchListUseCase(
+                        gson.toJson(
+                            mutableListOf<String>().apply {
+                                add(search)
+                                addAll(state.value.recentSearchList)
                             }
-
-                            _effect.emit(SearchContract.Effect.GoToSearchResult(search))
-                            _effect.emit(SearchContract.Effect.EraseSearch)
-                        }
-                    }
-                }.launchIn(viewModelScope + exceptionHandler)
+                        )
+                    )
+                }
             }
+        }
+
+        viewModelScope.launch {
+            _effect.emit(SearchContract.Effect.GoToSearchResult(search))
+            _effect.emit(SearchContract.Effect.EraseSearch)
         }
     }
 

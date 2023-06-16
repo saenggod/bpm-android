@@ -22,12 +22,14 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.LoadingBlock
 import com.team.bpm.presentation.compose.getLocalContext
+import com.team.bpm.presentation.compose.rememberLifecycleEvent
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.ui.main.search.search_result.SearchResultActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
@@ -48,9 +50,12 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val searchTextFieldState = remember { mutableStateOf("") }
+    val lifecycleEvent = rememberLifecycleEvent()
 
-    LaunchedEffect(Unit) {
-        event.invoke(SearchContract.Event.GetRecentSearchList)
+    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        LaunchedEffect(lifecycleEvent) {
+            event.invoke(SearchContract.Event.GetRecentSearchList)
+        }
     }
 
     LaunchedEffect(effect) {
@@ -119,7 +124,7 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
                                     value = searchTextFieldState.value,
                                     onValueChange = { searchTextFieldState.value = it },
                                     singleLine = true,
-                                    keyboardActions = KeyboardActions(onDone = { event.invoke(SearchContract.Event.Search(searchTextFieldState.value)) }),
+                                    keyboardActions = KeyboardActions(onDone = { event.invoke(SearchContract.Event.Search(searchTextFieldState.value, true)) }),
                                     cursorBrush = SolidColor(MainBlackColor),
                                     textStyle = TextStyle(
                                         fontWeight = FontWeight.SemiBold,
@@ -135,7 +140,7 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
                             Icon(
                                 modifier = Modifier
                                     .align(Center)
-                                    .clickableWithoutRipple { event.invoke(SearchContract.Event.Search(searchTextFieldState.value)) },
+                                    .clickableWithoutRipple { event.invoke(SearchContract.Event.Search(searchTextFieldState.value, true)) },
                                 painter = painterResource(id = R.drawable.ic_search),
                                 contentDescription = "searchButtonIcon",
                                 tint = GrayColor1
@@ -171,7 +176,7 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
                         recentSearchList.forEachIndexed { index, recentSearch ->
                             Row(
                                 modifier = Modifier
-                                    .clickableWithoutRipple { event.invoke(SearchContract.Event.Search(recentSearch)) }
+                                    .clickableWithoutRipple { event.invoke(SearchContract.Event.Search(recentSearch, false)) }
                                     .padding(horizontal = 16.dp)
                                     .fillMaxWidth()
                                     .height(44.dp),

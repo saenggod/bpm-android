@@ -11,7 +11,7 @@ interface SearchContract : BaseContract<SearchContract.State, SearchContract.Eve
     sealed interface Event {
         object GetRecentSearchList : Event
 
-        data class Search(val text: String) : Event
+        data class Search(val text: String, val shouldBeSaved: Boolean) : Event
 
         data class OnClickDeleteRecentSearch(val index: Int) : Event
     }
