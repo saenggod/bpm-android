@@ -29,6 +29,7 @@ import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.LoadingBlock
 import com.team.bpm.presentation.compose.getLocalContext
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.ui.main.search.search_result.SearchResultActivity
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,7 +65,7 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
                 }
 
                 is SearchContract.Effect.GoToSearchResult -> {
-
+                    context.startActivity(SearchResultActivity.newIntent(context, effect.search))
                 }
             }
         }
