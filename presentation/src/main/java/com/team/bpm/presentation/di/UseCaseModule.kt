@@ -339,6 +339,13 @@ object UseCaseModule {
         return DislikeQuestionCommentUseCase(questionRepository)
     }
 
+    // 마이페이지 - 내 질문 리스트
+    @Provides
+    @ViewModelScoped
+    fun provideMyGetQuestionListUseCase(questionRepository: QuestionRepository): GetMyQuestionListUseCase {
+        return GetMyQuestionListUseCase(questionRepository)
+    }
+
     /* 눈바디 */
 
     @Provides

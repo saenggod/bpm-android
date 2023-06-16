@@ -301,6 +301,14 @@ interface MainApi {
         @Path("commentId") commentId: Int
     ): Response<BPMResponseV2<ResponseBody>>
 
+    /* 마이페이지 */
+
+    @GET("api/users/question-board")
+    suspend fun fetchMyQuestionList(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): Response<BPMResponseV2<QuestionListResponse>>
+
     /* 눈바디 */
 
     @Multipart
