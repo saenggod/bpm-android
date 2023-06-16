@@ -1,16 +1,14 @@
 package com.team.bpm.presentation.ui.main.search
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceBetween
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -20,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,9 +26,13 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMSpacer
+import com.team.bpm.presentation.compose.LoadingBlock
 import com.team.bpm.presentation.compose.getLocalContext
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.util.clickableWithoutRipple
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class SearchActivity : BaseComponentActivityV2() {
@@ -44,6 +47,28 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val searchTextFieldState = remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        event.invoke(SearchContract.Event.GetRecentSearchList)
+    }
+
+    LaunchedEffect(effect) {
+        effect.collectLatest { effect ->
+            when (effect) {
+                is SearchContract.Effect.ShowToast -> {
+                    context.showToast(effect.text)
+                }
+
+                is SearchContract.Effect.EraseSearch -> {
+                    searchTextFieldState.value = ""
+                }
+
+                is SearchContract.Effect.GoToSearchResult -> {
+
+                }
+            }
+        }
+    }
 
     with(state) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -93,7 +118,7 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
                                     value = searchTextFieldState.value,
                                     onValueChange = { searchTextFieldState.value = it },
                                     singleLine = true,
-                                    keyboardActions = KeyboardActions(onDone = { }),
+                                    keyboardActions = KeyboardActions(onDone = { event.invoke(SearchContract.Event.Search(searchTextFieldState.value)) }),
                                     cursorBrush = SolidColor(MainBlackColor),
                                     textStyle = TextStyle(
                                         fontWeight = FontWeight.SemiBold,
@@ -107,7 +132,9 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
 
                         Box(modifier = Modifier.size(36.dp)) {
                             Icon(
-                                modifier = Modifier.align(Center),
+                                modifier = Modifier
+                                    .align(Center)
+                                    .clickableWithoutRipple { event.invoke(SearchContract.Event.Search(searchTextFieldState.value)) },
                                 painter = painterResource(id = R.drawable.ic_search),
                                 contentDescription = "searchButtonIcon",
                                 tint = GrayColor1
@@ -137,7 +164,38 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
 
                     BPMSpacer(height = 8.dp)
 
-                    // 최근 검색어
+                    if (isRecentSearchListLoading) {
+                        LoadingBlock()
+                    } else {
+                        recentSearchList.forEachIndexed { index, recentSearch ->
+                            Row(
+                                modifier = Modifier
+                                    .clickableWithoutRipple { event.invoke(SearchContract.Event.Search(recentSearch)) }
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                                    .height(44.dp),
+                                horizontalArrangement = SpaceBetween,
+                                verticalAlignment = CenterVertically
+                            ) {
+                                Text(
+                                    text = recentSearch,
+                                    fontWeight = Medium,
+                                    fontSize = 16.sp,
+                                    letterSpacing = 0.sp,
+                                    color = GrayColor2
+                                )
+
+                                Icon(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clickableWithoutRipple { event.invoke(SearchContract.Event.OnClickDeleteRecentSearch(index)) },
+                                    painter = painterResource(id = R.drawable.ic_close),
+                                    contentDescription = "removeItemIcon",
+                                    tint = GrayColor6
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

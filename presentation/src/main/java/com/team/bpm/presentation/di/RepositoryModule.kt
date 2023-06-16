@@ -24,6 +24,15 @@ object RepositoryModule {
 
     @Singleton
     @Provides
+    fun provideSearchRepository(
+        dataStoreManager: DataStoreManager,
+        mainApi: MainApi
+    ): SearchRepository {
+        return SearchRepositoryImpl(dataStoreManager, mainApi)
+    }
+
+    @Singleton
+    @Provides
     fun provideSplashRepository(
         dataStoreManager: DataStoreManager,
         mainApi: MainApi
