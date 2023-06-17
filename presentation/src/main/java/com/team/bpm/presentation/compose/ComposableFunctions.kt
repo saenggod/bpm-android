@@ -240,7 +240,7 @@ fun StudioComposable(
 
                     Image(
                         modifier = Modifier.clickableWithoutRipple { studio.id?.let { onClickScrapButton(it) } },
-                        painter = painterResource(id = R.drawable.ic_scrap_active),
+                        painter = painterResource(id = if (scrapped == true) R.drawable.ic_scrap_active else R.drawable.ic_scrap_inactive),
                         contentDescription = "scrapIcon",
                     )
                 }
@@ -766,8 +766,8 @@ inline fun ClickableKeywordChip(
             )
             .clickableWithoutRipple { onClick() },
         text = keyword.keyword ?: "",
-        fontWeight = Medium,
-        fontSize = 12.sp,
+        fontWeight = if (isChosen) SemiBold else Normal,
+        fontSize = 13.sp,
         letterSpacing = 0.sp,
         color = if (isChosen) MainBlackColor else GrayColor4
     )

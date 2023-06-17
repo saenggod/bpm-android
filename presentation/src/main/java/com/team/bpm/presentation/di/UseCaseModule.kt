@@ -13,6 +13,7 @@ import com.team.bpm.domain.usecase.review.*
 import com.team.bpm.domain.usecase.schedule.EditScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
 import com.team.bpm.domain.usecase.schedule.MakeScheduleUseCase
+import com.team.bpm.domain.usecase.search.GetFilteredStudioListUseCase
 import com.team.bpm.domain.usecase.search.GetRecentSearchListUseCase
 import com.team.bpm.domain.usecase.search.SetRecentSearchListUseCase
 import com.team.bpm.domain.usecase.search_studio.SearchStudioUseCase
@@ -382,5 +383,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideSetRecentSearchListUseCase(searchRepository: SearchRepository): SetRecentSearchListUseCase {
         return SetRecentSearchListUseCase(searchRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetFilteredStudioListUseCase(searchRepository: SearchRepository): GetFilteredStudioListUseCase {
+        return GetFilteredStudioListUseCase(searchRepository)
     }
 }

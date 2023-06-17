@@ -177,7 +177,6 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
                             Row(
                                 modifier = Modifier
                                     .clickableWithoutRipple { event.invoke(SearchContract.Event.Search(recentSearch, false)) }
-                                    .padding(horizontal = 16.dp)
                                     .fillMaxWidth()
                                     .height(44.dp),
                                 horizontalArrangement = SpaceBetween,

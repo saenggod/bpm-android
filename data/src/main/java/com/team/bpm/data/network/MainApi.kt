@@ -39,6 +39,11 @@ interface MainApi {
         @Query("q") query: String
     ): Response<BPMResponseV2<StudioListResponse>>
 
+    @POST("api/studio/filter")
+    suspend fun fetchFilteredStudioList(
+    @Body filteredStudioListRequest: FilteredStudioListRequest
+    ): Response<BPMResponseV2<StudioListResponse>>
+
     @GET("api/studio")
     suspend fun fetchStudioList(
         @Query("limit") limit: Int,
