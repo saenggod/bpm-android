@@ -2,9 +2,7 @@ package com.team.bpm.presentation.ui.main.search.search_result
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -438,12 +437,62 @@ private fun SearchResultActivityContent(viewModel: SearchResultViewModel = hiltV
                         }
                     }
 
-                    itemsIndexed(studioList) { index, studio ->
-                        StudioComposable(
-                            studio = studio,
-                            onClickStudio = { studioId -> event.invoke(SearchResultContract.Event.OnClickStudio(studioId)) },
-                            onClickScrapButton = { studioId -> event.invoke(SearchResultContract.Event.OnClickScrap(studioId, index)) }
-                        )
+                    if (studioList.isNotEmpty()) {
+                        itemsIndexed(studioList) { index, studio ->
+                            StudioComposable(
+                                studio = studio,
+                                onClickStudio = { studioId -> event.invoke(SearchResultContract.Event.OnClickStudio(studioId)) },
+                                onClickScrapButton = { studioId -> event.invoke(SearchResultContract.Event.OnClickScrap(studioId, index)) }
+                            )
+                        }
+                    } else {
+                        item {
+                            Box(modifier = Modifier.size(360.dp)) {
+                                Column(
+                                    modifier = Modifier.align(Center),
+                                    horizontalAlignment = CenterHorizontally
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.shoulder_man),
+                                        contentDescription = "shoulderManImage"
+                                    )
+
+                                    BPMSpacer(height = 10.dp)
+
+                                    Text(
+                                        text = "아직 해당 업체 정보가 없어요\n첫 등록을 부탁드려요",
+                                        fontWeight = Medium,
+                                        fontSize = 12.sp,
+                                        letterSpacing = 0.sp,
+                                        textAlign = TextAlign.Center,
+                                        color = GrayColor5
+                                    )
+
+                                    BPMSpacer(height = 15.dp)
+
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(shape = RoundedCornerShape(50.dp))
+                                            .background(color = MainGreenColor)
+                                            .clickable {}
+                                    ) {
+                                        Text(
+                                            modifier = Modifier
+                                                .padding(
+                                                    horizontal = 14.dp,
+                                                    vertical = 12.dp
+                                                )
+                                                .align(Center),
+                                            text = "새 업체 등록하기",
+                                            fontWeight = SemiBold,
+                                            fontSize = 12.sp,
+                                            letterSpacing = 0.sp,
+                                            color = MainBlackColor
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
