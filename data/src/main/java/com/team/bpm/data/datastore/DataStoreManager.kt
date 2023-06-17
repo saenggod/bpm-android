@@ -67,11 +67,26 @@ class DataStoreManager @Inject constructor(private val context: Context) {
         return getStartTabIndex()
     }
 
+    fun getRecentSearchList(): Flow<String?> {
+        return context.instance.data.map { preferences ->
+            preferences[stringPreferencesKey(KEY_RECENT_SEARCH_LIST)]
+        }
+    }
+
+    suspend fun setRecentSearchList(search: String): Flow<String?> {
+        context.instance.edit { preferences ->
+            preferences[stringPreferencesKey(KEY_RECENT_SEARCH_LIST)] = search
+        }
+
+        return getRecentSearchList()
+    }
+
     companion object {
         private const val KEY_DATASTORE = "bpm"
         private const val KEY_KAKAO_USER_ID = "kakao_user_id"
         private const val KEY_USER_TOKEN = "user_token"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_START_TAB = "start_tab"
+        private const val KEY_RECENT_SEARCH_LIST = "recent_search_list"
     }
 }
