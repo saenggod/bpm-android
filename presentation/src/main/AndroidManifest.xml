@@ -49,6 +49,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
+            android:name=".ui.main.search.search_result.SearchResultActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Bpm.NoActionBar" />
+        <activity
             android:name="com.team.bpm.presentation.ui.studio_detail.StudioDetailActivity"
             android:exported="false"
             android:screenOrientation="portrait"
