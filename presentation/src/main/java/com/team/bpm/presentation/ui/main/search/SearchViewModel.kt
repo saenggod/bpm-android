@@ -81,14 +81,12 @@ class SearchViewModel @Inject constructor(
         if (shouldBeSaved) {
             if (search.isNotEmpty()) {
                 viewModelScope.launch(ioDispatcher) {
-                    setRecentSearchListUseCase(
-                        gson.toJson(
-                            mutableListOf<String>().apply {
-                                add(search)
-                                addAll(state.value.recentSearchList)
-                            }
-                        )
-                    )
+                    val recentSearchList = mutableListOf<String>().apply {
+                        add(search)
+                        addAll(state.value.recentSearchList)
+                    }
+
+                    setRecentSearchListUseCase(gson.toJson(if (recentSearchList.size >= 10) recentSearchList.subList(0, 10) else recentSearchList))
                 }
             }
         }
