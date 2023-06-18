@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
@@ -616,36 +617,42 @@ fun ReviewComposable(
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
                     items(it) { keyword ->
-                        ReadOnlyKeywordChip(text = keyword)
+                        ReadOnlyKeywordChip(
+                            modifier = Modifier.alpha(if (reported == false) 1f else 0.3f),
+                            text = keyword
+                        )
                     }
                 }
             }
 
             BPMSpacer(height = 14.dp)
 
-            filesPath?.let {
-                Row(modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-                ) {
-                    repeat(it.size) { index ->
-                        GlideImage(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(60.dp),
-                            model = it[index],
-                            contentDescription = "reviewImage",
-                            contentScale = ContentScale.Crop
-                        )
+            if (reported == false) {
+                filesPath?.let {
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        repeat(it.size) { index ->
+                            GlideImage(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(60.dp),
+                                model = it[index],
+                                contentDescription = "reviewImage",
+                                contentScale = ContentScale.Crop
+                            )
 
-                        BPMSpacer(width = 4.dp)
-                    }
-
-                    repeat(5 - it.size) { index ->
-                        Box(modifier = Modifier.weight(1f))
-
-                        if (index == 5 - it.size - 1) {
                             BPMSpacer(width = 4.dp)
+                        }
+
+                        repeat(5 - it.size) { index ->
+                            Box(modifier = Modifier.weight(1f))
+
+                            if (index == 5 - it.size - 1) {
+                                BPMSpacer(width = 4.dp)
+                            }
                         }
                     }
                 }
@@ -657,7 +664,7 @@ fun ReviewComposable(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth(),
-                text = content ?: "",
+                text = if (reported == true) "신고 정책에 의해 숨김 처리된 리뷰입니다." else content ?: "",
                 fontWeight = Normal,
                 fontSize = 13.sp,
                 letterSpacing = 0.sp,
@@ -666,27 +673,28 @@ fun ReviewComposable(
                 overflow = TextOverflow.Ellipsis
             )
 
-            BPMSpacer(height = 25.dp)
+            if (reported != true) {
+                BPMSpacer(height = 25.dp)
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = SpaceBetween
+                ) {
+                    LikeButton(
+                        liked = liked ?: false,
+                        likeCount = likeCount ?: 0,
+                        onClick = { review.id?.let { reviewId -> onClickLike(reviewId) } }
+                    )
 
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = SpaceBetween
-            ) {
-                LikeButton(
-                    liked = liked ?: false,
-                    likeCount = likeCount ?: 0,
-                    onClick = { review.id?.let { reviewId -> onClickLike(reviewId) } }
-                )
-
-                Icon(
-                    modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
-                    painter = painterResource(id = R.drawable.ic_edit),
-                    contentDescription = "editIcon",
-                    tint = GrayColor4
-                )
+                    Icon(
+                        modifier = Modifier.clickableWithoutRipple { onClickActionButton() },
+                        painter = painterResource(id = R.drawable.ic_edit),
+                        contentDescription = "editIcon",
+                        tint = GrayColor4
+                    )
+                }
             }
         }
 
@@ -775,10 +783,11 @@ inline fun ClickableKeywordChip(
 
 @Composable
 fun ReadOnlyKeywordChip(
+    modifier: Modifier = Modifier,
     text: String
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(shape = RoundedCornerShape(60.dp))
             .background(color = GrayColor9),
     ) {
