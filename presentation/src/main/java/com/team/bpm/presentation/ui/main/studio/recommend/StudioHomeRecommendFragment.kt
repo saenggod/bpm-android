@@ -7,7 +7,7 @@ import com.team.bpm.presentation.base.BaseFragment
 import com.team.bpm.presentation.databinding.FragmentHomeRecommendBinding
 import com.team.bpm.presentation.model.StudioMainTabType
 import com.team.bpm.presentation.ui.main.studio.recommend.list.StudioHomeRecommendAdapter
-import com.team.bpm.presentation.ui.studio_detail.StudioDetailActivity
+import com.team.bpm.presentation.ui.main.studio.detail.StudioDetailActivity
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import dagger.hilt.android.AndroidEntryPoint
 

@@ -21,7 +21,7 @@ import com.team.bpm.presentation.compose.StudioComposable
 import com.team.bpm.presentation.compose.getLocalContext
 import com.team.bpm.presentation.compose.theme.GrayColor11
 import com.team.bpm.presentation.compose.theme.GrayColor5
-import com.team.bpm.presentation.ui.studio_detail.StudioDetailActivity
+import com.team.bpm.presentation.ui.main.studio.detail.StudioDetailActivity
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest

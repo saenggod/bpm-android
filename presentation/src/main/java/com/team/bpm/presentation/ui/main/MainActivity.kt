@@ -11,7 +11,7 @@ import com.team.bpm.presentation.databinding.ActivityMainBinding
 import com.team.bpm.presentation.ui.main.add.MainAddBottomSheet
 import com.team.bpm.presentation.ui.main.lounge.LoungeFragment
 import com.team.bpm.presentation.ui.main.mypage.MyPageFragment
-import com.team.bpm.presentation.ui.main.notification.EyebodyFragment
+import com.team.bpm.presentation.ui.main.eyebody.EyebodyFragment
 import com.team.bpm.presentation.ui.main.studio.StudioHomeFragment
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import dagger.hilt.android.AndroidEntryPoint
