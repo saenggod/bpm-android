@@ -170,7 +170,7 @@ private fun SearchResultActivityContent(viewModel: SearchResultViewModel = hiltV
 
                                     Row(modifier = Modifier.weight(1f)) {
                                         Tab(
-                                            text = "위치",
+                                            text = "지역",
                                             focused = isRegionFiltering,
                                             onClick = { event.invoke(SearchResultContract.Event.OnClickRegionTab) }
                                         )

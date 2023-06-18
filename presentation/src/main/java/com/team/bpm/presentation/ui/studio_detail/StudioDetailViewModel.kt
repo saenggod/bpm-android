@@ -329,7 +329,7 @@ class StudioDetailViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isReviewListLoading = false,
-                                reviewList = result.reviews?.filter { it.reported == false } ?: emptyList()
+                                reviewList = result.reviews ?: emptyList()
                             )
                         }
                     }

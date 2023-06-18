@@ -268,7 +268,7 @@ class ReviewListViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    reviewList = result.reviews?.filter { it.reported == false } ?: emptyList(),
+                                    reviewList = result.reviews ?: emptyList(),
                                 )
                             }
                         }
