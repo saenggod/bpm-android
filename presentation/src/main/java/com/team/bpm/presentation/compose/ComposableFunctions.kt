@@ -69,7 +69,7 @@ import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
-import com.team.bpm.presentation.ui.studio_detail.review_detail.ReviewDetailActivity
+import com.team.bpm.presentation.ui.main.studio.detail.review_detail.ReviewDetailActivity
 import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.clip

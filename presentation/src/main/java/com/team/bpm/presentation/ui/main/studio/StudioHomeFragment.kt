@@ -16,11 +16,11 @@ import com.team.bpm.presentation.model.MainBanner
 import com.team.bpm.presentation.model.StudioMainTabType
 import com.team.bpm.presentation.ui.main.MainActivity
 import com.team.bpm.presentation.ui.main.MainViewModel
-import com.team.bpm.presentation.ui.main.lounge.community.eye_body_posting.EyeBodyPostingActivity
+import com.team.bpm.presentation.ui.main.eyebody.posting.EyeBodyPostingActivity
 import com.team.bpm.presentation.ui.main.studio.banner.BannerListAdapter
 import com.team.bpm.presentation.ui.main.studio.recommend.StudioHomeRecommendFragment
 import com.team.bpm.presentation.util.BasePagerAdapter
-import com.team.bpm.presentation.util.LinePagerIndicatorDecoration
+import com.team.bpm.presentation.util.BannerPagerIndicatorDecoration
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -129,7 +129,7 @@ class StudioHomeFragment :
             bannerList.adapter = bannerAdapter
             bannerAdapter.submitList(MainBanner.values().toList())
             snapHelper.attachToRecyclerView(bannerList)
-            bannerList.addItemDecoration(LinePagerIndicatorDecoration())
+            bannerList.addItemDecoration(BannerPagerIndicatorDecoration())
 
             // TODO : 무한스크롤 하려면 해야 함
 //
