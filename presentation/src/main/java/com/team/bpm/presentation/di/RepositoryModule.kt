@@ -65,12 +65,6 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideSearchStudioRepository(mainApi: MainApi): SearchStudioRepository {
-        return SearchStudioRepositoryImpl(mainApi)
-    }
-
-    @Singleton
-    @Provides
     fun providePostRepository(mainApi: MainApi): CommunityRepository {
         return CommunityRepositoryImpl(mainApi)
     }

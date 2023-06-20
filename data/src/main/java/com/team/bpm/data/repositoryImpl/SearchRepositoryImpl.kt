@@ -17,6 +17,16 @@ class SearchRepositoryImpl @Inject constructor(
     private val dataStoreManager: DataStoreManager,
     private val mainApi: MainApi
 ) : SearchRepository {
+    override suspend fun fetchSearchedStudioList(query: String): Flow<StudioList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.searchStudio(query)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
     override fun getRecentSearchList(): Flow<String?> {
         return dataStoreManager.getRecentSearchList()
     }
