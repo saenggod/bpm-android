@@ -1,8 +1,8 @@
 package com.team.bpm.domain.repository
 
+import com.team.bpm.domain.model.KeywordList
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.ReviewList
-import com.team.bpm.domain.model.request_wrapper.KeywordList
 import kotlinx.coroutines.flow.Flow
 
 interface ReviewRepository {
