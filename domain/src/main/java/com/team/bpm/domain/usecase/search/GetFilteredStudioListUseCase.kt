@@ -7,6 +7,6 @@ import javax.inject.Inject
 
 class GetFilteredStudioListUseCase @Inject constructor(private val searchRepository: SearchRepository) {
     suspend operator fun invoke(keywordList: List<Int>, region: String): Flow<StudioList> {
-        return searchRepository.getFilteredStudioList(keywordList, region)
+        return searchRepository.fetchFilteredStudioList(keywordList, region)
     }
 }

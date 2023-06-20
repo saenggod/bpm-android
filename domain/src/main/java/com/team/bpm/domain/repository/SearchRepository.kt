@@ -7,11 +7,11 @@ interface SearchRepository {
 
     suspend fun fetchSearchedStudioList(query: String): Flow<StudioList>
 
-    fun getRecentSearchList(): Flow<String?>
+    fun loadRecentSearchList(): Flow<String?>
 
-    suspend fun setRecentSearchList(search: String): Flow<String?>
+    suspend fun saveRecentSearchList(search: String): Flow<String?>
 
-    suspend fun getFilteredStudioList(
+    suspend fun fetchFilteredStudioList(
         keywordList: List<Int>,
         region: String
     ): Flow<StudioList>
