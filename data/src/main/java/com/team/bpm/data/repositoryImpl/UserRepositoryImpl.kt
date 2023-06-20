@@ -16,7 +16,7 @@ class UserRepositoryImpl @Inject constructor(
     private val dataStoreManager: DataStoreManager,
     private val mainApi: MainApi
 ) : UserRepository {
-    override fun getUserId(): Flow<Long?> {
+    override fun loadUserId(): Flow<Long?> {
         return dataStoreManager.getUserId()
     }
 
@@ -24,7 +24,7 @@ class UserRepositoryImpl @Inject constructor(
         return dataStoreManager.setUserId(userId)
     }
 
-    override suspend fun getUserProfile(): Flow<UserProfile> {
+    override suspend fun fetchUserProfile(): Flow<UserProfile> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.fetchUserProfile()

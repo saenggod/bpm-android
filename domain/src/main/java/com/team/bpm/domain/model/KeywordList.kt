@@ -1,4 +1,4 @@
-package com.team.bpm.domain.model.request_wrapper
+package com.team.bpm.domain.model
 
 import com.team.bpm.domain.base.BaseModel
 import com.team.bpm.domain.model.Keyword

@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class GetUserIdUseCase @Inject constructor(private val userRepository: UserRepository) {
     operator fun invoke(): Flow<Long?> {
-        return userRepository.getUserId()
+        return userRepository.loadUserId()
     }
 }

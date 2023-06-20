@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class SetRecentSearchListUseCase @Inject constructor(private val searchRepository: SearchRepository) {
     suspend operator fun invoke(search: String): Flow<String?> {
-        return searchRepository.setRecentSearchList(search)
+        return searchRepository.saveRecentSearchList(search)
     }
 }

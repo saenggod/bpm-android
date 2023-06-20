@@ -8,9 +8,9 @@ import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.data.util.convertByteArrayToWebpFile
 import com.team.bpm.data.util.createImageMultipartBody
+import com.team.bpm.domain.model.KeywordList
 import com.team.bpm.domain.model.Review
 import com.team.bpm.domain.model.ReviewList
-import com.team.bpm.domain.model.request_wrapper.KeywordList
 import com.team.bpm.domain.repository.ReviewRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect

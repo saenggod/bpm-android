@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import com.team.bpm.data.base.BaseResponse
 import com.team.bpm.data.mapper.DataMapper
 import com.team.bpm.data.model.response.KeywordResponse.Companion.toDataModel
-import com.team.bpm.domain.model.request_wrapper.KeywordList
+import com.team.bpm.domain.model.KeywordList
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

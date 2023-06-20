@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class GetRecentSearchListUseCase @Inject constructor(private val searchRepository: SearchRepository) {
     operator fun invoke(): Flow<String?> {
-        return searchRepository.getRecentSearchList()
+        return searchRepository.loadRecentSearchList()
     }
 }

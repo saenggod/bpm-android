@@ -70,8 +70,8 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideSearchStudioUseCase(searchStudioRepository: SearchStudioRepository): SearchStudioUseCase {
-        return SearchStudioUseCase(searchStudioRepository)
+    fun provideSearchStudioUseCase(searchRepository: SearchRepository): SearchStudioUseCase {
+        return SearchStudioUseCase(searchRepository)
     }
 
     @Provides
