@@ -19,20 +19,25 @@ interface MainApi {
         @Part("nickname") nickname: String,
         @Part("bio") bio: String,
         @Part file: MultipartBody.Part,
-    ): Response<BPMResponseV2<SignUpResponse>>
+    ): Response<BPMResponseV2<UserProfileResponse>>
 
     @Headers("shouldBeAuthorized: false")
     @POST("api/users/verification")
     suspend fun sendKakaoIdVerification(
         @Body kakaoIdReq: UserVerificationRequest
-    ): Response<BPMResponseV2<SignUpResponse>>
+    ): Response<BPMResponseV2<UserProfileResponse>>
+
+    @GET("api/users")
+    suspend fun fetchUserProfile(): Response<BPMResponseV2<UserProfileResponse>>
+
+    @Multipart
+    @PUT("api/users")
+    suspend fun sendEditedUserProfile(
+        @Part profileRequest: ProfileRequest,
+        @Part file: MultipartBody.Part
+    ): Response<BPMResponseV2<ResponseBody>>
 
     /* 스튜디오 */
-
-    @POST("api/studio")
-    suspend fun sendStudio(
-        @Body studio: StudioRequest
-    ): Response<BPMResponseV2<ResponseBody>>
 
     @GET("api/studio")
     suspend fun searchStudio(
@@ -41,7 +46,7 @@ interface MainApi {
 
     @POST("api/studio/filter")
     suspend fun fetchFilteredStudioList(
-    @Body filteredStudioListRequest: FilteredStudioListRequest
+        @Body filteredStudioListRequest: FilteredStudioListRequest
     ): Response<BPMResponseV2<StudioListResponse>>
 
     @GET("api/studio")

@@ -1,7 +1,6 @@
 package com.team.bpm.presentation.ui.main.mypage
 
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.register_studio.RegisterStudioUseCase
 import com.team.bpm.presentation.BuildConfig
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher

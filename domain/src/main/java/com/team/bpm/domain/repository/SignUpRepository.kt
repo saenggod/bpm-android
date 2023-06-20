@@ -1,6 +1,6 @@
 package com.team.bpm.domain.repository
 
-import com.team.bpm.domain.model.UserInfo
+import com.team.bpm.domain.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
 interface SignUpRepository {
@@ -10,5 +10,5 @@ interface SignUpRepository {
         nickname: String,
         bio: String,
         imageByteArray: ByteArray
-    ): Flow<UserInfo>
+    ): Flow<UserProfile>
 }

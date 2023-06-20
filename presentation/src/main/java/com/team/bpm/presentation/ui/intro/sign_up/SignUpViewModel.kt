@@ -77,17 +77,17 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
+    private fun onClickAddImage() {
+        viewModelScope.launch {
+            _effect.emit(SignUpContract.Effect.AddImage)
+        }
+    }
+
     private fun onImageAdded(image: ImageBitmap) {
         viewModelScope.launch {
             _state.update {
                 it.copy(profileImage = image)
             }
-        }
-    }
-
-    private fun onClickAddImage() {
-        viewModelScope.launch {
-            _effect.emit(SignUpContract.Effect.AddImage)
         }
     }
 
