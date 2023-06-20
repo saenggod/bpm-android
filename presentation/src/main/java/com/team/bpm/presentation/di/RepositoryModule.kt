@@ -1,6 +1,5 @@
 package com.team.bpm.presentation.di
 
-import android.location.Geocoder
 import com.team.bpm.data.datastore.DataStoreManager
 import com.team.bpm.data.network.MainApi
 import com.team.bpm.data.repositoryImpl.*
@@ -72,15 +71,6 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideRegisterStudioRepository(
-        mainApi: MainApi,
-        geocoder: Geocoder
-    ): RegisterStudioRepository {
-        return RegisterStudioRepositoryImpl(mainApi, geocoder)
-    }
-
-    @Singleton
-    @Provides
     fun providePostRepository(mainApi: MainApi): CommunityRepository {
         return CommunityRepositoryImpl(mainApi)
     }
@@ -105,7 +95,10 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideUserRepository(dataStoreManager: DataStoreManager): UserRepository {
-        return UserRepositoryImpl(dataStoreManager)
+    fun provideUserRepository(
+        dataStoreManager: DataStoreManager,
+        mainApi: MainApi
+    ): UserRepository {
+        return UserRepositoryImpl(dataStoreManager, mainApi)
     }
 }

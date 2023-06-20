@@ -4,7 +4,7 @@ import com.team.bpm.domain.base.BaseModel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class UserInfo(
+data class UserProfile(
     val id: Long?,
     val nickname: String?,
     val bio: String?,

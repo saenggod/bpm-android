@@ -1,6 +1,6 @@
 package com.team.bpm.domain.usecase.sign_up
 
-import com.team.bpm.domain.model.UserInfo
+import com.team.bpm.domain.model.UserProfile
 import com.team.bpm.domain.repository.SignUpRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -11,7 +11,7 @@ class SignUpUseCase @Inject constructor(private val signUpRepository: SignUpRepo
         imageByteArray: ByteArray,
         nickname: String,
         bio: String
-    ): Flow<UserInfo> {
+    ): Flow<UserProfile> {
         return signUpRepository.sendSignUp(
             kakaoId = kakaoId,
             imageByteArray = imageByteArray,
