@@ -5,13 +5,22 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.sign_up.SignUpUseCase
+import com.team.bpm.domain.usecase.splash.GetUserTokenUseCase
 import com.team.bpm.domain.usecase.splash.SetUserTokenUseCase
 import com.team.bpm.domain.usecase.user.SetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
@@ -21,9 +30,11 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
     private val setUserTokenUseCase: SetUserTokenUseCase,
+    private val getUserTokenUseCase: GetUserTokenUseCase,
     private val setUserIdUseCase: SetUserIdUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModelV2(), SignUpContract {
+
     private val _state = MutableStateFlow(SignUpContract.State())
     override val state: StateFlow<SignUpContract.State> = _state.asStateFlow()
 
@@ -136,11 +147,10 @@ class SignUpViewModel @Inject constructor(
     }
 
     private suspend fun setUserInfo(userId: Long, token: String) {
-        setUserIdUseCase(userId).zip(setUserTokenUseCase(token)) { userId, userToken ->
-            Pair(userId, userToken)
-        }.collect { result ->
+        setUserIdUseCase(userId).onEach {
+            setUserTokenUseCase(token)
             withContext(mainImmediateDispatcher) {
-                if (result.first != null && result.second != null) {
+                if (it != null && getUserTokenUseCase().isNotEmpty()) {
                     _effect.emit(SignUpContract.Effect.OnSuccessSignUp)
                 } else {
                     _effect.emit(SignUpContract.Effect.ShowToast("로그인에 실패하였습니다."))

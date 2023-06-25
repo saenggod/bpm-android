@@ -1,6 +1,9 @@
 package com.team.bpm.presentation.di
 
+import com.team.bpm.data.manager.AccessTokenManager
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.domain.repository.SplashRepository
+import com.team.bpm.domain.usecase.splash.GetUserTokenUseCase
 import com.team.bpm.presentation.BuildConfig
 import dagger.Module
 import dagger.Provides
@@ -17,8 +20,6 @@ import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-const val TOKEN_TEST = "Token eyJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiNiIsImlhdCI6MTY4NjE0ODAyMSwiZXhwIjoxNjg5MTQ4MDIxfQ.qZmBC3OyHR4yVYbGFzDXzq8uwC3Zz71aeoA1rLkYCCo" // forTest
-
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -27,11 +28,21 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideHttpClient(): OkHttpClient {
+    fun provideAccessTokenManager(accessTokenManager: AccessTokenManager) : Interceptor {
+        return accessTokenManager
+    }
+
+    @Singleton
+    @Provides
+    fun provideHttpClient(
+        accessTokenManager: AccessTokenManager
+    ): OkHttpClient {
         val client = OkHttpClient
             .Builder()
             .readTimeout(15, TimeUnit.SECONDS)
             .connectTimeout(15, TimeUnit.SECONDS)
+
+        client.addInterceptor(accessTokenManager)
 
         if (BuildConfig.DEBUG) {
 //            client.addNetworkInterceptor(
@@ -43,24 +54,6 @@ object NetworkModule {
 //            )
             client.addNetworkInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.HEADERS
-            })
-
-            client.addInterceptor(Interceptor { chain ->
-                val request = chain.request()
-                val shouldBeAuthorized = request.header(name = "shouldBeAuthorized") != "false"
-                val requestBuilder = request.newBuilder()
-
-                if (shouldBeAuthorized) {
-                    requestBuilder.addHeader(
-                        name = "Authorization",
-                        value = TOKEN_TEST
-                    )
-
-                } else {
-                    requestBuilder.removeHeader(name = "shouldBeAuthorized")
-                }
-
-                return@Interceptor chain.proceed(request = requestBuilder.build())
             })
 
         } else {
