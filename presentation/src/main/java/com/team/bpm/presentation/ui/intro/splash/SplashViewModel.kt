@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.splash.*
 import com.team.bpm.domain.usecase.user.SetUserIdUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
-import com.team.bpm.presentation.ui.intro.sign_up.SignUpContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -69,11 +68,9 @@ class SplashViewModel @Inject constructor(
 
     private fun getStoredUserInfo() {
         viewModelScope.launch(ioDispatcher) {
-            getKakaoIdUseCase().zip(getUserTokenUseCase()) { kakaoId, userToken ->
-                Pair(kakaoId, userToken)
-            }.onEach { result ->
+            getKakaoIdUseCase().onEach { kakaoId ->
                 withContext(mainImmediateDispatcher) {
-                    if (result.first != null && result.second != null) {
+                    if (kakaoId != null && getUserTokenUseCase().isNotEmpty()) {
                         _effect.emit(SplashContract.Effect.GoToMainActivity)
                     } else {
                         _state.update {
@@ -122,14 +119,13 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun setUserInfo(userId: Long, token: String) {
-        setUserIdUseCase(userId).zip(setUserTokenUseCase(token)) { userId, userToken ->
-            Pair(userId, userToken)
-        }.collect { result ->
+        setUserIdUseCase(userId).collect {
             withContext(mainImmediateDispatcher) {
-                if (result.first != null && result.second != null) {
+                setUserTokenUseCase(token)
+                if (it != null && getUserTokenUseCase().isNotEmpty()) {
                     _effect.emit(SplashContract.Effect.GoToMainActivity)
                 } else {
-                    _effect.emit(SplashContract.Effect.ShowToast("로그인 할 수 없습니다."))
+                    _effect.emit(SplashContract.Effect.ShowToast("로그인에 실패하였습니다. 다시 시도해 주세요."))
                 }
             }
         }

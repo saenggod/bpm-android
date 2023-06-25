@@ -2,6 +2,7 @@ package com.team.bpm.presentation.di
 
 import com.team.bpm.data.datastore.DataStoreManager
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.data.pref.SharedPreferenceManager
 import com.team.bpm.data.repositoryImpl.*
 import com.team.bpm.domain.repository.*
 import dagger.Module
@@ -9,7 +10,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -34,9 +34,10 @@ object RepositoryModule {
     @Provides
     fun provideSplashRepository(
         dataStoreManager: DataStoreManager,
+        sharedPreferenceManager: SharedPreferenceManager,
         mainApi: MainApi
     ): SplashRepository {
-        return SplashRepositoryImpl(dataStoreManager, mainApi)
+        return SplashRepositoryImpl(dataStoreManager, sharedPreferenceManager, mainApi)
     }
 
     @Singleton

@@ -9,9 +9,9 @@ interface SplashRepository {
 
     suspend fun setKakaoId(kakaoId: Long): Flow<Long?>
 
-    fun getUserToken(): Flow<String?>
+    fun getUserToken(): String
 
-    suspend fun setUserToken(userToken: String): Flow<String?>
+    fun setUserToken(userToken: String)
 
     suspend fun sendSignIn(kakaoId: Long): Flow<UserProfile>
 }
