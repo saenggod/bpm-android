@@ -322,9 +322,31 @@ interface MainApi {
     /* 눈바디 */
 
     @Multipart
-    @POST("api/community/body-shape")
+    @POST("api/users/schedule/{scheduleId}/body-shape")
     suspend fun sendBodyShape(
+        @Path("scheduleId") albumId: Int,
         @Part("content") content: String,
         @Part files: List<MultipartBody.Part>,
+    ): Response<BPMResponseV2<BodyShapeResponse>>
+
+    @Multipart
+    @PUT("api/users/schedule/{scheduleId}/body-shape/{bodyShapeId}")
+    suspend fun sendEditedBodyShape(
+        @Path("scheduleId") albumId: Int,
+        @Path("bodyShapeId") bodyShapeId: Int,
+        @Part("content") content: String,
+        @Part files: List<MultipartBody.Part>,
+    ): Response<BPMResponseV2<BodyShapeResponse>>
+
+    @DELETE("api/users/schedule/{scheduleId}/body-shape/{bodyShapeId}")
+    suspend fun deleteBodyShape(
+        @Path("scheduleId") albumId: Int,
+        @Path("bodyShapeId") bodyShapeId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
+    @GET("api/users/schedule/{scheduleId}/body-shape/{bodyShapeId}")
+    suspend fun fetchBodyShape(
+        @Path("scheduleId") albumId: Int,
+        @Path("bodyShapeId") bodyShapeId: Int
     ): Response<BPMResponseV2<BodyShapeResponse>>
 }

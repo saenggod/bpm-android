@@ -4,16 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,19 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.ImagePlaceHolder
-import com.team.bpm.presentation.compose.LoadingScreen
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.getLocalContext
-import com.team.bpm.presentation.compose.initImageLauncher
-import com.team.bpm.presentation.compose.theme.GrayColor10
-import com.team.bpm.presentation.compose.theme.GrayColor4
-import com.team.bpm.presentation.compose.theme.GrayColor5
-import com.team.bpm.presentation.compose.theme.GrayColor8
-import com.team.bpm.presentation.compose.theme.MainBlackColor
-import com.team.bpm.presentation.compose.theme.MainGreenColor
+import com.team.bpm.presentation.compose.*
+import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -57,8 +37,12 @@ class BodyShapePostingActivity : BaseComponentActivityV2() {
     }
 
     companion object {
-        fun newIntent(context: Context): Intent {
-            return Intent(context, BodyShapePostingActivity::class.java)
+        const val KEY_ALBUM_ID = "album_id"
+        fun newIntent(
+            context: Context,
+            albumId: Int?
+        ): Intent {
+            return Intent(context, BodyShapePostingActivity::class.java).putExtra(KEY_ALBUM_ID, albumId)
         }
     }
 }
@@ -133,11 +117,13 @@ private fun BodyShapePostingActivityContent(
                             ImagePlaceHolder(
                                 image = pair.second,
                                 onClick = {},
-                                onClickRemove = { event.invoke(
-                                    BodyShapePostingContract.Event.OnClickRemoveImage(
-                                        index
+                                onClickRemove = {
+                                    event.invoke(
+                                        BodyShapePostingContract.Event.OnClickRemoveImage(
+                                            index
+                                        )
                                     )
-                                ) }
+                                }
                             )
                         }
                     }
@@ -206,11 +192,13 @@ private fun BodyShapePostingActivityContent(
                         text = "저장하기",
                         textColor = MainBlackColor,
                         buttonColor = MainGreenColor,
-                        onClick = { event.invoke(
-                            BodyShapePostingContract.Event.OnClickSubmit(
-                                contentTextState.value
+                        onClick = {
+                            event.invoke(
+                                BodyShapePostingContract.Event.OnClickSubmit(
+                                    contentTextState.value
+                                )
                             )
-                        ) }
+                        }
                     )
                 }
             }

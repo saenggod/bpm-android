@@ -5,12 +5,11 @@ import com.team.bpm.domain.repository.BodyShapeRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class WriteBodyShapeUseCase @Inject constructor(private val bodyShapeRepository: BodyShapeRepository) {
+class GetBodyShapeUseCase @Inject constructor(private val bodyShapeRepository: BodyShapeRepository) {
     suspend operator fun invoke(
         albumId: Int,
-        content: String,
-        imageByteArrays: List<ByteArray>
+        bodyShapeId: Int
     ): Flow<BodyShape> {
-        return bodyShapeRepository.sendBodyShape(albumId, content, imageByteArrays)
+        return bodyShapeRepository.fetchBodyShape(albumId, bodyShapeId)
     }
 }

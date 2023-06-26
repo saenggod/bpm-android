@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.main.body_shape.posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.usecase.body_shape.WriteBodyShapeUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
@@ -16,7 +17,10 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class BodyShapePostingViewModel @Inject constructor(private val writeBodyShapeUseCase: WriteBodyShapeUseCase) : BaseViewModelV2(),
+class BodyShapePostingViewModel @Inject constructor(
+    private val writeBodyShapeUseCase: WriteBodyShapeUseCase,
+    private val savedStateHandle: SavedStateHandle
+    ) : BaseViewModelV2(),
     BodyShapePostingContract {
     private val _state = MutableStateFlow(BodyShapePostingContract.State())
     override val state: StateFlow<BodyShapePostingContract.State> = _state.asStateFlow()
@@ -46,6 +50,10 @@ class BodyShapePostingViewModel @Inject constructor(private val writeBodyShapeUs
         CoroutineExceptionHandler { coroutineContext, throwable ->
 
         }
+    }
+
+    private fun getAlbumId(): Int? {
+        return savedStateHandle.get<Int>(BodyShapePostingActivity.KEY_ALBUM_ID)
     }
 
     private fun onClickImagePlaceHolder() {
@@ -81,25 +89,27 @@ class BodyShapePostingViewModel @Inject constructor(private val writeBodyShapeUs
     }
 
     private fun onClickSubmit(content: String) {
-        viewModelScope.launch {
-            if (content.isNotEmpty()) {
-                _state.update {
-                    it.copy(isLoading = true)
-                }
+        getAlbumId()?.let { albumId ->
+            viewModelScope.launch {
+                if (content.isNotEmpty()) {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
 
-                withContext(ioDispatcher) {
-                    writeBodyShapeUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
-                        withContext(mainImmediateDispatcher) {
-                            result.id?.let { bodyShapeId -> _effect.emit(
-                                BodyShapePostingContract.Effect.RedirectToBodyShape(
-                                    bodyShapeId
-                                )
-                            ) }
-                        }
-                    }.launchIn(viewModelScope + exceptionHandler)
+                    withContext(ioDispatcher) {
+                        writeBodyShapeUseCase(albumId, content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                            withContext(mainImmediateDispatcher) {
+                                result.id?.let { bodyShapeId -> _effect.emit(
+                                    BodyShapePostingContract.Effect.RedirectToBodyShape(
+                                        bodyShapeId
+                                    )
+                                ) }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                } else {
+                    _effect.emit(BodyShapePostingContract.Effect.ShowToast("내용을 입력해주세요."))
                 }
-            } else {
-                _effect.emit(BodyShapePostingContract.Effect.ShowToast("내용을 입력해주세요."))
             }
         }
     }

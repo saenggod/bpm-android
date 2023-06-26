@@ -104,8 +104,8 @@ class ReviewDetailViewModel @Inject constructor(
 
     private val reviewInfo: Pair<Int?, Int?> by lazy {
         Pair(
-            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID) ?: 1,
-            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID) ?: 66
+            getBundle()?.getInt(ReviewDetailActivity.KEY_STUDIO_ID),
+            getBundle()?.getInt(ReviewDetailActivity.KEY_REVIEW_ID)
         )
     }
 

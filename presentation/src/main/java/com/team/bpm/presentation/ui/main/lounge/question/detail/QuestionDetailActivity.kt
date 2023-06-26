@@ -163,15 +163,14 @@ private fun QuestionDetailActivityContent(
                         BottomSheetButtonComposable(
                             button = bottomSheetButton,
                             onClick = {
-                                event.invoke(
-                                    when (bottomSheetButton) {
-                                        BottomSheetButton.DELETE_POST -> QuestionDetailContract.Event.OnClickDeleteQuestion
-                                        BottomSheetButton.REPORT_POST -> QuestionDetailContract.Event.OnClickReportQuestion
-                                        BottomSheetButton.REPLY_COMMENT -> QuestionDetailContract.Event.OnClickReplyComment
-                                        BottomSheetButton.DELETE_COMMENT -> QuestionDetailContract.Event.OnClickDeleteComment
-                                        BottomSheetButton.REPORT_COMMENT -> QuestionDetailContract.Event.OnClickReportComment
-                                    }
-                                )
+                                when (bottomSheetButton) {
+                                    BottomSheetButton.DELETE_POST -> QuestionDetailContract.Event.OnClickDeleteQuestion
+                                    BottomSheetButton.REPORT_POST -> QuestionDetailContract.Event.OnClickReportQuestion
+                                    BottomSheetButton.REPLY_COMMENT -> QuestionDetailContract.Event.OnClickReplyComment
+                                    BottomSheetButton.DELETE_COMMENT -> QuestionDetailContract.Event.OnClickDeleteComment
+                                    BottomSheetButton.REPORT_COMMENT -> QuestionDetailContract.Event.OnClickReportComment
+                                    else -> null
+                                }?.let { event.invoke(it) }
                             }
                         )
                     }

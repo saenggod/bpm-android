@@ -179,7 +179,7 @@ class StudioHomeFragment :
 
     private fun goToWriteBodyShape() {
         // 눈바디 기록하기 페이지 이동
-        startActivity(BodyShapePostingActivity.newIntent(requireContext()))
+//        startActivity(BodyShapePostingActivity.newIntent(requireContext()))
     }
 
     private fun goToLounge() {

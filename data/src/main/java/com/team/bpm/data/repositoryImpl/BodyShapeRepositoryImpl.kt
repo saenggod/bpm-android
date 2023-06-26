@@ -18,27 +18,6 @@ import javax.inject.Inject
 
 class BodyShapeRepositoryImpl @Inject constructor(private val mainApi: MainApi) : BodyShapeRepository {
 
-    override suspend fun sendBodyShape(
-        content: String,
-        imageByteArrays: List<ByteArray>
-    ): Flow<BodyShape> {
-        return flow {
-            BPMResponseHandlerV2().handle {
-                mainApi.sendBodyShape(
-                    content,
-                    imageByteArrays.map { imageByteArray ->
-                        createImageMultipartBody(
-                            key = "file",
-                            file = convertByteArrayToWebpFile(imageByteArray)
-                        )
-                    }
-                )
-            }.onEach { result ->
-                result.response?.let { emit(it.toDataModel()) }
-            }.collect()
-        }
-    }
-
     override suspend fun sendAlbum(
         albumName: String,
         date: String,
@@ -85,6 +64,80 @@ class BodyShapeRepositoryImpl @Inject constructor(private val mainApi: MainApi) 
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.fetchAlbum(albumId)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun sendBodyShape(
+        albumId: Int,
+        content: String,
+        imageByteArrays: List<ByteArray>
+    ): Flow<BodyShape> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendBodyShape(
+                    albumId,
+                    content,
+                    imageByteArrays.map { imageByteArray ->
+                        createImageMultipartBody(
+                            key = "files",
+                            file = convertByteArrayToWebpFile(imageByteArray)
+                        )
+                    }
+                )
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun sendEditedBodyShape(
+        albumId: Int,
+        bodyShapeId: Int,
+        content: String,
+        imageByteArrays: List<ByteArray>
+    ): Flow<BodyShape> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendEditedBodyShape(
+                    albumId,
+                    bodyShapeId,
+                    content,
+                    imageByteArrays.map { imageByteArray ->
+                        createImageMultipartBody(
+                            key = "files",
+                            file = convertByteArrayToWebpFile(imageByteArray)
+                        )
+                    }
+                )
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
+    override suspend fun deleteBodyShape(
+        albumId: Int,
+        bodyShapeId: Int
+    ): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteBodyShape(albumId, bodyShapeId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
+
+    override suspend fun fetchBodyShape(
+        albumId: Int,
+        bodyShapeId: Int
+    ): Flow<BodyShape> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchBodyShape(albumId, bodyShapeId)
             }.onEach { result ->
                 result.response?.let { emit(it.toDataModel()) }
             }.collect()
