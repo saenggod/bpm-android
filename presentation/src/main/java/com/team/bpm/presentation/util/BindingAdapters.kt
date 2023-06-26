@@ -80,8 +80,8 @@ fun ImageView.bindImageSrc(@DrawableRes src: Int?) {
         .into(this)
 }
 
-@BindingAdapter("bind:home_user_schedule_date", "bind:home_user_schedule_time")
-fun AppCompatTextView.bindHomeUserSchedule(dateString: String?, timeString: String?) {
+@BindingAdapter("bind:home_user_album_date", "bind:home_user_album_time")
+fun AppCompatTextView.bindHomeAlbum(dateString: String?, timeString: String?) {
     if (dateString.isNullOrEmpty() || timeString.isNullOrEmpty() || dateString == "-" || timeString == "-") return
     else {
         val date = DateTime.parse(dateString, DateTimeFormat.forPattern("yyyy-MM-dd"))
@@ -91,8 +91,8 @@ fun AppCompatTextView.bindHomeUserSchedule(dateString: String?, timeString: Stri
     }
 }
 
-@BindingAdapter("bind:home_user_schedule_dday")
-fun AppCompatTextView.bindHomeUserScheduleDday(dateString: String?) {
+@BindingAdapter("bind:home_user_album_dday")
+fun AppCompatTextView.bindHomeAlbumDday(dateString: String?) {
     if (dateString.isNullOrEmpty() || dateString == "-") return
     else {
         val date = DateTime.parse(dateString, DateTimeFormat.forPattern("yyyy-MM-dd"))

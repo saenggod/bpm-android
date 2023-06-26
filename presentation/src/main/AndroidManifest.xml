@@ -72,33 +72,17 @@
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.team.bpm.presentation.ui.main.studio.schedule.ScheduleActivity"
+            android:name="com.team.bpm.presentation.ui.main.studio.album.MakingAlbumActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="com.team.bpm.presentation.ui.main.studio.register.RegisterStudioActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Bpm.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="com.team.bpm.presentation.ui.main.studio.register.register_location.RegisterLocationActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
             android:name="com.team.bpm.presentation.ui.main.studio.detail.review_list.ReviewListActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="com.team.bpm.presentation.ui.main.studio.schedule.select.SelectStudioActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Bpm.NoActionBar" />
         <activity
             android:name=".ui.main.lounge.community.posting.CommunityPostingActivity"
             android:exported="false"

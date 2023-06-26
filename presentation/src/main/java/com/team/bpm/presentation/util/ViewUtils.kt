@@ -17,6 +17,6 @@ fun DateTime.getKoreanHour(): String {
     else "오후 ${nowHour - 12}시"
 }
 
-fun DateTime.getUserScheduleDate(): String {
+fun DateTime.getAlbumDate(): String {
     return toString("yyyy.MM.dd") + " ${getKoreanHour()}"
 }

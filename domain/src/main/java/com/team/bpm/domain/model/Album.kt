@@ -4,11 +4,9 @@ import com.team.bpm.domain.base.BaseModel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class UserSchedule(
+data class Album(
     val id: Int? = 0,
-    val scheduleName: String? = "",
-    val studioName: String? = "",
+    val albumName: String? = "",
     val date: String? = "",
-    val time: String? = "",
     val memo: String? = "",
 ) : BaseModel

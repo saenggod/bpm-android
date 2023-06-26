@@ -30,7 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class StudioHomeFragment :
     BaseFragment<FragmentStudioHomeBinding>(FragmentStudioHomeBinding::inflate) {
 
-    private lateinit var scheduleResultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var albumResultLauncher: ActivityResultLauncher<Intent>
 
     private val activityViewModel: MainViewModel by activityViewModels()
 
@@ -67,9 +67,9 @@ class StudioHomeFragment :
             lifecycleOwner = viewLifecycleOwner
         }
 
-        scheduleResultLauncher =
+        albumResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                viewModel.refreshUserSchedule()
+                viewModel.refreshAlbum()
             }
 
         setupPager()
@@ -81,9 +81,9 @@ class StudioHomeFragment :
             viewModel.state.collect { state ->
                 when (state) {
                     StudioHomeState.Init -> {
-                        viewModel.getUserSchedule()
+                        viewModel.getAlbum()
                     }
-                    StudioHomeState.UserSchedule -> Unit
+                    StudioHomeState.Album -> Unit
                     StudioHomeState.Error -> {
                         // TODO : Error Handling
                     }
@@ -97,8 +97,8 @@ class StudioHomeFragment :
                     StudioHomeViewEvent.ClickSearch -> {
                         requireContext().showToast("검색페이지 이동")
                     }
-                    StudioHomeViewEvent.ClickSchedule -> {
-                        goToSchedule()
+                    StudioHomeViewEvent.ClickAlbum -> {
+                        goToAlbum()
                     }
                 }
             }
@@ -169,8 +169,8 @@ class StudioHomeFragment :
         }
     }
 
-    private fun goToSchedule() {
-//        scheduleResultLauncher.launch(ScheduleActivity.newIntent(requireContext())) // TODO : 스케쥴 아이디를 받도록 수정되었습니다!
+    private fun goToAlbum() {
+//        albumResultLauncher.launch(AlbumActivity.newIntent(requireContext())) // TODO : 스케쥴 아이디를 받도록 수정되었습니다!
     }
 
     private fun goToRegisterStore() {

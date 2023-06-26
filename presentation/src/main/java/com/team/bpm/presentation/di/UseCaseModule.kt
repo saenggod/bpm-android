@@ -8,9 +8,9 @@ import com.team.bpm.domain.usecase.mypage.GetMainTabIndexUseCase
 import com.team.bpm.domain.usecase.mypage.SetMainTabIndexUseCase
 import com.team.bpm.domain.usecase.question.*
 import com.team.bpm.domain.usecase.review.*
-import com.team.bpm.domain.usecase.schedule.EditScheduleUseCase
-import com.team.bpm.domain.usecase.schedule.GetScheduleUseCase
-import com.team.bpm.domain.usecase.schedule.MakeScheduleUseCase
+import com.team.bpm.domain.usecase.making_album.EditAlbumUseCase
+import com.team.bpm.domain.usecase.making_album.GetAlbumUseCase
+import com.team.bpm.domain.usecase.making_album.MakeAlbumUseCase
 import com.team.bpm.domain.usecase.search.GetFilteredStudioListUseCase
 import com.team.bpm.domain.usecase.search.GetRecentSearchListUseCase
 import com.team.bpm.domain.usecase.search.SetRecentSearchListUseCase
@@ -102,20 +102,20 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideMakeScheduleUseCase(scheduleRepository: ScheduleRepository): MakeScheduleUseCase {
-        return MakeScheduleUseCase(scheduleRepository)
+    fun provideMakeAlbumUseCase(bodyShapeRepository: BodyShapeRepository): MakeAlbumUseCase {
+        return MakeAlbumUseCase(bodyShapeRepository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideEditScheduleUseCase(scheduleRepository: ScheduleRepository): EditScheduleUseCase {
-        return EditScheduleUseCase(scheduleRepository)
+    fun provideEditAlbumUseCase(bodyShapeRepository: BodyShapeRepository): EditAlbumUseCase {
+        return EditAlbumUseCase(bodyShapeRepository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideGetScheduleUseCase(scheduleRepository: ScheduleRepository): GetScheduleUseCase {
-        return GetScheduleUseCase(scheduleRepository)
+    fun provideGetAlbumUseCase(bodyShapeRepository: BodyShapeRepository): GetAlbumUseCase {
+        return GetAlbumUseCase(bodyShapeRepository)
     }
 
     /* 리뷰 */
@@ -339,8 +339,8 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideWriteEyeBodyUseCase(eyeBodyRepository: EyeBodyRepository): WriteEyeBodyUseCase {
-        return WriteEyeBodyUseCase(eyeBodyRepository)
+    fun provideWriteEyeBodyUseCase(bodyShapeRepository: BodyShapeRepository): WriteEyeBodyUseCase {
+        return WriteEyeBodyUseCase(bodyShapeRepository)
     }
 
     /* 마이페이지 */

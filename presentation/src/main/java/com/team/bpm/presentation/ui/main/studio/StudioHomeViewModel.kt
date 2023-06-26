@@ -2,8 +2,8 @@ package com.team.bpm.presentation.ui.main.studio
 
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.ResponseState
-import com.team.bpm.domain.model.UserSchedule
-import com.team.bpm.domain.usecase.main.GetUserScheduleUseCase
+import com.team.bpm.domain.model.Album
+import com.team.bpm.domain.usecase.main.GetAlbumUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainDispatcher
@@ -22,7 +22,7 @@ import kotlinx.coroutines.plus
 
 @HiltViewModel
 class StudioHomeViewModel @Inject constructor(
-    private val getUserScheduleUseCase: GetUserScheduleUseCase,
+    private val getAlbumUseCase: GetAlbumUseCase,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel() {
@@ -35,9 +35,9 @@ class StudioHomeViewModel @Inject constructor(
     val event: SharedFlow<StudioHomeViewEvent>
         get() = _event
 
-    private val _userScheduleInfo = MutableStateFlow(UserSchedule())
-    val userScheduleInfo: StateFlow<UserSchedule>
-        get() = _userScheduleInfo
+    private val _albumInfo = MutableStateFlow(Album())
+    val albumInfo: StateFlow<Album>
+        get() = _albumInfo
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -45,13 +45,13 @@ class StudioHomeViewModel @Inject constructor(
         }
     }
 
-    fun getUserSchedule() {
+    fun getAlbum() {
         viewModelScope.launch(ioDispatcher) {
-            getUserScheduleUseCase().onEach { state ->
+            getAlbumUseCase().onEach { state ->
                 when (state) {
                     is ResponseState.Success -> {
-                        _userScheduleInfo.emit(state.data)
-                        _state.emit(StudioHomeState.UserSchedule)
+                        _albumInfo.emit(state.data)
+                        _state.emit(StudioHomeState.Album)
                     }
 
                     is ResponseState.Error -> {
@@ -68,13 +68,13 @@ class StudioHomeViewModel @Inject constructor(
         }
     }
 
-    fun clickSchedule(){
+    fun clickAlbum(){
         viewModelScope.launch {
-            _event.emit(StudioHomeViewEvent.ClickSchedule)
+            _event.emit(StudioHomeViewEvent.ClickAlbum)
         }
     }
 
-    fun refreshUserSchedule(){
+    fun refreshAlbum(){
         viewModelScope.launch {
             _state.emit(StudioHomeState.Init)
         }
