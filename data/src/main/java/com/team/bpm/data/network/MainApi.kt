@@ -81,23 +81,23 @@ interface MainApi {
     /* 일정 */
 
     @POST("api/users/schedule")
-    suspend fun sendSchedule(
-        @Body schedule: ScheduleRequest
-    ): Response<BPMResponseV2<UserScheduleResponse>>
+    suspend fun sendAlbum(
+        @Body album: AlbumRequest
+    ): Response<BPMResponseV2<AlbumResponse>>
 
     @PUT("api/users/schedule/{scheduleId}")
-    suspend fun sendEditedSchedule(
-        @Path("scheduleId") scheduleId: Int,
-        @Body scheduleRequest: ScheduleRequest
-    ): Response<BPMResponseV2<UserScheduleResponse>>
+    suspend fun sendEditedAlbum(
+        @Path("albumId") albumId: Int,
+        @Body albumRequest: AlbumRequest
+    ): Response<BPMResponseV2<AlbumResponse>>
 
     @GET("api/users/schedule/{scheduleId}")
-    suspend fun fetchSchedule(
-        @Path("scheduleId") scheduleId: Int
-    ): Response<BPMResponseV2<UserScheduleResponse>>
+    suspend fun fetchAlbum(
+        @Path("albumId") albumId: Int
+    ): Response<BPMResponseV2<AlbumResponse>>
 
     @GET("api/users/schedule")
-    suspend fun getUserSchedule(): Response<UserScheduleResponse>
+    suspend fun getAlbum(): Response<AlbumResponse>
 
     /* 리뷰 */
 
@@ -326,5 +326,5 @@ interface MainApi {
     suspend fun sendEyeBody(
         @Part("content") content: String,
         @Part files: List<MultipartBody.Part>,
-    ): Response<BPMResponseV2<EyeBodyResponse>>
+    ): Response<BPMResponseV2<BodyShapeResponse>>
 }

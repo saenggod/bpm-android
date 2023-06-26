@@ -4,11 +4,11 @@ import com.google.gson.annotations.SerializedName
 import com.team.bpm.data.base.BaseResponse
 import com.team.bpm.data.mapper.DataMapper
 import com.team.bpm.data.model.response.UserResponse.Companion.toDataModel
-import com.team.bpm.domain.model.EyeBody
+import com.team.bpm.domain.model.BodyShape
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class EyeBodyResponse(
+data class BodyShapeResponse(
     @SerializedName("id")
     val id: Int?,
     @SerializedName("content")
@@ -22,9 +22,9 @@ data class EyeBodyResponse(
     @SerializedName("author")
     val author: UserResponse?
 ) : BaseResponse {
-    companion object : DataMapper<EyeBodyResponse, EyeBody> {
-        override fun EyeBodyResponse.toDataModel(): EyeBody {
-            return EyeBody(
+    companion object : DataMapper<BodyShapeResponse, BodyShape> {
+        override fun BodyShapeResponse.toDataModel(): BodyShape {
+            return BodyShape(
                 id = id,
                 content = content,
                 createdAt = createdAt,

@@ -1,26 +1,25 @@
-package com.team.bpm.presentation.ui.main.studio.schedule
+package com.team.bpm.presentation.ui.main.studio.album
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,78 +45,54 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
-import com.team.bpm.presentation.ui.main.studio.schedule.ScheduleActivity.Companion.KEY_STUDIO_NAME
-import com.team.bpm.presentation.ui.main.studio.schedule.select.SelectStudioActivity
 import com.team.bpm.presentation.util.addFocusCleaner
 import com.team.bpm.presentation.util.clickableWithoutRipple
-import com.team.bpm.presentation.util.repeatCallDefaultOnResume
 import dagger.hilt.android.AndroidEntryPoint
-import dev.chrisbanes.snapper.ExperimentalSnapperApi
-import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 
 @AndroidEntryPoint
-class ScheduleActivity : BaseComponentActivityV2() {
+class MakingAlbumActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
-        ScheduleActivityContent()
+        AlbumActivityContent()
     }
 
     companion object {
-        const val KEY_SCHEDULE_ID = "schedule_id"
-        const val KEY_STUDIO_NAME = "studio_name"
+        const val KEY_ALBUM_ID = "album_id"
 
         fun newIntent(
             context: Context,
-            scheduleId: Int?
+            albumId: Int?
         ): Intent {
-            return Intent(context, ScheduleActivity::class.java).putExtra(
-                KEY_SCHEDULE_ID, scheduleId
+            return Intent(context, MakingAlbumActivity::class.java).putExtra(
+                KEY_ALBUM_ID, albumId
             )
         }
     }
 }
 
-@OptIn(ExperimentalSnapperApi::class)
 @Composable
-private fun ScheduleActivityContent(
-    viewModel: ScheduleViewModel = hiltViewModel()
+private fun AlbumActivityContent(
+    viewModel: MakingAlbumViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
-    val hoursLazyListState = rememberLazyListState()
-    val minutesLazyListState = rememberLazyListState()
-    val timeZonesLazyListState = rememberLazyListState()
-    val selectStudioLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == SelectStudioActivity.RESULT_OK) {
-            result.data?.getStringExtra(KEY_STUDIO_NAME)?.let { studioName ->
-                context.repeatCallDefaultOnResume {
-                    event.invoke(ScheduleContract.Event.SetStudio(studioName))
-                }
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
-        event.invoke(ScheduleContract.Event.GetSchedule)
+        event.invoke(MakingAlbumContract.Event.GetAlbum)
     }
 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
-            when (effect) {
-                is ScheduleContract.Effect.GoToSelectStudio -> {
-                    selectStudioLauncher.launch(SelectStudioActivity.newIntent(context))
-                }
-            }
+
         }
     }
 
     with(state) {
         val scrollState = rememberScrollState()
-        val scheduleNameState = remember { mutableStateOf("") }
+        val albumNameState = remember { mutableStateOf("") }
         val memoState = remember { mutableStateOf("") }
 
         Column(
@@ -148,13 +123,11 @@ private fun ScheduleActivityContent(
         ) {
             Column {
                 ScreenHeader(
-                    header = if (isEditing) "일정 등록하기" else "체형관리 일정",
+                    header = if (isEditing) "눈바디 앨범 수정" else "눈바디 앨범 생성",
                     actionBlock = {
                         if (!isEditing) {
                             Text(
-                                modifier = Modifier.clickableWithoutRipple { event.invoke(
-                                    ScheduleContract.Event.OnClickEdit
-                                ) },
+                                modifier = Modifier.clickableWithoutRipple { event.invoke(MakingAlbumContract.Event.OnClickEdit) },
                                 text = "수정",
                                 fontWeight = Medium,
                                 fontSize = 14.sp,
@@ -165,28 +138,28 @@ private fun ScheduleActivityContent(
                     }
                 )
 
-                ScheduleItemLayout(
+                AlbumItemLayout(
                     isEditing = isEditing,
                     isEssential = true,
-                    label = "무엇을 위한 바디프로필인가요?",
-                    value = scheduleNameState.value.ifEmpty { fetchedScheduleName ?: "일정 이름" },
+                    label = "앨범의 이름을 정해주세요",
+                    value = albumNameState.value.ifEmpty { fetchedAlbumName ?: "눈바디 앨범 이름" },
                     extraContentHeight = 60.dp
                 ) {
                     BPMTextField(
-                        textState = scheduleNameState,
+                        textState = albumNameState,
                         label = null,
                         limit = null,
                         singleLine = true,
-                        hint = "일정 이름을 설정해주세요 예) 여름맞이 다이어트"
+                        hint = "앨범 이름을 설정해주세요 예) 여름맞이 다이어트"
                     )
                 }
 
                 Divider(color = GrayColor8)
 
-                ScheduleItemLayout(
+                AlbumItemLayout(
                     isEditing = isEditing,
                     isEssential = true,
-                    label = "일정을 완료할 날짜를 입력해주세요.",
+                    label = "앨범 완성 날짜를 입력해주세요",
                     value = if (selectedDate != null) selectedDate.toString().replace("-", ".") + " (${
                         when (selectedDate.dayOfWeek) {
                             DayOfWeek.MONDAY -> "월"
@@ -382,7 +355,7 @@ private fun ScheduleActivityContent(
                                         .background(color = dayBackgroundColorState.value)
                                         .clickableWithoutRipple {
                                             if (thisDay != null && thisDay.toEpochDay() >= currentDate.toEpochDay()) {
-                                                event.invoke(ScheduleContract.Event.OnClickDate(thisDay))
+                                                event.invoke(MakingAlbumContract.Event.OnClickDate(thisDay))
                                             }
                                         },
                                 ) {
@@ -405,7 +378,7 @@ private fun ScheduleActivityContent(
 
                 Divider(color = GrayColor8)
 
-                ScheduleItemLayout(
+                AlbumItemLayout(
                     isEditing = isEditing,
                     isEssential = false,
                     label = "메모를 남겨주세요",
@@ -420,244 +393,6 @@ private fun ScheduleActivityContent(
                         singleLine = false,
                         hint = "일정에 대한 메모를 입력해주세요."
                     )
-                }
-
-                Divider(color = GrayColor8)
-
-                Divider(
-                    modifier = Modifier.height(8.dp),
-                    color = GrayColor11
-                )
-
-                ScheduleItemLayout(
-                    isEditing = isEditing,
-                    isEssential = false,
-                    label = "예약한 촬영 스튜디오가 있으신가요?",
-                    value = selectedStudioName ?: "스튜디오 이름",
-                    extraContentHeight = 60.dp
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .border(
-                                width = 1.dp,
-                                shape = RoundedCornerShape(10.dp),
-                                color = GrayColor7
-                            )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(
-                                    start = 16.dp,
-                                    end = 8.dp
-                                )
-                                .fillMaxWidth()
-                                .align(Center)
-                                .clickableWithoutRipple { event.invoke(ScheduleContract.Event.OnClickSearchStudio) },
-                            horizontalArrangement = SpaceBetween,
-                            verticalAlignment = CenterVertically
-                        ) {
-                            Text(
-                                text = "바디프로필 업체를 검색해보세요",
-                                fontWeight = Medium,
-                                fontSize = 14.sp,
-                                letterSpacing = 0.sp,
-                                color = GrayColor7
-                            )
-
-                            Icon(
-                                modifier = Modifier.size(32.dp),
-                                painter = painterResource(id = R.drawable.ic_search),
-                                contentDescription = "searchIcon",
-                                tint = GrayColor15
-                            )
-                        }
-                    }
-                }
-
-                Divider(color = GrayColor8)
-
-                ScheduleItemLayout(
-                    isEditing = isEditing,
-                    isEssential = false,
-                    label = "예약 시간을 입력해주세요.",
-                    value = selectedTime ?: "시간",
-                    extraContentHeight = 212.dp
-                ) {
-                    val hours = (0..13).toList()
-                    val minutes = (-1..60).toList()
-                    val timeZones = listOf("", "오후", "오전", "")
-                    val scope = rememberCoroutineScope()
-
-                    LaunchedEffect(Unit) {
-                        selectedTime?.let { selectedTime ->
-                            hoursLazyListState.scrollToItem(selectedTime.substring(0, 2).toInt().minus(1))
-                            minutesLazyListState.scrollToItem(selectedTime.substring(3, 5).toInt())
-                            timeZonesLazyListState.scrollToItem(if (selectedTime.substring(7,9) == "오후") 0 else 1)
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.align(Center),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-
-                            LazyColumn(
-                                modifier = Modifier
-                                    .width(80.dp)
-                                    .height(120.dp),
-                                state = hoursLazyListState,
-                                flingBehavior = rememberSnapperFlingBehavior(hoursLazyListState),
-                                horizontalAlignment = CenterHorizontally
-                            ) {
-                                itemsIndexed(hours) { index, hour ->
-                                    Box(modifier = Modifier.size(40.dp)) {
-                                        val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { hoursLazyListState.firstVisibleItemIndex } }.value + 1) MainBlackColor else GrayColor5)
-
-                                        Text(
-                                            modifier = Modifier
-                                                .align(Center)
-                                                .clickableWithoutRipple {
-                                                    scope.launch {
-                                                        if (index != 0) hoursLazyListState.animateScrollToItem(
-                                                            index - 1
-                                                        )
-                                                    }
-                                                },
-                                            text = if (hour in 1..12) String.format("%02d", hour) else if (hour == 0) "시" else "",
-                                            fontWeight = SemiBold,
-                                            fontSize = 14.sp,
-                                            letterSpacing = 0.sp,
-                                            color = textColorState.value
-                                        )
-                                    }
-                                }
-                            }
-
-                            Icon(
-                                modifier = Modifier.align(CenterVertically),
-                                painter = painterResource(id = R.drawable.ic_time_divider),
-                                contentDescription = "timeDividerIcon"
-                            )
-
-                            LazyColumn(
-                                modifier = Modifier
-                                    .width(80.dp)
-                                    .height(120.dp),
-                                state = minutesLazyListState,
-                                flingBehavior = rememberSnapperFlingBehavior(minutesLazyListState),
-                                horizontalAlignment = CenterHorizontally
-                            ) {
-                                itemsIndexed(minutes) { index, minute ->
-                                    val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { minutesLazyListState.firstVisibleItemIndex } }.value + 1) MainBlackColor else GrayColor5)
-
-                                    Box(modifier = Modifier.size(40.dp)) {
-                                        Text(
-                                            modifier = Modifier
-                                                .align(Center)
-                                                .clickableWithoutRipple {
-                                                    scope.launch {
-                                                        if (index != 0) minutesLazyListState.animateScrollToItem(
-                                                            index - 1
-                                                        )
-                                                    }
-                                                },
-                                            text = if (minute in 0..59) String.format("%02d", minute) else if (minute == -1) "분" else "",
-                                            fontWeight = SemiBold,
-                                            fontSize = 14.sp,
-                                            letterSpacing = 0.sp,
-                                            color = textColorState.value
-                                        )
-                                    }
-                                }
-                            }
-
-                            LazyColumn(
-                                modifier = Modifier
-                                    .width(50.dp)
-                                    .height(120.dp),
-                                state = timeZonesLazyListState,
-                                flingBehavior = rememberSnapperFlingBehavior(timeZonesLazyListState),
-                                horizontalAlignment = CenterHorizontally
-                            ) {
-                                itemsIndexed(timeZones) { index, times ->
-                                    val textColorState = animateColorAsState(targetValue = if (index == remember { derivedStateOf { timeZonesLazyListState.firstVisibleItemIndex } }.value + 1) MainBlackColor else GrayColor5)
-
-                                    Box(modifier = Modifier.size(40.dp)) {
-                                        Text(
-                                            modifier = Modifier
-                                                .align(Center)
-                                                .clickableWithoutRipple {
-                                                    scope.launch {
-                                                        if (index != 0) timeZonesLazyListState.animateScrollToItem(
-                                                            index - 1
-                                                        )
-                                                    }
-                                                },
-                                            text = times,
-                                            fontWeight = SemiBold,
-                                            fontSize = 14.sp,
-                                            letterSpacing = 0.sp,
-                                            color = textColorState.value
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp),
-                            verticalArrangement = SpaceEvenly,
-                            horizontalAlignment = CenterHorizontally
-                        ) {
-                            Divider(
-                                modifier = Modifier.width(210.dp),
-                                color = GrayColor8
-                            )
-                            Divider(
-                                modifier = Modifier.width(210.dp),
-                                color = GrayColor8
-                            )
-                        }
-                    }
-
-                    BPMSpacer(height = 30.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .clip(shape = RoundedCornerShape(8.dp))
-                            .height(42.dp)
-                            .width(210.dp)
-                            .border(
-                                width = 1.dp,
-                                shape = RoundedCornerShape(8.dp),
-                                color = GrayColor5
-                            )
-                            .align(CenterHorizontally)
-                            .clickable {
-                                val hour = "${if (hours[hoursLazyListState.firstVisibleItemIndex + 1] < 10) "0" else ""}${hours[hoursLazyListState.firstVisibleItemIndex + 1]}"
-                                val minute = "${if (minutes[minutesLazyListState.firstVisibleItemIndex + 1] < 10) "0" else ""}${minutes[minutesLazyListState.firstVisibleItemIndex + 1]}"
-                                val time = "$hour:$minute (${timeZones[timeZonesLazyListState.firstVisibleItemIndex + 1]})"
-                                event.invoke(ScheduleContract.Event.OnClickSetTime(time))
-                            }
-                    ) {
-                        Text(
-                            modifier = Modifier.align(Center),
-                            text = "확인",
-                            fontWeight = SemiBold,
-                            fontSize = 14.sp,
-                            letterSpacing = 0.sp,
-                            color = GrayColor3
-                        )
-                    }
                 }
 
                 Divider(color = GrayColor8)
@@ -677,12 +412,14 @@ private fun ScheduleActivityContent(
                     enabled = isEditing,
                     textColor = MainBlackColor,
                     buttonColor = MainGreenColor,
-                    onClick = { event.invoke(
-                        ScheduleContract.Event.OnClickSubmit(
-                            scheduleNameState.value,
-                            memoState.value
+                    onClick = {
+                        event.invoke(
+                            MakingAlbumContract.Event.OnClickSubmit(
+                                albumNameState.value,
+                                memoState.value
+                            )
                         )
-                    ) }
+                    }
                 )
             }
         }
@@ -690,7 +427,7 @@ private fun ScheduleActivityContent(
 }
 
 @Composable
-private fun ScheduleItemLayout(
+private fun AlbumItemLayout(
     isEditing: Boolean,
     isEssential: Boolean,
     label: String,

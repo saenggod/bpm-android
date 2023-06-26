@@ -48,8 +48,8 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideScheduleRepository(mainApi: MainApi): ScheduleRepository {
-        return ScheduleRepositoryImpl(mainApi)
+    fun provideBodyShapeRepository(mainApi: MainApi): BodyShapeRepository {
+        return BodyShapeRepositoryImpl(mainApi)
     }
 
     @Singleton
@@ -74,12 +74,6 @@ object RepositoryModule {
     @Provides
     fun provideQuestionRepository(mainApi: MainApi): QuestionRepository {
         return QuestionRepositoryImpl(mainApi)
-    }
-
-    @Singleton
-    @Provides
-    fun provideEyeBodyRepository(mainApi: MainApi): EyeBodyRepository {
-        return EyeBodyRepositoryImpl(mainApi)
     }
 
     @Singleton
