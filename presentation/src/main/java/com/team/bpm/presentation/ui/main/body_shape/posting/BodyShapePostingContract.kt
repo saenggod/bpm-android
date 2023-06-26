@@ -1,10 +1,10 @@
-package com.team.bpm.presentation.ui.main.eyebody.posting
+package com.team.bpm.presentation.ui.main.body_shape.posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import com.team.bpm.presentation.base.BaseContract
 
-interface EyeBodyPostingContract : BaseContract<EyeBodyPostingContract.State, EyeBodyPostingContract.Event, EyeBodyPostingContract.Effect> {
+interface BodyShapePostingContract : BaseContract<BodyShapePostingContract.State, BodyShapePostingContract.Event, BodyShapePostingContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
         val imageList: List<Pair<Uri, ImageBitmap>> = emptyList()
@@ -25,6 +25,6 @@ interface EyeBodyPostingContract : BaseContract<EyeBodyPostingContract.State, Ey
 
         object AddImages : Effect
 
-        data class RedirectToEyeBody(val eyeBodyId: Int) : Effect
+        data class RedirectToBodyShape(val bodyShapeId: Int) : Effect
     }
 }

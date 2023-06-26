@@ -323,7 +323,7 @@ interface MainApi {
 
     @Multipart
     @POST("api/community/body-shape")
-    suspend fun sendEyeBody(
+    suspend fun sendBodyShape(
         @Part("content") content: String,
         @Part files: List<MultipartBody.Part>,
     ): Response<BPMResponseV2<BodyShapeResponse>>

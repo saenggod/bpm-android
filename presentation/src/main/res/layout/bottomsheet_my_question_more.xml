@@ -25,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/content_eyebody"
+            android:id="@+id/content_body_shape"
             style="@style/Font.Pretendard.Medium.14"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

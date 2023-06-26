@@ -11,7 +11,7 @@ import com.team.bpm.presentation.databinding.ActivityMainBinding
 import com.team.bpm.presentation.ui.main.add.MainAddBottomSheet
 import com.team.bpm.presentation.ui.main.lounge.LoungeFragment
 import com.team.bpm.presentation.ui.main.mypage.MyPageFragment
-import com.team.bpm.presentation.ui.main.eyebody.EyebodyFragment
+import com.team.bpm.presentation.ui.main.body_shape.BodyShapeFragment
 import com.team.bpm.presentation.ui.main.studio.StudioHomeFragment
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,8 +90,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             TAB_LOUNGE -> {
                 R.id.nav_lounge
             }
-            TAB_EYEBODY -> {
-                R.id.nav_eyebody
+            TAB_BODY_SHAPE -> {
+                R.id.nav_body_shape
             }
             TAB_MYPAGE -> {
                 R.id.nav_mypage
@@ -104,8 +104,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
     private fun changeFragment(fragmentId: Int? = null) {
         val fragment = when (fragmentId) {
-            R.id.nav_eyebody -> {
-                EyebodyFragment.newInstance()
+            R.id.nav_body_shape -> {
+                BodyShapeFragment.newInstance()
             }
             R.id.nav_studio -> {
                 StudioHomeFragment.newInstance()
@@ -145,7 +145,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         const val TAB_STUDIO = 0
         const val TAB_LOUNGE = 1
-        const val TAB_EYEBODY = 2
+        const val TAB_BODY_SHAPE = 2
         const val TAB_MYPAGE = 3
 
         fun newIntent(context: Context): Intent {

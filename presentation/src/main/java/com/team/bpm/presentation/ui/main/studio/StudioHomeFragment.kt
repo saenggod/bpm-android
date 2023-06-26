@@ -16,7 +16,7 @@ import com.team.bpm.presentation.model.MainBanner
 import com.team.bpm.presentation.model.StudioMainTabType
 import com.team.bpm.presentation.ui.main.MainActivity
 import com.team.bpm.presentation.ui.main.MainViewModel
-import com.team.bpm.presentation.ui.main.eyebody.posting.EyeBodyPostingActivity
+import com.team.bpm.presentation.ui.main.body_shape.posting.BodyShapePostingActivity
 import com.team.bpm.presentation.ui.main.studio.banner.BannerListAdapter
 import com.team.bpm.presentation.ui.main.studio.recommend.StudioHomeRecommendFragment
 import com.team.bpm.presentation.util.BasePagerAdapter
@@ -51,7 +51,7 @@ class StudioHomeFragment :
                 goToRegisterStore()
             }
             MainBanner.WRITE -> {
-                goToWriteEyebody()
+                goToWriteBodyShape()
             }
             MainBanner.LOUNGE -> {
                 goToLounge()
@@ -177,9 +177,9 @@ class StudioHomeFragment :
         // TODO : 구글폼 주소 필요
     }
 
-    private fun goToWriteEyebody() {
+    private fun goToWriteBodyShape() {
         // 눈바디 기록하기 페이지 이동
-        startActivity(EyeBodyPostingActivity.newIntent(requireContext()))
+        startActivity(BodyShapePostingActivity.newIntent(requireContext()))
     }
 
     private fun goToLounge() {

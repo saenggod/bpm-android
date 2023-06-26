@@ -108,7 +108,7 @@
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.main.eyebody.posting.EyeBodyPostingActivity"
+            android:name=".ui.main.body_shape.posting.BodyShapePostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"

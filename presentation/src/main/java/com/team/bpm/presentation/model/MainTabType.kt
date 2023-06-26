@@ -29,7 +29,7 @@ class MainTabType(
             MainTabType(
                 index = 2,
                 name = "눈바디",
-                image = R.drawable.navigation_eyebody
+                image = R.drawable.navigation_body_shape
             )
         )
     }

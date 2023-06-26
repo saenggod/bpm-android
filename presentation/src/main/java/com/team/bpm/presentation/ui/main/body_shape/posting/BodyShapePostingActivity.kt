@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.eyebody.posting
+package com.team.bpm.presentation.ui.main.body_shape.posting
 
 import android.content.Context
 import android.content.Intent
@@ -50,29 +50,29 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class EyeBodyPostingActivity : BaseComponentActivityV2() {
+class BodyShapePostingActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
-        EyeBodyPostingActivityContent()
+        BodyShapePostingActivityContent()
     }
 
     companion object {
         fun newIntent(context: Context): Intent {
-            return Intent(context, EyeBodyPostingActivity::class.java)
+            return Intent(context, BodyShapePostingActivity::class.java)
         }
     }
 }
 
 @Composable
-private fun EyeBodyPostingActivityContent(
-    viewModel: EyeBodyPostingViewModel = hiltViewModel()
+private fun BodyShapePostingActivityContent(
+    viewModel: BodyShapePostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val imageLauncher = initImageLauncher(
         context = context,
         onSuccess = { uris, images ->
-            event.invoke(EyeBodyPostingContract.Event.OnImagesAdded(uris.zip(images)))
+            event.invoke(BodyShapePostingContract.Event.OnImagesAdded(uris.zip(images)))
         },
         onFailure = {
 
@@ -87,16 +87,16 @@ private fun EyeBodyPostingActivityContent(
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is EyeBodyPostingContract.Effect.ShowToast -> {
+                is BodyShapePostingContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
 
-                is EyeBodyPostingContract.Effect.AddImages -> {
+                is BodyShapePostingContract.Effect.AddImages -> {
                     imageLauncher.launch(PickVisualMediaRequest())
                 }
 
-                is EyeBodyPostingContract.Effect.RedirectToEyeBody -> {
-//                    context.startActivity() TODO : Redirect to eyeBody detail screen
+                is BodyShapePostingContract.Effect.RedirectToBodyShape -> {
+//                    context.startActivity() TODO : Redirect to bodyShape detail screen
                 }
             }
         }
@@ -122,7 +122,7 @@ private fun EyeBodyPostingActivityContent(
                             item {
                                 ImagePlaceHolder(
                                     image = null,
-                                    onClick = { event.invoke(EyeBodyPostingContract.Event.OnClickImagePlaceHolder) }
+                                    onClick = { event.invoke(BodyShapePostingContract.Event.OnClickImagePlaceHolder) }
                                 )
                             }
                         }
@@ -134,7 +134,7 @@ private fun EyeBodyPostingActivityContent(
                                 image = pair.second,
                                 onClick = {},
                                 onClickRemove = { event.invoke(
-                                    EyeBodyPostingContract.Event.OnClickRemoveImage(
+                                    BodyShapePostingContract.Event.OnClickRemoveImage(
                                         index
                                     )
                                 ) }
@@ -207,7 +207,7 @@ private fun EyeBodyPostingActivityContent(
                         textColor = MainBlackColor,
                         buttonColor = MainGreenColor,
                         onClick = { event.invoke(
-                            EyeBodyPostingContract.Event.OnClickSubmit(
+                            BodyShapePostingContract.Event.OnClickSubmit(
                                 contentTextState.value
                             )
                         ) }

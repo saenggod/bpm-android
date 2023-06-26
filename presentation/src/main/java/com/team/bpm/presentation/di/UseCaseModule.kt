@@ -2,7 +2,7 @@ package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
 import com.team.bpm.domain.usecase.community.*
-import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
+import com.team.bpm.domain.usecase.body_shape.WriteBodyShapeUseCase
 import com.team.bpm.domain.usecase.review.GetKeywordListUseCase
 import com.team.bpm.domain.usecase.mypage.GetMainTabIndexUseCase
 import com.team.bpm.domain.usecase.mypage.SetMainTabIndexUseCase
@@ -339,8 +339,8 @@ object UseCaseModule {
 
     @Provides
     @ViewModelScoped
-    fun provideWriteEyeBodyUseCase(bodyShapeRepository: BodyShapeRepository): WriteEyeBodyUseCase {
-        return WriteEyeBodyUseCase(bodyShapeRepository)
+    fun provideWriteBodyShapeUseCase(bodyShapeRepository: BodyShapeRepository): WriteBodyShapeUseCase {
+        return WriteBodyShapeUseCase(bodyShapeRepository)
     }
 
     /* 마이페이지 */

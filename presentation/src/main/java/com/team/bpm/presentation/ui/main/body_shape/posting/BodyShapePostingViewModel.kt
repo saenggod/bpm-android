@@ -1,9 +1,9 @@
-package com.team.bpm.presentation.ui.main.eyebody.posting
+package com.team.bpm.presentation.ui.main.body_shape.posting
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.usecase.eye_body.WriteEyeBodyUseCase
+import com.team.bpm.domain.usecase.body_shape.WriteBodyShapeUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,28 +16,28 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class EyeBodyPostingViewModel @Inject constructor(private val writeEyeBodyUseCase: WriteEyeBodyUseCase) : BaseViewModelV2(),
-    EyeBodyPostingContract {
-    private val _state = MutableStateFlow(EyeBodyPostingContract.State())
-    override val state: StateFlow<EyeBodyPostingContract.State> = _state.asStateFlow()
+class BodyShapePostingViewModel @Inject constructor(private val writeBodyShapeUseCase: WriteBodyShapeUseCase) : BaseViewModelV2(),
+    BodyShapePostingContract {
+    private val _state = MutableStateFlow(BodyShapePostingContract.State())
+    override val state: StateFlow<BodyShapePostingContract.State> = _state.asStateFlow()
 
-    private val _effect = MutableSharedFlow<EyeBodyPostingContract.Effect>()
-    override val effect: SharedFlow<EyeBodyPostingContract.Effect> = _effect.asSharedFlow()
+    private val _effect = MutableSharedFlow<BodyShapePostingContract.Effect>()
+    override val effect: SharedFlow<BodyShapePostingContract.Effect> = _effect.asSharedFlow()
 
-    override fun event(event: EyeBodyPostingContract.Event) = when (event) {
-        is EyeBodyPostingContract.Event.OnClickImagePlaceHolder -> {
+    override fun event(event: BodyShapePostingContract.Event) = when (event) {
+        is BodyShapePostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
 
-        is EyeBodyPostingContract.Event.OnClickRemoveImage -> {
+        is BodyShapePostingContract.Event.OnClickRemoveImage -> {
             onClickRemoveImage(event.index)
         }
 
-        is EyeBodyPostingContract.Event.OnImagesAdded -> {
+        is BodyShapePostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
         }
 
-        is EyeBodyPostingContract.Event.OnClickSubmit -> {
+        is BodyShapePostingContract.Event.OnClickSubmit -> {
             onClickSubmit(event.content)
         }
     }
@@ -50,7 +50,7 @@ class EyeBodyPostingViewModel @Inject constructor(private val writeEyeBodyUseCas
 
     private fun onClickImagePlaceHolder() {
         viewModelScope.launch {
-            _effect.emit(EyeBodyPostingContract.Effect.AddImages)
+            _effect.emit(BodyShapePostingContract.Effect.AddImages)
         }
     }
 
@@ -88,18 +88,18 @@ class EyeBodyPostingViewModel @Inject constructor(private val writeEyeBodyUseCas
                 }
 
                 withContext(ioDispatcher) {
-                    writeEyeBodyUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
+                    writeBodyShapeUseCase(content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
                         withContext(mainImmediateDispatcher) {
-                            result.id?.let { eyeBodyId -> _effect.emit(
-                                EyeBodyPostingContract.Effect.RedirectToEyeBody(
-                                    eyeBodyId
+                            result.id?.let { bodyShapeId -> _effect.emit(
+                                BodyShapePostingContract.Effect.RedirectToBodyShape(
+                                    bodyShapeId
                                 )
                             ) }
                         }
                     }.launchIn(viewModelScope + exceptionHandler)
                 }
             } else {
-                _effect.emit(EyeBodyPostingContract.Effect.ShowToast("내용을 입력해주세요."))
+                _effect.emit(BodyShapePostingContract.Effect.ShowToast("내용을 입력해주세요."))
             }
         }
     }

@@ -24,7 +24,7 @@ class BodyShapeRepositoryImpl @Inject constructor(private val mainApi: MainApi) 
     ): Flow<BodyShape> {
         return flow {
             BPMResponseHandlerV2().handle {
-                mainApi.sendEyeBody(
+                mainApi.sendBodyShape(
                     content,
                     imageByteArrays.map { imageByteArray ->
                         createImageMultipartBody(
