@@ -7,10 +7,15 @@ import com.team.bpm.presentation.base.BaseContract
 interface BodyShapePostingContract : BaseContract<BodyShapePostingContract.State, BodyShapePostingContract.Event, BodyShapePostingContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
-        val imageList: List<Pair<Uri, ImageBitmap>> = emptyList()
+        val imageList: List<Pair<Uri, ImageBitmap>> = emptyList(),
+        val isEditing: Boolean = false
     )
 
     sealed interface Event {
+        object GetBodyShapeContent : Event
+
+        data class SetImageListWithLoadedImageList(val loadedImageList: List<Pair<Uri, ImageBitmap>>) : Event
+
         object OnClickImagePlaceHolder : Event
 
         data class OnImagesAdded(val images: List<Pair<Uri, ImageBitmap>>) : Event
@@ -21,10 +26,15 @@ interface BodyShapePostingContract : BaseContract<BodyShapePostingContract.State
     }
 
     sealed interface Effect {
+        data class OnContentLoaded(val content: String, val images: List<String>) : Effect
+
         data class ShowToast(val text: String) : Effect
 
         object AddImages : Effect
 
-        data class RedirectToBodyShape(val bodyShapeId: Int) : Effect
+        data class RedirectToBodyShape(
+            val albumId: Int,
+            val bodyShapeId: Int
+        ) : Effect
     }
 }

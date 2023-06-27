@@ -1,10 +1,7 @@
 package com.team.bpm.presentation.di
 
 import com.team.bpm.domain.repository.*
-import com.team.bpm.domain.usecase.body_shape.DeleteBodyShapeUseCase
-import com.team.bpm.domain.usecase.body_shape.EditBodyShapeUseCase
-import com.team.bpm.domain.usecase.body_shape.GetBodyShapeUseCase
-import com.team.bpm.domain.usecase.body_shape.WriteBodyShapeUseCase
+import com.team.bpm.domain.usecase.body_shape.*
 import com.team.bpm.domain.usecase.community.*
 import com.team.bpm.domain.usecase.making_album.EditAlbumUseCase
 import com.team.bpm.domain.usecase.making_album.GetAlbumUseCase

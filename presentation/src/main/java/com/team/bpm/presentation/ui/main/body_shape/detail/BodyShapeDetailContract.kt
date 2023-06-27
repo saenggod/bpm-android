@@ -37,6 +37,9 @@ interface BodyShapeDetailContract : BaseContract<BodyShapeDetailContract.State, 
 
         object GoBack : Effect
 
-        object GoToEdit : Effect
+        data class GoToEdit(
+            val albumId: Int,
+            val bodyShapeId: Int
+        ) : Effect
     }
 }

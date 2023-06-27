@@ -2,6 +2,8 @@ package com.team.bpm.presentation.ui.main.body_shape.posting
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,14 +19,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.ui.main.body_shape.detail.BodyShapeDetailActivity
+import com.team.bpm.presentation.ui.main.body_shape.posting.BodyShapePostingActivity.Companion.RESULT_OK
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -37,12 +50,22 @@ class BodyShapePostingActivity : BaseComponentActivityV2() {
     }
 
     companion object {
+        const val KEY_BUNDLE = "bundle"
         const val KEY_ALBUM_ID = "album_id"
+        const val KEY_BODY_SHAPE_ID = "body_shape_id"
+        const val RESULT_OK = 200
+
         fun newIntent(
             context: Context,
-            albumId: Int?
+            albumId: Int,
+            bodyShapeId: Int?
         ): Intent {
-            return Intent(context, BodyShapePostingActivity::class.java).putExtra(KEY_ALBUM_ID, albumId)
+            return Intent(context, BodyShapePostingActivity::class.java).putExtra(
+                KEY_BUNDLE, bundleOf(
+                    KEY_ALBUM_ID to albumId,
+                    KEY_BODY_SHAPE_ID to bodyShapeId
+                )
+            )
         }
     }
 }
@@ -65,12 +88,36 @@ private fun BodyShapePostingActivityContent(
     val contentTextState = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        // TODO : Call Api
+        event.invoke(BodyShapePostingContract.Event.GetBodyShapeContent)
     }
 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
+                is BodyShapePostingContract.Effect.OnContentLoaded -> {
+                    contentTextState.value = effect.content
+
+                    val loadedImageList = mutableListOf<Pair<Uri, ImageBitmap>>()
+                    effect.images.forEach { imagePath ->
+                        Glide.with(context).asBitmap().load(imagePath).addListener(object : RequestListener<Bitmap> {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                                return false
+                            }
+
+                            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                resource?.let {
+                                    loadedImageList.add(Pair(imagePath.toUri(), resource.asImageBitmap()))
+                                }
+
+                                if (loadedImageList.size == effect.images.size) {
+                                    event.invoke(BodyShapePostingContract.Event.SetImageListWithLoadedImageList(loadedImageList))
+                                }
+                                return true
+                            }
+                        }).submit()
+                    }
+                }
+
                 is BodyShapePostingContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
@@ -80,7 +127,13 @@ private fun BodyShapePostingActivityContent(
                 }
 
                 is BodyShapePostingContract.Effect.RedirectToBodyShape -> {
-//                    context.startActivity() TODO : Redirect to bodyShape detail screen
+                    if (state.isEditing) {
+                        context.setResult(RESULT_OK)
+                    } else {
+                        context.startActivity(BodyShapeDetailActivity.newIntent(context, effect.albumId, effect.bodyShapeId))
+                    }
+
+                    context.finish()
                 }
             }
         }

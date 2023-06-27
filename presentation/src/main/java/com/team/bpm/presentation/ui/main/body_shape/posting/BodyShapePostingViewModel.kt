@@ -1,9 +1,12 @@
 package com.team.bpm.presentation.ui.main.body_shape.posting
 
 import android.net.Uri
+import android.os.Bundle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.body_shape.EditBodyShapeUseCase
+import com.team.bpm.domain.usecase.body_shape.GetBodyShapeUseCase
 import com.team.bpm.domain.usecase.body_shape.WriteBodyShapeUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
@@ -18,9 +21,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BodyShapePostingViewModel @Inject constructor(
+    private val getBodyShapeUseCase: GetBodyShapeUseCase,
     private val writeBodyShapeUseCase: WriteBodyShapeUseCase,
+    private val editBodyShapeUseCase: EditBodyShapeUseCase,
     private val savedStateHandle: SavedStateHandle
-    ) : BaseViewModelV2(),
+) : BaseViewModelV2(),
     BodyShapePostingContract {
     private val _state = MutableStateFlow(BodyShapePostingContract.State())
     override val state: StateFlow<BodyShapePostingContract.State> = _state.asStateFlow()
@@ -29,6 +34,14 @@ class BodyShapePostingViewModel @Inject constructor(
     override val effect: SharedFlow<BodyShapePostingContract.Effect> = _effect.asSharedFlow()
 
     override fun event(event: BodyShapePostingContract.Event) = when (event) {
+        is BodyShapePostingContract.Event.GetBodyShapeContent -> {
+            getBodyShapeContent()
+        }
+
+        is BodyShapePostingContract.Event.SetImageListWithLoadedImageList -> {
+            setImageListWithLoadedImageList(event.loadedImageList)
+        }
+
         is BodyShapePostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
@@ -52,8 +65,54 @@ class BodyShapePostingViewModel @Inject constructor(
         }
     }
 
-    private fun getAlbumId(): Int? {
-        return savedStateHandle.get<Int>(BodyShapePostingActivity.KEY_ALBUM_ID)
+    private fun getBundle(): Bundle? {
+        return savedStateHandle.get<Bundle>(BodyShapePostingActivity.KEY_BUNDLE)
+    }
+
+    private val getBodyShapeInfo: Pair<Int?, Int?> by lazy {
+        Pair(
+            getBundle()?.getInt(BodyShapePostingActivity.KEY_ALBUM_ID) ?: 33,
+            getBundle()?.getInt(BodyShapePostingActivity.KEY_BODY_SHAPE_ID) ?: 1,
+        )
+    }
+
+    private fun getBodyShapeContent() {
+        getBodyShapeInfo.first?.let { albumId ->
+            getBodyShapeInfo.second?.let { bodyShapeId ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
+
+                    withContext(ioDispatcher) {
+                        getBodyShapeUseCase(albumId, bodyShapeId).onEach { result ->
+                            result.content?.let { content ->
+                                result.filesPath?.let { filesPath ->
+                                    withContext(mainImmediateDispatcher) {
+                                        _state.update {
+                                            it.copy(isEditing = true)
+                                        }
+
+                                        _effect.emit(BodyShapePostingContract.Effect.OnContentLoaded(content, filesPath))
+                                    }
+                                }
+                            }
+                        }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setImageListWithLoadedImageList(loadedImageList: List<Pair<Uri, ImageBitmap>>) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    imageList = loadedImageList
+                )
+            }
+        }
     }
 
     private fun onClickImagePlaceHolder() {
@@ -89,7 +148,7 @@ class BodyShapePostingViewModel @Inject constructor(
     }
 
     private fun onClickSubmit(content: String) {
-        getAlbumId()?.let { albumId ->
+        getBodyShapeInfo.first?.let { albumId ->
             viewModelScope.launch {
                 if (content.isNotEmpty()) {
                     _state.update {
@@ -97,15 +156,21 @@ class BodyShapePostingViewModel @Inject constructor(
                     }
 
                     withContext(ioDispatcher) {
-                        writeBodyShapeUseCase(albumId, content, state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }).onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                result.id?.let { bodyShapeId -> _effect.emit(
-                                    BodyShapePostingContract.Effect.RedirectToBodyShape(
-                                        bodyShapeId
-                                    )
-                                ) }
+                        val imageList = state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }
+
+                        if (state.value.isEditing) {
+                            getBodyShapeInfo.second?.let { bodyShapeId ->
+                                editBodyShapeUseCase(albumId, bodyShapeId, content, imageList)
                             }
-                        }.launchIn(viewModelScope + exceptionHandler)
+                        } else {
+                            writeBodyShapeUseCase(albumId, content, imageList)
+                        }?.onEach { result ->
+                            withContext(mainImmediateDispatcher) {
+                                result.id?.let { bodyShapeId ->
+                                    _effect.emit(BodyShapePostingContract.Effect.RedirectToBodyShape(albumId, bodyShapeId))
+                                }
+                            }
+                        }?.launchIn(viewModelScope + exceptionHandler)
                     }
                 } else {
                     _effect.emit(BodyShapePostingContract.Effect.ShowToast("내용을 입력해주세요."))

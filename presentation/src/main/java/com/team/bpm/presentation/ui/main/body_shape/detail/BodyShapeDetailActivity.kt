@@ -2,6 +2,8 @@ package com.team.bpm.presentation.ui.main.body_shape.detail
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +36,7 @@ import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
+import com.team.bpm.presentation.ui.main.body_shape.posting.BodyShapePostingActivity
 import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.showToast
@@ -80,6 +83,14 @@ private fun BodyShapeDetailActivityContent(
     val context = getLocalContext()
     val scrollState = rememberScrollState()
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val editBodyShapeLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { result ->
+            if (result.resultCode == BodyShapePostingActivity.RESULT_OK) {
+                event.invoke(BodyShapeDetailContract.Event.GetBodyShapeDetail)
+            }
+        }
+    )
 
     LaunchedEffect(Unit) {
         event.invoke(BodyShapeDetailContract.Event.GetBodyShapeDetail)
@@ -97,7 +108,7 @@ private fun BodyShapeDetailActivityContent(
                 }
 
                 is BodyShapeDetailContract.Effect.GoToEdit -> {
-
+                    editBodyShapeLauncher.launch(BodyShapePostingActivity.newIntent(context, effect.albumId, effect.bodyShapeId))
                 }
             }
         }

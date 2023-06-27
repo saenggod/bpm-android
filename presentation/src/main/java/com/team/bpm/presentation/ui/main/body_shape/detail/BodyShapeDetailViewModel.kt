@@ -70,8 +70,8 @@ class BodyShapeDetailViewModel @Inject constructor(
 
     private val bodyShapeInfo: Pair<Int?, Int?> by lazy {
         Pair(
-            getBundle()?.getInt(BodyShapeDetailActivity.KEY_ALBUM_ID),
-            getBundle()?.getInt(BodyShapeDetailActivity.KEY_BODY_SHAPE_ID)
+            getBundle()?.getInt(BodyShapeDetailActivity.KEY_ALBUM_ID) ?: 33,
+            getBundle()?.getInt(BodyShapeDetailActivity.KEY_BODY_SHAPE_ID) ?: 1
         )
     }
 
@@ -94,8 +94,12 @@ class BodyShapeDetailViewModel @Inject constructor(
     }
 
     private fun onClickEditBodyShape() {
-        viewModelScope.launch {
-            _effect.emit(BodyShapeDetailContract.Effect.GoToEdit)
+        bodyShapeInfo.first?.let { albumId ->
+            bodyShapeInfo.second?.let { bodyShapeId ->
+                viewModelScope.launch {
+                    _effect.emit(BodyShapeDetailContract.Effect.GoToEdit(albumId, bodyShapeId))
+                }
+            }
         }
     }
 
