@@ -21,6 +21,7 @@ import com.team.bpm.domain.usecase.studio.GetMyScrapListUseCase
 import com.team.bpm.domain.usecase.studio.GetStudioDetailUseCase
 import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
 import com.team.bpm.domain.usecase.studio.ScrapUseCase
+import com.team.bpm.domain.usecase.user.EditUserProfileUseCase
 import com.team.bpm.domain.usecase.user.GetUserIdUseCase
 import com.team.bpm.domain.usecase.user.SetUserIdUseCase
 import dagger.Module
@@ -63,6 +64,12 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideSetUserIdUseCase(userRepository: UserRepository): SetUserIdUseCase {
         return SetUserIdUseCase(userRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideEditUserProfileUseCase(userRepository: UserRepository): EditUserProfileUseCase {
+        return EditUserProfileUseCase(userRepository)
     }
 
     /* 스튜디오 */

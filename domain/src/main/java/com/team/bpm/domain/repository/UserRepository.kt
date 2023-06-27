@@ -8,5 +8,12 @@ interface UserRepository {
 
     suspend fun setUserId(userId: Long): Flow<Long?>
 
+    suspend fun sendEditedUserProfile(
+        kakaoId: Long,
+        nickname: String,
+        bio: String,
+        imageByteArray: ByteArray
+    ): Flow<Unit>
+
     suspend fun fetchUserProfile(): Flow<UserProfile>
 }

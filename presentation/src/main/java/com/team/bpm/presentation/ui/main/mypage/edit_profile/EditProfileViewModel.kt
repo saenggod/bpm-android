@@ -2,8 +2,11 @@ package com.team.bpm.presentation.ui.main.mypage.edit_profile
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.usecase.splash.GetKakaoIdUseCase
+import com.team.bpm.domain.usecase.user.EditUserProfileUseCase
 import com.team.bpm.domain.usecase.user.GetUserProfileUseCase
 import com.team.bpm.presentation.base.BaseViewModelV2
+import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -14,7 +17,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    private val getUserProfileUseCase: GetUserProfileUseCase
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val getKakaoIdUseCase: GetKakaoIdUseCase,
+    private val editUserProfileUseCase: EditUserProfileUseCase
 ) : BaseViewModelV2(), EditProfileContract {
     private val _state = MutableStateFlow(EditProfileContract.State())
     override val state: StateFlow<EditProfileContract.State> = _state.asStateFlow()
@@ -60,11 +65,10 @@ class EditProfileViewModel @Inject constructor(
                 getUserProfileUseCase().onEach { result ->
                     withContext(mainImmediateDispatcher) {
                         _state.update {
-                            it.copy(
-                                isLoading = false,
-                                userProfile = result
-                            )
+                            it.copy(isLoading = false)
                         }
+
+                        _effect.emit(EditProfileContract.Effect.OnProfileLoaded(result))
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
             }
@@ -92,6 +96,28 @@ class EditProfileViewModel @Inject constructor(
     }
 
     private fun onClickSubmit(nickname: String, bio: String) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
 
+            withContext(ioDispatcher) {
+                getKakaoIdUseCase().onEach { result ->
+                    result?.let { kakaoId ->
+                        state.value.image?.let { image ->
+                            editUserProfileUseCase(kakaoId, nickname, bio, convertImageBitmapToByteArray(image)).onEach {
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(isLoading = false)
+                                    }
+
+                                    _effect.emit(EditProfileContract.Effect.EditSuccess)
+                                }
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
+                    }
+                }.launchIn(viewModelScope + exceptionHandler)
+            }
+        }
     }
 }
