@@ -8,7 +8,6 @@ interface EditProfileContract : BaseContract<EditProfileContract.State, EditProf
 
     data class State(
         val isLoading: Boolean = false,
-        val userProfile: UserProfile? = null,
         val image: ImageBitmap? = null,
         val errorCode: String = ""
     )
@@ -26,6 +25,8 @@ interface EditProfileContract : BaseContract<EditProfileContract.State, EditProf
     }
 
     sealed interface Effect {
+        data class OnProfileLoaded(val userProfile: UserProfile) : Effect
+
         object AddImage : Effect
 
         data class ShowToast(val text: String) : Effect

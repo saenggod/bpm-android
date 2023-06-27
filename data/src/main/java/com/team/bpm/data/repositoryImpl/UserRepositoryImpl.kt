@@ -4,6 +4,8 @@ import com.team.bpm.data.datastore.DataStoreManager
 import com.team.bpm.data.model.response.UserProfileResponse.Companion.toDataModel
 import com.team.bpm.data.network.BPMResponseHandlerV2
 import com.team.bpm.data.network.MainApi
+import com.team.bpm.data.util.convertByteArrayToWebpFile
+import com.team.bpm.data.util.createImageMultipartBody
 import com.team.bpm.domain.model.UserProfile
 import com.team.bpm.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +24,29 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun setUserId(userId: Long): Flow<Long?> {
         return dataStoreManager.setUserId(userId)
+    }
+
+    override suspend fun sendEditedUserProfile(
+        kakaoId: Long,
+        nickname: String,
+        bio: String,
+        imageByteArray: ByteArray
+    ): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.sendEditedUserProfile(
+                    kakaoId = kakaoId,
+                    nickname = nickname,
+                    bio = bio,
+                    file = createImageMultipartBody(
+                        key = "file",
+                        file = convertByteArrayToWebpFile(imageByteArray)
+                    )
+                )
+            }.collect {
+                emit(Unit)
+            }
+        }
     }
 
     override suspend fun fetchUserProfile(): Flow<UserProfile> {

@@ -31,10 +31,12 @@ interface MainApi {
     suspend fun fetchUserProfile(): Response<BPMResponseV2<UserProfileResponse>>
 
     @Multipart
-    @PUT("api/users")
+    @PUT("api/profile")
     suspend fun sendEditedUserProfile(
-        @Part profileRequest: ProfileRequest,
-        @Part file: MultipartBody.Part
+        @Part("kakaoId") kakaoId: Long,
+        @Part("nickname") nickname: String,
+        @Part("bio") bio: String,
+        @Part file: MultipartBody.Part,
     ): Response<BPMResponseV2<ResponseBody>>
 
     /* 스튜디오 */

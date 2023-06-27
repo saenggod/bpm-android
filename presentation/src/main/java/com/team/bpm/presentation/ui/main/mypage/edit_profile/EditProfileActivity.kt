@@ -1,5 +1,6 @@
 package com.team.bpm.presentation.ui.main.mypage.edit_profile
 
+import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,8 +26,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
@@ -43,14 +47,16 @@ class EditProfileActivity : BaseComponentActivityV2() {
     override fun InitComposeUi() {
         EditProfileActivityContent()
     }
+
+    companion object {
+        const val RESULT_OK = 200
+    }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun EditProfileActivityContent(viewModel: EditProfileViewModel = hiltViewModel()) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
-
     val profileImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
@@ -62,6 +68,8 @@ private fun EditProfileActivityContent(viewModel: EditProfileViewModel = hiltVie
                 event.invoke(EditProfileContract.Event.OnError("이미지를 불러 올 수 없습니다."))
             }
         })
+    val nicknameTextState = remember { mutableStateOf("") }
+    val bioTextState = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         event.invoke(EditProfileContract.Event.GetProfile)
@@ -70,6 +78,32 @@ private fun EditProfileActivityContent(viewModel: EditProfileViewModel = hiltVie
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
+                is EditProfileContract.Effect.OnProfileLoaded -> {
+                    effect.userProfile.nickname?.let { nickname ->
+                        nicknameTextState.value = nickname
+                    }
+
+                    effect.userProfile.bio?.let { bio ->
+                        bioTextState.value = bio
+                    }
+
+                    effect.userProfile.image?.let { imagePath ->
+                        Glide.with(context).asBitmap().load(imagePath).addListener(object : RequestListener<Bitmap> {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                                return false
+                            }
+
+                            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                resource?.let { bitmap ->
+                                    event.invoke(EditProfileContract.Event.OnImageAdded(bitmap.asImageBitmap()))
+                                }
+
+                                return true
+                            }
+                        }).submit()
+                    }
+                }
+
                 is EditProfileContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
@@ -79,18 +113,14 @@ private fun EditProfileActivityContent(viewModel: EditProfileViewModel = hiltVie
                 }
 
                 is EditProfileContract.Effect.EditSuccess -> {
-
+                    context.setResult(EditProfileActivity.RESULT_OK)
+                    context.finish()
                 }
             }
         }
     }
 
     with(state) {
-        val nicknameTextState = remember { mutableStateOf("") }
-        val bioTextState = remember { mutableStateOf("") }
-        nicknameTextState.value = userProfile?.nickname ?: ""
-        bioTextState.value = userProfile?.bio ?: ""
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -115,18 +145,6 @@ private fun EditProfileActivityContent(viewModel: EditProfileViewModel = hiltVie
                             contentDescription = "profileImage",
                             contentScale = Crop
                         )
-                    } ?: run {
-                        userProfile?.image?.let { imagePath ->
-                            GlideImage(
-                                modifier = Modifier
-                                    .clip(shape = CircleShape)
-                                    .size(130.dp)
-                                    .align(CenterHorizontally),
-                                model = imagePath,
-                                contentDescription = "profileImage",
-                                contentScale = Crop
-                            )
-                        }
                     }
 
                     BPMSpacer(height = 16.dp)
