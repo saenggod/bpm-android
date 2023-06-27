@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.body_shape.album
+package com.team.bpm.presentation.ui.main.bodyshape.album.add
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -17,32 +17,32 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
-class MakingAlbumViewModel @Inject constructor(
+class BodyShapeAlbumAddViewModel @Inject constructor(
     private val getAlbumUseCase: GetAlbumUseCase,
     private val makeAlbumUseCase: MakeAlbumUseCase,
     private val editAlbumUseCase: EditAlbumUseCase,
     private val savedStateHandle: SavedStateHandle
-) : BaseViewModelV2(), MakingAlbumContract {
-    private val _state = MutableStateFlow(MakingAlbumContract.State())
-    override val state: StateFlow<MakingAlbumContract.State> = _state.asStateFlow()
+) : BaseViewModelV2(), BodyShapeAlbumAddContract {
+    private val _state = MutableStateFlow(BodyShapeAlbumAddContract.State())
+    override val state: StateFlow<BodyShapeAlbumAddContract.State> = _state.asStateFlow()
 
-    private val _effect = MutableSharedFlow<MakingAlbumContract.Effect>()
-    override val effect: SharedFlow<MakingAlbumContract.Effect> = _effect.asSharedFlow()
+    private val _effect = MutableSharedFlow<BodyShapeAlbumAddContract.Effect>()
+    override val effect: SharedFlow<BodyShapeAlbumAddContract.Effect> = _effect.asSharedFlow()
 
-    override fun event(event: MakingAlbumContract.Event) = when (event) {
-        is MakingAlbumContract.Event.GetAlbum -> {
+    override fun event(event: BodyShapeAlbumAddContract.Event) = when (event) {
+        is BodyShapeAlbumAddContract.Event.GetAlbum -> {
             getAlbum()
         }
 
-        is MakingAlbumContract.Event.OnClickEdit -> {
+        is BodyShapeAlbumAddContract.Event.OnClickEdit -> {
             onClickEdit()
         }
 
-        is MakingAlbumContract.Event.OnClickDate -> {
+        is BodyShapeAlbumAddContract.Event.OnClickDate -> {
             onClickDate(event.date)
         }
 
-        is MakingAlbumContract.Event.OnClickSubmit -> {
+        is BodyShapeAlbumAddContract.Event.OnClickSubmit -> {
             onClickSubmit(event.albumName, event.memo)
         }
     }
@@ -54,7 +54,7 @@ class MakingAlbumViewModel @Inject constructor(
     }
 
     private fun getAlbumId(): Int? {
-        return savedStateHandle.get<Int>(MakingAlbumActivity.KEY_ALBUM_ID)
+        return savedStateHandle.get<Int>(BodyShapeAlbumAddActivity.KEY_ALBUM_ID)
     }
 
     private fun getAlbum() {

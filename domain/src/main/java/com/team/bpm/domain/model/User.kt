@@ -4,7 +4,6 @@ import com.team.bpm.domain.base.BaseModel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-
 data class User(
     val id: Long?,
     val nickname: String?,

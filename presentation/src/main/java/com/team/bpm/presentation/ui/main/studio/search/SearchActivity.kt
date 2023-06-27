@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.main.studio.search
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceBetween
 import androidx.compose.foundation.text.BasicTextField
@@ -43,6 +45,12 @@ class SearchActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
         SearchActivityContent()
+    }
+
+    companion object {
+        fun newIntent(context : Context) : Intent {
+            return Intent(context, SearchActivity::class.java)
+        }
     }
 }
 

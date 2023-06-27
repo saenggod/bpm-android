@@ -2,9 +2,12 @@ package com.team.bpm.domain.repository
 
 import com.team.bpm.domain.model.Album
 import com.team.bpm.domain.model.BodyShape
+import com.team.bpm.domain.model.BodyShapeSchedules
 import kotlinx.coroutines.flow.Flow
 
 interface BodyShapeRepository {
+
+    suspend fun fetchUserSchedule() : Flow<BodyShapeSchedules>
 
     suspend fun sendAlbum(
         albumName: String,

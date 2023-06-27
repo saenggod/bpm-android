@@ -34,16 +34,24 @@ class MyPageFragment : BaseFragment<FragmentMypageBinding>(FragmentMypageBinding
                     }
 
                     MyPageContract.Effect.GoHistoryPost -> {
-                        startActivity(MyQuestionActivity.newIntent(requireContext()))
-                        // 질문 모아보기 (API 필요)
+                        // 질문 모아보기
+                        goToMyQuestion()
                     }
 
                     MyPageContract.Effect.GoEditStartTab -> {
-                        startActivity(MyPageStartTabActivity.newIntent(requireContext()))
+                        goToEditStartTab()
                     }
                 }
             }
         }
+    }
+
+    private fun goToMyQuestion() {
+        startActivity(MyQuestionActivity.newIntent(requireContext()))
+    }
+
+    private fun goToEditStartTab() {
+        startActivity(MyPageStartTabActivity.newIntent(requireContext()))
     }
 
     companion object {

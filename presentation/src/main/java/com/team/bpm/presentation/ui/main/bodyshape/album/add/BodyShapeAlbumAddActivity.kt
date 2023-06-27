@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.body_shape.album
+package com.team.bpm.presentation.ui.main.bodyshape.album.add
 
 import android.content.Context
 import android.content.Intent
@@ -53,10 +53,10 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @AndroidEntryPoint
-class MakingAlbumActivity : BaseComponentActivityV2() {
+class BodyShapeAlbumAddActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
-        AlbumActivityContent()
+        BodyShapeAlbumAddActivityContent()
     }
 
     companion object {
@@ -64,9 +64,9 @@ class MakingAlbumActivity : BaseComponentActivityV2() {
 
         fun newIntent(
             context: Context,
-            albumId: Int?
+            albumId: Int? = null
         ): Intent {
-            return Intent(context, MakingAlbumActivity::class.java).putExtra(
+            return Intent(context, BodyShapeAlbumAddActivity::class.java).putExtra(
                 KEY_ALBUM_ID, albumId
             )
         }
@@ -74,14 +74,14 @@ class MakingAlbumActivity : BaseComponentActivityV2() {
 }
 
 @Composable
-private fun AlbumActivityContent(
-    viewModel: MakingAlbumViewModel = hiltViewModel()
+private fun BodyShapeAlbumAddActivityContent(
+    viewModel: BodyShapeAlbumAddViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
 
     LaunchedEffect(Unit) {
-        event.invoke(MakingAlbumContract.Event.GetAlbum)
+        event.invoke(BodyShapeAlbumAddContract.Event.GetAlbum)
     }
 
     LaunchedEffect(effect) {
@@ -127,7 +127,9 @@ private fun AlbumActivityContent(
                     actionBlock = {
                         if (!isEditing) {
                             Text(
-                                modifier = Modifier.clickableWithoutRipple { event.invoke(MakingAlbumContract.Event.OnClickEdit) },
+                                modifier = Modifier.clickableWithoutRipple { event.invoke(
+                                    BodyShapeAlbumAddContract.Event.OnClickEdit
+                                ) },
                                 text = "수정",
                                 fontWeight = Medium,
                                 fontSize = 14.sp,
@@ -355,7 +357,7 @@ private fun AlbumActivityContent(
                                         .background(color = dayBackgroundColorState.value)
                                         .clickableWithoutRipple {
                                             if (thisDay != null && thisDay.toEpochDay() >= currentDate.toEpochDay()) {
-                                                event.invoke(MakingAlbumContract.Event.OnClickDate(thisDay))
+                                                event.invoke(BodyShapeAlbumAddContract.Event.OnClickDate(thisDay))
                                             }
                                         },
                                 ) {
@@ -414,7 +416,7 @@ private fun AlbumActivityContent(
                     buttonColor = MainGreenColor,
                     onClick = {
                         event.invoke(
-                            MakingAlbumContract.Event.OnClickSubmit(
+                            BodyShapeAlbumAddContract.Event.OnClickSubmit(
                                 albumNameState.value,
                                 memoState.value
                             )

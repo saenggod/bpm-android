@@ -9,7 +9,6 @@ import com.team.bpm.presentation.di.MainImmediateDispatcher
 import com.team.bpm.presentation.model.MainTabType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,6 +20,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class MyPageStartTabViewModel @Inject constructor(
@@ -68,21 +68,17 @@ class MyPageStartTabViewModel @Inject constructor(
     private fun setMainTabIndex(index: Int) {
         viewModelScope.launch(ioDispatcher) {
             setMainTabIndexUseCase(index).onEach { index ->
-                _state.update {
-                   it.copy(
-                       tabList = null
-                   )
-                }
-                _state.update {
-                    it.copy(
-                        tabList = MainTabType.tabList.apply {
-                            this.map {
-                                it.isSelected = it.index == index
-                            }
-                        }
-                    )
-                }
                 withContext(mainImmediateDispatcher) {
+                    _state.update {
+                        it.copy(
+                            startTabIndex = index ?: 0,
+                            tabList = MainTabType.tabList.apply {
+                                this.map {
+                                    it.isSelected = it.index == index
+                                }
+                            }
+                        )
+                    }
                     _effect.emit(MyPageStartTabContract.Effect.ShowToast("변경이 완료되었습니다."))
                 }
             }.launchIn(viewModelScope)

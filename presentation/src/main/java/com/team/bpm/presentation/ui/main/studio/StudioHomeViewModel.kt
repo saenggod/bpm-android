@@ -1,14 +1,13 @@
 package com.team.bpm.presentation.ui.main.studio
 
 import androidx.lifecycle.viewModelScope
-import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.model.Album
+import com.team.bpm.domain.model.ResponseState
 import com.team.bpm.domain.usecase.main.GetAlbumUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,6 +18,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import javax.inject.Inject
 
 @HiltViewModel
 class StudioHomeViewModel @Inject constructor(
@@ -62,22 +62,21 @@ class StudioHomeViewModel @Inject constructor(
         }
     }
 
-    fun clickSearch(){
+    fun clickSearch() {
         viewModelScope.launch {
             _event.emit(StudioHomeViewEvent.ClickSearch)
         }
     }
 
-    fun clickAlbum(){
+    fun clickAlbum() {
         viewModelScope.launch {
             _event.emit(StudioHomeViewEvent.ClickAlbum)
         }
     }
 
-    fun refreshAlbum(){
+    fun refreshAlbum() {
         viewModelScope.launch {
             _state.emit(StudioHomeState.Init)
         }
     }
-
 }
