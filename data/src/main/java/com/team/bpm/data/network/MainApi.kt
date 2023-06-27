@@ -80,6 +80,9 @@ interface MainApi {
 
     /* 일정 */
 
+    @GET("api/users/schedule")
+    suspend fun getUserSchedule(): Response<BPMResponseV2<BodyShapeSchedulesResponse>>
+
     @POST("api/users/schedule")
     suspend fun sendAlbum(
         @Body album: AlbumRequest

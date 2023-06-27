@@ -1,9 +1,9 @@
-package com.team.bpm.presentation.ui.main.body_shape.album
+package com.team.bpm.presentation.ui.main.bodyshape.album.add
 
 import com.team.bpm.presentation.base.BaseContract
 import java.time.LocalDate
 
-interface MakingAlbumContract : BaseContract<MakingAlbumContract.State, MakingAlbumContract.Event, MakingAlbumContract.Effect> {
+interface BodyShapeAlbumAddContract : BaseContract<BodyShapeAlbumAddContract.State, BodyShapeAlbumAddContract.Event, BodyShapeAlbumAddContract.Effect> {
     data class State(
         val isLoading: Boolean = false,
         val albumId: Int? = null,

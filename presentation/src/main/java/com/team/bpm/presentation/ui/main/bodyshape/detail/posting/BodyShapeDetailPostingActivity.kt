@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.body_shape.posting
+package com.team.bpm.presentation.ui.main.bodyshape.detail.posting
 
 import android.content.Context
 import android.content.Intent
@@ -36,17 +36,17 @@ import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
-import com.team.bpm.presentation.ui.main.body_shape.detail.BodyShapeDetailActivity
-import com.team.bpm.presentation.ui.main.body_shape.posting.BodyShapePostingActivity.Companion.RESULT_OK
+import com.team.bpm.presentation.ui.main.bodyshape.detail.BodyShapeDetailActivity
+import com.team.bpm.presentation.ui.main.bodyshape.detail.posting.BodyShapeDetailPostingActivity.Companion.RESULT_OK
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class BodyShapePostingActivity : BaseComponentActivityV2() {
+class BodyShapeDetailPostingActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
-        BodyShapePostingActivityContent()
+        BodyShapeDetailPostingActivityContent()
     }
 
     companion object {
@@ -58,9 +58,9 @@ class BodyShapePostingActivity : BaseComponentActivityV2() {
         fun newIntent(
             context: Context,
             albumId: Int,
-            bodyShapeId: Int?
+            bodyShapeId: Int? = null
         ): Intent {
-            return Intent(context, BodyShapePostingActivity::class.java).putExtra(
+            return Intent(context, BodyShapeDetailPostingActivity::class.java).putExtra(
                 KEY_BUNDLE, bundleOf(
                     KEY_ALBUM_ID to albumId,
                     KEY_BODY_SHAPE_ID to bodyShapeId
@@ -71,15 +71,15 @@ class BodyShapePostingActivity : BaseComponentActivityV2() {
 }
 
 @Composable
-private fun BodyShapePostingActivityContent(
-    viewModel: BodyShapePostingViewModel = hiltViewModel()
+private fun BodyShapeDetailPostingActivityContent(
+    viewModel: BodyShapeDetailPostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val imageLauncher = initImageLauncher(
         context = context,
         onSuccess = { uris, images ->
-            event.invoke(BodyShapePostingContract.Event.OnImagesAdded(uris.zip(images)))
+            event.invoke(BodyShapeDetailPostingContract.Event.OnImagesAdded(uris.zip(images)))
         },
         onFailure = {
 
@@ -88,13 +88,13 @@ private fun BodyShapePostingActivityContent(
     val contentTextState = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        event.invoke(BodyShapePostingContract.Event.GetBodyShapeContent)
+        event.invoke(BodyShapeDetailPostingContract.Event.GetBodyShapeContent)
     }
 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is BodyShapePostingContract.Effect.OnContentLoaded -> {
+                is BodyShapeDetailPostingContract.Effect.OnContentLoaded -> {
                     contentTextState.value = effect.content
 
                     val loadedImageList = mutableListOf<Pair<Uri, ImageBitmap>>()
@@ -110,7 +110,11 @@ private fun BodyShapePostingActivityContent(
                                 }
 
                                 if (loadedImageList.size == effect.images.size) {
-                                    event.invoke(BodyShapePostingContract.Event.SetImageListWithLoadedImageList(loadedImageList))
+                                    event.invoke(
+                                        BodyShapeDetailPostingContract.Event.SetImageListWithLoadedImageList(
+                                            loadedImageList
+                                        )
+                                    )
                                 }
                                 return true
                             }
@@ -118,15 +122,15 @@ private fun BodyShapePostingActivityContent(
                     }
                 }
 
-                is BodyShapePostingContract.Effect.ShowToast -> {
+                is BodyShapeDetailPostingContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
 
-                is BodyShapePostingContract.Effect.AddImages -> {
+                is BodyShapeDetailPostingContract.Effect.AddImages -> {
                     imageLauncher.launch(PickVisualMediaRequest())
                 }
 
-                is BodyShapePostingContract.Effect.RedirectToBodyShape -> {
+                is BodyShapeDetailPostingContract.Effect.RedirectToBodyShape -> {
                     if (state.isEditing) {
                         context.setResult(RESULT_OK)
                     } else {
@@ -159,7 +163,7 @@ private fun BodyShapePostingActivityContent(
                             item {
                                 ImagePlaceHolder(
                                     image = null,
-                                    onClick = { event.invoke(BodyShapePostingContract.Event.OnClickImagePlaceHolder) }
+                                    onClick = { event.invoke(BodyShapeDetailPostingContract.Event.OnClickImagePlaceHolder) }
                                 )
                             }
                         }
@@ -172,7 +176,7 @@ private fun BodyShapePostingActivityContent(
                                 onClick = {},
                                 onClickRemove = {
                                     event.invoke(
-                                        BodyShapePostingContract.Event.OnClickRemoveImage(
+                                        BodyShapeDetailPostingContract.Event.OnClickRemoveImage(
                                             index
                                         )
                                     )
@@ -247,7 +251,7 @@ private fun BodyShapePostingActivityContent(
                         buttonColor = MainGreenColor,
                         onClick = {
                             event.invoke(
-                                BodyShapePostingContract.Event.OnClickSubmit(
+                                BodyShapeDetailPostingContract.Event.OnClickSubmit(
                                     contentTextState.value
                                 )
                             )

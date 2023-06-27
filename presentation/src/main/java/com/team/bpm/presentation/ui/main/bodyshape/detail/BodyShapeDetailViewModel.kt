@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.body_shape.detail
+package com.team.bpm.presentation.ui.main.bodyshape.detail
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle

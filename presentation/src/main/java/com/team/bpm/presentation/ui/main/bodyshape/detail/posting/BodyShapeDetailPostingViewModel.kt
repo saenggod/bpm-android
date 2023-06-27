@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.body_shape.posting
+package com.team.bpm.presentation.ui.main.bodyshape.detail.posting
 
 import android.net.Uri
 import android.os.Bundle
@@ -20,41 +20,41 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class BodyShapePostingViewModel @Inject constructor(
+class BodyShapeDetailPostingViewModel @Inject constructor(
     private val getBodyShapeUseCase: GetBodyShapeUseCase,
     private val writeBodyShapeUseCase: WriteBodyShapeUseCase,
     private val editBodyShapeUseCase: EditBodyShapeUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModelV2(),
-    BodyShapePostingContract {
-    private val _state = MutableStateFlow(BodyShapePostingContract.State())
-    override val state: StateFlow<BodyShapePostingContract.State> = _state.asStateFlow()
+    BodyShapeDetailPostingContract {
+    private val _state = MutableStateFlow(BodyShapeDetailPostingContract.State())
+    override val state: StateFlow<BodyShapeDetailPostingContract.State> = _state.asStateFlow()
 
-    private val _effect = MutableSharedFlow<BodyShapePostingContract.Effect>()
-    override val effect: SharedFlow<BodyShapePostingContract.Effect> = _effect.asSharedFlow()
+    private val _effect = MutableSharedFlow<BodyShapeDetailPostingContract.Effect>()
+    override val effect: SharedFlow<BodyShapeDetailPostingContract.Effect> = _effect.asSharedFlow()
 
-    override fun event(event: BodyShapePostingContract.Event) = when (event) {
-        is BodyShapePostingContract.Event.GetBodyShapeContent -> {
+    override fun event(event: BodyShapeDetailPostingContract.Event) = when (event) {
+        is BodyShapeDetailPostingContract.Event.GetBodyShapeContent -> {
             getBodyShapeContent()
         }
 
-        is BodyShapePostingContract.Event.SetImageListWithLoadedImageList -> {
+        is BodyShapeDetailPostingContract.Event.SetImageListWithLoadedImageList -> {
             setImageListWithLoadedImageList(event.loadedImageList)
         }
 
-        is BodyShapePostingContract.Event.OnClickImagePlaceHolder -> {
+        is BodyShapeDetailPostingContract.Event.OnClickImagePlaceHolder -> {
             onClickImagePlaceHolder()
         }
 
-        is BodyShapePostingContract.Event.OnClickRemoveImage -> {
+        is BodyShapeDetailPostingContract.Event.OnClickRemoveImage -> {
             onClickRemoveImage(event.index)
         }
 
-        is BodyShapePostingContract.Event.OnImagesAdded -> {
+        is BodyShapeDetailPostingContract.Event.OnImagesAdded -> {
             onImagesAdded(event.images)
         }
 
-        is BodyShapePostingContract.Event.OnClickSubmit -> {
+        is BodyShapeDetailPostingContract.Event.OnClickSubmit -> {
             onClickSubmit(event.content)
         }
     }
@@ -66,13 +66,13 @@ class BodyShapePostingViewModel @Inject constructor(
     }
 
     private fun getBundle(): Bundle? {
-        return savedStateHandle.get<Bundle>(BodyShapePostingActivity.KEY_BUNDLE)
+        return savedStateHandle.get<Bundle>(BodyShapeDetailPostingActivity.KEY_BUNDLE)
     }
 
     private val getBodyShapeInfo: Pair<Int?, Int?> by lazy {
         Pair(
-            getBundle()?.getInt(BodyShapePostingActivity.KEY_ALBUM_ID) ?: 33,
-            getBundle()?.getInt(BodyShapePostingActivity.KEY_BODY_SHAPE_ID) ?: 1,
+            getBundle()?.getInt(BodyShapeDetailPostingActivity.KEY_ALBUM_ID) ?: 33,
+            getBundle()?.getInt(BodyShapeDetailPostingActivity.KEY_BODY_SHAPE_ID) ?: 1,
         )
     }
 
@@ -93,7 +93,12 @@ class BodyShapePostingViewModel @Inject constructor(
                                             it.copy(isEditing = true)
                                         }
 
-                                        _effect.emit(BodyShapePostingContract.Effect.OnContentLoaded(content, filesPath))
+                                        _effect.emit(
+                                            BodyShapeDetailPostingContract.Effect.OnContentLoaded(
+                                                content,
+                                                filesPath
+                                            )
+                                        )
                                     }
                                 }
                             }
@@ -117,7 +122,7 @@ class BodyShapePostingViewModel @Inject constructor(
 
     private fun onClickImagePlaceHolder() {
         viewModelScope.launch {
-            _effect.emit(BodyShapePostingContract.Effect.AddImages)
+            _effect.emit(BodyShapeDetailPostingContract.Effect.AddImages)
         }
     }
 
@@ -167,13 +172,18 @@ class BodyShapePostingViewModel @Inject constructor(
                         }?.onEach { result ->
                             withContext(mainImmediateDispatcher) {
                                 result.id?.let { bodyShapeId ->
-                                    _effect.emit(BodyShapePostingContract.Effect.RedirectToBodyShape(albumId, bodyShapeId))
+                                    _effect.emit(
+                                        BodyShapeDetailPostingContract.Effect.RedirectToBodyShape(
+                                            albumId,
+                                            bodyShapeId
+                                        )
+                                    )
                                 }
                             }
                         }?.launchIn(viewModelScope + exceptionHandler)
                     }
                 } else {
-                    _effect.emit(BodyShapePostingContract.Effect.ShowToast("내용을 입력해주세요."))
+                    _effect.emit(BodyShapeDetailPostingContract.Effect.ShowToast("내용을 입력해주세요."))
                 }
             }
         }

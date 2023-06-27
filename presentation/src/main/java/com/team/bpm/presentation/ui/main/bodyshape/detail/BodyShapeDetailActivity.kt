@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.body_shape.detail
+package com.team.bpm.presentation.ui.main.bodyshape.detail
 
 import android.content.Context
 import android.content.Intent
@@ -36,7 +36,7 @@ import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.*
 import com.team.bpm.presentation.compose.theme.*
 import com.team.bpm.presentation.model.BottomSheetButton
-import com.team.bpm.presentation.ui.main.body_shape.posting.BodyShapePostingActivity
+import com.team.bpm.presentation.ui.main.bodyshape.detail.posting.BodyShapeDetailPostingActivity
 import com.team.bpm.presentation.util.calculatedFromNow
 import com.team.bpm.presentation.util.clickableWithoutRipple
 import com.team.bpm.presentation.util.showToast
@@ -86,7 +86,7 @@ private fun BodyShapeDetailActivityContent(
     val editBodyShapeLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { result ->
-            if (result.resultCode == BodyShapePostingActivity.RESULT_OK) {
+            if (result.resultCode == BodyShapeDetailPostingActivity.RESULT_OK) {
                 event.invoke(BodyShapeDetailContract.Event.GetBodyShapeDetail)
             }
         }
@@ -108,7 +108,7 @@ private fun BodyShapeDetailActivityContent(
                 }
 
                 is BodyShapeDetailContract.Effect.GoToEdit -> {
-                    editBodyShapeLauncher.launch(BodyShapePostingActivity.newIntent(context, effect.albumId, effect.bodyShapeId))
+                    editBodyShapeLauncher.launch(BodyShapeDetailPostingActivity.newIntent(context, effect.albumId, effect.bodyShapeId))
                 }
             }
         }
