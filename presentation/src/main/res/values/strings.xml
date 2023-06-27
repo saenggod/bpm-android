@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
 
-    <string name="nav_eyebody">눈바디</string>
+    <string name="nav_body_shape">눈바디</string>
     <string name="nav_studio">스튜디오</string>
     <string name="nav_lounge">라운지</string>
     <string name="nav_mypage">마이페이지</string>
@@ -12,7 +12,7 @@
     <string name="tab_review">리뷰 맛집</string>
     <string name="tab_open">이번 달 오픈</string>
 
-    <string name="main_add_eyebody">오늘의 눈바디 남기기</string>
+    <string name="main_add_body_shape">오늘의 눈바디 남기기</string>
     <string name="main_add_share">내 바디프로필 공유하기</string>
     <string name="main_add_ask">운동in에 질문하기</string>
 

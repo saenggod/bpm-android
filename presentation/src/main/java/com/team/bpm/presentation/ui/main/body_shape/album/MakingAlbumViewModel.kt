@@ -1,4 +1,4 @@
-package com.team.bpm.presentation.ui.main.studio.album
+package com.team.bpm.presentation.ui.main.body_shape.album
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope

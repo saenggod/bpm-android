@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/bind"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/included">
 
     <data>
 
@@ -34,11 +34,11 @@
             tools:text="액션바" />
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/back"
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_marginStart="4dp"
             android:padding="8dp"
-            android:id="@+id/back"
             android:src="@drawable/ic_arrow_back"
             android:visibility="@{backEnable ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"

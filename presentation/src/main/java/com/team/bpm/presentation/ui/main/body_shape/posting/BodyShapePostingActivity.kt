@@ -1,19 +1,12 @@
-package com.team.bpm.presentation.ui.main.eyebody.posting
+package com.team.bpm.presentation.ui.main.body_shape.posting
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,53 +19,67 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.team.bpm.presentation.base.BaseComponentActivityV2
 import com.team.bpm.presentation.base.use
-import com.team.bpm.presentation.compose.BPMTextField
-import com.team.bpm.presentation.compose.ImagePlaceHolder
-import com.team.bpm.presentation.compose.LoadingScreen
-import com.team.bpm.presentation.compose.RoundedCornerButton
-import com.team.bpm.presentation.compose.ScreenHeader
-import com.team.bpm.presentation.compose.getLocalContext
-import com.team.bpm.presentation.compose.initImageLauncher
-import com.team.bpm.presentation.compose.theme.GrayColor10
-import com.team.bpm.presentation.compose.theme.GrayColor4
-import com.team.bpm.presentation.compose.theme.GrayColor5
-import com.team.bpm.presentation.compose.theme.GrayColor8
-import com.team.bpm.presentation.compose.theme.MainBlackColor
-import com.team.bpm.presentation.compose.theme.MainGreenColor
+import com.team.bpm.presentation.compose.*
+import com.team.bpm.presentation.compose.theme.*
+import com.team.bpm.presentation.ui.main.body_shape.detail.BodyShapeDetailActivity
+import com.team.bpm.presentation.ui.main.body_shape.posting.BodyShapePostingActivity.Companion.RESULT_OK
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class EyeBodyPostingActivity : BaseComponentActivityV2() {
+class BodyShapePostingActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
-        EyeBodyPostingActivityContent()
+        BodyShapePostingActivityContent()
     }
 
     companion object {
-        fun newIntent(context: Context): Intent {
-            return Intent(context, EyeBodyPostingActivity::class.java)
+        const val KEY_BUNDLE = "bundle"
+        const val KEY_ALBUM_ID = "album_id"
+        const val KEY_BODY_SHAPE_ID = "body_shape_id"
+        const val RESULT_OK = 200
+
+        fun newIntent(
+            context: Context,
+            albumId: Int,
+            bodyShapeId: Int?
+        ): Intent {
+            return Intent(context, BodyShapePostingActivity::class.java).putExtra(
+                KEY_BUNDLE, bundleOf(
+                    KEY_ALBUM_ID to albumId,
+                    KEY_BODY_SHAPE_ID to bodyShapeId
+                )
+            )
         }
     }
 }
 
 @Composable
-private fun EyeBodyPostingActivityContent(
-    viewModel: EyeBodyPostingViewModel = hiltViewModel()
+private fun BodyShapePostingActivityContent(
+    viewModel: BodyShapePostingViewModel = hiltViewModel()
 ) {
     val (state, event, effect) = use(viewModel)
     val context = getLocalContext()
     val imageLauncher = initImageLauncher(
         context = context,
         onSuccess = { uris, images ->
-            event.invoke(EyeBodyPostingContract.Event.OnImagesAdded(uris.zip(images)))
+            event.invoke(BodyShapePostingContract.Event.OnImagesAdded(uris.zip(images)))
         },
         onFailure = {
 
@@ -81,22 +88,52 @@ private fun EyeBodyPostingActivityContent(
     val contentTextState = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        // TODO : Call Api
+        event.invoke(BodyShapePostingContract.Event.GetBodyShapeContent)
     }
 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
-                is EyeBodyPostingContract.Effect.ShowToast -> {
+                is BodyShapePostingContract.Effect.OnContentLoaded -> {
+                    contentTextState.value = effect.content
+
+                    val loadedImageList = mutableListOf<Pair<Uri, ImageBitmap>>()
+                    effect.images.forEach { imagePath ->
+                        Glide.with(context).asBitmap().load(imagePath).addListener(object : RequestListener<Bitmap> {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                                return false
+                            }
+
+                            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                resource?.let {
+                                    loadedImageList.add(Pair(imagePath.toUri(), resource.asImageBitmap()))
+                                }
+
+                                if (loadedImageList.size == effect.images.size) {
+                                    event.invoke(BodyShapePostingContract.Event.SetImageListWithLoadedImageList(loadedImageList))
+                                }
+                                return true
+                            }
+                        }).submit()
+                    }
+                }
+
+                is BodyShapePostingContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
 
-                is EyeBodyPostingContract.Effect.AddImages -> {
+                is BodyShapePostingContract.Effect.AddImages -> {
                     imageLauncher.launch(PickVisualMediaRequest())
                 }
 
-                is EyeBodyPostingContract.Effect.RedirectToEyeBody -> {
-//                    context.startActivity() TODO : Redirect to eyeBody detail screen
+                is BodyShapePostingContract.Effect.RedirectToBodyShape -> {
+                    if (state.isEditing) {
+                        context.setResult(RESULT_OK)
+                    } else {
+                        context.startActivity(BodyShapeDetailActivity.newIntent(context, effect.albumId, effect.bodyShapeId))
+                    }
+
+                    context.finish()
                 }
             }
         }
@@ -122,7 +159,7 @@ private fun EyeBodyPostingActivityContent(
                             item {
                                 ImagePlaceHolder(
                                     image = null,
-                                    onClick = { event.invoke(EyeBodyPostingContract.Event.OnClickImagePlaceHolder) }
+                                    onClick = { event.invoke(BodyShapePostingContract.Event.OnClickImagePlaceHolder) }
                                 )
                             }
                         }
@@ -133,11 +170,13 @@ private fun EyeBodyPostingActivityContent(
                             ImagePlaceHolder(
                                 image = pair.second,
                                 onClick = {},
-                                onClickRemove = { event.invoke(
-                                    EyeBodyPostingContract.Event.OnClickRemoveImage(
-                                        index
+                                onClickRemove = {
+                                    event.invoke(
+                                        BodyShapePostingContract.Event.OnClickRemoveImage(
+                                            index
+                                        )
                                     )
-                                ) }
+                                }
                             )
                         }
                     }
@@ -206,11 +245,13 @@ private fun EyeBodyPostingActivityContent(
                         text = "저장하기",
                         textColor = MainBlackColor,
                         buttonColor = MainGreenColor,
-                        onClick = { event.invoke(
-                            EyeBodyPostingContract.Event.OnClickSubmit(
-                                contentTextState.value
+                        onClick = {
+                            event.invoke(
+                                BodyShapePostingContract.Event.OnClickSubmit(
+                                    contentTextState.value
+                                )
                             )
-                        ) }
+                        }
                     )
                 }
             }

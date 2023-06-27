@@ -27,7 +27,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/content_eyebody"
+            android:id="@+id/content_body_shape"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -35,7 +35,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider"
             android:onClick="@{() -> vm.clickDisable()}"
-            android:text="@{@string/main_add_eyebody}" />
+            android:text="@{@string/main_add_body_shape}" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/content_share"
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/content_eyebody"
+            app:layout_constraintTop_toBottomOf="@id/content_body_shape"
             android:onClick="@{() -> vm.clickDisable()}"
             android:text="@{@string/mypage_content_history_bf}" />
 

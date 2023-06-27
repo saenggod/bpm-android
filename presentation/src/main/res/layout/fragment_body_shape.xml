@@ -18,7 +18,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             bind:backEnable="@{false}"
-            bind:titleText="@{@string/nav_eyebody}" />
+            bind:titleText="@{@string/nav_body_shape}" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

@@ -72,7 +72,7 @@
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.team.bpm.presentation.ui.main.studio.album.MakingAlbumActivity"
+            android:name="com.team.bpm.presentation.ui.main.body_shape.album.MakingAlbumActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
@@ -108,11 +108,19 @@
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.main.eyebody.posting.EyeBodyPostingActivity"
+            android:name=".ui.main.body_shape.posting.BodyShapePostingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.main.body_shape.detail.BodyShapeDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Bpm.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
+
+        </activity>
         <activity
             android:name=".ui.main.mypage.starttab.MyPageStartTabActivity"
             android:exported="false"
