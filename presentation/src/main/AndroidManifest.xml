@@ -124,8 +124,7 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar"
-            android:windowSoftInputMode="adjustResize">
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.main.mypage.starttab.MyPageStartTabActivity"
             android:exported="false"
@@ -139,6 +138,11 @@
         <activity
             android:name=".ui.main.mypage.myquestion.MyQuestionActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Bpm.NoActionBar" />
+        <activity
+            android:name=".ui.main.mypage.edit_profile.EditProfileActivity"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar" />
 
