@@ -13,7 +13,7 @@ interface UserRepository {
         nickname: String,
         bio: String,
         imageByteArray: ByteArray
-    ): Flow<Unit>
+    ): Flow<UserProfile>
 
     suspend fun fetchUserProfile(): Flow<UserProfile>
 }

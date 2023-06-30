@@ -37,7 +37,7 @@ interface MainApi {
         @Part("nickname") nickname: String,
         @Part("bio") bio: String,
         @Part file: MultipartBody.Part,
-    ): Response<BPMResponseV2<ResponseBody>>
+    ): Response<BPMResponseV2<UserProfileResponse>>
 
     /* 스튜디오 */
 
