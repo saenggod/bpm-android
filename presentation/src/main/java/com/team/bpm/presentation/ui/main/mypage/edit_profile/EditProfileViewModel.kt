@@ -105,7 +105,7 @@ class EditProfileViewModel @Inject constructor(
                 getKakaoIdUseCase().onEach { result ->
                     result?.let { kakaoId ->
                         state.value.image?.let { image ->
-                            editUserProfileUseCase(kakaoId, nickname, bio, convertImageBitmapToByteArray(image)).onEach {
+                            editUserProfileUseCase(kakaoId, nickname, bio, convertImageBitmapToByteArray(image)).collect {
                                 withContext(mainImmediateDispatcher) {
                                     _state.update {
                                         it.copy(isLoading = false)
@@ -113,7 +113,7 @@ class EditProfileViewModel @Inject constructor(
 
                                     _effect.emit(EditProfileContract.Effect.EditSuccess)
                                 }
-                            }.launchIn(viewModelScope + exceptionHandler)
+                            }
                         }
                     }
                 }.launchIn(viewModelScope + exceptionHandler)

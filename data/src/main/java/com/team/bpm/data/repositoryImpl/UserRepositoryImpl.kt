@@ -31,7 +31,7 @@ class UserRepositoryImpl @Inject constructor(
         nickname: String,
         bio: String,
         imageByteArray: ByteArray
-    ): Flow<Unit> {
+    ): Flow<UserProfile> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.sendEditedUserProfile(
@@ -43,9 +43,9 @@ class UserRepositoryImpl @Inject constructor(
                         file = convertByteArrayToWebpFile(imageByteArray)
                     )
                 )
-            }.collect {
-                emit(Unit)
-            }
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
         }
     }
 
