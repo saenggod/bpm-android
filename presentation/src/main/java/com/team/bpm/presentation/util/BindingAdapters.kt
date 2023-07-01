@@ -99,3 +99,27 @@ fun AppCompatTextView.bindHomeAlbumDday(dateString: String?) {
         text = "D${Days.daysBetween(date, DateTime.now()).days}"
     }
 }
+
+@BindingAdapter("bind:bodyshape_dday")
+fun AppCompatTextView.bindBodyShapeDday(dday: Int?) {
+    dday?.let { dday ->
+        val datePrefix = if ((dday ?: 0) > 0) "+" else ""
+        text = "D${datePrefix}${dday}"
+    }
+}
+
+@BindingAdapter("bind:bodyshape_date_range_start","bind:bodyshape_date_range_end")
+fun AppCompatTextView.bindBodyShapeDateRange(createAt : String?, dueDate : String?) {
+
+    if(createAt.isNullOrEmpty() || dueDate.isNullOrEmpty()) return
+    else {
+        text = "$createAt ~ $dueDate"
+    }
+}
+
+@BindingAdapter("bind:bodyshape_history_count")
+fun AppCompatTextView.bindBodyShapeHistoryCount(count : Int?) {
+    count?.let {
+        text = "기록 $count"
+    }
+}

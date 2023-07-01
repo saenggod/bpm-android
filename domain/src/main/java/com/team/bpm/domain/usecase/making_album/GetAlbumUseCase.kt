@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetAlbumUseCase @Inject constructor(private val bodyShapeRepository: BodyShapeRepository) {
-
     suspend operator fun invoke(albumId: Int): Flow<Album> {
         return bodyShapeRepository.fetchAlbum(albumId)
     }

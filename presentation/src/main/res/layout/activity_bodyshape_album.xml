@@ -25,16 +25,37 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/back"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginStart="4dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Font.Pretendard.Semibold.18"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/nav_mypage"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="액션바" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/add"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginEnd="12dp"
+                android:onClick="@{() -> vm.onClickAddPost()}"
+                android:src="@drawable/ic_btn_add_filled"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <View
                 android:layout_width="0dp"
@@ -58,7 +79,167 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/dday"
+                    style="@style/Font.PyeongChangPeace.Bold.20"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="18dp"
+                    android:layout_marginTop="24dp"
+                    android:drawableEnd="@drawable/ic_arrow_right_big"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    bind:bodyshape_dday="@{vm.state.albumInfo.dday}"
+                    tools:text="D-31" />
 
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/date"
+                    style="@style/Font.Pretendard.Semibold.14"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="18dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@{vm.state.albumInfo.date}"
+                    android:textColor="@color/gray_04"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/dday"
+                    tools:text="2023.11.05" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container_memo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/date"
+                    app:layout_constraintTop_toBottomOf="@id/date">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/star"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_bodyshape_date_star"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/memo"
+                        style="@style/Font.Pretendard.Semibold.14"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="18dp"
+                        android:text="@{vm.state.albumInfo.memo}"
+                        android:textSize="13dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/star"
+                        app:layout_constraintTop_toTopOf="@id/star"
+                        tools:text="이번에는 제대로 준비해서 찍어보자!" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="10dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_memo">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/container_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_bodyshape_first"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="10dp">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/date_range"
+                            style="@style/Font.Pretendard.Semibold.12"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/history"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            bind:bodyshape_date_range_end="@{vm.state.albumInfo.date}"
+                            bind:bodyshape_date_range_start="@{vm.state.albumInfo.createAt}"
+                            tools:text="23.08.01~23.08.31" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/history"
+                            style="@style/Font.Pretendard.Semibold.12"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/date_range"
+                            app:layout_constraintTop_toTopOf="parent"
+                            bind:bodyshape_history_count="@{vm.state.albumInfo.bodyShapeList.bodyShapeListSize}"
+                            tools:text="기록 0" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/list"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/card_history"
+                    app:spanCount="3"
+                    bind:list_item="@{vm.state.albumInfo.bodyShapeList.bodyShapeDetails}"
+                    tools:listitem="@layout/item_bodyshape_album" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/empty"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/card_history"
+                    app:layout_constraintVertical_bias="0.0"
+                    bind:visibility="@{vm.state.albumInfo.bodyShapeList.bodyShapeDetails.empty}"
+                    tools:visibility="gone">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/img_empty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="100dp"
+                        android:src="@drawable/img_bodyshape_empty"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.chip.Chip
+                        android:layout_width="wrap_content"
+                        android:layout_height="55dp"
+                        android:layout_marginTop="10dp"
+                        android:onClick="@{() -> vm.onClickAddPost()}"
+                        android:text="오늘의 눈바디 기록하기"
+                        android:textAppearance="@style/chipText"
+                        android:textStyle="bold"
+                        app:chipEndPadding="15dp"
+                        app:chipStartPadding="15dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/img_empty" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
