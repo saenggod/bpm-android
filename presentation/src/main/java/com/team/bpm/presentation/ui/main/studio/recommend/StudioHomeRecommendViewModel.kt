@@ -2,8 +2,11 @@ package com.team.bpm.presentation.ui.main.studio.recommend
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.team.bpm.domain.model.Error
 import com.team.bpm.domain.model.Studio
 import com.team.bpm.domain.usecase.main.GetStudioListUseCase
+import com.team.bpm.domain.usecase.studio.ScrapCancelUseCase
+import com.team.bpm.domain.usecase.studio.ScrapUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
 import com.team.bpm.presentation.model.StudioMainTabType
@@ -23,6 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class StudioHomeRecommendViewModel @Inject constructor(
     private val getStudioListUseCase: GetStudioListUseCase,
+    private val scrapUseCase: ScrapUseCase,
+    private val scrapCancelUseCase: ScrapCancelUseCase,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
@@ -46,7 +51,10 @@ class StudioHomeRecommendViewModel @Inject constructor(
 
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
-            // TODO : Error Handling
+            val error = throwable as? Error
+            viewModelScope.launch {
+                error?.let { _state.emit(StudioHomeRecommendState.Error(error)) }
+            }
         }
     }
 
@@ -67,6 +75,28 @@ class StudioHomeRecommendViewModel @Inject constructor(
     fun clickStudioDetail(studioId: Int?) {
         viewModelScope.launch {
             _event.emit(StudioHomeRecommendViewEvent.ClickDetail(studioId))
+        }
+    }
+
+    fun clickStudioScrap(studioId: Int?, isScrapped: Boolean?) {
+        studioId?.let { id ->
+            viewModelScope.launch {
+                when (isScrapped) {
+                    true -> {
+                        scrapCancelUseCase(id)
+                            .onEach {
+//                                _state.emit(StudioHomeRecommendState.Init)
+                            }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                    false -> {
+                        scrapUseCase(id)
+                            .onEach {
+//                                _state.emit(StudioHomeRecommendState.Init)
+                            }.launchIn(viewModelScope + exceptionHandler)
+                    }
+                    else -> Unit
+                }
+            }
         }
     }
 
