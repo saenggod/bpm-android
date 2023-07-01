@@ -166,5 +166,9 @@
         <item name="fontFamily">@font/pretendard_semi_bold</item>
     </style>
 
+    <style name="chipText" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="android:textSize">12dp</item>
+        <item name="android:fontFamily">@font/font_family_chip</item>
+    </style>
 
 </resources>

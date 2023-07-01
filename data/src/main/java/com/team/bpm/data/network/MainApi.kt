@@ -83,7 +83,12 @@ interface MainApi {
     /* 일정 */
 
     @GET("api/users/schedule")
-    suspend fun getUserSchedule(): Response<BPMResponseV2<BodyShapeSchedulesResponse>>
+    suspend fun fetchUserSchedule(): Response<BPMResponseV2<BodyShapeSchedulesResponse>>
+
+    @GET("api/users/schedule/{scheduleId}")
+    suspend fun fetchAlbumInfo(
+        @Path("scheduleId") scheduleId: Int
+    ): Response<BPMResponseV2<BodyShapeScheduleResponse>>
 
     @POST("api/users/schedule")
     suspend fun sendAlbum(
