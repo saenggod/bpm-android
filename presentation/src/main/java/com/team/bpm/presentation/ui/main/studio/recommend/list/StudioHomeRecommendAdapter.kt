@@ -6,7 +6,8 @@ import androidx.recyclerview.widget.ListAdapter
 import com.team.bpm.domain.model.Studio
 
 class StudioHomeRecommendAdapter(
-    private val listener: (Int?) -> Unit
+    private val listener: (Int?) -> Unit,
+    private val scrapListener: (Int?, Boolean?) -> Unit
 ) : ListAdapter<Studio, StudioHomeRecommendViewHolder>(HomeRecommendListDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudioHomeRecommendViewHolder {
@@ -14,7 +15,7 @@ class StudioHomeRecommendAdapter(
     }
 
     override fun onBindViewHolder(holder: StudioHomeRecommendViewHolder, position: Int) {
-        holder.bind(getItem(position), listener)
+        holder.bind(getItem(position), listener, scrapListener)
     }
 }
 

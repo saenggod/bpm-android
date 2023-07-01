@@ -30,12 +30,11 @@ data class Studio(
     val scrapped: Boolean?
 ) : BaseModel {
 
-    // TODO : 죄송합니다..
-
     @IgnoredOnParcel
-    val tagList = listOf<String>(
-        "친절해요", "소통이 빨라요", "깨끗해요"
-    )
+    val tagList = arrayListOf<String>().apply {
+        firstTag?.let { add(it) }
+        secondTag?.let { add(it) }
+    }
 
     @IgnoredOnParcel
     val ratingText: String = "${round((rating?.times(10) ?: 0) as Double) / 10}"

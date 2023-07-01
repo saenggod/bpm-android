@@ -6,9 +6,10 @@ import androidx.fragment.app.viewModels
 import com.team.bpm.presentation.base.BaseFragment
 import com.team.bpm.presentation.databinding.FragmentHomeRecommendBinding
 import com.team.bpm.presentation.model.StudioMainTabType
-import com.team.bpm.presentation.ui.main.studio.recommend.list.StudioHomeRecommendAdapter
 import com.team.bpm.presentation.ui.main.studio.detail.StudioDetailActivity
+import com.team.bpm.presentation.ui.main.studio.recommend.list.StudioHomeRecommendAdapter
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
+import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,7 +23,14 @@ class StudioHomeRecommendFragment :
             vm = viewModel
             lifecycleOwner = viewLifecycleOwner
 
-            list.adapter = StudioHomeRecommendAdapter { viewModel.clickStudioDetail(it) }
+            list.adapter = StudioHomeRecommendAdapter(
+                listener = { studioId ->
+                    viewModel.clickStudioDetail(studioId)
+                },
+                scrapListener = { studioId, isScrapped ->
+                    viewModel.clickStudioScrap(studioId, isScrapped)
+                }
+            )
         }
     }
 
@@ -33,9 +41,11 @@ class StudioHomeRecommendFragment :
                     StudioHomeRecommendState.Init -> {
                         viewModel.getStudioList()
                     }
+
                     StudioHomeRecommendState.List -> Unit
-                    StudioHomeRecommendState.Error -> {
-                        // TODO : Error Handling
+
+                    is StudioHomeRecommendState.Error -> {
+                        requireContext().showToast(state.error.message)
                     }
                 }
             }
@@ -47,9 +57,18 @@ class StudioHomeRecommendFragment :
                     is StudioHomeRecommendViewEvent.ClickDetail -> {
                         goToStudioDetail(event.studioId)
                     }
+                    is StudioHomeRecommendViewEvent.ClickScrap -> {
+                        goToStudioDetail(event.studioId)
+                    }
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        viewModel.getStudioList()
+
+        super.onResume()
     }
 
     private fun goToStudioDetail(studioId: Int?) {
