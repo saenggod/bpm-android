@@ -75,8 +75,7 @@
             android:name="com.team.bpm.presentation.ui.main.bodyshape.album.add.BodyShapeAlbumAddActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Bpm.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:theme="@style/Theme.Bpm.NoActionBar"/>
         <activity
             android:name="com.team.bpm.presentation.ui.main.studio.detail.review_list.ReviewListActivity"
             android:exported="false"

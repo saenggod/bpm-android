@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.team.bpm.presentation.R
 import com.team.bpm.presentation.base.BaseComponentActivityV2
@@ -97,9 +98,7 @@ private fun BodyShapeAlbumAddActivityContent(
 
         Column(
             modifier = Modifier
-                .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
                 .fillMaxSize()
-                .imePadding()
                 .verticalScroll(state = scrollState)
                 .background(color = Color.White)
                 .addFocusCleaner(LocalFocusManager.current)
