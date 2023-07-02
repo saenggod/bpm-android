@@ -74,7 +74,7 @@ private fun SplashActivityContent(
 
                 is SplashContract.Effect.GetKakaoUserInfo -> {
                     val kakaoLoginInstance = UserApiClient.instance
-                    kakaoLoginInstance.loginWithKakaoTalk(context) { loginInfo, error ->
+                    kakaoLoginInstance.loginWithKakaoAccount(context) { loginInfo, error ->
                         if (loginInfo != null) {
                             kakaoLoginInstance.me { user, _->
                                 user?.id?.let { kakaoId ->
