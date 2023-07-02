@@ -55,7 +55,7 @@ class DataStoreManager @Inject constructor(private val context: Context) {
 
     fun getStartTabIndex(): Flow<Int?> {
         return context.instance.data.map { preferences ->
-            preferences[intPreferencesKey(KEY_START_TAB)]
+            preferences[intPreferencesKey(KEY_START_TAB)] ?: DEFAULT_VALUE_STARTTAB
         }
     }
 
@@ -88,5 +88,7 @@ class DataStoreManager @Inject constructor(private val context: Context) {
         private const val KEY_USER_ID = "user_id"
         private const val KEY_START_TAB = "start_tab"
         private const val KEY_RECENT_SEARCH_LIST = "recent_search_list"
+
+        private const val DEFAULT_VALUE_STARTTAB = 0
     }
 }

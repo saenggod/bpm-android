@@ -26,13 +26,17 @@
     <string name="mypage_post">게시물</string>
     <string name="mypage_scrap">스크랩</string>
     <string name="mypage_content_history_bf">이전 바디프로필 모아보기</string>
+    <string name="mypage_content_my_post">나의 커뮤니티 글</string>
     <string name="mypage_content_profile_edit">프로필 관리</string>
-    <string name="mypage_content_history_post">내 질문 모아보기</string>
+    <string name="mypage_content_history_post">나의 질문</string>
+    <string name="mypage_content_scrapped_studio">스크랩한 스튜디오</string>
     <string name="mypage_content_notice">공지사항</string>
-    <string name="mypage_content_edit_start_tab">시작 위치 변경하기</string>
+    <string name="mypage_content_edit_start_tab">시작 위치 변경</string>
     <string name="mypage_content_version_info">버전 정보</string>
     <string name="mypage_book_info_history">기록</string>
     <string name="mypage_book_info_guide">이번에는 제대로 준비해서 찍어보자!</string>
+    <string name="mypage_notification">알림</string>
+    <string name="mypage_notification_test_title"><b>닉네임</b> 님이 회원님의 질문에 \n답변을 남겼습니다.</string>
 
     <string name="mypage_edit_start_tab_title">시작 위치 변경하기</string>
     <string name="mypage_edit_start_tab_description">원하는 화면을 시작 화면으로 설정할 수 있어요</string>

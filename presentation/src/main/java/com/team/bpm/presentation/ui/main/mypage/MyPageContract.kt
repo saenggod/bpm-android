@@ -7,15 +7,15 @@ interface MyPageContract :
     data class State(
         val userName: String? = null,
         val userDescription: String? = null,
-        val alarmCnt: Int? = null,
-        val postCnt: Int? = null,
-        val scrapCnt: Int? = null
+        val userImage: String? = null,
+        val isNewNotification: Boolean? = null,
     )
 
     sealed interface Event {
-        object UserData : Event
         object Profile : Event
-        object PostHistory : Event
+        object MyPost : Event
+        object MyQuestion : Event
+        object ScrappedStudios : Event
         object StartTab : Event
         object Notification : Event
         object Notice : Event
@@ -24,11 +24,11 @@ interface MyPageContract :
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
+        object GoNotification : Effect
+        object GoMyPost : Effect
+        object GoMyQuestion : Effect
+        object GoScrappedStudios : Effect
         object GoProfileManage : Effect
-        object GoHistoryPost : Effect
         object GoEditStartTab : Effect
-//        object GoNotification : Effect // 토스트로 대체
-//        object GoNotice : Effect // 토스트로 대체
-//        object GoVersionInfo : Effect // 토스트로 대체
     }
 }

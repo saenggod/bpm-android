@@ -78,8 +78,8 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideMyPageRepository(dataStoreManager: DataStoreManager): MyPageRepository {
-        return MyPageRepositoryImpl(dataStoreManager)
+    fun provideMyPageRepository(dataStoreManager: DataStoreManager, mainApi: MainApi): MyPageRepository {
+        return MyPageRepositoryImpl(dataStoreManager, mainApi)
     }
 
     @Singleton
