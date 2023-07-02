@@ -69,41 +69,42 @@ class BodyShapeDetailPostingViewModel @Inject constructor(
         return savedStateHandle.get<Bundle>(BodyShapeDetailPostingActivity.KEY_BUNDLE)
     }
 
-    private val getBodyShapeInfo: Pair<Int?, Int?> by lazy {
+    private val getBodyShapeInfo: Pair<Int, Int> by lazy {
         Pair(
-            getBundle()?.getInt(BodyShapeDetailPostingActivity.KEY_ALBUM_ID) ?: 33,
-            getBundle()?.getInt(BodyShapeDetailPostingActivity.KEY_BODY_SHAPE_ID) ?: 1,
+            getBundle()?.getInt(BodyShapeDetailPostingActivity.KEY_ALBUM_ID) ?: 0,
+            getBundle()?.getInt(BodyShapeDetailPostingActivity.KEY_BODY_SHAPE_ID) ?: 0,
         )
     }
 
     private fun getBodyShapeContent() {
-        getBodyShapeInfo.first?.let { albumId ->
-            getBodyShapeInfo.second?.let { bodyShapeId ->
-                viewModelScope.launch {
-                    _state.update {
-                        it.copy(isLoading = true)
-                    }
+        val albumId = getBodyShapeInfo.first
+        val bodyShapeId = getBodyShapeInfo.second
 
-                    withContext(ioDispatcher) {
-                        getBodyShapeUseCase(albumId, bodyShapeId).onEach { result ->
-                            result.content?.let { content ->
-                                result.filesPath?.let { filesPath ->
-                                    withContext(mainImmediateDispatcher) {
-                                        _state.update {
-                                            it.copy(isEditing = true)
-                                        }
+        if (albumId != -1 && bodyShapeId != -1) {
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
 
-                                        _effect.emit(
-                                            BodyShapeDetailPostingContract.Effect.OnContentLoaded(
-                                                content,
-                                                filesPath
-                                            )
-                                        )
+                withContext(ioDispatcher) {
+                    getBodyShapeUseCase(albumId, bodyShapeId).onEach { result ->
+                        result.content?.let { content ->
+                            result.filesPath?.let { filesPath ->
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(isEditing = true)
                                     }
+
+                                    _effect.emit(
+                                        BodyShapeDetailPostingContract.Effect.OnContentLoaded(
+                                            content,
+                                            filesPath
+                                        )
+                                    )
                                 }
                             }
-                        }.launchIn(viewModelScope + exceptionHandler)
-                    }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
                 }
             }
         }
@@ -153,38 +154,37 @@ class BodyShapeDetailPostingViewModel @Inject constructor(
     }
 
     private fun onClickSubmit(content: String) {
-        getBodyShapeInfo.first?.let { albumId ->
-            viewModelScope.launch {
-                if (content.isNotEmpty()) {
-                    _state.update {
-                        it.copy(isLoading = true)
-                    }
+        val albumId = getBodyShapeInfo.first
+        val bodyShapeId = getBodyShapeInfo.second
 
-                    withContext(ioDispatcher) {
-                        val imageList = state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }
-
-                        if (state.value.isEditing) {
-                            getBodyShapeInfo.second?.let { bodyShapeId ->
-                                editBodyShapeUseCase(albumId, bodyShapeId, content, imageList)
-                            }
-                        } else {
-                            writeBodyShapeUseCase(albumId, content, imageList)
-                        }?.onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                result.id?.let { bodyShapeId ->
-                                    _effect.emit(
-                                        BodyShapeDetailPostingContract.Effect.RedirectToBodyShape(
-                                            albumId,
-                                            bodyShapeId
-                                        )
-                                    )
-                                }
-                            }
-                        }?.launchIn(viewModelScope + exceptionHandler)
-                    }
-                } else {
-                    _effect.emit(BodyShapeDetailPostingContract.Effect.ShowToast("내용을 입력해주세요."))
+        viewModelScope.launch {
+            if (content.isNotEmpty()) {
+                _state.update {
+                    it.copy(isLoading = true)
                 }
+
+                withContext(ioDispatcher) {
+                    val imageList = state.value.imageList.map { image -> convertImageBitmapToByteArray(image.second) }
+
+                    (if (state.value.isEditing) {
+                        editBodyShapeUseCase(albumId, bodyShapeId, content, imageList)
+                    } else {
+                        writeBodyShapeUseCase(albumId, content, imageList)
+                    }).onEach { result ->
+                        withContext(mainImmediateDispatcher) {
+                            result.id?.let { bodyShapeId ->
+                                _effect.emit(
+                                    BodyShapeDetailPostingContract.Effect.RedirectToBodyShape(
+                                        albumId,
+                                        bodyShapeId
+                                    )
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
+            } else {
+                _effect.emit(BodyShapeDetailPostingContract.Effect.ShowToast("내용을 입력해주세요."))
             }
         }
     }
