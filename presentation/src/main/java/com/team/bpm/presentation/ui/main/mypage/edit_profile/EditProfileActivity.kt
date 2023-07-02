@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.main.mypage.edit_profile
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -50,6 +52,10 @@ class EditProfileActivity : BaseComponentActivityV2() {
 
     companion object {
         const val RESULT_OK = 200
+
+        fun newIntent(context: Context) : Intent {
+            return Intent(context, EditProfileActivity::class.java)
+        }
     }
 }
 

@@ -186,6 +186,16 @@ class CommunityRepositoryImpl @Inject constructor(private val mainApi: MainApi) 
         }
     }
 
+    override suspend fun fetchMyPostList(page: Int, size: Int): Flow<CommunityList> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.fetchMyPostList(page, size)
+            }.onEach { result ->
+                result.response?.let { emit(it.toDataModel()) }
+            }.collect()
+        }
+    }
+
     companion object {
         private const val COMMUNITY_LIST_SORT_TYPE = "createdDate"
 

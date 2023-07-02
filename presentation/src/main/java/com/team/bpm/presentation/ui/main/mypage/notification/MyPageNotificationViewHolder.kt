@@ -97,9 +97,9 @@ class MyPageNotificationViewHolder(
 
                 root.setBackgroundColor(
                     if (item.read) {
-                        ContextCompat.getColor(root.context, R.color.green_A8FF0F_10)
-                    } else {
                         ContextCompat.getColor(root.context, R.color.white)
+                    } else {
+                        ContextCompat.getColor(root.context, R.color.green_A8FF0F_10)
                     }
                 )
 

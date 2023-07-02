@@ -2,6 +2,7 @@ package com.team.bpm.domain.repository
 
 import com.team.bpm.domain.model.Comment
 import com.team.bpm.domain.model.CommentList
+import com.team.bpm.domain.model.CommunityList
 import com.team.bpm.domain.model.Question
 import com.team.bpm.domain.model.QuestionList
 import kotlinx.coroutines.flow.Flow
