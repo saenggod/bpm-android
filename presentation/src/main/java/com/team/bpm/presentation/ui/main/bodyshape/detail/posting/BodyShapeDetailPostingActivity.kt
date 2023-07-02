@@ -60,10 +60,11 @@ class BodyShapeDetailPostingActivity : BaseComponentActivityV2() {
             albumId: Int,
             bodyShapeId: Int? = null
         ): Intent {
+            val mBodyShapeId = bodyShapeId ?: -1
             return Intent(context, BodyShapeDetailPostingActivity::class.java).putExtra(
                 KEY_BUNDLE, bundleOf(
                     KEY_ALBUM_ID to albumId,
-                    KEY_BODY_SHAPE_ID to bodyShapeId
+                    KEY_BODY_SHAPE_ID to mBodyShapeId
                 )
             )
         }

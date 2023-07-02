@@ -70,8 +70,8 @@ class BodyShapeDetailViewModel @Inject constructor(
 
     private val bodyShapeInfo: Pair<Int?, Int?> by lazy {
         Pair(
-            getBundle()?.getInt(BodyShapeDetailActivity.KEY_ALBUM_ID) ?: 33,
-            getBundle()?.getInt(BodyShapeDetailActivity.KEY_BODY_SHAPE_ID) ?: 1
+            getBundle()?.getInt(BodyShapeDetailActivity.KEY_ALBUM_ID),
+            getBundle()?.getInt(BodyShapeDetailActivity.KEY_BODY_SHAPE_ID)
         )
     }
 
