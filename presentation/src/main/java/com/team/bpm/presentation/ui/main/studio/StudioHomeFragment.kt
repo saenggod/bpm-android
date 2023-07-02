@@ -16,6 +16,7 @@ import com.team.bpm.presentation.model.MainBanner
 import com.team.bpm.presentation.model.StudioMainTabType
 import com.team.bpm.presentation.ui.main.MainActivity
 import com.team.bpm.presentation.ui.main.MainViewModel
+import com.team.bpm.presentation.ui.main.bodyshape.album.add.BodyShapeAlbumAddActivity
 import com.team.bpm.presentation.ui.main.studio.banner.BannerListAdapter
 import com.team.bpm.presentation.ui.main.studio.recommend.StudioHomeRecommendFragment
 import com.team.bpm.presentation.ui.main.studio.search.SearchActivity
@@ -182,7 +183,7 @@ class StudioHomeFragment :
 
     private fun goToWriteBodyShape() {
         // 눈바디 기록하기 페이지 이동
-//        startActivity(BodyShapePostingActivity.newIntent(requireContext()))
+        startActivity(BodyShapeAlbumAddActivity.newIntent(requireContext()))
     }
 
     private fun goToLounge() {
