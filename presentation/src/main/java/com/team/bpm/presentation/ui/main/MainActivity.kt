@@ -68,6 +68,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     private fun setUpNavigation(startTabIndex: Int = -1) {
         bind {
             if (supportFragmentManager.primaryNavigationFragment == null && startTabIndex != -1) {
+                mainTab.selectedItemId = findFragmentId(startTabIndex)
                 changeFragment(findFragmentId(startTabIndex))
             }
 
