@@ -26,6 +26,7 @@
         <activity
             android:name="com.team.bpm.presentation.ui.intro.splash.SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Bpm.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
