@@ -44,6 +44,8 @@
     <string name="my_question_title">나의 질문</string>
     <string name="my_question_more_delete">삭제하기</string>
 
+    <string name="my_post_title">나의 커뮤니티 게시글</string>
+
     <string name="kakao_app_key">ced602989810575b0c1d032415db11c8</string>
 
 </resources>

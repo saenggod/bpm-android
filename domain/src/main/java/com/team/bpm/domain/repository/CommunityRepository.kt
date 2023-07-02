@@ -54,4 +54,8 @@ interface CommunityRepository {
         communityId: Int,
         commentId: Int
     ): Flow<Unit>
+
+    /* 마이페이지 내가 작성한 커뮤니티 글 */
+
+    suspend fun fetchMyPostList(page: Int, size: Int): Flow<CommunityList>
 }

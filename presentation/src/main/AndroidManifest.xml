@@ -151,6 +151,12 @@
             android:theme="@style/Theme.Bpm.NoActionBar" />
 
         <activity
+            android:name=".ui.main.mypage.mypost.MyPostActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Bpm.NoActionBar" />
+
+        <activity
             android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"
             android:exported="true" />
 

@@ -329,6 +329,13 @@ interface MainApi {
         @Query("size") size: Int,
     ): Response<BPMResponseV2<QuestionListResponse>>
 
+    @GET("api/users/community")
+    suspend fun fetchMyPostList(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("sort") sort: String = "createdDate",
+    ): Response<BPMResponseV2<CommunityListResponse>>
+
     /* 눈바디 */
 
     @Multipart

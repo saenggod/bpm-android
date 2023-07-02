@@ -24,7 +24,11 @@ import javax.inject.Inject
 class QuestionRepositoryImpl @Inject constructor(
     private val mainApi: MainApi
 ) : QuestionRepository {
-    override suspend fun fetchQuestionList(limit: Int, offset: Int, slug: String?): Flow<QuestionList> {
+    override suspend fun fetchQuestionList(
+        limit: Int,
+        offset: Int,
+        slug: String?
+    ): Flow<QuestionList> {
         return flow {
             BPMResponseHandlerV2().handle {
                 mainApi.fetchQuestionList(limit, offset, slug)

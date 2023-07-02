@@ -1,5 +1,7 @@
 package com.team.bpm.presentation.ui.main.mypage.myscrap
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +34,13 @@ class MyScrapActivity : BaseComponentActivityV2() {
     @Composable
     override fun InitComposeUi() {
         MyScrapActivityContent()
+    }
+
+    companion object {
+
+        fun newIntent(context : Context) : Intent {
+            return Intent(context, MyScrapActivity::class.java)
+        }
     }
 }
 
