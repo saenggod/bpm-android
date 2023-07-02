@@ -1,5 +1,7 @@
 package com.team.bpm.domain.repository
 
+import androidx.paging.PagingData
+import com.team.bpm.domain.model.Notification
 import com.team.bpm.domain.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
@@ -16,4 +18,8 @@ interface UserRepository {
     ): Flow<UserProfile>
 
     suspend fun fetchUserProfile(): Flow<UserProfile>
+
+    suspend fun fetchNotificationList(): Flow<PagingData<Notification>>
+
+    suspend fun setNotificationIsRead(notificationId: Long): Flow<Boolean>
 }

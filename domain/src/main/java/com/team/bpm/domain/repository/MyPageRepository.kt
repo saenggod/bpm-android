@@ -8,4 +8,6 @@ interface MyPageRepository {
 
     suspend fun setMainTabIndex(index: Int): Flow<Int?>
 
+    suspend fun fetchIsNewNotification() : Flow<Boolean>
+
 }

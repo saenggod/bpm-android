@@ -54,9 +54,10 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
+    // TODO : 무한스크롤 (차기 버전에서 적용)
     fun getCommunityList(page: Int = 0) {
         viewModelScope.launch(ioDispatcher) {
-            getCommunityListUseCase(page = page, size = 20).onEach { data ->
+            getCommunityListUseCase(page = page, size = 200).onEach { data ->
                     val dataList = arrayListOf<Community>()
                     _state.update {
                         dataList.addAll(data.communities ?: emptyList())

@@ -60,9 +60,10 @@ class QuestionViewModel @Inject constructor(
         }
     }
 
+    // TODO : 무한스크롤 (차기 버전에서 적용)
     fun getQuestionList(offset: Int = 0) {
         viewModelScope.launch(ioDispatcher) {
-            getQuestionListUseCase(offset = offset, limit = 20, slug = null)
+            getQuestionListUseCase(offset = offset, limit = 200, slug = null)
                 .onEach { data ->
                     withContext(mainImmediateDispatcher) {
                         val dataList = arrayListOf<Question>()

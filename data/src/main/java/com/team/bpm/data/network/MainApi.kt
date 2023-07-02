@@ -359,4 +359,18 @@ interface MainApi {
         @Path("scheduleId") albumId: Int,
         @Path("bodyShapeId") bodyShapeId: Int
     ): Response<BPMResponseV2<BodyShapeResponse>>
+
+    /* 알림 */
+    @GET("api/users/alarm")
+    suspend fun fetchNotificationList(
+        @Query("page") page: Int,
+        @Query("size") size: Int = 30,
+        @Query("sort") sort: String = "createdDate"
+    ): Response<BPMResponseV2<NotificationListResponse>>
+
+    @POST("api/users/alarm/{alarmId}")
+    suspend fun setNotificationIsRead(
+        @Path("alarmId") alarmId: Long
+    ): Response<BPMResponseV2<ResponseBody>>
+
 }

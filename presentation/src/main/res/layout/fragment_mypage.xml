@@ -43,12 +43,13 @@
                 android:layout_height="26dp"
                 android:layout_marginVertical="15dp"
                 android:layout_marginEnd="18dp"
+                android:background="@drawable/selector_icon_mypage_noti"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> vm.onClickNotification()}"
-                android:src="@drawable/ic_noti_new"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                bind:selected="@{vm.state.isNewNotification}" />
 
             <View
                 android:layout_width="0dp"
@@ -77,10 +78,11 @@
                     android:layout_width="76dp"
                     android:layout_height="76dp"
                     android:layout_marginTop="22dp"
-                    android:src="@drawable/default_profile_image"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    bind:image_url="@{vm.state.userImage}"
+                    tools:src="@drawable/default_profile_image" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/profile_name"
@@ -90,11 +92,12 @@
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="10dp"
                     android:maxLines="1"
-                    android:text="유저 이름"
+                    android:text="@{vm.state.userName}"
                     android:textAlignment="center"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/profile_image" />
+                    app:layout_constraintTop_toBottomOf="@id/profile_image"
+                    tools:text="유저 이름" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/profile_description"
@@ -103,124 +106,34 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="14dp"
-                    android:text="바디프로필 텍스트"
+                    android:text="@{vm.state.userDescription}"
                     android:textAlignment="center"
-                    android:textColor="@color/gray_05"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/profile_name" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guide_profile_center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/container_post"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="4dp"
-                    android:paddingVertical="13dp"
-                    app:layout_constraintEnd_toStartOf="@id/guide_profile_center"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/profile_description">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/profile_post_count"
-                        style="@style/Font.Pretendard.Semibold.18"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="22"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/profile_post"
-                        style="@style/Font.Pretendard.Semibold.12"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/mypage_post"
-                        android:textColor="@color/gray_05"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/profile_post_count" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/container_scrap"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="10dp"
-                    android:paddingVertical="13dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/guide_profile_center"
-                    app:layout_constraintTop_toBottomOf="@id/profile_description">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/profile_scarp_count"
-                        style="@style/Font.Pretendard.Semibold.18"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="22"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/profile_scrap"
-                        style="@style/Font.Pretendard.Semibold.12"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/mypage_scrap"
-                        android:textColor="@color/gray_05"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/profile_scarp_count" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <View
-                    android:id="@+id/divider_profile_post_scarp"
-                    android:layout_width="2dp"
-                    android:layout_height="0dp"
-                    android:layout_marginVertical="8dp"
-                    android:background="@color/gray_10"
-                    app:layout_constraintBottom_toBottomOf="@id/container_scrap"
-                    app:layout_constraintEnd_toEndOf="@id/container_scrap"
-                    app:layout_constraintStart_toStartOf="@id/container_post"
-                    app:layout_constraintTop_toTopOf="@id/container_post" />
+                    app:layout_constraintTop_toBottomOf="@id/profile_name"
+                    tools:text="바디프로필 텍스트" />
 
                 <View
                     android:id="@+id/divider_profile"
                     android:layout_width="0dp"
                     android:layout_height="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="24dp"
                     android:background="@color/gray_12"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/divider_profile_post_scarp" />
+                    app:layout_constraintTop_toBottomOf="@id/profile_description" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/content_profile_edit"
+                    android:id="@+id/content_my_post"
                     style="@style/Font.Pretendard.Medium.15"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:gravity="center_vertical"
-                    android:onClick="@{() -> vm.onClickProfile()}"
+                    android:onClick="@{() -> vm.onClickMyPost()}"
                     android:paddingHorizontal="20dp"
                     android:paddingVertical="20.5dp"
-                    android:text="@string/mypage_content_profile_edit"
+                    android:text="@string/mypage_content_my_post"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/divider_profile" />
@@ -232,13 +145,28 @@
                     android:layout_height="wrap_content"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:gravity="center_vertical"
-                    android:onClick="@{() -> vm.onClickPointHistory()}"
+                    android:onClick="@{() -> vm.onClickMyQuestion()}"
                     android:paddingHorizontal="20dp"
                     android:paddingVertical="20.5dp"
                     android:text="@string/mypage_content_history_post"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/content_profile_edit" />
+                    app:layout_constraintTop_toBottomOf="@id/content_my_post" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/content_scrapped_studio"
+                    style="@style/Font.Pretendard.Medium.15"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:onClick="@{() -> vm.onClickScrappedStudios()}"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="20.5dp"
+                    android:text="@string/mypage_content_scrapped_studio"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/content_history_post" />
 
                 <View
                     android:id="@+id/divider_history_post"
@@ -247,7 +175,22 @@
                     android:background="@color/gray_12"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/content_history_post" />
+                    app:layout_constraintTop_toBottomOf="@id/content_scrapped_studio" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/content_manage_profile"
+                    style="@style/Font.Pretendard.Medium.15"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:onClick="@{() -> vm.onClickProfile()}"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="20.5dp"
+                    android:text="@string/mypage_content_profile_edit"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/divider_history_post" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/content_edit_start_tab"
@@ -262,7 +205,7 @@
                     android:text="@string/mypage_content_edit_start_tab"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/divider_history_post" />
+                    app:layout_constraintTop_toBottomOf="@id/content_manage_profile" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/content_notice"

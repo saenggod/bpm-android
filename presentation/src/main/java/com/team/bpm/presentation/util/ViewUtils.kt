@@ -1,6 +1,10 @@
 package com.team.bpm.presentation.util
 
 import android.content.res.Resources
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.util.TypedValue
 import org.joda.time.DateTime
 
@@ -17,6 +21,17 @@ fun DateTime.getKoreanHour(): String {
     else "오후 ${nowHour - 12}시"
 }
 
-fun DateTime.getAlbumDate(): String {
-    return toString("yyyy.MM.dd") + " ${getKoreanHour()}"
+fun String.highLightWord(forceWord: String): SpannableString {
+    return if (this.contains(forceWord)) {
+        SpannableString(this).apply {
+            setSpan(
+                StyleSpan(Typeface.BOLD),
+                this.indexOf(forceWord),
+                this.indexOf(forceWord) + forceWord.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    } else {
+        SpannableString(this)
+    }
 }
