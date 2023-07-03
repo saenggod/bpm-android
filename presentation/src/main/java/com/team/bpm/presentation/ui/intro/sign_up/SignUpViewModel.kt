@@ -12,15 +12,7 @@ import com.team.bpm.presentation.base.BaseViewModelV2
 import com.team.bpm.presentation.util.convertImageBitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
@@ -126,7 +118,7 @@ class SignUpViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         state.value.profileImage?.let { profileImage ->
                             signUpUseCase(
-                                kakaoId = kakaoId,
+                                kakaoId = 15221132,
                                 imageByteArray = convertImageBitmapToByteArray(profileImage),
                                 nickname = nickname,
                                 bio = bio
@@ -159,6 +151,6 @@ class SignUpViewModel @Inject constructor(
                     }
                 }
             }
-        }
+        }.collect()
     }
 }
