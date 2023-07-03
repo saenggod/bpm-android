@@ -23,7 +23,7 @@ data class AlbumResponse(
                 id = id,
                 albumName = albumName,
                 date = date,
-                memo = memo
+                memo = memo?.replace("\\n", "\n")
             )
         }
     }

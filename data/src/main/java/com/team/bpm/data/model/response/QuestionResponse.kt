@@ -39,7 +39,7 @@ data class QuestionResponse(
             return Question(
                 id = id,
                 slug = slug,
-                content = content,
+                content = content?.replace("\\n", "\n"),
                 filesPath = filesPath,
                 author = author?.toDataModel(),
                 createdAt = createdAt,

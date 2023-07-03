@@ -26,7 +26,7 @@ data class BodyShapeResponse(
         override fun BodyShapeResponse.toDataModel(): BodyShape {
             return BodyShape(
                 id = id,
-                content = content,
+                content = content?.replace("\\n", "\n"),
                 createdAt = createdAt,
                 updatedAt = updatedAt,
                 filesPath = filesPath,

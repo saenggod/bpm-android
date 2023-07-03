@@ -62,7 +62,7 @@ data class BodyShapeScheduleResponse(
                 studioName = studioName,
                 date = date,
                 time = time,
-                memo = memo,
+                memo = memo?.replace("\\n", "\n"),
                 createAt = createAt,
                 imagePath = imagePath,
                 isTodayPost = isTodayPost,
