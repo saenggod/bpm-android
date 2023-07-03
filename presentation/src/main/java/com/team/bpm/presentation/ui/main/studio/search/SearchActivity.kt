@@ -70,6 +70,10 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
     LaunchedEffect(effect) {
         effect.collectLatest { effect ->
             when (effect) {
+                is SearchContract.Effect.GoBack -> {
+                    context.finish()
+                }
+
                 is SearchContract.Effect.ShowToast -> {
                     context.showToast(effect.text)
                 }
@@ -104,7 +108,11 @@ private fun SearchActivityContent(viewModel: SearchViewModel = hiltViewModel()) 
                             .fillMaxWidth()
                             .height(36.dp)
                     ) {
-                        Box(modifier = Modifier.size(36.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .clickableWithoutRipple { event.invoke(SearchContract.Event.OnClickBackButton) }
+                                .size(36.dp)
+                        ) {
                             Icon(
                                 modifier = Modifier.align(Center),
                                 painter = painterResource(id = R.drawable.ic_arrow_back2),

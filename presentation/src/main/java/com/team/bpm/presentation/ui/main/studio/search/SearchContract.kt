@@ -9,6 +9,7 @@ interface SearchContract : BaseContract<SearchContract.State, SearchContract.Eve
     )
 
     sealed interface Event {
+        object OnClickBackButton : Event
         object GetRecentSearchList : Event
 
         data class Search(val text: String, val shouldBeSaved: Boolean) : Event
@@ -17,10 +18,12 @@ interface SearchContract : BaseContract<SearchContract.State, SearchContract.Eve
     }
 
     sealed interface Effect {
+        object GoBack : Effect
+
         data class ShowToast(val text: String) : Effect
 
-        data class GoToSearchResult(val search: String) : Effect
-
         object EraseSearch : Effect
+
+        data class GoToSearchResult(val search: String) : Effect
     }
 }
