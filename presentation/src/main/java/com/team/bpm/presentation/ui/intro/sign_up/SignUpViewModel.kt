@@ -118,7 +118,7 @@ class SignUpViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         state.value.profileImage?.let { profileImage ->
                             signUpUseCase(
-                                kakaoId = 15221132,
+                                kakaoId = kakaoId,
                                 imageByteArray = convertImageBitmapToByteArray(profileImage),
                                 nickname = nickname,
                                 bio = bio

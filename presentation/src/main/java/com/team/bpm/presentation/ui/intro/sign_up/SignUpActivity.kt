@@ -140,7 +140,6 @@ private fun SignUpActivityContent(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.White)
-                .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),

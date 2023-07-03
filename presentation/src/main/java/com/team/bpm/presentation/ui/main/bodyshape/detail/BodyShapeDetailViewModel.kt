@@ -76,7 +76,7 @@ class BodyShapeDetailViewModel @Inject constructor(
     }
 
     private fun onClickBodyShapeActionButton() {
-        state.value.bodyShape?.author?.id?.let { bodyShapeAuthorId ->
+        state.value.bodyShape?.author?.id?.let {
             viewModelScope.launch {
                 _state.update {
                     val bottomSheetButtonList = mutableListOf<BottomSheetButton>().apply {
@@ -97,6 +97,10 @@ class BodyShapeDetailViewModel @Inject constructor(
         bodyShapeInfo.first?.let { albumId ->
             bodyShapeInfo.second?.let { bodyShapeId ->
                 viewModelScope.launch {
+                    _state.update {
+                        it.copy(isBottomSheetShowing = false)
+                    }
+
                     _effect.emit(BodyShapeDetailContract.Effect.GoToEdit(albumId, bodyShapeId))
                 }
             }

@@ -56,8 +56,8 @@ data class NotificationResponse(
                 contentId = contentId ?: 0L,
                 commentId = commentId ?: 0L,
                 filePath = filePath.orEmpty(),
-                content = content.orEmpty(),
-                commentBody = commentBody.orEmpty(),
+                content = content?.replace("\\n", "\n").orEmpty(),
+                commentBody = commentBody?.replace("\\n", "\n").orEmpty(),
                 responder = responder?.toDataModel() ?: NotificationResponder(),
                 read = read ?: false
             )

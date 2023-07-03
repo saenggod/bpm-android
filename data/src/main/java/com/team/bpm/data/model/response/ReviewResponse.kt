@@ -44,7 +44,7 @@ data class ReviewResponse(
                 rating = rating,
                 recommends = recommends,
                 filesPath = filesPath,
-                content = content,
+                content = content?.replace("\\n", "\n"),
                 likeCount = likeCount,
                 createdAt = createdAt,
                 updatedAt = updatedAt,

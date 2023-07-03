@@ -96,27 +96,29 @@ class EditProfileViewModel @Inject constructor(
     }
 
     private fun onClickSubmit(nickname: String, bio: String) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isLoading = true)
-            }
+        if (nickname.isNotEmpty()) {
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(isLoading = true)
+                }
 
-            withContext(ioDispatcher) {
-                getKakaoIdUseCase().onEach { result ->
-                    result?.let { kakaoId ->
-                        state.value.image?.let { image ->
-                            editUserProfileUseCase(kakaoId, nickname, bio, convertImageBitmapToByteArray(image)).collect {
-                                withContext(mainImmediateDispatcher) {
-                                    _state.update {
-                                        it.copy(isLoading = false)
+                withContext(ioDispatcher) {
+                    getKakaoIdUseCase().onEach { result ->
+                        result?.let { kakaoId ->
+                            state.value.image?.let { image ->
+                                editUserProfileUseCase(kakaoId, nickname, bio, convertImageBitmapToByteArray(image)).collect {
+                                    withContext(mainImmediateDispatcher) {
+                                        _state.update {
+                                            it.copy(isLoading = false)
+                                        }
+
+                                        _effect.emit(EditProfileContract.Effect.EditSuccess)
                                     }
-
-                                    _effect.emit(EditProfileContract.Effect.EditSuccess)
                                 }
                             }
                         }
-                    }
-                }.launchIn(viewModelScope + exceptionHandler)
+                    }.launchIn(viewModelScope + exceptionHandler)
+                }
             }
         }
     }

@@ -30,7 +30,7 @@ data class CommunityResponse(
         override fun CommunityResponse.toDataModel(): Community {
             return Community(
                 id = id,
-                content = content,
+                content = content?.replace("\\n", "\n"),
                 filesPath = filesPath,
                 author = author?.toDataModel(),
                 createdAt = createdAt,

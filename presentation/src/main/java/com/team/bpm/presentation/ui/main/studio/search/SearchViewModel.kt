@@ -28,6 +28,10 @@ class SearchViewModel @Inject constructor(
     private val gson = Gson()
 
     override fun event(event: SearchContract.Event) = when (event) {
+        is SearchContract.Event.OnClickBackButton -> {
+            onClickBackButton()
+        }
+
         is SearchContract.Event.GetRecentSearchList -> {
             getRecentSearchList()
         }
@@ -44,6 +48,12 @@ class SearchViewModel @Inject constructor(
     private val exceptionHandler: CoroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { coroutineContext, throwable ->
 
+        }
+    }
+
+    private fun onClickBackButton() {
+        viewModelScope.launch {
+            _effect.emit(SearchContract.Effect.GoBack)
         }
     }
 
@@ -87,13 +97,18 @@ class SearchViewModel @Inject constructor(
                     }
 
                     setRecentSearchListUseCase(gson.toJson(if (recentSearchList.size >= 10) recentSearchList.subList(0, 10) else recentSearchList))
+
+                    withContext(mainImmediateDispatcher) {
+                        _effect.emit(SearchContract.Effect.EraseSearch)
+                        _effect.emit(SearchContract.Effect.GoToSearchResult(search))
+                    }
                 }
             }
-        }
-
-        viewModelScope.launch {
-            _effect.emit(SearchContract.Effect.GoToSearchResult(search))
-            _effect.emit(SearchContract.Effect.EraseSearch)
+        } else {
+            viewModelScope.launch {
+                _effect.emit(SearchContract.Effect.EraseSearch)
+                _effect.emit(SearchContract.Effect.GoToSearchResult(search))
+            }
         }
     }
 
