@@ -30,8 +30,8 @@ import com.team.bpm.presentation.base.use
 import com.team.bpm.presentation.compose.BPMSpacer
 import com.team.bpm.presentation.compose.getLocalContext
 import com.team.bpm.presentation.compose.theme.MainBlackColor
-import com.team.bpm.presentation.ui.main.MainActivity
 import com.team.bpm.presentation.ui.intro.sign_up.SignUpActivity
+import com.team.bpm.presentation.ui.main.MainActivity
 import com.team.bpm.presentation.util.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -74,24 +74,33 @@ private fun SplashActivityContent(
 
                 is SplashContract.Effect.GetKakaoUserInfo -> {
                     val kakaoLoginInstance = UserApiClient.instance
-                    kakaoLoginInstance.loginWithKakaoAccount(context) { loginInfo, error ->
-                        if (loginInfo != null) {
-                            kakaoLoginInstance.me { user, _->
+                    kakaoLoginInstance.loginWithKakaoTalk(context) { kakaoTalkLoginInfo, _ ->
+                        kakaoTalkLoginInfo?.let {
+                            kakaoLoginInstance.me { user, _ ->
                                 user?.id?.let { kakaoId ->
-                                    user.kakaoAccount?.profile?.nickname?.let { kakaoNickname ->
-                                        event.invoke(
-                                            SplashContract.Event.OnSuccessKakaoLogin(
-                                                kakaoId,
-                                                kakaoNickname
-                                            )
-                                        )
+                                    user.kakaoAccount?.profile?.nickname?.let { kakaoNickName ->
+                                        event.invoke(SplashContract.Event.OnSuccessKakaoLogin(kakaoId, kakaoNickName))
+                                    } ?: run {
+                                        event.invoke(SplashContract.Event.OnSuccessKakaoLogin(kakaoId, ""))
+                                    }
+                                }
+                            }
+                        } ?: run {
+                            kakaoLoginInstance.loginWithKakaoAccount(context) { kakaoAccountLoginInfo, _ ->
+                                kakaoAccountLoginInfo?.let {
+                                    kakaoLoginInstance.me { user, _ ->
+                                        user?.id?.let { kakaoId ->
+                                            user.kakaoAccount?.profile?.nickname?.let { kakaoNickName ->
+                                                event.invoke(SplashContract.Event.OnSuccessKakaoLogin(kakaoId, kakaoNickName))
+                                            } ?: run {
+                                                event.invoke(SplashContract.Event.OnSuccessKakaoLogin(kakaoId, ""))
+                                            }
+                                        }
                                     }
                                 } ?: run {
                                     event.invoke(SplashContract.Event.OnFailureKakaoLogin)
                                 }
                             }
-                        } else {
-                            event.invoke(SplashContract.Event.OnFailureKakaoLogin)
                         }
                     }
                 }
