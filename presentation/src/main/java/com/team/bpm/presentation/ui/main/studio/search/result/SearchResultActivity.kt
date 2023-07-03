@@ -239,7 +239,7 @@ private fun SearchResultActivityContent(viewModel: SearchResultViewModel = hiltV
                                         ) {
                                             Text(
                                                 modifier = Modifier.align(Center),
-                                                text = "서울",
+                                                text = "서울시",
                                                 fontWeight = SemiBold,
                                                 fontSize = 15.sp,
                                                 letterSpacing = 0.sp,
@@ -445,7 +445,7 @@ private fun SearchResultActivityContent(viewModel: SearchResultViewModel = hiltV
                                         .clickableWithoutRipple { event.invoke(if (isStuckState.value) SearchResultContract.Event.OnClickSearch else SearchResultContract.Event.OnClickFilter) },
                                     painter = painterResource(id = if (isStuckState.value) R.drawable.ic_search else R.drawable.ic_filter),
                                     contentDescription = "filterIcon",
-                                    tint = if (isFiltered) GrayColor3 else GrayColor7
+                                    tint = if (secondRegion != null || recommendKeywordMap.isNotEmpty()) GrayColor3 else GrayColor7
                                 )
                             }
 
