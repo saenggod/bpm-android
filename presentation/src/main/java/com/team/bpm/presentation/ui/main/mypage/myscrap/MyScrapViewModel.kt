@@ -80,6 +80,8 @@ class MyScrapViewModel @Inject constructor(
                 withContext(mainImmediateDispatcher) {
                     _effect.emit(MyScrapContract.Effect.RefreshMyScrapList)
                 }
+
+                _effect.emit(MyScrapContract.Effect.ShowToast("스크랩을 취소하였습니다."))
             }.launchIn(viewModelScope + exceptionHandler)
         }
     }
