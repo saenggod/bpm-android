@@ -17,14 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -142,114 +140,122 @@ private fun SignUpActivityContent(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.White)
+                .windowInsetsPadding(insets = WindowInsets.systemBars.only(sides = WindowInsetsSides.Vertical))
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                ScreenHeader(header = "프로필 생성하기")
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    ScreenHeader(header = "프로필 생성하기")
 
-                BPMSpacer(height = 44.dp)
+                    BPMSpacer(height = 44.dp)
 
-                Column(
-                    modifier = Modifier.align(CenterHorizontally),
-                    horizontalAlignment = CenterHorizontally
-                ) {
-                    if (profileImage != null) {
-                        Image(
-                            modifier = Modifier
-                                .clip(shape = CircleShape)
-                                .size(130.dp)
-                                .align(CenterHorizontally),
-                            bitmap = profileImage,
-                            contentDescription = "profileImage",
-                            contentScale = Crop
-                        )
-                    }
-
-                    BPMSpacer(height = 16.dp)
-
-                    Text(
-                        modifier = Modifier.clickable { event.invoke(SignUpContract.Event.OnClickAddImage) },
-                        text = "프로필 사진 등록",
-                        fontWeight = Medium,
-                        fontSize = 15.sp,
-                        letterSpacing = 0.sp,
-                        textDecoration = TextDecoration.Underline,
-                        color = GrayColor12
-                    )
-                }
-
-                BPMSpacer(height = 50.dp)
-
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Column {
-                        Row(modifier = Modifier.padding(start = 2.dp)) {
-                            Text(
-                                text = "닉네임",
-                                fontWeight = Medium,
-                                fontSize = 16.sp,
-                                letterSpacing = 0.sp
-                            )
-
-                            Text(
-                                text = "*",
-                                fontWeight = Medium,
-                                fontSize = 16.sp,
-                                letterSpacing = 0.sp,
-                                color = Color.Red
+                    Column(
+                        modifier = Modifier.align(CenterHorizontally),
+                        horizontalAlignment = CenterHorizontally
+                    ) {
+                        if (profileImage != null) {
+                            Image(
+                                modifier = Modifier
+                                    .clip(shape = CircleShape)
+                                    .size(130.dp)
+                                    .align(CenterHorizontally),
+                                bitmap = profileImage,
+                                contentDescription = "profileImage",
+                                contentScale = Crop
                             )
                         }
 
-                        BPMTextField(
-                            modifier = Modifier.padding(top = 10.dp),
-                            textState = nicknameTextState,
-                            label = null,
-                            limit = null,
-                            singleLine = true,
-                            hint = "어깨_매니저",
-                            allocatedErrorCode = "409",
-                            occurredErrorCode = errorCode,
-                            errorMessage = "중복된 닉네임입니다."
+                        BPMSpacer(height = 16.dp)
+
+                        Text(
+                            modifier = Modifier.clickable { event.invoke(SignUpContract.Event.OnClickAddImage) },
+                            text = "프로필 사진 등록",
+                            fontWeight = Medium,
+                            fontSize = 15.sp,
+                            letterSpacing = 0.sp,
+                            textDecoration = TextDecoration.Underline,
+                            color = GrayColor12
                         )
                     }
 
-                    BPMSpacer(height = 24.dp)
+                    BPMSpacer(height = 50.dp)
 
-                    Text(
-                        text = "한 줄 소개",
-                        fontWeight = Medium,
-                        fontSize = 16.sp,
-                        letterSpacing = 0.sp
-                    )
+                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Column {
+                            Row(modifier = Modifier.padding(start = 2.dp)) {
+                                Text(
+                                    text = "닉네임",
+                                    fontWeight = Medium,
+                                    fontSize = 16.sp,
+                                    letterSpacing = 0.sp
+                                )
 
-                    BPMTextField(
-                        modifier = Modifier.padding(top = 10.dp),
-                        textState = bioTextState,
-                        label = null,
-                        limit = null,
-                        singleLine = true,
-                        hint = "회원님 반갑습니다. 제 특기는 어깨춤 추기입니다.",
-                    )
+                                Text(
+                                    text = "*",
+                                    fontWeight = Medium,
+                                    fontSize = 16.sp,
+                                    letterSpacing = 0.sp,
+                                    color = Color.Red
+                                )
+                            }
+
+                            BPMTextField(
+                                modifier = Modifier.padding(top = 10.dp),
+                                textState = nicknameTextState,
+                                label = null,
+                                limit = null,
+                                singleLine = true,
+                                hint = "어깨_매니저",
+                                allocatedErrorCode = "409",
+                                occurredErrorCode = errorCode,
+                                errorMessage = "중복된 닉네임입니다."
+                            )
+                        }
+
+                        BPMSpacer(height = 24.dp)
+
+                        Text(
+                            text = "한 줄 소개",
+                            fontWeight = Medium,
+                            fontSize = 16.sp,
+                            letterSpacing = 0.sp
+                        )
+
+                        BPMTextField(
+                            modifier = Modifier.padding(top = 10.dp),
+                            textState = bioTextState,
+                            label = null,
+                            limit = null,
+                            singleLine = true,
+                            hint = "회원님 반갑습니다. 제 특기는 어깨춤 추기입니다.",
+                        )
+                    }
+
                 }
-            }
 
-            RoundedCornerButton(
-                modifier = Modifier
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 13.dp
-                    )
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .align(BottomCenter),
-                text = "저장하기",
-                textColor = if (nicknameTextState.value.isNotEmpty()) MainBlackColor else GrayColor7,
-                buttonColor = if (nicknameTextState.value.isNotEmpty()) MainGreenColor else GrayColor11,
-                onClick = { event.invoke(
-                    SignUpContract.Event.OnClickSubmit(
-                        nicknameTextState.value,
-                        bioTextState.value
-                    )
-                ) }
-            )
+                RoundedCornerButton(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 13.dp
+                        )
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    text = "저장하기",
+                    textColor = if (nicknameTextState.value.isNotEmpty()) MainBlackColor else GrayColor7,
+                    buttonColor = if (nicknameTextState.value.isNotEmpty()) MainGreenColor else GrayColor11,
+                    onClick = {
+                        event.invoke(
+                            SignUpContract.Event.OnClickSubmit(
+                                nicknameTextState.value,
+                                bioTextState.value
+                            )
+                        )
+                    }
+                )
+            }
 
             if (isLoading) {
                 LoadingScreen()
