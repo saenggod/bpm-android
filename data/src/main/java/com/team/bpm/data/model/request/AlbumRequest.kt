@@ -3,7 +3,7 @@ package com.team.bpm.data.model.request
 import com.google.gson.annotations.SerializedName
 
 data class AlbumRequest(
-    @SerializedName("albumName")
+    @SerializedName("scheduleName")
     val albumName: String,
     @SerializedName("date")
     val date: String,

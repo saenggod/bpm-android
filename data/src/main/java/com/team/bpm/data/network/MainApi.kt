@@ -97,13 +97,13 @@ interface MainApi {
 
     @PUT("api/users/schedule/{scheduleId}")
     suspend fun sendEditedAlbum(
-        @Path("albumId") albumId: Int,
+        @Path("scheduleId") albumId: Int,
         @Body albumRequest: AlbumRequest
     ): Response<BPMResponseV2<AlbumResponse>>
 
     @GET("api/users/schedule/{scheduleId}")
     suspend fun fetchAlbum(
-        @Path("albumId") albumId: Int
+        @Path("scheduleId") albumId: Int
     ): Response<BPMResponseV2<AlbumResponse>>
 
     @GET("api/users/schedule")

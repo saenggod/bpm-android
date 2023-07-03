@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 data class AlbumResponse(
     @SerializedName("id")
     val id: Int,
-    @SerializedName("albumName")
+    @SerializedName("scheduleName")
     val albumName: String?,
     @SerializedName("date")
     val date: String?,
