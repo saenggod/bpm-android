@@ -132,7 +132,7 @@ private fun BodyShapeDetailPostingActivityContent(
                 }
 
                 is BodyShapeDetailPostingContract.Effect.RedirectToBodyShape -> {
-                    if (state.isEditing) {
+                    if (!effect.newIntentNeeded) {
                         context.setResult(RESULT_OK)
                     } else {
                         context.startActivity(BodyShapeDetailActivity.newIntent(context, effect.albumId, effect.bodyShapeId))
