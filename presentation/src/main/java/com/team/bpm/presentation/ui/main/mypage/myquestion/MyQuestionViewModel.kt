@@ -2,6 +2,7 @@ package com.team.bpm.presentation.ui.main.mypage.myquestion
 
 import androidx.lifecycle.viewModelScope
 import com.team.bpm.domain.model.Error
+import com.team.bpm.domain.model.Question
 import com.team.bpm.domain.usecase.question.DeleteQuestionUseCase
 import com.team.bpm.domain.usecase.question.GetMyQuestionListUseCase
 import com.team.bpm.presentation.base.BaseViewModel
@@ -100,7 +101,8 @@ class MyQuestionViewModel @Inject constructor(
     private fun deleteMyQuestion() {
         viewModelScope.launch(ioDispatcher) {
             val questionIdList =
-                state.value.questionList?.filter { it.isSelected }?.mapNotNull { it.id } ?: emptyList()
+                state.value.questionList?.filter { it.isSelected }?.mapNotNull { it.id }
+                    ?: emptyList()
 
             for (id in questionIdList) {
                 deleteQuestionUseCase(questionId = id)
@@ -127,10 +129,18 @@ class MyQuestionViewModel @Inject constructor(
     }
 
     private fun selectMyQuestion(questionId: Int) {
-        viewModelScope.launch(mainImmediateDispatcher) {
-            val list = state.value.questionList ?: emptyList()
-            list.first { it.id == questionId }.isSelected =
-                !list.first { it.id == questionId }.isSelected
+        viewModelScope.launch {
+            val list = arrayListOf<Question>()
+
+            state.value.questionList?.forEach {
+                list.add(
+                    it.copy().also { item ->
+                        if (item.id == questionId) {
+                            item.isSelected = !item.isSelected
+                        }
+                    }
+                )
+            }
 
             _state.update {
                 it.copy(
