@@ -16,7 +16,7 @@ data class Question(
     val liked: Boolean?,
     val likeCount: Int?,
     val reported: Boolean?,
-    val reportCount: Int?
-) : BaseModel {
+    val reportCount: Int?,
     var isSelected: Boolean = false
+) : BaseModel {
 }
