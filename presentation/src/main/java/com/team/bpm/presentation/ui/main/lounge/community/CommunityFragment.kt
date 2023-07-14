@@ -32,7 +32,9 @@ class CommunityFragment :
                     is CommunityContract.Effect.ShowToast -> {
                         requireContext().showToast(effect.text)
                     }
-
+                    CommunityContract.Effect.GoToTop -> {
+                        binding.list.smoothScrollToPosition(0)
+                    }
                     is CommunityContract.Effect.GoToCommunityDetail -> {
                         goToCommunityDetail(effect.communityId)
                     }
@@ -45,7 +47,6 @@ class CommunityFragment :
         super.onResume()
 
         viewModel.getCommunityList()
-        binding.list.smoothScrollBy(0, 0)
     }
 
     private fun goToCommunityDetail(communityId: Int) {

@@ -15,6 +15,7 @@ interface QuestionContract :
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
+        object GoToTop : Effect
         data class GoToQuestionDetail(val questionId: Int) : Effect
     }
 }
