@@ -123,3 +123,13 @@ fun AppCompatTextView.bindBodyShapeHistoryCount(count : Int?) {
         text = "기록 $count"
     }
 }
+
+
+@BindingAdapter("bind:studio_rating")
+fun AppCompatTextView.bindStudioRating(rating : Double?) {
+    rating?.let {
+        text = it.clip()
+    }
+}
+
+

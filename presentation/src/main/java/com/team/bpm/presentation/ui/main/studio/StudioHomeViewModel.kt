@@ -68,12 +68,6 @@ class StudioHomeViewModel @Inject constructor(
         }
     }
 
-    fun clickAlbum() {
-        viewModelScope.launch {
-            _event.emit(StudioHomeViewEvent.ClickAlbum)
-        }
-    }
-
     fun refreshAlbum() {
         viewModelScope.launch {
             _state.emit(StudioHomeState.Init)

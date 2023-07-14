@@ -35,8 +35,4 @@ data class Studio(
         firstTag?.let { add(it) }
         secondTag?.let { add(it) }
     }
-
-    @IgnoredOnParcel
-    val ratingText: String = "${round((rating?.times(10) ?: 0) as Double) / 10}"
-
 }
