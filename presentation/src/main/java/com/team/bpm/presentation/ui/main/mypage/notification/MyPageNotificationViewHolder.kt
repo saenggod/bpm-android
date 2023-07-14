@@ -57,27 +57,43 @@ class MyPageNotificationViewHolder(
                         titleText = "${item.responder.nickname}님이 회원님의 질문에 댓글을 남겼습니다"
                         content.isVisible = true
                         content.text = item.commentBody
-                        image.isGone = true
+                        image.isVisible = item.filePath.isNotEmpty()
+                        if(item.filePath.isNotEmpty()) {
+                            image.bindImageUrl(item.filePath)
+                        }
                         replyContent.text = item.content
                     }
                     NotificationType.QUESTION_BOARD_FAVORITE -> {
                         titleText = "${item.responder.nickname}님이 회원님의 질문을 좋아합니다"
                         content.isGone = true
-                        image.isGone = true
+
+                        image.isVisible = item.filePath.isNotEmpty()
+                        if(item.filePath.isNotEmpty()) {
+                            image.bindImageUrl(item.filePath)
+                        }
                         replyContent.text = item.content
                     }
                     NotificationType.QUESTION_BOARD_COMMENT_RESPONSE -> {
                         titleText = "${item.responder.nickname}님이 회원님의 댓글에 대댓글을 남겼습니다"
                         content.isVisible = true
                         content.text = item.commentBody
-                        image.isGone = true
+
+                        image.isVisible = item.filePath.isNotEmpty()
+                        if(item.filePath.isNotEmpty()) {
+                            image.bindImageUrl(item.filePath)
+                        }
                         replyContent.text = item.content
                     }
                     NotificationType.QUESTION_BOARD_COMMENT_FAVORITE -> {
                         titleText = "${item.responder.nickname}님이 회원님의 댓글을 좋아합니다"
                         content.isVisible = true
                         content.text = item.commentBody
-                        image.isGone = true
+
+                        image.isVisible = item.filePath.isNotEmpty()
+                        if(item.filePath.isNotEmpty()) {
+                            image.bindImageUrl(item.filePath)
+                        }
+
                         replyContent.text = item.content
                     }
                     NotificationType.REVIEW_FAVORITE -> {

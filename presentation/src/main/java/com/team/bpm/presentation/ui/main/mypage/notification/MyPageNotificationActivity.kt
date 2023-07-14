@@ -41,9 +41,13 @@ class MyPageNotificationActivity :
 
                 viewModel.getNotifications()
             }
-
-            viewModel.getNotifications()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.getNotifications()
     }
 
     override fun setupCollect() {

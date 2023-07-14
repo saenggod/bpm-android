@@ -8,7 +8,7 @@ interface MyPageContract :
         val userName: String? = null,
         val userDescription: String? = null,
         val userImage: String? = null,
-        val isNewNotification: Boolean? = null,
+        val isNewNotification: Boolean? = false,
     )
 
     sealed interface Event {

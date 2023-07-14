@@ -27,8 +27,11 @@ class MyPageRepositoryImpl @Inject constructor(
             BPMResponseHandlerV2().handle {
                 mainApi.fetchNotificationList(0)
             }.onEach { result ->
-                val hasNewAlarm =
-                    result.response?.alarmResponseList?.none { it.read == true } == true
+                var hasNewAlarm = false
+
+                result.response?.alarmResponseList?.let {
+                    hasNewAlarm = (it.none { it.read == true }) && it.isNotEmpty()
+                }
 
                 result.response?.let { emit(hasNewAlarm) }
             }.collect()
