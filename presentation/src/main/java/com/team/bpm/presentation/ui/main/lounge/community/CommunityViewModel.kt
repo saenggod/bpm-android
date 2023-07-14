@@ -10,6 +10,7 @@ import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -66,6 +67,8 @@ class CommunityViewModel @Inject constructor(
                             communityList = dataList.distinctBy { it.id }
                         )
                 }
+                delay(100)
+                _effect.emit(CommunityContract.Effect.GoToTop)
             }.launchIn(viewModelScope + exceptionHandler)
         }
     }

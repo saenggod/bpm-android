@@ -32,7 +32,9 @@ class QuestionFragment :
                     is QuestionContract.Effect.ShowToast -> {
                         requireContext().showToast(effect.text)
                     }
-
+                    QuestionContract.Effect.GoToTop -> {
+                        binding.list.smoothScrollToPosition(0)
+                    }
                     is QuestionContract.Effect.GoToQuestionDetail -> {
                         goToQuestionDetail(effect.questionId)
                     }
@@ -44,7 +46,6 @@ class QuestionFragment :
     override fun onResume() {
         super.onResume()
         viewModel.getQuestionList(viewModel.offset)
-        binding.list.smoothScrollBy(0, 0)
     }
 
     private fun goToQuestionDetail(questionId: Int) {

@@ -15,6 +15,7 @@ interface CommunityContract :
 
     sealed interface Effect {
         data class ShowToast(val text: String) : Effect
+        object GoToTop : Effect
         data class GoToCommunityDetail(val communityId: Int) : Effect
     }
 }
