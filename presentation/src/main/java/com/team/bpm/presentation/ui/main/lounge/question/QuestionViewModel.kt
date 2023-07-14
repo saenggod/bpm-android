@@ -6,7 +6,6 @@ import com.team.bpm.domain.model.Question
 import com.team.bpm.domain.usecase.question.GetQuestionListUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -22,13 +21,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class QuestionViewModel @Inject constructor(
     private val getQuestionListUseCase: GetQuestionListUseCase,
-    @MainImmediateDispatcher private val mainImmediateDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel(), QuestionContract {
 
@@ -39,6 +36,9 @@ class QuestionViewModel @Inject constructor(
     override val effect: SharedFlow<QuestionContract.Effect> = _effect.asSharedFlow()
 
     var offset: Int = 0
+
+    // 게시물 리프레시시 상단으로 보낼 지 결정하는 변수. default false
+    var isFromDetail = false
 
     override fun event(event: QuestionContract.Event) {
         when (event) {
@@ -66,23 +66,27 @@ class QuestionViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             getQuestionListUseCase(offset = offset, limit = 200, slug = null)
                 .onEach { data ->
-                    withContext(mainImmediateDispatcher) {
-                        val dataList = arrayListOf<Question>()
-                        _state.update {
-                            dataList.addAll(data.questionBoardList ?: emptyList())
-                            dataList.addAll(it.questionList ?: emptyList())
-                            it.copy(
-                                questionList = dataList.distinctBy { it.id }
-                            )
-                        }
+                    val dataList = arrayListOf<Question>()
+                    _state.update {
+                        dataList.addAll(data.questionBoardList ?: emptyList())
+                        dataList.addAll(it.questionList ?: emptyList())
+                        it.copy(
+                            questionList = dataList.distinctBy { it.id }
+                        )
+                    }
+
+                    if (!isFromDetail) {
                         delay(100)
                         _effect.emit(QuestionContract.Effect.GoToTop)
+                    } else {
+                        isFromDetail = false
                     }
                 }.launchIn(viewModelScope + exceptionHandler)
         }
     }
 
     fun goToQuestionDetail(questionId: Int) {
+        isFromDetail = true
         viewModelScope.launch {
             _effect.emit(QuestionContract.Effect.GoToQuestionDetail(questionId))
         }
