@@ -1,8 +1,10 @@
 package com.team.bpm.presentation.ui.main.studio
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -48,7 +50,7 @@ class StudioHomeFragment :
     private val bannerAdapter = BannerListAdapter {
         when (MainBanner.valueOf(it)) {
             MainBanner.REGISTER -> {
-                goToRegisterStore()
+                goToRegisterStudio()
             }
             MainBanner.WRITE -> {
                 goToWriteBodyShape()
@@ -96,9 +98,6 @@ class StudioHomeFragment :
                 when (event) {
                     StudioHomeViewEvent.ClickSearch -> {
                         goToSearch()
-                    }
-                    StudioHomeViewEvent.ClickAlbum -> {
-                        goToAlbum()
                     }
                 }
             }
@@ -169,16 +168,16 @@ class StudioHomeFragment :
         }
     }
 
-    private fun goToAlbum() {
-//        albumResultLauncher.launch(AlbumActivity.newIntent(requireContext())) // TODO : 스케쥴 아이디를 받도록 수정되었습니다!
-    }
-
     private fun goToSearch() {
         startActivity(SearchActivity.newIntent(requireContext()))
     }
 
-    private fun goToRegisterStore() {
-        // TODO : 구글폼 주소 필요
+    private fun goToRegisterStudio() {
+        CustomTabsIntent.Builder()
+            .setShowTitle(true)
+            .setShareState(CustomTabsIntent.SHARE_STATE_ON)
+            .build()
+            .launchUrl(requireContext(), Uri.parse(GOOGLE_FOR_URL))
     }
 
     private fun goToWriteBodyShape() {
@@ -192,6 +191,8 @@ class StudioHomeFragment :
     }
 
     companion object {
+
+        const val GOOGLE_FOR_URL = "https://forms.gle/XoD9sY81rtGLBQuM7"
 
         fun newInstance(): StudioHomeFragment {
             return StudioHomeFragment()

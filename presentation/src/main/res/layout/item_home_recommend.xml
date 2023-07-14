@@ -71,11 +71,11 @@
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_home_recommend_rating"
                 android:drawablePadding="3dp"
-                android:text="@{item.ratingText}"
                 android:textColor="@color/gray_05"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                bind:studio_rating="@{item.rating}"
                 tools:text="4.5" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -137,8 +137,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/container_detail"
-            app:singleSelection="false"
-            />
+            app:singleSelection="false" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
