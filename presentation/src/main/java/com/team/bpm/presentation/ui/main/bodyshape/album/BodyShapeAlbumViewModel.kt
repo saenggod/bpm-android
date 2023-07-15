@@ -49,6 +49,9 @@ class BodyShapeAlbumViewModel @Inject constructor(
                 is BodyShapeAlbumContract.Event.OnClickBodyShapeDetail -> {
                     goTodBodyShapeDetail(event.albumDetailId)
                 }
+                BodyShapeAlbumContract.Event.OnClickEditAlbumDetail -> {
+                    goToEditAlbumDetailPosting()
+                }
                 BodyShapeAlbumContract.Event.OnClickAddBodyShapeDetailPosting -> {
                     goToAddBodyShapeDetailPosting()
                 }
@@ -75,9 +78,22 @@ class BodyShapeAlbumViewModel @Inject constructor(
         event(BodyShapeAlbumContract.Event.OnClickAddBodyShapeDetailPosting)
     }
 
-
     fun onClickAlbumDetail(albumDetailId: Int) {
         event(BodyShapeAlbumContract.Event.OnClickBodyShapeDetail(albumDetailId))
+    }
+
+    fun onClickAlbumEdit() {
+        event(BodyShapeAlbumContract.Event.OnClickEditAlbumDetail)
+    }
+
+    private fun goToEditAlbumDetailPosting() {
+        viewModelScope.launch {
+            state.value.albumInfo?.id?.let { albumId ->
+                _effect.emit(
+                    BodyShapeAlbumContract.Effect.GoToEditAlbumDetail(albumId)
+                )
+            }
+        }
     }
 
     private fun goToAddBodyShapeDetailPosting() {

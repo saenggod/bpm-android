@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import com.team.bpm.presentation.base.BaseActivity
 import com.team.bpm.presentation.databinding.ActivityBodyshapeAlbumBinding
+import com.team.bpm.presentation.ui.main.bodyshape.album.add.BodyShapeAlbumAddActivity
 import com.team.bpm.presentation.ui.main.bodyshape.detail.BodyShapeDetailActivity
 import com.team.bpm.presentation.ui.main.bodyshape.detail.posting.BodyShapeDetailPostingActivity
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
@@ -36,6 +37,9 @@ class BodyShapeAlbumActivity :
                     is BodyShapeAlbumContract.Effect.ShowToast -> {
                         showToast(effect.text)
                     }
+                    is BodyShapeAlbumContract.Effect.GoToEditAlbumDetail -> {
+                        goToEditAlbumDetail(effect.albumId)
+                    }
                     is BodyShapeAlbumContract.Effect.GoToAddBodyShapeDetail -> {
                         goToAddBodyShapeDetail(effect.albumId)
                     }
@@ -48,13 +52,17 @@ class BodyShapeAlbumActivity :
     }
 
     override fun onResume() {
-        viewModel.getBodyShapeAlbumInfo()
-
         super.onResume()
+
+        viewModel.getBodyShapeAlbumInfo()
     }
 
     private fun goToAddBodyShapeDetail(albumId: Int) {
         startActivity(BodyShapeDetailPostingActivity.newIntent(this, albumId))
+    }
+
+    private fun goToEditAlbumDetail(albumId: Int) {
+        startActivity(BodyShapeAlbumAddActivity.newIntent(this, albumId))
     }
 
     private fun goToBodyShapeDetail(albumId: Int, albumDetailId: Int) {
