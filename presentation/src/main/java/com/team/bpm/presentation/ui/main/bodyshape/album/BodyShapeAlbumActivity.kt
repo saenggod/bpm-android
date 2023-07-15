@@ -66,7 +66,7 @@ class BodyShapeAlbumActivity :
     }
 
     private fun goToBodyShapeDetail(albumId: Int, albumDetailId: Int) {
-        startActivity(BodyShapeDetailActivity.newIntent(this, albumId, albumDetailId))
+        startActivity(BodyShapeDetailActivity.newIntent(this, albumId, albumDetailId, ))
     }
 
     companion object {
