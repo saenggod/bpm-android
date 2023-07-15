@@ -8,6 +8,7 @@ interface BodyShapeDetailContract : BaseContract<BodyShapeDetailContract.State, 
     data class State(
         val isLoading: Boolean = false,
         val bodyShape: BodyShape? = null,
+        val dDay: Int? = null,
         val isBottomSheetShowing: Boolean = false,
         val bottomSheetButtonList: List<BottomSheetButton> = emptyList(),
         val isNoticeDialogShowing: Boolean = false,

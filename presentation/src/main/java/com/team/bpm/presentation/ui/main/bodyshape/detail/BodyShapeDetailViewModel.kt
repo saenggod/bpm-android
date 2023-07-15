@@ -68,10 +68,11 @@ class BodyShapeDetailViewModel @Inject constructor(
         return savedStateHandle.get<Bundle>(BodyShapeDetailActivity.KEY_BUNDLE)
     }
 
-    private val bodyShapeInfo: Pair<Int?, Int?> by lazy {
-        Pair(
+    private val bodyShapeInfo: Triple<Int?, Int?, Int?> by lazy {
+        Triple(
             getBundle()?.getInt(BodyShapeDetailActivity.KEY_ALBUM_ID),
-            getBundle()?.getInt(BodyShapeDetailActivity.KEY_BODY_SHAPE_ID)
+            getBundle()?.getInt(BodyShapeDetailActivity.KEY_BODY_SHAPE_ID),
+            getBundle()?.getInt(BodyShapeDetailActivity.KEY_D_DAY)
         )
     }
 
@@ -139,22 +140,25 @@ class BodyShapeDetailViewModel @Inject constructor(
     private fun getBodyShapeDetail() {
         bodyShapeInfo.first?.let { albumId ->
             bodyShapeInfo.second?.let { bodyShapeId ->
-                viewModelScope.launch {
-                    _state.update {
-                        it.copy(isLoading = true)
-                    }
+                bodyShapeInfo.third?.let { dDay ->
+                    viewModelScope.launch {
+                        _state.update {
+                            it.copy(isLoading = true)
+                        }
 
-                    withContext(ioDispatcher) {
-                        getBodyShapeDetailUseCase(albumId, bodyShapeId).onEach { result ->
-                            withContext(mainImmediateDispatcher) {
-                                _state.update {
-                                    it.copy(
-                                        isLoading = false,
-                                        bodyShape = result
-                                    )
+                        withContext(ioDispatcher) {
+                            getBodyShapeDetailUseCase(albumId, bodyShapeId).onEach { result ->
+                                withContext(mainImmediateDispatcher) {
+                                    _state.update {
+                                        it.copy(
+                                            isLoading = false,
+                                            dDay = dDay,
+                                            bodyShape = result
+                                        )
+                                    }
                                 }
-                            }
-                        }.launchIn(viewModelScope + exceptionHandler)
+                            }.launchIn(viewModelScope + exceptionHandler)
+                        }
                     }
                 }
             }

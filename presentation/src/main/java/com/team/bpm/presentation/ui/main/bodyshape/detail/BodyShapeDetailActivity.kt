@@ -56,17 +56,20 @@ class BodyShapeDetailActivity : BaseComponentActivityV2() {
         const val KEY_BUNDLE = "bundle"
         const val KEY_ALBUM_ID = "album_id"
         const val KEY_BODY_SHAPE_ID = "body_shape_id"
+        const val KEY_D_DAY = "d_day"
 
         fun newIntent(
             context: Context,
             albumId: Int,
-            bodyShapeId: Int
+            bodyShapeId: Int,
+            dDay: Int
         ): Intent {
             return Intent(context, BodyShapeDetailActivity::class.java).apply {
                 putExtra(
                     KEY_BUNDLE, bundleOf(
                         KEY_ALBUM_ID to albumId,
-                        KEY_BODY_SHAPE_ID to bodyShapeId
+                        KEY_BODY_SHAPE_ID to bodyShapeId,
+                        KEY_D_DAY to dDay
                     )
                 )
             }
@@ -164,7 +167,7 @@ private fun BodyShapeDetailActivityContent(
                         .background(color = GrayColor11)
                 ) {
                     Column(modifier = Modifier.background(color = Color.White)) {
-                        ScreenHeader(header = "") // TODO : 날짜
+                        ScreenHeader(header = "D-$dDay")
 
                         Box(
                             modifier = Modifier
