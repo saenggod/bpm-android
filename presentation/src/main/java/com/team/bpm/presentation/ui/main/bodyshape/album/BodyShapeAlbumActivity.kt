@@ -44,7 +44,7 @@ class BodyShapeAlbumActivity :
                         goToAddBodyShapeDetail(effect.albumId)
                     }
                     is BodyShapeAlbumContract.Effect.GoToBodyShapeDetail -> {
-                        goToBodyShapeDetail(effect.albumId, effect.albumDetailId)
+                        goToBodyShapeDetail(effect.albumId, effect.albumDetailId, effect.dday)
                     }
                 }
             }
@@ -65,8 +65,8 @@ class BodyShapeAlbumActivity :
         startActivity(BodyShapeAlbumAddActivity.newIntent(this, albumId))
     }
 
-    private fun goToBodyShapeDetail(albumId: Int, albumDetailId: Int) {
-        startActivity(BodyShapeDetailActivity.newIntent(this, albumId, albumDetailId, ))
+    private fun goToBodyShapeDetail(albumId: Int, albumDetailId: Int, dday : Int) {
+        startActivity(BodyShapeDetailActivity.newIntent(this, albumId, albumDetailId, dday))
     }
 
     companion object {
