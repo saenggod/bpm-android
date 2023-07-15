@@ -83,16 +83,25 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/dday"
                     style="@style/Font.PyeongChangPeace.Bold.20"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="18dp"
                     android:layout_marginTop="24dp"
-                    android:drawableEnd="@drawable/ic_arrow_right_big"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     bind:bodyshape_dday="@{vm.state.albumInfo.dday}"
                     tools:text="D-31" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="18dp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:onClick="@{() -> vm.onClickAlbumEdit()}"
+                    android:src="@drawable/ic_arrow_right_big"
+                    app:layout_constraintBottom_toBottomOf="@id/dday"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/dday" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/date"
@@ -195,6 +204,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
+                    android:layout_marginHorizontal="15dp"
                     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
