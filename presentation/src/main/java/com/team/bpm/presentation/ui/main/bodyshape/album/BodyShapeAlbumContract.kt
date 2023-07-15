@@ -20,6 +20,6 @@ interface BodyShapeAlbumContract :
         data class ShowToast(val text: String) : Effect
         data class GoToEditAlbumDetail(val albumId: Int) : Effect
         data class GoToAddBodyShapeDetail(val albumId: Int) : Effect
-        data class GoToBodyShapeDetail(val albumId: Int, val albumDetailId: Int) : Effect
+        data class GoToBodyShapeDetail(val albumId: Int, val albumDetailId: Int, val dday : Int) : Effect
     }
 }

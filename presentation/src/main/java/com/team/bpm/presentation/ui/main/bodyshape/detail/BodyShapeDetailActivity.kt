@@ -167,7 +167,8 @@ private fun BodyShapeDetailActivityContent(
                         .background(color = GrayColor11)
                 ) {
                     Column(modifier = Modifier.background(color = Color.White)) {
-                        ScreenHeader(header = "D-$dDay")
+                        val datePrefix = if ((dDay ?: 0) >= 0) "+" else ""
+                        ScreenHeader(header = "D${datePrefix}${dDay}")
 
                         Box(
                             modifier = Modifier

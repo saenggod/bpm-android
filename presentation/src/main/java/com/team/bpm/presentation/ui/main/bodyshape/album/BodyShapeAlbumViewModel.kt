@@ -112,7 +112,8 @@ class BodyShapeAlbumViewModel @Inject constructor(
                 _effect.emit(
                     BodyShapeAlbumContract.Effect.GoToBodyShapeDetail(
                         albumId,
-                        albumDetailId
+                        albumDetailId,
+                        state.value.albumInfo?.dday ?: 0
                     )
                 )
             }
