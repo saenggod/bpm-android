@@ -58,7 +58,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
                         showAddBottomSheet()
                     }
                     is MainViewEvent.MoveTab -> {
-                        changeFragment(findFragmentId(event.tabIndex))
+                        binding.mainTab.selectedItemId = findFragmentId(event.tabIndex)
                     }
                 }
             }
