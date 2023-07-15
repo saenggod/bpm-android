@@ -210,7 +210,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/card_history"
                     app:spanCount="3"
-                    bind:list_item="@{vm.state.bodyShapeList}"
+                    bind:list_item="@{vm.state.albumInfo.bodyShapeList.bodyShapeDetails}"
                     tools:listitem="@layout/item_bodyshape_album" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
