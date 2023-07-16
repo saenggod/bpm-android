@@ -37,6 +37,7 @@ interface BodyShapeDetailPostingContract : BaseContract<BodyShapeDetailPostingCo
             val albumId: Int,
             val bodyShapeId: Int,
             val newIntentNeeded: Boolean,
+            val dDay: Int
         ) : Effect
     }
 }

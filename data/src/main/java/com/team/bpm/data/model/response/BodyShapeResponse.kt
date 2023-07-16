@@ -20,7 +20,9 @@ data class BodyShapeResponse(
     @SerializedName("filesPath")
     val filesPath: List<String>?,
     @SerializedName("author")
-    val author: UserResponse?
+    val author: UserResponse?,
+    @SerializedName("dday")
+    val dDay: Int?
 ) : BaseResponse {
     companion object : DataMapper<BodyShapeResponse, BodyShape> {
         override fun BodyShapeResponse.toDataModel(): BodyShape {
@@ -30,7 +32,8 @@ data class BodyShapeResponse(
                 createdAt = createdAt,
                 updatedAt = updatedAt,
                 filesPath = filesPath,
-                author = author?.toDataModel()
+                author = author?.toDataModel(),
+                dDay = dDay
             )
         }
     }

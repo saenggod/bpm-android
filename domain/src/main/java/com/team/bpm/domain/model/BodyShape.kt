@@ -10,5 +10,6 @@ data class BodyShape(
     val createdAt: String?,
     val updatedAt: String?,
     val filesPath: List<String>?,
-    val author: User?
+    val author: User?,
+    val dDay: Int?
 ) : BaseModel

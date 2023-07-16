@@ -173,13 +173,16 @@ class BodyShapeDetailPostingViewModel @Inject constructor(
                         }).onEach { result ->
                             withContext(mainImmediateDispatcher) {
                                 result.id?.let { bodyShapeId ->
-                                    _effect.emit(
-                                        BodyShapeDetailPostingContract.Effect.RedirectToBodyShape(
-                                            albumId = albumId,
-                                            bodyShapeId = bodyShapeId,
-                                            newIntentNeeded = !state.value.isEditing
+                                    result.dDay?.let { dDay ->
+                                        _effect.emit(
+                                            BodyShapeDetailPostingContract.Effect.RedirectToBodyShape(
+                                                albumId = albumId,
+                                                bodyShapeId = bodyShapeId,
+                                                newIntentNeeded = !state.value.isEditing,
+                                                dDay = dDay
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         }.launchIn(viewModelScope + exceptionHandler)
