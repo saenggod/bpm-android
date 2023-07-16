@@ -10,7 +10,6 @@
             name="vm"
             type="com.team.bpm.presentation.ui.main.bodyshape.album.BodyShapeAlbumViewModel" />
 
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -48,12 +47,13 @@
                 tools:text="액션바" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/add"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:layout_marginEnd="12dp"
-                android:onClick="@{() -> vm.onClickAddPost()}"
-                android:src="@drawable/ic_btn_add_filled"
+                android:id="@+id/more"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginVertical="17dp"
+                android:layout_marginEnd="14dp"
+                android:onClick="@{() -> vm.onClickMore()}"
+                android:src="@drawable/ic_action_bar_more"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -203,8 +203,8 @@
                     android:id="@+id/list"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
                     android:layout_marginHorizontal="15dp"
+                    android:layout_marginTop="6dp"
                     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -255,6 +255,24 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Font.Pretendard.Semibold.12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="35dp"
+            android:background="@drawable/bg_bodyshape_add"
+            android:drawableStart="@drawable/ic_add_small"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"
+            android:onClick="@{() -> vm.onClickAddPost()}"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="12dp"
+            android:text="오늘의 눈바디 기록하기"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            bind:visibility="@{vm.state.isPostToday}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

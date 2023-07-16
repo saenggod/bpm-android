@@ -17,6 +17,8 @@
     <string name="main_add_ask">운동in에 질문하기</string>
 
     <string name="bodyshape_create">눈바디 앨범 생성하기</string>
+    <string name="bodyshape_edit">수정하기</string>
+    <string name="bodyshape_delete">삭제하기</string>
 
     <string name="lounge_tab_community">커뮤니티</string>
     <string name="lounge_tab_question">질문</string>

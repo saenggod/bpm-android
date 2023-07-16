@@ -7,6 +7,7 @@ import androidx.core.os.bundleOf
 import com.team.bpm.presentation.base.BaseActivity
 import com.team.bpm.presentation.databinding.ActivityBodyshapeAlbumBinding
 import com.team.bpm.presentation.ui.main.bodyshape.album.add.BodyShapeAlbumAddActivity
+import com.team.bpm.presentation.ui.main.bodyshape.album.more.BodyShapeAlbumMoreBottomSheet
 import com.team.bpm.presentation.ui.main.bodyshape.detail.BodyShapeDetailActivity
 import com.team.bpm.presentation.ui.main.bodyshape.detail.posting.BodyShapeDetailPostingActivity
 import com.team.bpm.presentation.util.repeatCallDefaultOnStarted
@@ -37,6 +38,12 @@ class BodyShapeAlbumActivity :
                     is BodyShapeAlbumContract.Effect.ShowToast -> {
                         showToast(effect.text)
                     }
+                    BodyShapeAlbumContract.Effect.ShowMoreBottomSheet -> {
+                        showMoreBottomSheet()
+                    }
+                    BodyShapeAlbumContract.Effect.GoOutThisPage -> {
+                        finish()
+                    }
                     is BodyShapeAlbumContract.Effect.GoToEditAlbumDetail -> {
                         goToEditAlbumDetail(effect.albumId)
                     }
@@ -57,6 +64,11 @@ class BodyShapeAlbumActivity :
         viewModel.getBodyShapeAlbumInfo()
     }
 
+    private fun showMoreBottomSheet() {
+        BodyShapeAlbumMoreBottomSheet.newInstance()
+            .show(supportFragmentManager, BodyShapeAlbumMoreBottomSheet::class.java.simpleName)
+    }
+
     private fun goToAddBodyShapeDetail(albumId: Int) {
         startActivity(BodyShapeDetailPostingActivity.newIntent(this, albumId))
     }
@@ -65,7 +77,7 @@ class BodyShapeAlbumActivity :
         startActivity(BodyShapeAlbumAddActivity.newIntent(this, albumId))
     }
 
-    private fun goToBodyShapeDetail(albumId: Int, albumDetailId: Int, dday : Int) {
+    private fun goToBodyShapeDetail(albumId: Int, albumDetailId: Int, dday: Int) {
         startActivity(BodyShapeDetailActivity.newIntent(this, albumId, albumDetailId, dday))
     }
 

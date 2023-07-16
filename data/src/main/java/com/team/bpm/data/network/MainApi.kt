@@ -109,6 +109,11 @@ interface MainApi {
     @GET("api/users/schedule")
     suspend fun getAlbum(): Response<AlbumResponse>
 
+    @DELETE("api/users/schedule/{scheduleId}")
+    suspend fun deleteUserSchedule(
+        @Path("scheduleId") albumId: Int
+    ): Response<BPMResponseV2<ResponseBody>>
+
     /* 리뷰 */
 
     @Multipart

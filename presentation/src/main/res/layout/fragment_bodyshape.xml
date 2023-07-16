@@ -105,6 +105,7 @@
                             android:layout_height="wrap_content"
                             android:background="@color/gray_12"
                             android:gravity="center"
+                            android:layout_marginBottom="60dp"
                             android:paddingVertical="12dp"
                             android:text="@string/bodyshape_create" />
 
