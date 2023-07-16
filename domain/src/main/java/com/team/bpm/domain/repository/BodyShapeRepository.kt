@@ -49,4 +49,8 @@ interface BodyShapeRepository {
         albumId: Int,
         bodyShapeId: Int
     ): Flow<BodyShape>
+
+    suspend fun deleteAlbum(
+        albumId: Int
+    ) : Flow<Unit>
 }

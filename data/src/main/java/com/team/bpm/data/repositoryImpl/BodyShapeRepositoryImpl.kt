@@ -168,4 +168,14 @@ class BodyShapeRepositoryImpl @Inject constructor(private val mainApi: MainApi) 
             }.collect()
         }
     }
+
+    override suspend fun deleteAlbum(albumId: Int): Flow<Unit> {
+        return flow {
+            BPMResponseHandlerV2().handle {
+                mainApi.deleteUserSchedule(albumId)
+            }.collect {
+                emit(Unit)
+            }
+        }
+    }
 }

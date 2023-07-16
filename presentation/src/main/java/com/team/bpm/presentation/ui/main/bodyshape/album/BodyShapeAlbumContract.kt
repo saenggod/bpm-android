@@ -7,12 +7,14 @@ interface BodyShapeAlbumContract :
     BaseContract<BodyShapeAlbumContract.State, BodyShapeAlbumContract.Event, BodyShapeAlbumContract.Effect> {
     data class State(
         val isLoading: Boolean? = null,
-        val albumInfo: BodyShapeSchedule? = null
+        val albumInfo: BodyShapeSchedule? = null,
+        val isPostToday : Boolean? = false
     )
 
     sealed interface Event {
         object OnClickAddBodyShapeDetailPosting : Event
         object OnClickEditAlbumDetail : Event
+        object OnClickMore : Event
         data class OnClickBodyShapeDetail(val albumDetailId: Int) : Event
     }
 
@@ -21,5 +23,7 @@ interface BodyShapeAlbumContract :
         data class GoToEditAlbumDetail(val albumId: Int) : Effect
         data class GoToAddBodyShapeDetail(val albumId: Int) : Effect
         data class GoToBodyShapeDetail(val albumId: Int, val albumDetailId: Int, val dday : Int) : Effect
+        object ShowMoreBottomSheet : Effect
+        object GoOutThisPage : Effect
     }
 }
