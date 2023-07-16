@@ -135,7 +135,7 @@ private fun BodyShapeDetailPostingActivityContent(
                     if (!effect.newIntentNeeded) {
                         context.setResult(RESULT_OK)
                     } else {
-                        context.startActivity(BodyShapeDetailActivity.newIntent(context, effect.albumId, effect.bodyShapeId, 0))
+                        context.startActivity(BodyShapeDetailActivity.newIntent(context, effect.albumId, effect.bodyShapeId, effect.dDay))
                     }
 
                     context.finish()
