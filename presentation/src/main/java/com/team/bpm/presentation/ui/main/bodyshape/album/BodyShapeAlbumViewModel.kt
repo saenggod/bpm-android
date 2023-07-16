@@ -8,7 +8,6 @@ import com.team.bpm.domain.usecase.body_shape.DeleteAlbumUseCase
 import com.team.bpm.domain.usecase.body_shape.GetBodyShapeAlbumInfoUseCase
 import com.team.bpm.presentation.base.BaseViewModel
 import com.team.bpm.presentation.di.IoDispatcher
-import com.team.bpm.presentation.di.MainImmediateDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -142,13 +141,17 @@ class BodyShapeAlbumViewModel @Inject constructor(
     }
 
     private fun goToBodyShapeDetail(albumDetailId: Int) {
+
+        val dday = state.value.albumInfo?.bodyShapeList?.bodyShapeDetails
+            ?.firstOrNull { it.id == albumDetailId }?.dday ?: 0
+
         viewModelScope.launch {
             state.value.albumInfo?.id?.let { albumId ->
                 _effect.emit(
                     BodyShapeAlbumContract.Effect.GoToBodyShapeDetail(
                         albumId,
                         albumDetailId,
-                        state.value.albumInfo?.dday ?: 0
+                        dday
                     )
                 )
             }
