@@ -36,8 +36,17 @@ class BodyShapeViewModel @Inject constructor(
                 BodyShapeContract.Event.OnClickCreateBodyShape -> {
                     _effect.emit(BodyShapeContract.Effect.GoCreateBodyShape)
                 }
+                is BodyShapeContract.Event.OnClickAlbumDetail -> {
+                    _effect.emit(BodyShapeContract.Effect.GoBodyAlbumDetail(event.id))
+                }
                 is BodyShapeContract.Event.OnClickBodyShapeDetail -> {
-                    _effect.emit(BodyShapeContract.Effect.GoBodyShapeDetail(event.id))
+                    _effect.emit(
+                        BodyShapeContract.Effect.GoBodyShapeDetail(
+                            event.albumId,
+                            event.bodyShapeDetailId,
+                            event.dday
+                        )
+                    )
                 }
                 is BodyShapeContract.Event.OnClickBodyShapePosting -> {
                     _effect.emit(BodyShapeContract.Effect.GoBodyShapePosting(event.id))
@@ -59,12 +68,19 @@ class BodyShapeViewModel @Inject constructor(
         }
     }
 
-    fun onClickBodyShapeDetail(id: Int) {
-        event(BodyShapeContract.Event.OnClickBodyShapeDetail(id))
+    fun onClickAlbumDetail(id: Int) {
+        event(BodyShapeContract.Event.OnClickAlbumDetail(id))
     }
 
     fun onClickBodyShapePosting(id: Int) {
         event(BodyShapeContract.Event.OnClickBodyShapePosting(id))
+    }
+
+    fun onClickBodyShapeDetail(albumId: Int, bodyShapeDetailId: Int) {
+        val dday = state.value.bodyShapeInfo?.schedules?.firstOrNull { it.id == albumId }
+            ?.bodyShapeList?.bodyShapeDetails?.firstOrNull { it.id == bodyShapeDetailId }
+            ?.dday ?: 0
+        event(BodyShapeContract.Event.OnClickBodyShapeDetail(albumId, bodyShapeDetailId, dday))
     }
 
     fun onClickCreateBodyShape() {
