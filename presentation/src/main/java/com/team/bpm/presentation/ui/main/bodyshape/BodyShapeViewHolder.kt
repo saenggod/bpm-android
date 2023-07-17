@@ -19,7 +19,7 @@ class BodyShapeViewHolder(
     fun bind(
         item: BodyShapeSchedule,
         listener: ((Int) -> Unit),
-        imageClickListener: ((Int) -> Unit)
+        imageClickListener: ((Int, Int?) -> Unit)
     ) {
         binding.item = item
 
@@ -58,10 +58,13 @@ class BodyShapeViewHolder(
         }
 
         binding.containerImage.setOnClickListener {
-            if (item.imagePath.isNullOrEmpty() && item.isTodayPost == true) {
-                item.id?.let(listener)
+            if (!item.imagePath.isNullOrEmpty()) {
+                item.id?.let { albumId ->
+                    val bodyShapeDetailId = item.bodyShapeList?.bodyShapeDetails?.firstOrNull()?.id
+                    imageClickListener.invoke(albumId, if(item.isTodayPost == true) bodyShapeDetailId else null)
+                }
             } else {
-                item.id?.let(imageClickListener)
+                item.id?.let(listener)
             }
         }
     }

@@ -7,7 +7,7 @@ import com.team.bpm.domain.model.BodyShapeSchedule
 
 class BodyShapeAdapter(
     private val listener: (Int) -> Unit,
-    private val imageClickListener: (Int) -> Unit,
+    private val imageClickListener: (Int, Int?) -> Unit,
 ) : ListAdapter<BodyShapeSchedule, BodyShapeViewHolder>(BodyShapeListDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BodyShapeViewHolder {
